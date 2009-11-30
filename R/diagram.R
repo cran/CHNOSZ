@@ -10,13 +10,14 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   ylim=c(-4,0),ylog=TRUE,title=NULL,cex.names=1,legend.x='topright',lty=NULL,
   col.names=par('fg'),cex.axis=par('cex'),logact=NA,property=NULL,lwd=par('lwd'),
   alpha=FALSE,mar=NULL,residue=FALSE,yline=par('mgp')[1]+1,xrange=NULL,
-  ylab=NULL,xlab=NULL,do.plot=TRUE,as.residue=FALSE,mam=TRUE) {
+  ylab=NULL,xlab=NULL,do.plot=TRUE,as.residue=FALSE,mam=TRUE,group=NULL,
+  bg=par("bg"),side=1:4) {
 
   # store input values
   aval <- affinity$values
   asl <- affinity$species$logact
   # number of species possible
-  nspecies <- length(aval)
+  nspecies.orig <- nspecies <- length(aval)
   # number of dimensions (T, P or chemical potentials that are varied)
   nd <- 0
   if(length(affinity$xlim) > 1) nd <- nd + 1
@@ -37,12 +38,41 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   }
   # number of species that are left
   nspecies <- length(aval)
-  # handle line type/width arguments
+  # the property we're plotting
+  if(is.null(property)) {
+    property <- affinity$property
+    if(property=='A') property <- 'affinity'
+  }
+  # consider a different number of species if we're grouping them together
+  if(property=='affinity' & (!mam | nd==0 | nd==1) & !is.null(group)) {
+    nspecies.orig <- ngroup <- length(group) 
+    ispecies <- 1:ngroup
+  } else {
+    ngroup <- nspecies
+  }
+  # handle line type/width/color arguments
   if(do.plot) {
-    if(is.null(lty)) lty <- 1:nspecies
-    if(is.null(lwd)) lwd <- rep(1,nspecies)
-    if(length(lty)!=nspecies) lty <- rep(lty,length.out=nspecies)
-    if(length(lwd)!=nspecies) lwd <- rep(lwd,length.out=nspecies)
+    if(is.null(lty)) lty <- 1:ngroup
+    if(is.null(lwd)) lwd <- rep(1,ngroup)
+    if(length(lty)!=ngroup) lty <- rep(lty,length.out=ngroup)
+    if(length(lwd)!=ngroup) lwd <- rep(lwd,length.out=ngroup)
+    if(missing(col.names)) col.names <- col
+    if(length(col.names) != ngroup) col.names <- rep(col.names,length.out=ngroup)
+    # figure out colors
+    if(missing(color)) {
+      if(nd==2) {
+        if( add | names(dev.cur())=='postscript' ) color <- NULL
+        else color <- 'heat'
+      } else color <- 'black'
+    }
+    if(!is.null(color)) {
+      color <- rep(color,length.out=ngroup)
+      if(is.character(color[1])) {
+        # 20091027: take colors as a subset of the original number of species
+        if(color[1]=='rainbow') color <- rainbow(nspecies.orig)[ispecies]
+        else if(color[1]=='heat') color <- heat.colors(nspecies.orig)[ispecies]
+      }
+    }
   }
   # covert from activities of proton or electron to pH or pe
   if(affinity$xname=='H+' & pH) { affinity$xname <- 'pH'; affinity$xlim[1:2] <- -affinity$xlim[1:2] }
@@ -58,11 +88,6 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     if(affinity$xname=='P') { affinity$xlim[1:2] <- convert(affinity$xlim[1:2],nuts('P')) }
     if(affinity$yname=='P') { affinity$ylim[1:2] <- convert(affinity$ylim[1:2],nuts('P')) }
   }
-  # the property we're plotting
-  if(is.null(property)) {
-    property <- affinity$property
-    if(property=='A') property <- 'affinity'
-  }
   # 'balance' how to balance reactions
   # (name of basis species, 'PBB', 1, or NULL for auto-select)
   # (or vector to set nbalance)
@@ -70,16 +95,19 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   isprotein <- grep('_',as.character(affinity$species$name))
   if(missing(balance) & length(isprotein)==nspecies)
     balance <- 'PBB'
+  # 20091119 make residue=TRUE the default for protein reactions
+  if(missing(residue) & length(isprotein)==nspecies) 
+    residue <- TRUE
   if(is.null(balance)) {
     ib <- which.balance(affinity$species)
     if(!is.null(ib)) {
       balance <- rownames(basis())[ib[1]]
       nbalance <- affinity$species[,ib[1]]
-      cat(paste('diagram: balance method - per mole of ',balance,'.\n',sep=''))
+      cat(paste('diagram: immobile component is',balance,'\n'))
     } else {
       balance <- 1
-      nbalance <- rep(1,length(ispecies))
-      cat(paste('diagram: balance method - per mole of species.\n'))
+      nbalance <- rep(1,nspecies)
+      cat(paste('diagram: immobile components is formulas as written\n'))
     }
   } else {
    if(is.character(balance[1])) {
@@ -89,7 +117,7 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
           stop('diagram: PBB was the requested balance, but ',
             affinity$species$name[-isprotein],' is not protein.')
         nbalance <- as.numeric(protein.length(as.numeric(names(aval))))
-        cat(paste('diagram: balance method - per mole of protein backbone.\n'))
+        cat(paste('diagram: immobile component is protein backbone group\n'))
       } else {
       # is the balance the name of a basis species
         ib <- match(balance,rownames(basis()))
@@ -116,21 +144,21 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       if(all(nbalance==1)) balance <- "species" else balance <- "user-defined"
     }
   }
-  if(length(nbalance) < 100) cat(paste('diagram: balance coefficients are ',c2s(nbalance),'\n',sep=''))
+  if(length(nbalance) < 100) cat(paste('diagram: conservation coefficients are ',c2s(nbalance),'\n',sep=''))
   # 2D diagram mam and residue both FALSE can lead to long calculation times
   if(nd==2 & !mam & !residue) {
     warning("expect long calculation for 2D diagram with mam and residue both FALSE",immediate.=TRUE)
   }
   # rewrite the balance vector for residue reactions
   if(residue) {
-    if(any(nbalance < 0)) stop("negative balance prohibits using residue reactions")
+    if(any(nbalance < 0)) stop("negative balance prohibits using residue equivalents")
     # affinities divided by balance
     for(i in 1:nspecies) aval[[i]] <- aval[[i]]/nbalance[i]
     oldlogact <- affinity$species$logact
     affinity$species$logact <- affinity$species$logact + log10(nbalance)
     oldbalance <- nbalance
     nbalance <- rep(1,length(nbalance))
-    cat(paste('diagram: using residue reactions\n'))
+    cat(paste('diagram: using residue equivalents\n'))
   }
   # get labels for the plot
   if(!is.null(names)) {
@@ -139,7 +167,8 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       # properties of basis species or reactions?
       if(affinity$property %in% c('G.basis','logact.basis')) names <- rownames(affinity$basis)
       else {
-        names <- as.character(affinity$species$name)
+        if(!is.null(group)) names <- names(group)
+        else names <- as.character(affinity$species$name)
         # remove common organism label for proteins
         if(all(grep("_",names)>0)) {
           pname <- oname <- character()
@@ -157,20 +186,6 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
         if(any(isdup)) names[isdup] <- paste(names[isdup],
           " (",affinity$species$state[isdup],")",sep="")
       }
-    }
-  }
-  # figure out colors
-  if(missing(color)) {
-    if(nd==2) {
-      if( add | names(dev.cur())=='postscript' ) color <- NULL
-      else color <- 'heat'
-    } else color <- 'black'
-  }
-  if(!is.null(color)) {
-    color <- rep(color,length.out=nspecies)
-    if(is.character(color[1])) {
-      if(color[1]=='rainbow') color <- rainbow(nspecies)
-      else if(color[1]=='heat') color <- heat.colors(nspecies)
     }
   }
   ### end variable assignment
@@ -203,86 +218,84 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     image(x=xs,y=ys,z=zs,col=color,add=TRUE,breaks=breaks)
   }
   ### curve plot function
-  plot.curve <- function(out,xlim,ylim,dotted,col,xrange) {
-    # dotted tells us what fraction of points to ignore,
-    # to make the line look dotted
-    # what is the size of each grid point?
-    # this is to be consistent with the way image() plots the grid,
-    # so divide by (ncol-1) and (ncol-2), as half of each of the grid
-    # boxes on the edges lie outside our limits
-    xsize <- (xlim[length(xlim)]-xlim[1])/(ncol(out)-1)
-    ysize <- (ylim[length(ylim)]-ylim[1])/(nrow(out)-1)
-    # now, the coordinates of the upper left vertex of the upper left grid box
-    # if xsize/2 and ysize/2 is used here, the results 
-    # aren't aligned with the output of image()
-    xleft <- xlim[1] - xsize
-    yupper <- ylim[length(ylim)] + ysize
-    # functions to plot boundaries around a given grid point
-    vline <- function(ix1,ix2,iy) {
-      # only plot dotted grid points if requested
-      # (i.e. those points for which there is no remainder
-      # when their coordinate is divided by 'dotted')
-      xy.na <- list(x=NA,y=NA)
-      if(!identical(dotted,0)) if(0 %in% (iy%%dotted)) return(xy.na)
-      x1 <- xleft + ix1 * xsize
-      x2 <- xleft + ix2 * xsize
-      y  <- yupper - iy * ysize
-      x <- (x1+x2)/2; y1 <- y - ysize/2; y2 <- y + ysize/2
-      # xrange: don't plot predominance field boundaries outside this range
-      if(!is.null(xrange)) {
-        if(x < xrange[1] | x > xrange[2]) return(xy.na)
-      }
-      return(list(x=c(x,x),y=c(y1,y2)))
+  # 20091116 replaced plot.curve with plot.line; different
+  # name, same functionality, *much* faster
+  plot.line <- function(out,xlim,ylim,dotted,col,xrange) {
+    # plot boundary lines between predominance fields
+    vline <- function(out,ix) {
+      ny <- nrow(out)
+      xs <- rep(ix,ny*2+1)
+      if(0 %in% (ix%%dotted)) 
+        return(list(xs=xs,ys=rep(NA,length(xs))))
+      ys <- c(rep(ny:1,each=2),0)
+      y1 <- out[,ix]
+      y2 <- out[,ix+1]
+      iy <- which(y1==y2)
+      ys[iy*2] <- NA
+      return(list(xs=xs,ys=ys))
     }
-    hline <- function(ix,iy1,iy2) {
-      xy.na <- list(x=NA,y=NA)
-      if(!identical(dotted,0)) if(0 %in% (ix%%dotted)) return(xy.na)
-      x <- xleft + ix * xsize
-      y1  <- yupper - iy1 * ysize
-      y2  <- yupper - iy2 * ysize
-      y <- (y1+y2)/2; x1 <- x - xsize/2; x2 <- x + xsize/2
-      if(!is.null(xrange)) {
-        if(x1 < xrange[1] | x1 > xrange[2]) return(xy.na)
-        if(x2 < xrange[1] | x2 > xrange[2]) return(xy.na)
-      }
-      return(list(x=c(x1,x2),y=c(y,y)))
+    hline <- function(out,iy) {
+      nx <- nrow(out)
+      ny <- ncol(out)
+      ys <- rep(ny-iy,nx*2+1)
+      if(0 %in% (iy%%dotted)) 
+        return(list(xs=rep(NA,length(ys)),ys=ys))
+      xs <- c(0,rep(1:nx,each=2))
+      x1 <- out[iy,]
+      x2 <- out[iy+1,]
+      ix <- which(x1==x2)
+      xs[ix*2] <- NA
+      return(list(xs=xs,ys=ys))
     }
-    # plot curves to identify the boundaries
-    # 20080910 gather them in myx and myy to call lines() only once
-    myx <- myy <- NA
-    for(i in 1:nrow(out)) {
-      for(j in 1:ncol(out)) {
-        xy <- xy.na <- list(x=NA,y=NA)
-        xyfun <- function(xy1,xy2,xy3) list(x=c(xy1$x,xy2$x,xy3$x),y=c(xy1$y,xy2$y,xy3$y))
-        # left, up (lu)
-        if(!j==1) if(out[i,j]!=out[i,j-1]) xy <- xyfun(xy,vline(j,j-1,i),xy.na)
-        if(!i==1) if(out[i,j]!=out[i-1,j]) xy <- xyfun(xy,hline(j,i,i-1),xy.na)
-        # right, down
-        if(!j==ncol(out)) if(out[i,j]!=out[i,j+1]) xy <- xyfun(xy,vline(j,j+1,i),xy.na)
-        if(!i==nrow(out)) if(out[i,j]!=out[i+1,j]) xy <- xyfun(xy,hline(j,i,i+1),xy.na)
-        lxy <- length(myx)
-        # add values if we found a boundary
-        if( !all(is.na(c(xy$x,xy$y))) ) {
-          myx <- c(myx,xy$x)
-          myy <- c(myy,xy$y)
-        }
+    clipfun <- function(z,zlim) {
+      if(zlim[2] > zlim[1]) {
+        z[z>zlim[2]] <- zlim[2]
+        z[z<zlim[1]] <- zlim[1]
+      } else {
+        z[z>zlim[1]] <- zlim[1]
+        z[z<zlim[2]] <- zlim[2]
       }
+      return(z)
     }
-    lines(myx,myy,col=col,lwd=lwd[1])
+    rx <- (xlim[2] - xlim[1]) / (ncol(out) - 1)
+    ry <- (ylim[2] - ylim[1]) / (nrow(out) - 1)
+    # vertical lines
+    xs <- ys <- NA
+    for(ix in 1:(ncol(out)-1)) {
+      vl <- vline(out,ix)
+      xs <- c(xs,vl$xs,NA)
+      ys <- c(ys,vl$ys,NA)
+    }
+    xs <- xlim[1] + (xs - 0.5) * rx
+    ys <- ylim[1] + (ys - 0.5) * ry
+    ys <- clipfun(ys,ylim)
+    lines(xs,ys,col=col)
+    # horizontal lines
+    xs <- ys <-NA
+    for(iy in 1:(nrow(out)-1)) {
+      hl <- hline(out,iy)
+      xs <- c(xs,hl$xs,NA)
+      ys <- c(ys,hl$ys,NA)
+    }
+    xs <- xlim[1] + (xs - 0.5) * rx
+    ys <- ylim[1] + (ys - 0.5) * ry
+    xs <- clipfun(xs,xlim)
+    if(!is.null(xrange)) xs <- clipfun(xs,xrange)
+    lines(xs,ys,col=col)
   }
   ### label plot function
   # calculate coordinates for field labels
   plot.names <- function(out,xs,ys,names) {
-    ll <- nspecies
+    ll <- ngroup
     lx <- numeric(ll); ly <- numeric(ll); n <- numeric(ll)
-    #for(i in 1:nspecies) {
-    #ix <- 0; iy <- 0; n <- 0
     for(j in nrow(out):1) {
-      for(k in 1:ncol(out)) {
-        i <- out[j,k]
-        lx[i] <- lx[i] + xs[k]
-        ly[i] <- ly[i] + ys[nrow(out)+1-j]
-        n[i] <- n[i] + 1
+      # 20091116 for speed, loop over ngroup instead of k (columns)
+      for(i in 1:ngroup) {
+        k <- which(out[j,]==i)
+        if(length(k)==0) next
+        lx[i] <- lx[i] + sum(xs[k])
+        ly[i] <- ly[i] + length(k)*ys[nrow(out)+1-j]
+        n[i] <- n[i] + length(k)
       }
     }
     lx <- lx[n!=0]
@@ -294,13 +307,14 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     # plot field labels
     # the cex argument in this function specifies the character 
     # expansion of the labels relative to the current
-    text(lx,ly,labels=names[is],cex=cex.names,col=col.names)
+    text(lx,ly,labels=names[is],cex=cex.names,col=col.names[is])
   }
   ### property description
-  axis.title <- function(property) {
-    if(property=='A') return('A/2.303RT')
-    else if(property=='logact.basis') return('logQ*')
-    else if(!property %in% c("logK","logQ")) return(paste("Delta",property))
+  axis.title <- function(property,suffix="") {
+    if(property=='A') return(as.expression(substitute(italic(bold("A"))/2.303*italic(R)*italic(T)~~x,list(x=suffix))))
+    else if(property=="affinity") return(as.expression(substitute(log*italic(a)~~x,list(x=suffix))))
+    else if(property=='logact.basis') return(paste('logQ*',suffix))
+    else if(!property %in% c("logK","logQ")) return(paste("Delta",property,suffix))
     else return(property)
   }
   balance.title <- function(balance) {
@@ -332,7 +346,7 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     Astar <- aval
     if(residue) {
       for(j in 1:length(Astar)) Astar[[j]] <- Astar[[j]] + oldlogact[j]/oldbalance[j]
-      A <- abundance(Astar,nbalance,logatotal)
+      A <- abundance.new(Astar,nbalance,logatotal)
     }
     else {
       for(j in 1:length(Astar)) Astar[[j]] <- Astar[[j]] + affinity$species$logact[j]
@@ -341,6 +355,32 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     # if we rewrote the formation reactions per residue,
     # get back to activities of species
     if(residue & !as.residue) for(j in 1:length(A)) A[[j]] <- A[[j]] - log10(oldbalance[j])
+    # groups the species together into meta-species 20090524
+    if(!is.null(group)) {
+      # store our dimensions
+      mydim <- dim(A[[1]])
+      # set up the output
+      B <- A[1:length(group)]
+      for(i in 1:length(B)) {
+        B[[i]] <- as.numeric(A[[i]])
+        B[[i]][] <- 0
+      }
+      # add up the activities
+      for(i in 1:length(group)) {
+        for(j in 1:length(group[[i]])) {
+          B[[i]] <- B[[i]] + 10^as.numeric(A[[group[[i]][j]]])
+        }
+      }
+      # return to logarithms and replace dimensions
+      for(i in 1:length(B)) {
+        # do we want to divide by the number of representative for 
+        # each group? probably not 20091017
+        #B[[i]] <- log10(B[[i]]/length(group[[i]]))
+        B[[i]] <- log10(B[[i]])
+        dim(B[[i]]) <- mydim
+      }
+      A <- B
+    }
   }
   ### 0-D properties of species or reactions for single set of conditions
   if(nd==0) {
@@ -350,17 +390,31 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       if(property=="affinity") {
         # the logarithms of activities
         v <- numeric()
+        # alpha: plot degree of formation instead of logact
+        # scale the activities to sum=1  ... 20091017
+        if(alpha) {
+          a <- numeric()
+          for(j in 1:length(A)) a <- c(a,A[[j]])
+          loga.sum <- log10(sum(10^a))
+          loga <- 0; a <- loga - loga.sum
+          for(j in 1:length(A)) A[[j]] <- 10^(A[[j]] + a)
+          ylab <- "alpha"
+          if(missing(title)) title <- "alpha"
+        } else {
+          ylab <- axis.title(property)
+          if(missing(title)) title <- "logarithm of activity"
+        }
         for(i in 1:length(A)) v <- c(v,A[[i]])
-        barplot(v,names.arg=names,ylab=axis.title(affinity$property),mgp=mgp)
-        if(missing(title)) title <- "logarithm of activity"
+        barplot(v,names.arg=names,ylab=ylab,mgp=mgp,cex.names=cex.names)
+        if(missing(title)) title <- title
         title(main=title)
       } else {
         # the value of a property like affinity, standard gibbs energy etc
         for(i in 1:nspecies) aval[[i]] <- aval[[i]]/nbalance[i]
         v <- as.numeric(aval)
-        barplot(v,names.arg=names,ylab=axis.title(affinity$property),mgp=mgp)
+        barplot(v,names.arg=names,ylab=axis.title(affinity$property),mgp=mgp,cex.names=cex.names)
         if(!is.null(title)) title(main=title)
-        else title(main=paste(axis.title(affinity$property),balance.title(balance)))
+        else title(main=as.expression(axis.title(affinity$property,balance.title(balance))))
       }
     }
     if(property=="affinity") return(invisible(list(logact=A)))
@@ -368,9 +422,8 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   }
   ### 1-D (property or speciation) diagram
   if(nd==1) {
-    if(missing(color)) color <- rep(par('col'),nspecies)
     xvalues <- seq(affinity$xlim[1],affinity$xlim[2],length.out=affinity$xlim[3])
-    xlab <- axis.label(affinity$xname,as.character(affinity$basis$state[match(affinity$xname,rownames(affinity$basis))]))
+    if(is.null(xlab)) xlab <- axis.label(affinity$xname,as.character(affinity$basis$state[match(affinity$xname,rownames(affinity$basis))]))
     if(property == 'affinity') {
       # alpha: plot degree of formation instead of logact
       # scale the activities to sum=1
@@ -386,10 +439,12 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
         }
       }
       if(do.plot) {
+        if(missing(color)) color <- rep(par('col'),ngroup)
         if(ylog) {
           if(is.null(ylab)) ylab <- as.expression(quote(log~italic(a)))
           if(!add) thermo.plot.new(xlim=affinity$xlim[1:2],
-            ylim=ylim,xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,yline=yline)
+            ylim=ylim,xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,
+            yline=yline,side=side)
           for(i in 1:length(A)) {
             lines(xvalues,(A[[i]]),col=color[i],lty=lty[i],lwd=lwd[i])
           }
@@ -401,7 +456,8 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
           }
           if(missing(ylim)) ylim <- c(0,1)
           if(!add) thermo.plot.new(xlim=affinity$xlim[1:2],
-            ylim=ylim,xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,yline=yline)
+            ylim=ylim,xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,
+            yline=yline,side=side)
           for(i in 1:length(A)) lines(xvalues,10^(A[[i]]),col=color[i],lty=lty[i],lwd=lwd[i])
         }
       }
@@ -415,15 +471,17 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
         v <- c(v,aval[[i]])
       }
       # determine the overall maximum and minimum values
-      if(is.null(ylim)) ylim <- c(min(v),max(v))
-      if(!add) thermo.plot.new(xlim=affinity$xlim[1:2],ylim=ylim,xlab=xlab,ylab=axis.title(affinity$property),cex=cex,mar=mar,yline=yline)
+      if(missing(ylim)) ylim <- c(min(v),max(v))
+      if(!add) thermo.plot.new(xlim=affinity$xlim[1:2],ylim=ylim,xlab=xlab,
+        ylab=axis.title(affinity$property),cex=cex,mar=mar,yline=yline,side=side)
       for(i in 1:length(A)) 
-        lines(xvalues,as.numeric(A[[i]]),col=color[i],lty=lty[i])
+        lines(xvalues,as.numeric(aval[[i]]),col=color[i],lty=lty[i])
       if(!is.null(title)) title(main=title)
-      else title(main=paste(axis.title(affinity$property),balance.title(balance)))
+      else title(main=axis.title(affinity$property,balance.title(balance)))
     }
     if(affinity$property=='logact.basis') names <- rownames(affinity$basis)
-    if(do.plot & !add & !is.null(legend.x)) legend(x=legend.x,lty=lty,legend=names,col=color,bg=par('bg'),cex=cex.names,lwd=lwd)
+    # 20090826: use bg argument
+    if(do.plot & !add & !is.null(legend.x)) legend(x=legend.x,lty=lty,legend=names,col=color,bg=bg,cex=cex.names,lwd=lwd)
     if(alpha) for(i in 1:length(A)) A[[i]] <- 10^A[[i]]
     # 20090324 return list with single element 'logact'
     if(property=="affinity") return(invisible(list(basis=affinity$basis,species=affinity$species,
@@ -460,7 +518,7 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     out <- myvalues[[1]]
     for(j in 1:nrow(out)) {
       values <- list()
-      for(k in 1:nspecies) values[[k]] <- myvalues[[k]][j,]
+      for(k in 1:ngroup) values[[k]] <- myvalues[[k]][j,]
       out[j,] <- which.pmax(values,na.rm=TRUE)
     }
     # reorder the rows in out
@@ -478,12 +536,12 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
         if(is.null(xlab)) xlab <- axis.label(as.character(affinity$xname),xstate)
         if(is.null(ylab)) ylab <- axis.label(as.character(affinity$yname),ystate)
         thermo.plot.new(xlim=affinity$xlim[1:2],ylim=affinity$ylim[1:2],
-          xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,yline=yline)
+          xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,yline=yline,side=side)
       }
       # colors and curves
-      if(!is.null(color)) plot.color(xs,ys,out,color,nspecies)
+      if(!is.null(color)) plot.color(xs,ys,out,color,ngroup)
       if(!is.null(names)) plot.names(out,xs,ys,names)
-      if(!is.null(dotted)) plot.curve(out,affinity$xlim[1:2],
+      if(!is.null(dotted)) plot.line(out,affinity$xlim[1:2],
         affinity$ylim[1:2],dotted,col,xrange=xrange)
       # return the formation reactions as they were balanced
       species <- affinity$species
@@ -498,7 +556,7 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   } else stop(paste('diagram: 2-D plot of',property,'not available'))
 }
 
-abundance <- function(Astar,nbalance,thisloga) {
+abundance.new <- function(Astar,nbalance,thisloga) {
   # 20090217 new "abundance" function
   # return logactivity of species
   # works using Boltzmann distribution
@@ -626,7 +684,7 @@ abundance.old <- function(Astar,av,nbalance,thisloga) {
     shouldbezero <- activityfun2(A=Abar.new,i=i)
     if(abs(shouldbezero) > Atol*100) 
       cat(paste('diagram: poor convergence in step ',i,' (remainder in logact of ',
-        shouldbezero,').\n',sep=''))
+        shouldbezero,')\n',sep=''))
     # and save the activities of the species
     for(j in 1:length(A)) A[[j]][i] <- activityfun(Abar.new,j,i)
   }
@@ -636,5 +694,259 @@ abundance.old <- function(Astar,av,nbalance,thisloga) {
     dim(av[[i]]) <- Adim
   }
   return(A)
+}
+
+
+##
+## everything below is related to diversity calculations
+## 20090415 jmd
+##
+
+revisit <- function(logact,which="cv",as.is=FALSE) {
+  # given a list of logarithms of activities of species
+  # (as matrices or vectors) calculate a diversity index
+  # of the same dimensions
+  # calculate the Shannon entropy "shannon"
+  # or the standard deviation "sd"
+  # or the coefficient of variation "cv"
+  # ... of the activities, not their logarithms!
+  # (unless as.is is TRUE)
+  act <- logact
+  # vectorize and get activities
+  mydim <- dim(logact[[1]])
+  for(i in 1:length(logact)) {
+    logact[[i]] <- as.vector(logact[[i]])
+    if(as.is) act[[i]] <- as.vector(logact[[i]])
+    else act[[i]] <- as.vector(10^logact[[i]])
+    if(i==1) acttotal <- act[[i]] else acttotal <- acttotal + act[[i]]
+  }
+  # make a place for the results
+  H <- logact[[1]]
+  H[] <- 0
+  if(which=="shannon") {
+    # do the calculation
+    for(i in 1:length(act)) {
+      dH <- -act[[i]]/acttotal*log(act[[i]]/acttotal)
+      if(!is.na(dH)) H <- H + dH
+    }
+  } else if(which %in% c("sd","cv")) {
+    # build a matrix; rows are species
+    myad <- matrix(,length(logact),length(logact[[1]]))
+    for(j in 1:length(logact)) myad[j,] <- act[[j]]
+    # get the standard deviations
+    H <- sd(myad)
+    # for coefficient of variation, divide by the mean
+    if(which=="cv") {
+      myad <- as.data.frame(myad)
+      H <- H / mean(myad)
+    }
+  }
+  # replace dims
+  dim(H) <- mydim
+  return(H)
+}
+
+richness <- function(logact,logactmin=-4,mult=1,as.is=FALSE) {
+  # given a list of logarithms of activities of species
+  # (as matrices or vectors) calculate the richness 
+  # make a place for the results
+  H <- logact[[1]]
+  H[] <- 0
+  # loop over species
+  # scale the values if requested
+  mult <- rep(mult,length.out=length(logact))
+  if(is.numeric(logactmin)) logactmin <- rep(logactmin,length.out=length(logact))
+  else {
+    if(as.is) logactmin <- sapply(1:length(logact), function(x) {mean(as.numeric(logact[[x]]))})
+    else logactmin <- sapply(1:length(logact), function(x) {log10(mean(10^as.numeric(logact[[x]])))})
+  }
+  for(j in 1:length(logact)) {
+    isthere <- logact[[j]] > logactmin[j]
+    H[isthere] <- H[isthere] + mult[j] 
+  }
+  return(H)
+}
+
+where.extreme <- function(z,what="minimum") {
+  # takes a matrix, returns the x,y coordinates of the extremum
+  if(what %in% c("minimum","min")) iext <- which.min(z)
+  else iext <- which.max(z)
+  # in case there are multiple instances of the extremum
+  # (esp. for richness calculations)
+  iext <- which(z==z[iext])
+  x.out <- y.out <- numeric()
+  xres <- ncol(z)
+  yres <- nrow(z)
+  for(i in 1:length(iext)) {
+    # column (x coord)
+    x <- ceiling(iext[i]/xres)
+    # and row (y coord)
+    y <- iext[i] - floor(iext[i]/yres)*yres
+    if(y==0) y <- yres  # there's a more eloquent way...
+    x.out <- c(x.out,x)
+    y.out <- c(y.out,y)
+  }
+  return(list(x=x.out,y=y.out))
+}
+
+extremes <- function(z,what="minimum") {
+  # takes a matrix, returns the y as f(x) and x as f(y)
+  # trajectories of the extreme
+  y <- x <- numeric()
+  xres <- ncol(z)
+  yres <- nrow(z)
+  if(what %in% c("minimum","min")) {
+    for(i in 1:xres) y <- c(y,which.min(z[,i]))
+    for(i in 1:yres) x <- c(x,which.min(z[i,]))
+  } else {
+    for(i in 1:xres) y <- c(y,which.max(z[,i]))
+    for(i in 1:yres) x <- c(x,which.max(z[i,]))
+  }
+  return(list(x=x,y=y))
+}
+
+
+draw.diversity <- function(d,which="cv",logactmin=-4,
+  col=par("fg"),as.is=FALSE,yline=2,ylim=NULL,ispecies=NULL,add=FALSE,
+  cex=par("cex"),lwd=par("lwd"),mar=par("mar"),mult=1,side=1:4) {
+  # plot diversity indices of relative abundances
+  # 20090316 jmd
+  if(is.null(ispecies)) ispecies <- 1:length(d$logact)
+  # take a subset (or all) of the species
+  logact <- d$logact[ispecies]
+  # do diversity calculations
+  if(which=="richness") H <- richness(logact,logactmin=logactmin,mult=mult,as.is=as.is)
+  else H <- revisit(logact,which,as.is=as.is)
+  # what are the values of the variables
+  xname <- d$xname
+  yname <- d$yname
+  xres <- d$xlim[3]
+  xlim <- d$xlim[1:2]
+  #if(xname=="T") xlim <- outvert(xlim,"K")
+  if(xname=="H+") {
+    xname <- "pH"
+    xlim <- -xlim 
+  }
+  xs <- seq(xlim[1],xlim[2],length.out=xres)
+  # make the plot
+  if(yname=="") {
+    # a 1-D plot
+    if(is.null(ylim)) {
+      if(which=="richness") {
+          ylim <- 0
+          if(max(H) > ylim) ylim <- max(H) + 1
+          ylim <- c(0,ylim)
+      }
+      else ylim <- range(H[[1]])
+    }
+    if(!add) thermo.plot.new(xlim=xlim,ylim=ylim,xlab=axis.label(xname),ylab=which,yline=yline,
+      cex=cex,lwd=lwd,mar=mar,side=side)
+    lines(xs,as.vector(H),col=col)
+    return(invisible(list(xs=xs,H=H)))
+  } else {
+    # a 2-D plot
+    yres <- d$ylim[3]
+    ylim <- d$ylim[1:2]
+    #if(yname=="T") ylim <- outvert(ylim,"K")
+    if(yname=="H+") {
+      yname <- "pH"
+      ylim <- -ylim 
+    }
+    ys <- seq(ylim[1],ylim[2],length.out=yres)
+    if(which %in% c("richness","shannon")) myext <- "maximum" else myext <- "minimum"
+    # start the plot
+    if(!add) thermo.plot.new(xlim=xlim,ylim=ylim,xlab=axis.label(xname),ylab=axis.label(yname),yline=yline,side=side)
+    contour(xs,ys,t(H),add=TRUE)
+    iext <- where.extreme(H,myext)
+    # plot the location(s) of the extremum
+    points(xs[iext$x],ys[iext$y],pch=8,cex=2)
+    # show trajectories of the extrema
+    iexts <- extremes(H,myext)
+    # take out large jumps
+    yext <- ys[iexts$y]
+    yext.1 <- c(yext[2:length(yext)],yext[length(yext)])
+    yext.2 <- c(yext[1],yext[1:length(yext)-1])
+    yext[abs(yext.1-yext)/abs(diff(range(ys))) > 0.1] <- NA
+    yext[abs(yext.2-yext)/abs(diff(range(ys))) > 0.1] <- NA
+    lines(xs,yext,lty=3,col="blue")
+    xext <- xs[iexts$x]
+    xext.1 <- c(xext[2:length(xext)],xext[length(xext)])
+    xext.2 <- c(xext[1],xext[1:length(xext)-1])
+    xext[abs(xext.1-xext)/abs(diff(range(xs))) > 0.1] <- NA
+    xext[abs(xext.2-xext)/abs(diff(range(xs))) > 0.1] <- NA
+    lines(xext,ys,lty=3,col="seagreen")
+    # what is the extreme value
+    extval <- H[iext$y,iext$x]
+    return(invisible(list(H=H,ixmin=iext$x,iymin=iext$y,
+      xmin=xs[iext$x],ymin=ys[iext$y],extval=extval)))
+  }
+}
+
+strip <- function(affinity,ispecies=NULL,col=NULL,ns=NULL,
+  xticks=NULL,ymin=-0.2,xpad=1) {
+  # make strip chart(s) showing the degrees of formation
+  # of species as color bars of varying widths
+  # extracted from bison/plot.R 20091102 jmd
+  # figure out defaults
+  a <- affinity
+  xlim <- a$xlim[1:2]
+  xlab <- axis.label(a$xname)
+  if(is.null(ispecies)) ispecies <- list(1:nrow(a$species))
+  if(!is.list(ispecies)) ispecies <- list(ispecies)
+  if(!is.null(ns) & !is.list(ns)) ns <- list(ns)
+  if(is.null(col)) col <- rainbow(length(ispecies[[1]]))
+  # how many strip charts on this plot
+  # determined by the length of the ispecies list
+  nstrip <- length(ispecies)
+  # start up the plot
+  plot.xlim <- c(xlim[1]-xpad,xlim[2]+xpad)
+  ymax <- nstrip+0.3
+  thermo.plot.new(xlim=plot.xlim,ylim=c(ymin,ymax),xlab=xlab,ylab="",
+      side=c(1,3),mar=par('mar'),do.box=FALSE)
+  if(!is.null(xticks)) {
+    # mark the positions of the sites on the x-axis
+    for(i in 1:5) lines(rep(xticks[i],2),c(ymin,ymin+0.1),lwd=6,col=col[i])
+    for(i in 1:5) lines(rep(xticks[i],2),c(ymax,ymax-0.1),lwd=6,col=col[i])
+  }
+  for(j in 1:nstrip) {
+    # get the degrees of formation
+    d <- diagram(a,residue=TRUE,do.plot=FALSE,alpha=TRUE,ispecies=ispecies[[j]])
+    # depict the relative stabilities of the proteins as color bars
+    # make vertical color bars sizes proportional to abundances
+    xs <- seq(xlim[1],xlim[2],length.out=length(d$logact[[1]]))
+    # total height of the stack
+    ly <- 0.5  
+    # where to start plotting on the y-axis
+    y0 <- j-ly
+    for(i in 1:length(d$logact[[1]])) {
+      # create a vector of abundances
+      loga <- numeric()
+      for(k in 1:length(ispecies[[j]])) loga <- c(loga,d$logact[[k]][i])
+      loga.order <- order(loga,decreasing=FALSE)
+      # plot the bars, least abundant first 
+      dy <- y0    # keep track of the height of the stack
+      for(k in 1:length(ispecies[[j]])) {
+        y1 <- dy
+        y2 <- y1 + loga[loga.order[k]] * ly
+        dy <- y2
+        # note: lwd should be lowered here for very high-resolution plots
+        lines(c(xs[i],xs[i]),c(y1,y2),col=col[loga.order[k]],lwd=3,lend="butt")
+      }
+    }
+    # label the color bar
+    text(xlim[1],j-ly*1.4,names(ispecies[j]),adj=0,cex=0.7)
+    # add inset plot showing the relative numbers of species
+    if(!is.null(ns)) {
+      ys1 <- y0 - 0.85*ly
+      ys2 <- y0 - 0.15*ly
+      xmax <- xlim[2]
+      xmin <- xlim[1] + 17/22*diff(xlim)
+      xss <- seq(xmin,xmax,length.out=length(ispecies[[j]]))
+      yss <- numeric()
+      for(i in 1:length(ispecies[[j]])) yss <- c(yss,ys1+(ys2-ys1)*(ns[[j]][i]/max(ns[[j]])))
+      points(xss,yss,pch=20,cex=0.5)
+      lines(xss,yss)
+    }
+  }
 }
 

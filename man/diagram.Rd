@@ -1,7 +1,8 @@
 \name{diagram}
 \alias{diagram}
-\alias{abundance}
+\alias{abundance.new}
 \alias{abundance.old}
+\alias{strip}
 \title{Calculate and Plot Relative Abundances of Species}
 \description{
 Plot chemical activity (speciation) or equal-activity (predominance) diagrams as a function of chemical activities of basis speecies, temperature and/or pressure. Or, plot values of chemical affinity, logK, logQ, Gibbs energies of basis species, species, and formation reactions, as a function of zero or one variables.
@@ -9,16 +10,19 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
 
 \usage{
   diagram(affinity, ispecies = NULL, balance = NULL, names = NA,
-    color = NA, add = FALSE, dotted = 0, cex = par('cex'),
-    col = par('col'), pe = TRUE, pH = TRUE, ylim = c(-4,0),
+    color = NA, add = FALSE, dotted = 0, cex = par("cex"),
+    col = par("col"), pe = TRUE, pH = TRUE, ylim = c(-4,0),
     ylog = TRUE, title = NULL, cex.names = 1, legend.x = "topright", 
-    lty = NULL, col.names = par('fg'), cex.axis=par('cex'),
+    lty = NULL, col.names = par("fg"), cex.axis=par("cex"),
     logact = NA, property = NULL, lwd = par("lwd"), alpha = FALSE,
     mar = NULL, residue = FALSE, yline = par("mgp")[1] + 1, 
     xrange = NULL, ylab = NULL, xlab = NULL, do.plot = TRUE,
-    as.residue = FALSE, mam = TRUE)
-  abundance(Astar, nbalance, thisloga)
+    as.residue = FALSE, mam = TRUE, group = NULL, bg = par("bg"),
+    side = 1:4)
+  abundance.new(Astar, nbalance, thisloga)
   abundance.old(Astar, av, nbalance, thisloga)
+  strip(affinity, ispecies = NULL, col = NULL, ns = NULL, 
+    xticks = NULL, ymin = -0.2, xpad = 1)
 }
 
 \arguments{
@@ -30,7 +34,7 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
   \item{add}{logical, add to current plot?}
   \item{dotted}{numeric, how often to skip plotting points on predominance field boundaries (to gain the effect of dotted or dashed boundary lines).}
   \item{cex}{numeric, character expansion (scaling relative to current).}
-  \item{col}{character, color of predominance field boundaries and labels.}
+  \item{col}{character, color of predominance field boundaries and labels (\code{diagram}), or colors of bars in a strip diagram (\code{strip}).}
   \item{pe}{logical, convert an \samp{e-} axis to a \samp{pe} one? Default is \code{TRUE}; set this to \code{FALSE} to prevent this conversion.}
   \item{pH}{logical, convert an \samp{H+} axis to a \samp{pH} one?}
   \item{ylog}{logical, use a logarithmic y-axis (on 1D degree diagrams).}
@@ -54,10 +58,17 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
   \item{do.plot}{logical, make a plot?}
   \item{as.residue}{logical, make plot using activities of residues?}
   \item{mam}{logical, should maximum affinity method be used for 2-D diagrams?}
+  \item{group}{list of numeric, groups of species to consider as a single effective species.}
+  \item{bg}{character, background color for legend.}
+  \item{side}{numeric, which sides of plot to draw axes.}
   \item{Astar}{numeric, affinities of formation reactions excluding species contribution.}
   \item{nbalance}{numeric, vector of balance coefficients.}
   \item{thisloga}{numeric, logarithm of total activity of balanced thing.}
   \item{av}{numeric, values of affinities of formation reactions.}
+  \item{ns}{numeric, numbers of species, used to make inset plots for strip diagrams.}
+  \item{xticks}{numeric, location of supplemental tick marks on x-axis.}
+  \item{ymin}{numeric, lower limit of y-axis.}
+  \item{xpad}{numeric, amount to extend x-axis on each side.}
 }
 
 \details{
@@ -66,17 +77,19 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
 
   To generate the stability relations from affinities of formation reactions, a reaction conservation rule is either automatically determined or specified by the user. For example, 3Fe2O3 = 2Fe3O4 + 1/2O2 is balanced on Fe (or a basis species containing Fe) and 4Fe2O3 + Fe = 3Fe3O4 is balanced on O (or a basis species containing O). The default action, if \code{balance} is \code{NULL}, is to balance on a basis species that appears in the formation reactions of all of the species of interest. The first such basis species (in order of their appearance in \code{thermo$basis}) will be used; this basis species is determined using \code{\link{which.balance}}. If a common basis species is not available, or if \code{balance} is \eqn{1}, the balance is set to unity. For proteins, an additional conservation rule is available; if \code{balance} is \code{PBB}, or if it is missing and all the species appear to be proteins (their names contain underscores) the metastability calculations will be balanced on protein length (number of protein backbone groups). 
 
-  Predominance (2-D) diagrams are usually produced using the maximum affinity method, which is based on the notion that the predominant species at any point in the diagram is that one that has the greatest affinity of formation divided by the balanced quantity. This behavior can be altered by specifiying \code{mam} as \code{FALSE}, in which case the relative abundances of all species are calculated in the manner described below and the most abundant one at each grid point identified as the predominant species. However, this procedure can be very slow unless the reactions are cast in terms of residues (i.e., to use \code{abundance} instead of \code{abundance.old}).
+  Predominance (2-D) diagrams are usually produced using the maximum affinity method, which is based on the notion that the predominant species at any point in the diagram is that one that has the greatest affinity of formation divided by the balanced quantity. This behavior can be altered by specifiying \code{mam} as \code{FALSE}, in which case the relative abundances of all species are calculated in the manner described below and the most abundant one at each grid point identified as the predominant species. However, this procedure can be very slow unless the reactions are cast in terms of residues (i.e., to use \code{abundance.new} instead of \code{abundance.old}).
 
   When the coefficients of the balanced quantity are all equal, the location of the predominance field boundaries does not depend on the actual value of the activities of the species of interest, as long as they are all equal (these are "equal-activity" lines). Generally in the case in reactions among proteins, the coefficients of the balanced quantity are unequal in the different species, so the location of the predominance field boundaries does depend on the actual value chosen to represent equal activities of the species of interest. In this case the predominance field boundaries are "activity equal to X" lines. This is true for \code{mam} equal to TRUE; if \code{mam} is FALSE, the predominance fields really denote the most abundant species in a system, and the boundaries can represent different "equal-activity" values across the diagram.
 
   \code{residue}, if \code{TRUE}, instructs the function to rewrite the formation reactions so that each refers to formation of one mole of the balanced quantity (e.g., a residue of a protein for reactions conserving the protein backbone); the balance coefficients are then all unity. This is the recommended option for calculating relative abundances of proteins, because the large numbers that would otherwise be used as balance coefficients often create a situation of utter predominance of a single protein (see Dick, 2008). If \code{as.residue} is also \code{TRUE}, the calculated logarithms of activities of the residues are used in the plot and returned by the function, otherwise those of the species are shown. These options, however, are not restricted to systems of proteins. 
 
-  The relative abundances of species on speciation (1-D) diagrams are calculated using the \code{abundance} or \code{abundance.old} functions. The former is used if \code{residue} is set to \code{TRUE}, and the latter if \code{residue} is set to \code{FALSE}. The metastable equilibrium activities calculated using either function satisfy the constraints that 1) the affinities of the balanced formation reactions of the species are all equal and 2) the total activity of the balanced quantity is conserved. The logarithm of the total activity of the balanced quantity (\code{logact}), if \code{NULL} (the default), is taken as the sum of the quantity in the activities of the species in \code{thermo$species}.
+  If \code{group} is supplied, the activities of the species identified in each numeric vector of this list are summed together and subsequently treated as a single species. The names of the new species are taken from the names of this list. For 2-D diagrams, \code{group} only makes sense if \code{mam} is FALSE. An example of using the \code{group} argument is supplied in \code{\link{get.protein}}.
+
+  The relative abundances of species on speciation (1-D) diagrams are calculated using the \code{abundance.new} or \code{abundance.old} functions. The former is used if \code{residue} is set to \code{TRUE}, and the latter if \code{residue} is set to \code{FALSE}. The metastable equilibrium activities calculated using either function satisfy the constraints that 1) the affinities of the balanced formation reactions of the species are all equal and 2) the total activity of the balanced quantity is conserved. The logarithm of the total activity of the balanced quantity (\code{logact}), if \code{NULL} (the default), is taken as the sum of the quantity in the activities of the species in \code{thermo$species}.
 
   In \code{abundance.old} (the algorithm described in Dick, 2008 and the only one available prior to \pkg{CHNOSZ}-0.8), the calculations of relative abundances of species use the activities in the \code{\link{affinity}} output as initial guesses, and attempt to solve a system of equations that represent the two constraints stated above. So, if you supply a value for \code{logact} that is much different from that of the initial guess you may end up with errors from \code{\link{uniroot}} such as "f() values at end points not of opposite sign". 
 
-  In \code{abundance} (available beginning with \pkg{CHNOSZ}-0.8), the relative abundances of species are calculated using the Boltzmann distribution, which is much faster than the equation-solving approach used in \code{abundance.old}. However, this algorithm is limited to systems where the balance coefficients are all unity. Therefore, this function is only used when \code{residue} is \code{TRUE}.
+  In \code{abundance.new} (available beginning with \pkg{CHNOSZ}-0.8), the relative abundances of species are calculated using the Boltzmann distribution, which is much faster than the equation-solving approach used in \code{abundance.old}. However, this algorithm is limited to systems where the balance coefficients are all unity. Therefore, this function is only used when \code{residue} is \code{TRUE}.
 
   For 1-D diagrams, the logarithmicity and limits of the y-axis can be controlled; the default (\code{ylog} is \code{TRUE}) is to plot logarithms of activities of species. If \code{alpha} is \code{TRUE}, the degrees of formation (ratios of activities of species to total activity) are plotted instead. The range of the y-axis on these diagrams can be controlled with \code{ylim} (which reverts to \code{c(0,1)} when \code{alpha} is \code{TRUE}). Also, a \code{\link{legend}} is placed at the location identified by \code{legend.x}, or omitted if \code{legend.x} is \code{FALSE}. 
 
@@ -85,6 +98,8 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
   The \code{diagram} function by default starts a new plot, but if \code{add} is \code{TRUE} it adds to the current plot. If \code{do.plot} is FALSE, no plot will be generated but all the required computations will be performed and the results returned. The \code{name}s of the species, and the \code{color}s used to identify them (on chemical activity lines or predominance fields) can be changed; by default \code{\link{heat.colors}} are used to shade the predominance fields in on-screen diagrams. The \code{col} option controls the color of the predominance field boundaries, and \code{col.names} the color of the labels for the predominance fields. The line type (only on 1-D diagrams) and line width can be controlled with (\code{lty} and \code{lwd}, respectively). The line style on 2-D diagrams can be altered by supplying one or more non-zero integers in \code{dotted}, which indicates the fraction of line segments to omit. Finally, \code{cex}, \code{cex.names}, and \code{cex.axis} adjust the overall character expansion factors (see \code{\link{par}}) and those of the species names and axis labels.
 
   The x-axis label (1-D and 2-D diagrams) and y-axis label (2-D diagram) are automatically generated unless they are supplied in \code{xlab} and \code{ylab}. 
+
+  A different incarnation of 1-D speciation diagrams is provided by \code{strip}. This function generates any number of strip diagrams in a single plot. The diagrams are made up of colors bars whose heights represent the relative abundances of species; the color bars are arranged in order of abundance and the total height of the stack of colors bars is constant. If \code{ispecies} is a list, the number of strip diagrams is equal to the number of elements of the list, and the elements of this list are numeric vectors that identify the species to consider for each diagram. The strips are labeled with the \code{\link{names}} of \code{ispecies}. If \code{col} is NULL, the colors of the bars are generated using \code{\link{rainbow}}. Supplemental ticks can be added to the x-axis at the locations specified in \code{xtick}; they are larger than the standard ticks and have colors corresponding to those of the color bars. \code{ymin} can be decreased in order to add more space at the bottom of the plot, and \code{xpad} can be changed in order to increase or decrease the size of the x-axis relative to the width of the strips. An inset dot-and-line plot is created below each strip if \code{ns} is given. This argument has the same format as \code{ispecies}, and can be used e.g. to display the relative numbers of species for comparison with the stability calculations.
 
 }
 
@@ -98,36 +113,31 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
 
 \examples{
   \dontshow{data(thermo)}
-
   ### 0-D property and logarithm of activity plots
   ## properties of amino acids
   basis("CHNOS")
   basis("H2S",-25)
-  species(c("glutamic acid","methionine","isoleucine",
-    "leucine","tyrosine"))
+  aa <- c("glutamic acid","methionine","isoleucine",
+    "leucine","tyrosine")
+  species(aa)
   # Gibbs energy of formation reactions per CO2
   a <- affinity(property="G")
   diagram(a,balance=1)
   # affinity of reactions per CO2
   a <- affinity()
-  diagram(a,property="A")
+  diagram(a,property="A",do.plot=FALSE)
   ## logarithms of activities of amino acids
-  # balanced on CO2
-  diagram(a)
   # balanced on amino acid backbone, using abundance.old
-  d1 <- diagram(a,balance=1)
-  # balanced on amino acid backbone, using abundance
-  d2 <- diagram(a,balance=1,residue=TRUE)
-  stopifnot(all(as.numeric(d2$logact) - 
-    as.numeric(d1$logact) < thermo$opt$cutoff))
+  d1 <- diagram(a,balance=1,do.plot=FALSE)
+  # balanced on amino acid backbone, using abundance.new
+  d2 <- diagram(a,balance=1,residue=TRUE,do.plot=FALSE)
+  # the last two give the same results
+  stopifnot(all.equal(as.numeric(d2$logact),
+    as.numeric(d1$logact)))
   ## 1-D plots
   a <- affinity(O2=c(-80,-70))
   # affinities of formation reactions
   d <- diagram(a,property="A",balance=1,ylim=c(-80,30))
-  # logarithm of activity
-  d <- diagram(a,balance=1,ylim=c(-9,0))
-  title(main=paste("Relative abundances of amino acids"))
-
   
   ### 1-D property plot
   ## for hydrous cordierite = cordierite + H2O
@@ -148,344 +158,351 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
     "After Helgeson et al., 1978",sep="\n"),cex.main=0.9)
   # this calculation could also be done through the
   # subcrt function, without having to set up basis species
-  
 
 
   ### 1-D logarithm of activity plots
   ### (speciation diagrams)
 
   ## Aqueous sulfur species (after Seewald, 1997)
-  basis('CHNOS+')
-  basis('pH',5)
-  species(c('H2S','S2-2','S3-2','S2O3-2','S2O4-2','S3O6-2',
-    'S5O6-2','S2O6-2','HSO3-','SO2','HSO4-'))
-  diagram(affinity(O2=c(-50,-15,50),T=325,P=350),
+  basis("CHNOS+")
+  basis("pH",5)
+  species(c("H2S","S2-2","S3-2","S2O3-2","S2O4-2","S3O6-2",
+    "S5O6-2","S2O6-2","HSO3-","SO2","HSO4-"))
+  diagram(affinity(O2=c(-50,-15),T=325,P=350),
     ylim=c(-30,0),logact=-2,legend.x="topleft")
-  title(main=paste('Aqueous sulfur speciation, 325 degC, 350 bar\n',
-    'After Seewald, 1997'))
+  title(main=paste("Aqueous sulfur speciation, 325 degC, 350 bar\n",
+    "After Seewald, 1997"))
   # try it with and without the logact argument (total activity of 
   # the balanced quantity, in this case H2S aka sulfur) 
 
   ## Degrees of formation of ionized forms of glycine
   ## as a function of pH
   ## After Fig. 1 of Aksu and Doyle, 2001 
-  basis('CHNOS+')
-  species(ispecies <- info(c('glycinium','glycine','glycinate')))
+  basis("CHNOS+")
+  species(ispecies <- info(c("glycinium","glycine","glycinate")))
   t <- affinity(pH=c(0,14))
   diagram(t,alpha=TRUE,lwd=1)
-  title(main=paste('Degrees of formation of aqueous glycine species\n',
-    'after Aksu and Doyle, 2001'))
+  title(main=paste("Degrees of formation of aqueous glycine species\n",
+    "after Aksu and Doyle, 2001"))
 
-  ## Degrees of formation of ATP species
-  ## as a function of temperature
-  ## After LaRowe and Helgeson, 2007
-  # Mg+2 here is a perfectly mobile component
-  # cf. LH07, where bulk composition of Mg+2 is specified
-  basis(c('CO2','NH3','H2O','H3PO4','O2','H+','Mg+2'),
-    c(999,999,999,999,999,-5,-4))
-  species(c('HATP-3','H2ATP-2','MgATP-2','MgHATP-'))
-  diagram(affinity(T=c(0,120,25)),alpha=TRUE)  
-  title(main=paste('Degrees of formation of ATP species,\n',
-    'pH=5, log(aMg+2)=-3. After LaRowe and Helgeson, 2007'),
-    cex.main=0.9)
+  ### the rest of the examples can be run using longex("diagram")
+  \dontrun{
+    ## Degrees of formation of ATP species as a function of 
+    ## temperature, after LaRowe and Helgeson, 2007
+    # Mg+2 here is the immobile component
+    # cf. LH07, where bulk composition of Mg+2 is specified
+    basis(c("CO2","NH3","H2O","H3PO4","O2","H+","Mg+2"),
+      c(999,999,999,999,999,-5,-4))
+    species(c("HATP-3","H2ATP-2","MgATP-2","MgHATP-"))
+    diagram(affinity(T=c(0,120,25)),alpha=TRUE)  
+    title(main=paste("Degrees of formation of ATP species,\n",
+      "pH=5, log(aMg+2)=-3. After LaRowe and Helgeson, 2007"),
+      cex.main=0.9)
 
-  ## speciation of phosphate as a function of ionic strength
-  basis('CHNOPS+')
-  T <- c(25,100)
-  species(c('HPO4-2','H2PO4-'))
-  diagram(affinity(IS=c(0,0.25),T=T[1]),ylim=c(-3.2,-2.8))
-  title(main=paste('Aqueous phosphate speciation, pH=7',
-    '25 and 100 deg C - black and red lines',sep='\n'))
-  diagram(affinity(IS=c(0,0.25),T=T[2]),ylim=c(-3.2,-2.8),add=TRUE,color='red')  
-  ## phosphate predominance f(IS,pH)
-  diagram(affinity(pH=c(6.8,7.2),IS=c(0,0.25),T=T[1]))
-  title(main=paste('Aqueous phosphate predominance, 25 deg C',
-    'and 100 deg C (dotted overlay)',sep='\n'))
-  diagram(affinity(pH=c(6.8,7.2),IS=c(0,0.25),T=T[2]),add=TRUE,dotted=2,names=NULL)
-  
-  ### predominance diagrams (equal activities of
-  ### species as a function of two variables) 
+    ## speciation of phosphate as a function of ionic strength
+    basis("CHNOPS+")
+    T <- c(25,100)
+    species(c("HPO4-2","H2PO4-"))
+    diagram(affinity(IS=c(0,0.25),T=T[1]),ylim=c(-3.2,-2.8))
+    title(main=paste("Aqueous phosphate speciation, pH=7",
+      "25 and 100 deg C - black and red lines",sep="\n"))
+    diagram(affinity(IS=c(0,0.25),T=T[2]),ylim=c(-3.2,-2.8),add=TRUE,color="red")  
+    ## phosphate predominance f(IS,pH)
+    diagram(affinity(pH=c(6.8,7.2),IS=c(0,0.25),T=T[1]))
+    title(main=paste("Aqueous phosphate predominance, 25 deg C",
+      "and 100 deg C (dotted overlay)",sep="\n"))
+    diagram(affinity(pH=c(6.8,7.2),IS=c(0,0.25),T=T[2]),add=TRUE,dotted=2,
+      names=NULL)
 
-  ## T-P phase diagram for a unary system (SiO2)
-  ## after Ernst, 1976, Fig. 4.4
-  # the system is SiO2 (one component) but
-  # the basis species require all the elements:
-  # basis(c('SiO2','O2'))
-  # that would identify SiO2(aq) which is okay
-  # but brings in calculations of properties of 
-  # water which are relatively slow.
-  basis(c('quartz','O2'))  # cr, gas
-  # browse the species of interest
-  info('SiO2 ')
-  # we'll take the crystalline ones
-  t <- info('SiO2','cr')
-  species(t)
-  # calculate chemical affinities
-  # the do.phases argument is necessary for 
-  # dealing with the phase transitions of minerals
-  t <- affinity(T=c(0,2000),P=c(0,30000),do.phases=TRUE)
-  # a predominance diagram coincides with a
-  # phase diagram for a *unary* system
-  diagram(t)
-  title(main='Phases of SiO2\nafter Ernst, 1976')
-  # NOTE: phase diagrams for systems of more
-  # than one component are not implemented
+    ## using strip(): equilibrium abundances of 
+    ## proteins from different mammals
+    organisms <- c("BOVIN","CANFA","HUMAN","MOUSE","PIG")
+    proteins <- c("AQP1","MYG","P53")
+    basis("CHNOS+")
+    species(rep(proteins,each=5),organisms)
+    a <- affinity(O2=c(-85,-65,250))
+    ispecies <- list(1:5,6:10,11:15)
+    desc <- c("(Aquaporin-1)","(Myoglobin)",
+      "(Cellular tumor antigen p53)")
+    names(ispecies) <- paste(proteins,desc)
+    col <- rainbow(5)
+    strip(a,ispecies=ispecies,ymin=-0.7,col=col)
+    legend("bottomright",legend=organisms,col=col,
+      lty=1,lwd=4,bty="n")
+    title(main=paste("Equilibrium abundances of proteins",
+      "from different mammals",sep="\n"))
+    
+    ### predominance diagrams (equal activities of
+    ### species as a function of two variables) 
 
-  ## Distribution of copper on Eh-pH diagram
-  ## after Fig. 15 of Pourbaix, 1949
-  basis(c('Cu+2','Cl-','H2O','H+','e-'))
-  basis('Cl-',-2)
-  # two aqueous species, three solid ones
-  # (our CuCl is aq but it was cr in P's Fig. 15)
-  species(c('CuCl','Cu+2','copper','cuprite','tenorite'))
-  # (which is equivalent to ...)
-  # species(c('CuCl','Cu+2','Cu','Cu2O','CuO'),c('','','','','','cr'))
-  t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
-  # this one corresponds to activity contours of 
-  # aqueous species at 10^-3 (the default aq activity in CHNOSZ)
-  diagram(t,color=NULL)
-  # here we set activities to unity; aq-cr boundaries change
-  species(c('CuCl','Cu+2'),c(0,0))
-  t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
-  diagram(t,add=TRUE,names=NULL,col="blue",color=NULL)
-  water.lines()
-  title(main=paste('H2O-Cl-(Cu); activities of 10^-3 (black)\n',
-    'or 0 (blue); after Pourbaix, 1949'))
-  # we could do it at higher temperatures too
-  # t <- affinity(pH=c(0,7),Eh=c(-0.1,1),T=100)
-  # diagram(t,add=TRUE,dotted=2,col='red')
+    ## T-P stability diagram for a unary system (SiO2)
+    ## after Ernst, 1976, Fig. 4.4
+    # the system is SiO2 (one component) but
+    # the basis species require all the elements:
+    # note that basis(c("SiO2","O2")) would identify SiO2(aq) 
+    # which is okay but brings in calculations of properties 
+    # of  water which are relatively slow.
+    basis(c("quartz","O2"))  # cr, gas
+    # browse the species of interest
+    info("SiO2 ")
+    # we'll take the crystalline ones
+    t <- info("SiO2","cr")
+    species(t)
+    # calculate chemical affinities
+    # the do.phases argument is necessary for 
+    # dealing with the phase transitions of minerals
+    t <- affinity(T=c(0,2000),P=c(0,30000),do.phases=TRUE)
+    diagram(t)
+    title(main="Phases of SiO2\nafter Ernst, 1976")
 
-  ## Eh-pH diagrams for copper-water-glycine
-  ## After Fig. 2 of Aksu and Doyle, 2001
-  ##  We need to add some species and change some Gibbs energies.
-  # copy two rows of the data object (actually one row twice) 
-  # and change them as needed
-  i <- info(c('Cu(Gly)+','glycinate','e-','H+'))
-  n <- nrow(thermo$obigt <- rbind(thermo$obigt,thermo$obigt[rep(i[1],2),]))
-  thermo$obigt$name[n-1] <- 'Cu(Gly)2-'
-  thermo$obigt$name[n] <- 'HCu(Gly)+2'
-  thermo$obigt$formula[n-1] <- makeup(makeup(c(i[1],i[2],i[3]),''),'')
-  thermo$obigt$formula[n] <- makeup(makeup(c(i[1],i[4]),''),'')
-  # In Fig 2b, total log activities of Cu (Cu_T) 
-  # and glycine (L_T) are -4 and -1
-  basis(c('Cu+2','H2O','H+','e-','glycine','CO2'),c(999,0,999,999,-1,999))
-  # solid species
-  species(c('copper','cuprite','tenorite'))
-  # aqueous species
-  species(c('glycinium','glycine','glycinate','Cu+','Cu+2','CuO2-2','HCuO2-',
-    'Cu(Gly)+','Cu(Gly)2','Cu(Gly)2-','HCu(Gly)+2'),-4)
-  ispecies <- species()$ispecies
-  # update the Gibbs energies using A&D's Table 1 and Table II
-  logK <- c(convert(convert(c(0,-146,-129.7,-384.061,-370.647,-314.833,
-    49.98,65.49,-183.6,-258.5,-298.2)*1000,'cal'),'logK'),15.64,10.1,2.92) 
-  # do it in order so later species take account of prev. species' values
-  for(i in 1:length(logK)) {
-    G <- convert(logK[i],'G')
-    if(i==12) G <- G + thermo$obigt$G[ispecies[8]] + 
-      2*thermo$obigt$G[ispecies[6]]
-    if(i==13) G <- G + thermo$obigt$G[ispecies[7]] + 
-      2*thermo$obigt$G[ispecies[6]]
-    if(i==14) G <- G + thermo$obigt$G[ispecies[11]]
-    thermo$obigt$G[ispecies[i]] <- G
-  }  # done with changing Gibbs free energies!
-  # we have to get some leftovers out of there or diagram() gets confused
-  species(c('glycinium','glycine','glycinate'),delete=TRUE)
-  # make a plot to see if it's working
-  ispecies <- ispecies[-(1:6)]
-  afun <- function(cu,gly) {
-    # from above: our fifth basis species is glycine(-ate,-ium)
-    basis(rownames(basis())[5],gly)
-    t <- match(ispecies,species()$ispecies)
-    species(t,cu)
-    affinity(pH=c(0,16),Eh=c(-0.6,1.0))
+    ## Distribution of copper on Eh-pH diagram
+    ## after Fig. 15 of Pourbaix, 1949
+    basis(c("Cu+2","Cl-","H2O","H+","e-"))
+    basis("Cl-",-2)
+    # two aqueous species, three solid ones
+    # (our CuCl is aq but it was cr in P's Fig. 15)
+    species(c("CuCl","Cu+2","copper","cuprite","tenorite"))
+    # (which is equivalent to ...)
+    # species(c("CuCl","Cu+2","Cu","Cu2O","CuO"),c("","","","","","cr"))
+    t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
+    # this one corresponds to activity contours of 
+    # aqueous species at 10^-3 (the default aq activity in CHNOSZ)
+    diagram(t,color=NULL)
+    # here we set activities to unity; aq-cr boundaries change
+    species(c("CuCl","Cu+2"),c(0,0))
+    t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
+    diagram(t,add=TRUE,names=NULL,col="blue",color=NULL)
+    water.lines()
+    title(main=paste("H2O-Cl-(Cu); activities of 10^-3 (black)\n",
+      "or 0 (blue); after Pourbaix, 1949"))
+
+    ## Eh-pH diagrams for copper-water-glycine
+    ## After Fig. 2 of Aksu and Doyle, 2001
+    ##  We need to add some species and change some Gibbs energies.
+    # update rows of the database
+    i <- info(c("Cu(Gly)+","glycinate","e-","H+"))
+    n <- nrow(thermo$obigt <- rbind(thermo$obigt,thermo$obigt[rep(i[1],2),]))
+    thermo$obigt$name[n-1] <- "Cu(Gly)2-"
+    thermo$obigt$name[n] <- "HCu(Gly)+2"
+    thermo$obigt$formula[n-1] <- makeup(makeup(c(i[1],i[2],i[3]),""),"")
+    thermo$obigt$formula[n] <- makeup(makeup(c(i[1],i[4]),""),"")
+    # In Fig 2b, total log activities of Cu (Cu_T) 
+    # and glycine (L_T) are -4 and -1
+    basis(c("Cu+2","H2O","H+","e-","glycine","CO2"),c(999,0,999,999,-1,999))
+    # solid species
+    species(c("copper","cuprite","tenorite"))
+    # aqueous species
+    species(c("glycinium","glycine","glycinate","Cu+","Cu+2","CuO2-2","HCuO2-",
+      "Cu(Gly)+","Cu(Gly)2","Cu(Gly)2-","HCu(Gly)+2"),-4)
+    ispecies <- species()$ispecies
+    # update the Gibbs energies using A&D's Table 1 and Table II
+    logK <- c(convert(convert(c(0,-146,-129.7,-384.061,-370.647,-314.833,
+      49.98,65.49,-183.6,-258.5,-298.2)*1000,"cal"),"logK"),15.64,10.1,2.92) 
+    # do it in order so later species take account of prev. species' values
+    for(i in 1:length(logK)) {
+      G <- convert(logK[i],"G")
+      if(i==12) G <- G + thermo$obigt$G[ispecies[8]] + 
+        2*thermo$obigt$G[ispecies[6]]
+      if(i==13) G <- G + thermo$obigt$G[ispecies[7]] + 
+        2*thermo$obigt$G[ispecies[6]]
+      if(i==14) G <- G + thermo$obigt$G[ispecies[11]]
+      thermo$obigt$G[ispecies[i]] <- G
+    }  # done with changing Gibbs free energies!
+    # we have to get some leftovers out of there or diagram() gets confused
+    species(c("glycinium","glycine","glycinate"),delete=TRUE)
+    # make a plot to see if it's working
+    ispecies <- ispecies[-(1:6)]
+    afun <- function(cu,gly) {
+      # from above: our fifth basis species is glycine(-ate,-ium)
+      basis(rownames(basis())[5],gly)
+      t <- match(ispecies,species()$ispecies)
+      species(t,cu)
+      affinity(pH=c(0,16),Eh=c(-0.6,1.0))
+    }
+    diagram(afun(-4,-1))
+    title(main=paste("Aqueous Copper + Glycine, 25 deg C, 1 bar",
+      "After Aksu and Doyle, 2001 Fig. 2b",sep="\n"))
+    # What's missing? Try glycinate not glycine in reactions at ph > ~9.8
+    basis(c("Cu+2","H2O","H+","e-","glycinate","CO2"),
+      c(999,0,999,999,-2,999))
+    species(c("copper","cuprite","tenorite","Cu+","Cu+2","CuO2-2","HCuO2-",
+      "Cu(Gly)+","Cu(Gly)2","Cu(Gly)2-","HCu(Gly)+2"))
+    loga_Cu <- -4
+    loga_Gly <- -1
+    diagram(afun(loga_Cu,loga_Gly),color=NULL,col="blue",
+      names=species()$name,col.names="blue",add=TRUE)
+    water.lines()
+    # the glycine ionization constants could be calculated using
+    # subcrt, here they are taken from A&D Table II
+    abline(v=c(2.35,9.778),lty=3)
+    # now put glycinium (low pH) in the basis
+    basis(c("Cu+2","H2O","H+","e-","glycinium","CO2"),c(999,0,999,999,-2,999))
+    species(c("copper","cuprite","tenorite","Cu+","Cu+2","CuO2-2","HCuO2-",
+      "Cu(Gly)+","Cu(Gly)2","Cu(Gly)2-","HCu(Gly)+2"))
+    diagram(afun(loga_Cu,loga_Gly),color=NULL,col="green",
+      names=NULL,col.names="green",add=TRUE)
+    # let's forget our changes to 'thermo' so the example 
+    # below that uses glycine will work as expected
+    data(thermo)
+
+    ## a pe-pH diagram for hydrated iron sulfides,
+    ## goethite and pyrite, After Majzlan et al., 2006
+    basis(c("Fe+2","SO4-2","H2O","H+","e-"),c(0,log10(3),log10(0.75),999,999))
+    species(c("rhomboclase","ferricopiapite","hydronium jarosite",
+      "goethite","melanterite","pyrite"))
+    a <- affinity(pH=c(-1,4),pe=c(-5,23))
+    diagram(a)
+    water.lines(yaxis="pe")
+    title(main=paste("Fe-S-O-H After Majzlan et al., 2006",
+      describe(thermo$basis[2:3,],digits=2),sep="\n"))
+
+    ## cysteine-cysteinate-cystine Eh-pH
+    ## at 25 and 100 deg C
+    basis("CHNOSe")
+    species(c("cysteine","cysteinate","cystine"))
+    a <- affinity(pH=c(5,10),Eh=c(-0.5,0))
+    diagram(a,color=NULL)
+    water.lines()
+    a <- affinity(pH=c(5,10),Eh=c(-0.5,0),T=100)
+    diagram(a,col="red",add=TRUE,names=NULL)
+    water.lines(T=convert(100,"K"),col="red")
+    title(main=paste("Cysteine Cysteinate Cystine",
+      "25 and 100 deg C",sep="\n"))
+    
+    ## Soil Organic Matter CO2-H2O, O2-H2O (after Tardy et al., 1997)
+    # NH3 is conserved, and H2O is on an axis of the 
+    # diagrams, so their activities are nonsensical here.
+    # formulas for aqueous species, names for phases ...
+    basis(c("NH3","water","CO2","O2"),c(999,999,-2.5,-28))
+    # switch to gaseous CO2 (aq is the default)
+    basis("CO2","gas")
+    # load the species of interest
+    species(c("microflore","plantes","acide fulvique",
+      "acide humique","humine"))
+    # proceed with the diagrams
+    diagram(affinity(H2O=c(-0.6,0.1),CO2=c(-3,-1)))
+    title(main=paste("Relative stabilities of soil organic matter\n",
+      "after Tardy et al., 1997"))
+    # this would be the O2-H2O diagram
+    # diagram(affinity(H2O=c(-1,0.5),O2=c(-28.5,-27.5)))
+
+    ## Aqueous Aluminum Species F-/OH- (afer Tagirov and Schott, 2001)
+    # in order to reproduce this calculation, we have to 
+    # consider the properties of species given by these authors,
+    # which are not the default ones in the database
+    # (see last example of 'thermo' help page)
+    thermo$opt$level <- 2
+    # The coefficients on H+ and O2 in all the formation reactions
+    # are zero, so the number of basis species here is three. Al+3 
+    # becomes the conservant, and F- and OH- are being plotted ...
+    # so their initial activities don't have to be set.
+    basis(c("Al+3","F-","OH-","H+","O2"),rep(999,5))
+    species(c("Al+3","Al(OH)4-","AlOH+2","Al(OH)2+","Al(OH)3",
+      "AlF+2","AlF2+","AlF3","AlF4-","Al(OH)2F2-","Al(OH)2F","AlOHF2"))
+    # Increase the x- and y- resolution from the default and calculate
+    # and plot predominance limits. Names of charged basis species,
+    # such as "H+", "e-" and the ones shown here, should be quoted
+    # when given as arguments to affinity(). The OH- values shown here
+    # correspond to pH=c(0,14) (at unit activity of water).
+    a <- affinity("OH-"=c(-14,0),"F-"=c(-1,-8),T=200)
+    diagram(a)
+    title(main=paste("Aqueous aluminium species, T=200 C, P=Psat\n",
+      "after Tagirov and Schott, 2001"))
+    # We could do this to overlay boundaries for a different pressure
+    #a.P <- affinity("OH-"=c(-14,0),"F-"=c(-1,-8),T=200,P=5000)
+    #diagram(a.P,names=NULL,color=NULL,col="blue",add=TRUE)
+    # restore data selection level to default
+    thermo$opt$level <- 1
+
+    ## Mineral equilibrium activity diagram
+    ## (After Bowers et al., 1984, p. 246)
+    # Consider the system denoted by BJH84 as 
+    # HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 deg C and 1000 bar
+    # HCl, CO2, O2 have zero stoichiometric coeffs in the species
+    # Ca+2, Mg+2 are going to be on the diagram
+    # SiO2 will be conserved (the immobile component)
+    # (try changing any of the 999's, the diagram will be unaffected)
+    basis(c("HCl","H2O","Ca+2","CO2","Mg+2","SiO2","O2","H+"),
+          c(999,0,999,999,999,999,999,-7))
+    # we have to tell CHNOSZ which species to include; there are
+    # others that could be in this system
+    species(c("quartz","talc","forsterite","tremolite","diopside",
+      "wollastonite","monticellite","merwinite"))
+    # calculate the chemical affinities of formation reactions
+    #t <- affinity("Mg+2"=c(-14,-8),"Ca+2"=c(-12,-4),T=300,P=1000)
+    t <- affinity("Mg+2"=c(-12,-4),"Ca+2"=c(-8,0),T=300,P=1000)
+    diagram(t)
+    title(main=paste("HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 deg C,\n",
+      "1000 bar and pH=7. After Bowers et al., 1984"))
+    # note: BJH84 use a different method for representing 
+    # the axes of the diagrams, similar to (a_Ca+2)/(a_H+)^2,
+    # so this is so far an approximate reproduction of their diagram.
+
+    ## Fe-S-O at 200 deg C, After Helgeson, 1970
+    basis(c("Fe","O2","S2"))
+    species(c("iron","ferrous-oxide","magnetite",
+      "hematite","pyrite","pyrrhotite"))
+    a <- affinity(S2=c(-50,0),O2=c(-90,-10),T=200)
+    diagram(a,color="heat")
+    title(main=paste("Fe-S-O, 200 degrees C, 1 bar",
+      "After Helgeson, 1970",sep="\n"))
+
+    ## Nucleobase - Amino Acid Interaction Eh-H2O
+    # for this example we try a unique basis definition
+    basis(c("CO2","H2O","glutamine","e-","H+"),c(-3,0,-3,0,-7))
+    species(c("uracil","cytosine","adenine","guanine",
+      "phenylalanine","proline","lysine","glycine"),"aq")
+    # this loaded four nucleobases and four related amino acids
+    # (coded for by the homocodon triplets)
+    # check out the predominance diagrams
+    a.1 <- affinity(H2O=c(-5,0),Eh=c(-0.5,0))
+    diagram(a.1,color=NULL)
+    # overlay a different temperature
+    a.2 <- affinity(H2O=c(-5,0),Eh=c(-0.5,0),T=100)
+    diagram(a.2,col="red",add=TRUE,names=NULL)
+    # start make a title for the plot
+    tb <- thermo$basis   # includes activities of basis species
+    # exclude those that are on the axes
+    tb <- tb[!((rownames(tb) \%in\% c("e-","H2O"))),]
+    title(main=paste("Nucleobases and amino acids,",
+      "T=25 and 100 C at Psat\n",
+      describe(tb,T=NULL,P=NULL)),cex.main=0.9)
+
+    ## Temperature-Pressure: kayanite-sillimanite-andalusite
+    # this is a system of a single component (Al2SiO5)
+    # but the number of basis species is the number of elements
+    basis(c("kyanite","quartz","oxygen"))
+    species(c("kyanite","sillimanite","andalusite"))
+    diagram(affinity(T=c(0,1000,200),P=c(500,5000,200)),color=NULL)
+    title(main="Al2SiO5")
   }
-  diagram(afun(-4,-1))
-  title(main=paste('Aqueous Copper + Glycine, 25 deg C, 1 bar',
-    'After Aksu and Doyle, 2001 Fig. 2b',sep='\n'))
-  # What's missing? Try glycinate not glycine in reactions at ph > ~9.8
-  basis(c('Cu+2','H2O','H+','e-','glycinate','CO2'),
-    c(999,0,999,999,-2,999))
-  species(c('copper','cuprite','tenorite','Cu+','Cu+2','CuO2-2','HCuO2-',
-    'Cu(Gly)+','Cu(Gly)2','Cu(Gly)2-','HCu(Gly)+2'))
-  loga_Cu <- -4
-  loga_Gly <- -1
-  diagram(afun(loga_Cu,loga_Gly),color=NULL,col='blue',
-    names=species()$name,col.names='blue',add=TRUE)
-  water.lines()
-  # the glycine ionization constants could be calculated using
-  # subcrt, here they are taken from A&D Table II
-  abline(v=c(2.35,9.778),lty=3)
-  # now put glycinium (low pH) in the basis
-  basis(c('Cu+2','H2O','H+','e-','glycinium','CO2'),c(999,0,999,999,-2,999))
-  species(c('copper','cuprite','tenorite','Cu+','Cu+2','CuO2-2','HCuO2-',
-    'Cu(Gly)+','Cu(Gly)2','Cu(Gly)2-','HCu(Gly)+2'))
-  diagram(afun(loga_Cu,loga_Gly),color=NULL,col='green',
-    names=NULL,col.names='green',add=TRUE)
-  # let's forget our changes to 'thermo' so the example 
-  # below that uses glycine will work as expected
-  data(thermo)
-
-  ## a pe-pH diagram for hydrated iron sulfides,
-  ## goethite and pyrite, After Majzlan et al., 2006
-  basis(c("Fe+2","SO4-2","H2O","H+","e-"),c(0,log10(3),log10(0.75),999,999))
-  species(c("rhomboclase","ferricopiapite","hydronium jarosite",
-    "goethite","melanterite","pyrite"))
-  a <- affinity(pH=c(-1,4),pe=c(-5,23))
-  diagram(a)
-  water.lines(yaxis="pe")
-  title(main=paste("Fe-S-O-H After Majzlan et al., 2006",
-    describe(thermo$basis[2:3,],digits=2),sep="\n"))
-
-  ## cysteine-cysteinate-cystine Eh-pH
-  ## at 25 and 100 deg C
-  basis("CHNOSe")
-  species(c("cysteine","cysteinate","cystine"))
-  a <- affinity(pH=c(5,10),Eh=c(-0.5,0))
-  diagram(a,color=NULL)
-  water.lines()
-  a <- affinity(pH=c(5,10),Eh=c(-0.5,0),T=100)
-  diagram(a,col="red",add=TRUE,names=NULL)
-  water.lines(T=convert(100,"K"),col="red")
-  title(main=paste("Cysteine Cysteinate Cystine",
-    "25 and 100 deg C",sep="\n"))
-  
-  ## Soil Organic Matter CO2-H2O, O2-H2O (after Tardy et al., 1997)
-  # NH3 is conserved, and H2O is on an axis of the 
-  # diagrams, so their activities are nonsensical here.
-  # formulas for aqueous species, names for phases ...
-  basis(c('NH3','water','CO2','O2'),c(999,999,-2.5,-28))
-  # switch to gaseous CO2 (aq is the default)
-  basis('CO2','gas')
-  # load the species of interest
-  species(c('microflore','plantes','acide fulvique',
-    'acide humique','humine'))
-  # proceed with the diagrams
-  diagram(affinity(H2O=c(-0.6,0.1),CO2=c(-3,-1)))
-  title(main=paste('Relative stabilities of soil organic matter\n',
-    'after Tardy et al., 1997'))
-  # this would be the O2-H2O diagram
-  # diagram(affinity(H2O=c(-1,0.5),O2=c(-28.5,-27.5)))
-
-  ## Aqueous Aluminum Species F-/OH- (afer Tagirov and Schott, 2001)
-  # The coefficients on H+ and O2 in all the formation reactions
-  # are zero, so the number of basis species here is three. Al+3 
-  # becomes the conservant, and F- and OH- are being plotted ...
-  # so their initial activities don't have to be set.
-  basis(c('Al+3','F-','OH-','H+','O2'),rep(999,5))
-  species(c('Al+3','Al(OH)4-','AlOH+2','Al(OH)2+','Al(OH)3',
-    'AlF+2','AlF2+','AlF3','AlF4-','Al(OH)2F2-','Al(OH)2F','AlOHF2'))
-  # Increase the x- and y- resolution from the default and calculate
-  # and plot predominance limits. Names of charged basis species,
-  # such as "H+", "e-" and the ones shown here, should be quoted
-  # when given as arguments to affinity(). The OH- values shown here
-  # correspond to pH=c(0,14) (at unit activity of water).
-  a <- affinity("OH-"=c(-14,0),"F-"=c(-1,-8),T=200)
-  diagram(a)
-  title(main=paste('Aqueous aluminium species, T=200 C, P=Psat\n',
-    'after Tagirov and Schott, 2001'))
-  # We could do this to overlay boundaries for a different pressure
-  # a.P <- affinity("OH-"=c(-14,0),"F-"=c(-1,-8),T=200,P=5000)
-  # diagram(a.P,names=NULL,color=NULL,col='blue',add=TRUE)
-
-  ## Mineral equilibrium activity diagram
-  ## (After Bowers et al., 1984, p. 246)
-  # Consider the system denoted by BJH84 as 
-  # HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 deg C and 1000 bar
-  # For our purposes (to make diagrams as a function of the
-  # activities of Ca+2 and Mg+2), we use this basis.
-  # notes regarding 999's:
-  # HCl, CO2, O2 have zero stoichiometric coeffs in the species
-  # Ca+2, Mg+2 are going to be on the diagram
-  # SiO2 will be conserved
-  # (try changing any of the 999's, the diagram will be unaffected)
-  basis(c('HCl','H2O','Ca+2','CO2','Mg+2','SiO2','O2','H+'),
-        c(999,0,999,999,999,999,999,-7))
-  # we have to tell CHNOSZ which species to include; there are
-  # others that could be in this system
-  species(c('quartz','talc','forsterite','tremolite','diopside',
-    'wollastonite','monticellite','merwinite'))
-  # calculate the chemical affinities of formation reactions
-  #t <- affinity('Mg+2'=c(-14,-8),'Ca+2'=c(-12,-4),T=300,P=1000)
-  t <- affinity('Mg+2'=c(-12,-4),'Ca+2'=c(-8,0),T=300,P=1000)
-  diagram(t)
-  title(main=paste('HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 deg C,\n',
-    '1000 bar and pH=7. After Bowers et al., 1984'))
-  # note: BJH84 use a different method for representing 
-  # the axes of the diagrams, similar to (a_Ca+2)/(a_H+)^2,
-  # so this is so far an approximate reproduction of their diagram.
-
-  ## Fe-S-O at 200 deg C
-  ## (After Helgeson, 1970)
-  basis(c('Fe','O2','S2'))
-  species(c('iron','ferrous-oxide','magnetite',
-    'hematite','pyrite','pyrrhotite'))
-  a <- affinity(S2=c(-50,0),O2=c(-90,-10),T=200)
-  diagram(a,color='heat')
-  title(main=paste('Fe-S-O, 200 degrees C, 1 bar',
-    'After Helgeson, 1970',sep='\n'))
-
-  ## Nucleobase - Amino Acid Interaction Eh-H2O
-  ## association of amino acids with 
-  ## nucleotides in the genetic code.
-  # for this example we try a unique basis definition
-  basis(c('CO2','H2O','glutamine','e-','H+'),c(-3,0,-3,0,-7))
-  species(c('uracil','cytosine','adenine','guanine',
-    'phenylalanine','proline','lysine','glycine'),'aq')
-  # this loaded four nucleobases and four related amino acids
-  # (coded for by the homocodon triplets)
-  # check out the predominance diagrams
-  a.1 <- affinity(H2O=c(-5,0),Eh=c(-0.5,0))
-  diagram(a.1,color=NULL)
-  # overlay a different temperature
-  a.2 <- affinity(H2O=c(-5,0),Eh=c(-0.5,0),T=100)
-  diagram(a.2,col='red',add=TRUE,names=NULL)
-  # start make a title for the plot
-  tb <- thermo$basis   # includes activities of basis species
-  # exclude those that are on the axes
-  tb <- tb[!((rownames(tb) \%in\% c('e-','H2O'))),]
-  title(main=paste('Nucleobases and amino acids,',
-    'T=25 and 100 C at Psat\n',
-    describe(tb,T=NULL,P=NULL)),cex.main=0.9)
-
-  ## Temperature-Pressure: kayanite-sillimanite-andalusite
-  # this is a system of a single component (Al2SiO5)
-  # but we are required to provide put more than one
-  # species in the basis definition
-  basis(c('kyanite','quartz','oxygen'))
-  species(c('kyanite','sillimanite','andalusite'))
-  diagram(affinity(T=c(0,1000,200),P=c(500,5000,200)),color=NULL)
-  title(main='Al2SiO5')
-
-
-
 }
 
 \references{
 
-  Aksu, S. and Doyle, F. M., 2001. Electrochemistry of copper in aqueous glycine solutions. \emph{J. Electrochem. Soc.}, 148, B51-B57.
+  Aksu, S. and Doyle, F. M., 2001. Electrochemistry of copper in aqueous glycine solutions. \emph{J. Electrochem. Soc.}, 148, B51-B57. \url{http://dx.doi.org/10.1149/1.1344532}
 
-  Bowers, T. S., Jackson, K. J. and Helgeson, H. C., 1984. \emph{Equilibrium Activity Diagrams for Coexisting Minerals and Aqueous Solutions at Pressures and Temperatures to 5 kb and 600} \eqn{^{\circ}}{degrees }\emph{C}. Springer-Verlag, Heidelberg, 397 p.
+  Bowers, T. S., Jackson, K. J. and Helgeson, H. C., 1984. \emph{Equilibrium Activity Diagrams for Coexisting Minerals and Aqueous Solutions at Pressures and Temperatures to 5 kb and 600} \eqn{^{\circ}}{degrees }\emph{C}. Springer-Verlag, Heidelberg, 397 p. \url{http://www.worldcat.org/oclc/224591948}
 
-  Dick, J. M., 2008. Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.}, 9:10.
+  Dick, J. M., 2008. Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.}, 9:10. \url{http://dx.doi.org/10.1186/1467-4866-9-10}
 
-  Ernst, W. G., 1976. \emph{Petrologic Phase Equilibria}. W. H. Freeman, San Francisco, 333 p.
+  Ernst, W. G., 1976. \emph{Petrologic Phase Equilibria}. W. H. Freeman, San Francisco, 333 p. \url{http://www.worldcat.org/oclc/2072721}
  
-  Helgeson, H. C., 1970. A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.}, 3, 155-186.
+  Helgeson, H. C., 1970. A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.}, 3, 155-186. \url{http://www.worldcat.org/oclc/583263}
 
-  Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K., 1978. Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.}, 278-A, 1-229.
+  Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K., 1978. Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.}, 278-A, 1-229. \url{http://www.worldcat.org/oclc/13594862}
 
-  LaRowe, D. E. and Helgeson, H. C., 2007. Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology}, 5, 153-168.
+  LaRowe, D. E. and Helgeson, H. C., 2007. Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology}, 5, 153-168. \url{http://dx.doi.org/10.1111/j.1472-4669.2007.00099.x}
 
-  Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N., 2006. Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe2(SO4)3(H2O)5. \emph{Eur. J. Mineral.}, 18, 175-186.
+  Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N., 2006. Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe2(SO4)3(H2O)5. \emph{Eur. J. Mineral.}, 18, 175-186. \url{http://dx.doi.org/10.1127/0935-1221/2006/0018-0175}
 
-  Pourbaix, M. J. N., 1949. \emph{Thermodynamics of dilute aqueous solutions}. Edward Arnold & Co., London, 136 p.
+  Pourbaix, M. J. N., 1949. \emph{Thermodynamics of dilute aqueous solutions}. Edward Arnold & Co., London, 136 p. \url{http://www.worldcat.org/oclc/1356445}
 
-  Seewald, J. S., 1997. Mineral redox buffers and the stability of organic compounds under hydrothermal conditions. \emph{Mat. Res. Soc. Symp. Proc.}, 432, 317-331.
+  Seewald, J. S., 1997. Mineral redox buffers and the stability of organic compounds under hydrothermal conditions. \emph{Mat. Res. Soc. Symp. Proc.}, 432, 317-331. \url{http://lucy.mrs.org/meetings/spring96/Program/S.S96.html}
 
-  Tagirov, B. and Schott, J., 2001. Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta}, 65, 3965-3992.
+  Tagirov, B. and Schott, J., 2001. Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta}, 65, 3965-3992. \url{http://dx.doi.org/10.1016/S0016-7037(01)00705-0}
 
-  Tardy, Y., Schaul, R. and Duplay, J., 1997. Thermodynamic stability fields of humus, microflora and plants. \emph{C. R. Acad. Sci. Paris}, 324, 969-976.
-
+  Tardy, Y., Schaul, R. and Duplay, J., 1997. Thermodynamic stability fields of humus, microflora and plants. \emph{C. R. Acad. Sci. Paris}, 324, 969-976. \url{http://dx.doi.org/10.1016/S1251-8050(97)83981-X}
 
 }
 

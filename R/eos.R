@@ -99,14 +99,8 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
     dadT <- ag2 + 2*ag3*Tc  # Eqn. 70
     # Eqn. 69
     dgadT <- bg*rhohat*alpha*(1-rhohat)^(bg-1) + log(1-rhohat)*g/ag*dbdT  
-    # Eqn. 68
-    #d2gdT2 <- g/ag*d2adT2 + 2*dadT*dgadT + ag * (
-    #  bg*rhohat*alpha*dgadT + (1-rhohat)^(bg-1) * (
-    #    rhohat*alpha*dbdT - bg*rhohat*alpha^2 + bg*rhohat*dadT ) +
-    #  log(1-rhohat)*g/ag*d2bdT2 + dbdT * (
-    #    log(1-rhohat)*dgadT + rhohat*alpha*(1-rhohat)^(bg-1) ) ) - d2fdT2
     D <- rhohat
-    # transcribed from reac92.f
+    # transcribed from SUPCRT92/reac92.f
     dDdT <- -D * alpha
     dDdP <- D * beta
     dDdTT <- -D * (daldT - alpha^2)
@@ -131,9 +125,9 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
     dwdT[do.g] <- (-eta * Z3 * dgdT)[do.g]
     d2wdT2[do.g] <- (2 * eta * Z4 * dgdT^2 - eta * Z3 * d2gdT2)[do.g]
   }
+
   # re-enable warnings
   options(warn)
-  #return(EOS)
   # loop over each property
   w <- NULL
   for(i in 1:length(property)) {

@@ -1,3 +1,27 @@
+CHNOSZ_0.9 (2009-11-30) Fix .First.lib so package date correctly displays when
+a CRAN-built package is loaded. Add URL to DESCRIPTION. In protein(), fix
+UniProt search and add colClasses to read.csv function call so names of
+proteins and organisms are always read as character. Add DNA polymerases and
+mammalian aquaporin-1, myoglobin and p53 to protein.csv to support examples.
+Fix issue in supcrt() where balancing reactions with charged species didn't
+work correctly.  affinity() now handles transects along multiple variables
+(useful for specifying nonuniform increments), invoked by specifying variables
+with length > 3. Modifications to diagram(): Add 'group' argument to treat
+groups of species as single composite species; implement 'alpha' option for 0-D
+diagrams; add 'bg' argument for specifying background color of legend; speed up
+plotting of predominance field labels and boundary lines. Change system
+function call in grep.file() from grep to egrep (for extended regular
+expressions). read.fasta() now has options to return the sequences and the
+lines from the file. Add functions residue.comp() for calculating the
+per-residue compositions of proteins, nucleicacids() for counting the bases and
+computing the formulas of DNA and RNA, unitize() for scaling activities of
+proteins so total activity of residues is unity (or other user-specified
+value), strip() to plot relative abundances as variable-width color bars,
+longex() to run additional examples. Add ability to select from duplicated
+species in database using new 'level' option in thermo$opt.  Update yeast
+examples in get.protein() to be consistent with Dick, 2009. Add URLs to
+reference lists in documentation.
+
 CHNOSZ_0.8 (2009-04-22) New functions extremes, where.extreme, diversity,
 richness, plot.diversity, abundance, abundance.old (extracted from diagram),
 protein.residue, grep.file, read.fasta, energy (extracted from affinity),

@@ -97,12 +97,14 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
 
   # get species information
   # convert numeric species argument to character and state
+  ispecies <- NULL
   if(is.numeric(species[1])) {
     ispecies <- species
     species <- as.character(thermo$obigt$name[ispecies])
     state <- as.character(thermo$obigt$state[ispecies])
   }
 
+  # get species indices and states and possibly
   # keep track of phase species (cr1 cr2 ...)
   sinfo <- numeric()
   newstate <- character()
@@ -112,10 +114,14 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
     si <- info(mysearch,state[i],quiet=TRUE)
     if(is.na(si[1])) stop('no info found for ',species[i],state[i])
     if(!is.null(state[i])) is.cr <- state[i]=='cr' else is.cr <- FALSE
-    if(thermo$obigt$state[si[1]]=='cr1' & (is.null(state[i]) | is.cr))
+    if(thermo$obigt$state[si[1]]=='cr1' & (is.null(state[i]) | is.cr)) {
       newstate <- c(newstate,'cr')
-    else newstate <- c(newstate,as.character(thermo$obigt$state[si]))
-    sinfo <- c(sinfo,si[1])
+      sinfo <- c(sinfo,si[1])
+    } else {
+      newstate <- c(newstate,as.character(thermo$obigt$state[si[1]]))
+      if(!is.null(ispecies)) sinfo <- c(sinfo,ispecies[i])
+      else sinfo <- c(sinfo,si[1])
+    }
   }
 
   # stop if species not found
@@ -129,13 +135,18 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
   # a counter of all species considered
   # inpho is longer than sinfo if cr1 cr2 ... phases are present
   # sinph shows which of sinfo correspond to inpho
-  # the success of this depends on there not being duplicated aqueous or other
+  # pre-20091114: the success of this depends on there not being duplicated aqueous or other
   # non-mineral-phase species (i.e., two entries in obigt for Cu+ screw this up
   # when running the skarn example).
+  # after 20091114: we can deal with duplicated species (aqueous at least)
   inpho <- sinph <- coeff.new <- numeric()
   for(i in 1:length(sinfo)) {
-     if(newstate[i]=='cr') searchstates <- c('cr','cr1','cr2','cr3','cr4','cr5','cr6','cr7','cr8','cr9') else searchstates <- state[i]
-     tghs <- thermo$obigt[(thermo$obigt$name %in% name[i]) & thermo$obigt$state %in% searchstates,]
+     if(newstate[i]=='cr') {
+       searchstates <- c('cr','cr1','cr2','cr3','cr4','cr5','cr6','cr7','cr8','cr9') 
+       tghs <- thermo$obigt[(thermo$obigt$name %in% name[i]) & thermo$obigt$state %in% searchstates,]
+       # we only take one if they in fact duplicated species and not phase species
+       if(all(tghs$state==tghs$state[1])) tghs <- thermo$obigt[sinfo[i],]
+     } else tghs <- thermo$obigt[sinfo[i],]
      inpho <- c(inpho,as.numeric(rownames(tghs))) 
      sinph <- c(sinph,rep(sinfo[i],nrow(tghs)))
      coeff.new <- c(coeff.new,rep(coeff[i],nrow(tghs)))
@@ -168,7 +179,7 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
   if(length(species)==1 & convert==FALSE) {
     # we don't think we want messages here
   } else {
-    cat(paste('subcrt: ',length(species),' species at ',T.text,' and ',P.text,'.\n',sep=''))
+    cat(paste('subcrt:',length(species),'species at',T.text,'and',P.text,'\n'))
   }
 
 
@@ -189,40 +200,47 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
       tb <- thermo$basis
       if(!is.null(tb)) {
         if(!FALSE %in% (colnames(tt) %in% colnames(tb)[1:nrow(tb)])) {
-        # the missing composition as formula
-        ft <- makeup(tt,'')
-        # the basis species needed to supply it
-        # paste a fake zero charge so that a negative
-        # coefficient on the last element isn't confused by makeup
-        if(!'Z' %in% colnames(tt)) ft <- paste(ft,'-0',sep='')
-        bc <- basis.comp(ft)
-        # drop zeroes
-        bc.new <- bc[,(bc[1,]!=0),drop=FALSE]
-        # and get the states
-        b.state <- as.character(thermo$basis$state)[bc[1,]!=0]
-        bc <- bc.new
-        # special thing for Psat
-        if(P.text=='Psat') P <- P.text
-        else P <- outvert(P,"bar")
-        # add to logact values if present
-        if(!is.null(logact)) {
-          ila <- match(colnames(bc),rownames(thermo$basis))
-          nla <- !(can.be.numeric(thermo$basis$logact[ila]))
-          if(any(nla)) warning('subcrt: logact values of basis species',
-            c2s(rownames(thermo$basis)[ila]),'are NA.')
-          logact <- c(logact,thermo$basis$logact[ila])
-        }
-        # warn user and do it!
-        cat('subcrt: adding missing composition from basis definition and restarting...\n')
-        return(subcrt(species=c(species,tb$ispecies[match(colnames(bc),rownames(tb))]),
-          coeff=c(coeff,as.numeric(bc[1,])),state=c(state,b.state),property=property,
-          T=outvert(T,"K"),P=P,grid=grid,convert=convert,logact=logact,do.phases=FALSE))
+          # the missing composition as formula
+          ft <- makeup(tt,'')
+          # the basis species needed to supply it
+          # paste a fake zero charge so that a negative
+          # coefficient on the last element isn't confused by makeup
+          # edited 20091103 so balancing with charged species works
+          #if(!'Z' %in% colnames(tt)) ft <- paste(ft,'-0',sep='')
+          if(tail(colnames(tt),1)!="Z") ft <- paste(ft,'-0',sep='')
+          bc <- basis.comp(ft)
+          # drop zeroes
+          bc.new <- bc[,(bc[1,]!=0),drop=FALSE]
+          # and get the states
+          b.state <- as.character(thermo$basis$state)[bc[1,]!=0]
+          bc <- bc.new
+          # special thing for Psat
+          if(P.text=='Psat') P <- P.text
+          else P <- outvert(P,"bar")
+          # add to logact values if present
+          if(!is.null(logact)) {
+            ila <- match(colnames(bc),rownames(thermo$basis))
+            nla <- !(can.be.numeric(thermo$basis$logact[ila]))
+            if(any(nla)) warning('subcrt: logact values of basis species',
+              c2s(rownames(thermo$basis)[ila]),'are NA.')
+            logact <- c(logact,thermo$basis$logact[ila])
+          }
+          # warn user and do it!
+          ispecies.new <- tb$ispecies[match(colnames(bc),rownames(tb))]
+          b.species <- thermo$obigt$formula[ispecies.new]
+          if(identical(species,b.species) & identical(state,b.state))
+            cat("subcrt: balanced reaction, but it is a non-reaction; restarting...\n")
+          else cat('subcrt: adding missing composition from basis definition and restarting...\n')
+          return(subcrt(species=c(species,tb$ispecies[match(colnames(bc),rownames(tb))]),
+            coeff=c(coeff,as.numeric(bc[1,])),state=c(state,b.state),property=property,
+            T=outvert(T,"K"),P=P,grid=grid,convert=convert,logact=logact,do.phases=FALSE))
         } else if(identical(action.unbalanced,'warn')) warning('reaction was unbalanced!!!',call.=FALSE)
       } else {
         if(identical(action.unbalanced,'warn')) warning('reaction was unbalanced!!!',call.=FALSE)
       }
     }
   }
+
 
   # calculate the properties
   # if we want affinities we must have logK
@@ -450,7 +468,11 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
     } else {
       # multiple phases aren't involved ... things stay the same
       out.new[[i]] <- out[[iphases]]
+      # hmm.. this could mess up our coefficients 20091103
+      #reaction.new[i,] <- reaction[iphases,]
+      coeff.orig <- reaction$coeff
       reaction.new[i,] <- reaction[iphases,]
+      reaction.new$coeff <- coeff.orig
       rs <- as.character(reaction.new$state); rs[i] <- as.character(reaction$state[iphases]); reaction.new$state <- rs
       isaq.new <- c(isaq.new,isaq[iphases])
       iscgl.new <- c(iscgl.new,iscgl[iphases])

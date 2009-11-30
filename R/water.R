@@ -426,18 +426,6 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
   if(length(property)==1 & property[1]=='psat') return(data.frame(Psat=psat()))
   ### maybe we are using the SUPCRT calculations ###
   if(do.supcrt) {
-    #for(i in 1:length(property)) {
-      #if(length(keep.prop)>0 & (Property[i] %in% names(thermo$water)))
-      #  w.new <- thermo$water[(names(thermo$water)==Property[i])][[1]]
-      #  else {
-      #    if(!quiet) cat(paste(' ',Property[i],sep=''))
-     #     w.new <- water.subcrt(Property[i],T=T,P=P)
-      #    thermo$water <<- c(thermo$water,list(tmp=w.new))
-      #    names(thermo$water)[length(thermo$water)] <<- Property[i]
-      #    if(!quiet & i==length(property)) cat('.\n')
-      #  }
-     # if(i==1) w.out <- data.frame(w.new) else w.out <- cbind(w.out,data.frame(w.new))
-    #}
     names.SUPCRT <- c('Speed','alpha','beta','diel','ZBorn','YBorn','QBorn','XBorn')
     names.CHNOSZ <- c('w','E','kT','epsilon','Z','Y','Q','X')
     Property.new <- character()
@@ -700,11 +688,13 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
   # check for same T, P as last time
   length.keep <- 25; do.keep <- FALSE
   if(length(T) > length.keep) {
-    if(isat & identical(thermo$water2$T,T) & any(P!=0)) do.keep <- TRUE
-    else if(!identical(thermo$water2$T,T)) thermo$water2 <<- NULL
-    else if(!identical(thermo$water2$P,P)) thermo$water2 <<- NULL
-    else do.keep <- TRUE
-    if(is.null(thermo$water2)) thermo$water2 <<- list(T=T,P=P)
+    if(isat) {
+      if(identical(thermo$Psat$T,T)) do.keep <- TRUE
+      else thermo$Psat <<- list(T=T)
+    } else {
+      if(identical(thermo$water2$P,P) & identical(thermo$water2$T,T)) do.keep <- TRUE
+      else thermo$water2 <<- list(T=T,P=P)
+    }
   } 
   # now to the actual calculations
   if(!do.keep) {
@@ -714,6 +704,7 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
     err.out <- numeric(length(T))
     rho.out <- numeric(length(T))
     p.out <- numeric(length(T))
+    # 20091022 TODO: parallelize this
     for(i in 1:length(T)) {
       states[1] <- Tc[i]
       states[2] <- P[i]
@@ -740,7 +731,6 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
           # for selecting the liquid properties later
           inc <- 1
         }
-        if(err==1) rho <- NA
         rho.out[i] <- rho
         # most of the properties we're interested in
         w <- t(t[[3]][iprop+inc])
@@ -750,11 +740,10 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
         # Psat
         if(isat | 'psat' %in% tolower(property)) {
           p <- t[[2]][2]
-          if(T[i] < 373.124) p <- 1
-          #if(i==1) p.out <- p else p.out <- c(p.out,p)
+          #if(T[i] < 373.124) p <- 1
+          if(p < 1) p <- 1
           p.out[i] <- p
         } else {
-          #if(i==1) p.out <- P[i] else p.out <- c(p.out,P[i])
           p.out[i] <- P[i]
         }
       }
@@ -768,20 +757,26 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
     if(isat | 'psat' %in% tolower(property)) w.out <- cbind(w.out,Psat=p.out)
     # keep the calculated properties around for future reference
     if(length(T) > length.keep) {
-      thermo$water2 <<- c(thermo$water2,list(out=w.out))
-      if(isat) thermo$water2$P <<- p.out
+      if(isat) thermo$Psat <<- c(thermo$Psat,list(out=w.out))
+      else thermo$water2 <<- c(thermo$water2,list(out=w.out))
     }
     # tell the user about any problems
     if(any(err.out==1)) {
-      if(length(T) > 1) plural <- 's' else plural <- ''
+      if(length(T) > 1) plural <- "s" else plural <- ""
       nerr <- length(which(err.out==1))
-      if(isat) warning(paste('water.SUPCRT92: error',plural,' calculating ',nerr,' of ',length(T),' point',plural,'; for Psat we need T < 647.067 K.',sep=''),call.=FALSE)
-      else warning(paste('water.SUPCRT92: error',plural,' calculating ',nerr,
-        ' of ',length(T),' point',plural,'; T and/or P are NA, ',
-        'or T < Tfusion@P, T > 2250 degC, or P > 30kb.',sep=''),call.=FALSE)
+      if(nerr > 1) plural2 <- "s" else plural2 <- ""
+      if(isat) warning(paste("water.SUPCRT92: error",plural2," calculating ",
+        nerr," of ",length(T)," point",plural,"; for Psat we need T < 647.067 K.",sep=""),
+        call.=FALSE,immediate.=TRUE)
+      else warning(paste("water.SUPCRT92: error",plural2," calculating ",nerr,
+        " of ",length(T)," point",plural,"; T and/or P are NA, ",
+        "or T < Tfusion@P, T > 2250 degC, or P > 30kb.",sep=""),call.=FALSE,immediate.=TRUE)
         # that last bit is taken from SUP92D.f in the SUPCRT92 distribution
     }
-  } else w.out <- thermo$water2$out
+  } else {
+    if(isat) w.out <- thermo$Psat$out
+    else w.out <- thermo$water2$out
+  }
   # if isat is 1, just return the calculated pressures
   if(isat) return(w.out$Psat)
   # return only the selected properties

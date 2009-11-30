@@ -47,15 +47,15 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
   At each step, a small amount (\eqn{10^{\alpha}}{10^alpha}) of the starting composition is provisionally reacted and a relatively more stable product may be formed. The amount of product formed is such that the activity of the primary conservant (the basis species given in \code{ibalance}) is not changed. The changes in the activities of the other basis species are calculated, and the process is iterated until \code{nsteps} is reached or the value of \eqn{\alpha}{alpha} is driven to a very low value (\code{logpresent}, which is a constant set in the code to \eqn{-50}).
 
- If at a given step the most stable product is different from the one before, either the previous products are ignored (for \code{cmode} equal to \samp{none}, i.e. an open system) or the reaction of the starting material is coupled to that of the existing products (for \code{cmode} equal to \samp{coupled}, i.e. a closed system) through a secondary conservation constraint. The basis species that are candidates for the secondary conservation are identified in \code{iplot}.
+ If at a given step the most stable product is different from the one before, either the previous products are ignored (for \code{dmode} equal to \samp{none}, i.e. an open system) or the reaction of the starting material is coupled to that of the existing products (for \code{dmode} equal to \samp{coupled}, i.e. a closed system) through a secondary conservation constraint. The basis species that are candidates for the secondary conservation are identified in \code{iplot}.
 
- The initial value of alpha is given by \code{alphastart}. After successful steps, the function increases the value of alpha by \eqn{1}, and after failed steps to decrease the value of alpha by \eqn{1}. One condition that can lead to a failed step is that the logarithm of activity of any basis species changes by more than \code{devmax}. Therefore, throughout the simulation the value of \eqn{\alpha}{alpha} dynamically adjusts to the \code{devmax} set by the user.
+ The initial value of alpha is given by \code{alphastart}. After successful steps, the function increases the value of alpha by \eqn{1}, and after failed steps decreases the value of alpha by \eqn{1}. One condition that can lead to a failed step is that the logarithm of activity of any basis species changes by more than \code{devmax}. Therefore, throughout the simulation the value of \eqn{\alpha}{alpha} dynamically adjusts based on the \code{devmax} set by the user.
 
   \code{buffers} is a list with elements \code{basis} indicating the basis species to be buffered and \code{buffer} naming the buffers to use for that basis species. If this argument is given, at each step the activity of the basis species \emph{in the buffer} is calculated. The difference between this activity and the current activity of the basis species in the system is then multiplied by 10 raised to the ( \code{alpha} + \code{beta} ) and this quantity added to the current activity of the basis species in the system. As a result, the value of \code{beta} modifies the strength of the buffer relative to the incremental reaction progress.
 
   \code{draw.transfer} is used to plot the logarithms of activities of basis species, and logarithms of activities (moles for solid species, molalities for aqueous species) of the minerals or proteins as a function of reaction progress, or logarithm of reaction progress if \code{logprogress} is set to \code{TRUE}. The y-limits of the plots can be set using \code{ylim} and \code{ylimbasis}.
 
-  \code{feldspar} and \code{apc} encode examples for feldspar weathering and the reaction among proteins in the anaphase-promoting complex of yeast. Equivalent code for two selected examples is shown below.
+  \code{feldspar} and \code{apc} encode examples for feldspar weathering and reactions among proteins in the anaphase-promoting complex of yeast. Equivalent code for two selected examples is shown below.
 
 }
 
@@ -66,45 +66,43 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
 \examples{
   \dontshow{data(thermo)}
+  ### these examples can be run using longex("transfer")
+  \dontrun{
+    ## react potassium feldspar in a closed system
+    ## after Steinmann et al., 1994 and Helgeson et al., 1969
+    basis(c("Al+3","H4SiO4","K+","H2O","H+","O2"),c(0,-6,-6,0,0,0))
+    species(c("k-feldspar","muscovite","pyrophyllite","kaolinite","gibbsite"))
+    a <- affinity(H4SiO4=c(-6,-2),"K+"=c(-3,8))
+    diagram(a)
+    basis("pH",4)
+    species(1:5,c(-4,rep(-999,4)))
+    t <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
+    # plot the output from transfer
+    draw.transfer(t)
+    # reset the plot layout
+    layout(matrix(1))
+    # note, the same calculation can be performed using
+    # feldspar("closed")
 
-  ## react potassium feldspar in a closed system
-  ## after Steinmann et al., 1994
-  ## and Helgeson et al., 1969
-  basis(c('Al+3','H4SiO4','K+','H2O','H+','O2'),c(0,-6,-6,0,0,0))
-  species(c('k-feldspar','muscovite','pyrophyllite','kaolinite','gibbsite'))
-  a <- affinity(H4SiO4=c(-6,-2),'K+'=c(-3,8))
-  diagram(a)
-  basis('pH',4)
-  species(1:5,c(-4,rep(-999,4)))
-  t <- transfer(550,dmode='coupled',plot=c(2,3),devmax=0.2)
-  # plot the output from transfer
-  draw.transfer(t)
-  # reset the plot layout
-  layout(matrix(1))
-  # note, the same calculation can be performed using
-  # feldspar("closed")
-
-  ## react APC2 from Saccharomyces cerevisiae
-  ## to other proteins in the anaphase-promoting complex
-  ## (closed system)
-  basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
-  basis("H2","aq")
-  species(c("APC1","APC2","APC5","CDC16","APC10","SWM1"),"YEAST")
-  a <- affinity(CO2=c(-10,0),H2=c(-10,0))
-  diagram(a,residue=TRUE,as.residue=TRUE)
-  species(1:nrow(species()),-999)
-  species("APC2_YEAST",0)
-  t <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
-  # this calculation is also available with
-  # apc("closed")
-
+    ## react APC2 from Saccharomyces cerevisiae
+    ## to other proteins in the anaphase-promoting complex
+    basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
+    species(c("APC1","APC2","APC5","CDC16","APC10","SWM1"),"YEAST")
+    a <- affinity(CO2=c(-10,0),H2=c(-10,0))
+    diagram(a,as.residue=TRUE)
+    species(1:nrow(species()),-999)
+    species("APC2_YEAST",0)
+    t <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
+    # this calculation is also available with
+    # apc("closed")
+  }
 }
 
 \references{
 
-  Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T., 1969. Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta}, 33, 455-481.
+  Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T., 1969. Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta}, 33, 455-481. \url{http://dx.doi.org/10.1016/0016-7037(69)90127-6}
 
-  Steinmann, P., Lichtner, P. C. and Shotyk, W., 1994. Reaction path approach to mineral weathering reactions. \emph{Clay Clay Min.}, 42, 197-206.
+  Steinmann, P., Lichtner, P. C. and Shotyk, W., 1994. Reaction path approach to mineral weathering reactions. \emph{Clay Clay Min.}, 42, 197-206. \url{http://ccm.geoscienceworld.org/cgi/content/abstract/42/2/197}
 
 }
 

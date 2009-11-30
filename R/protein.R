@@ -67,11 +67,17 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
         cat('failed.\n')
         return(NA)
       } else cat('got it!\n')
-      tt <- myt[[4]]
-      if(tt=='<head>') tt <- myt[[5]]
-      accession.number <- s2c(tt,sep=c('entry',' '),keep.sep=FALSE)[[3]]
+      # 20091102: the following is too sensitive to changes in 
+      # page format so instead we just look for a link to a fasta file
+      #tt <- myt[[4]]
+      #if(tt=='<head>') tt <- myt[[5]]
+      #accession.number <- s2c(tt,sep=c('entry',' '),keep.sep=FALSE)[[3]]
+      tt <- myt[[grep("/uniprot/.*fasta",myt)[1]]]
+      # also, s2c is slow so let's use strsplit
+      tt <- strsplit(tt,".fasta",fixed=TRUE)[[1]][1]
+      accession.number <- tail(strsplit(tt,"/uniprot/",fixed=TRUE)[[1]],1)
       cat(paste('protein: found ',accession.number,' ... ',sep=''))
-      url <- paste('http://www.expasy.org/uniprot/',accession.number,'.fas',sep='')
+      url <- paste('http://www.uniprot.org/uniprot/',accession.number,'.fasta',sep='')
       tt <- readLines(url)
       cat(paste(s2c(tt[[1]],sep=c(protein,'(EC','OS'),keep.sep=FALSE)[[2]],sep=''))
       # get rid of the header before counting letters
@@ -341,44 +347,67 @@ get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,
   return(aa)
 }
 
-read.fasta <- function(file,i=NULL,aa=TRUE) {
+read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL) {
   # read sequences from a fasta file
   # all of them or only those indicated by i
   # if aa=TRUE compile a data frame of the amino acid
   # compositions suitable for add.protein
   # some of the following code was adapted from 
   # read.fasta in package seqinR
-  lines <- readLines(file)
-  ihead <- which(substr(lines,1,1)==">")
+  # TODO: better test for type of system
+  # value of 'ret' determines format of return value:
+  # aa: amino acid composition (same columns as thermo$protein)
+  # seq: amino acid sequence
+  # fas: fasta entry
+  is.nix <- Sys.info()[[1]]=="Linux"
+  if(is.nix & is.null(lines)) {
+    nlines <- as.integer(system(paste('grep -c "**"',file),intern=TRUE))
+    ihead <- as.integer(system(paste('grep -n "^>"',file,'| cut -f 1 -d ":"'),intern=TRUE))
+    #linefun <- function(i1,i2) as.character(system(paste('sed -n ',i1,',',i2,'p ',file,sep=""),intern=TRUE))
+    lines <- system(paste("cat",file),intern=TRUE)
+    linefun <- function(i1,i2) lines[i1:i2]
+  } else {
+    if(is.null(lines)) lines <- readLines(file)
+    nlines <- length(lines)
+    if(is.null(ihead)) ihead <- which(substr(lines,1,1)==">")
+    linefun <- function(i1,i2) lines[i1:i2]
+  }
   if(is.null(i)) {
     i <- ihead
     start <- i + 1
     end <- i - 1
-    end <- c(end[-1], length(lines))
+    end <- c(end[-1], nlines)
   } else {
     start <- i + 1
     iend <- match(i,ihead)
     # we have to be careful about the last record
     iend[iend==ihead[length(ihead)]] <- NA
     end <- ihead[iend+1] - 1
-    end[is.na(end)] <- length(lines)
+    end[is.na(end)] <- nlines
   } 
-  seqfun <- function(i) paste(lines[start[i]:end[i]],collapse="")
-  sequences <- lapply(1:length(i), seqfun)
+  # just return the lines from the file
+  if(ret=="fas") {
+    iline <- numeric()
+    for(i in 1:length(start)) iline <- c(iline,(start[i]-1):end[i])
+    return(lines[iline])
+  }
+  seqfun <- function(i) paste(linefun(start[i],end[i]),collapse="")
+  sequences <- mylapply(1:length(i), seqfun)
   nomfun <- function(j) {
-    firstword <- strsplit(lines[i[j]], " ")[[1]][1]
+    firstword <- strsplit(linefun(i[j],i[j]), " ")[[1]][1]
     substr(firstword, 2, nchar(firstword))
   }
-  nomseq <- lapply(1:length(i),nomfun) 
-  if(aa) {
+  nomseq <- mylapply(1:length(i),nomfun) 
+  if(ret=="count") {
     aa <- aminoacids(sequences)
     colnames(aa) <- aminoacids(nchar=3)
     protein <- as.character(nomseq)
     organism <- s2c(file,sep=".",keep.sep=FALSE)[1]
     source <- abbrv <- NA
     chains <- 1
+    # 20090507 made stringsAsFactors FALSE
     return(cbind(data.frame(protein=protein,organism=organism,
-      source=source,abbrv=abbrv,chains=chains),aa))
+      source=source,abbrv=abbrv,chains=chains,stringsAsFactors=FALSE),aa))
   } else return(sequences)
 }
 
@@ -414,7 +443,8 @@ add.protein <- function(file="protein.csv") {
   # can also supply a dataframe (e.g. made using get.protein)
   ftext <- ""
   if(is.data.frame(file)) tp2 <- file else {
-    tp2 <- read.csv(file)
+    # 20090428 added colClasses here
+    tp2 <- read.csv(file,colClasses=c(rep("character",4),rep("numeric",21)))
     ftext <- paste("from",file)
   }
   tp1.names <- paste(tp1$protein,tp1$organism,sep="_")
@@ -424,8 +454,8 @@ add.protein <- function(file="protein.csv") {
   rownames(tp1) <- 1:nrow(tp1)
   thermo$protein <<- tp1
   if(length(iadd)==1) {
-    cat(paste("add.protein: added",length(iadd),"protein",ftext,"with length",
-      protein.length(paste(tp2$protein[iadd],tp2$organism[iadd],sep="_")),"\n"))
+    cat(paste("add.protein: added ",length(iadd)," protein ",ftext,"with length ",
+      protein.length(paste(tp2$protein[iadd],tp2$organism[iadd],sep="_")),"\n",sep=""))
   } else { 
     cat(paste("add.protein: added",length(iadd),"proteins",ftext,"\n"))
   }
@@ -434,65 +464,91 @@ add.protein <- function(file="protein.csv") {
   return(invisible(match(tp2.names,tp1.names)))
 }
 
-
-protein.info <- function() {
+protein.info <- function(T=25) {
   # make a table of selected properties for proteins
+  # what proteins are present?
+  ip <- grep("_",species()$name)
+  if(length(ip)==0) stop("no proteins are defined")
   protein <- character()
   length <- numeric()
   formula <- character()
   G <- numeric()
   Z <- numeric()
   G.Z <- numeric()
-  # nominal carbon oxidation state (formula)
-  ZC1 <- numeric()
-  # nominal carbon oxidation state (sidechain)
-  ZC2 <- numeric()
-  # the total carbon oxidatation state of groups
-  ZC.group <-  c(-3,-1,1,-1,-7,-1,1,-9,-7,-9,-5,1,-5,-1,-1,-1,-3,-7,-5,-5,3,3)
-  # the average nominal carbon oxidation state of
-  # the 20 sidechain groups (in order of thermo$protein), AABB and PBB
-  #ZC.group <- c(-3,-1,0.5,-1/3,-1,0,0.25,-2.25,-1.75,-2.25,-5/3,0.5,
-  #              -5/3,-1/3,-0.5,-1,-1.5,-7/3,-5/9,-5/7,1.5,1.5)
-  # the number of carbons in each of these groups
-  nC.group <- c(1,1,2,3,7,0,4,4,4,4,3,2,3,3,4,1,2,3,9,7,2,2)
+  # nominal carbon oxidation state
+  ZC <- numeric()
   
   # add the ionizable groups
-  is.species <- thermo$species$ispecies
-  is.ion <- ionize(affinity=NULL)
-  is.only.ion <- is.ion[!is.ion %in% is.species]
-  a <- affinity()
-  this.Z <- ionize(a$values,a$values)
-  ag <- affinity(property='G.species')
-  this.G.Z <- ionize(a$values,ag$values)
-  for(i in 1:length(thermo$species$name)) {
-    p <- as.character(thermo$species$name[i])
-    if(length(grep('_',p))==0) next
+  if("H+" %in% colnames(thermo$species)) {
+    is.species <- thermo$species$ispecies[ip]
+    is.ion <- ionize(affinity=NULL)
+    is.only.ion <- is.ion[!is.ion %in% is.species]
+    a <- affinity(T=T)
+    this.Z <- ionize(a$values,a$values)
+    ag <- affinity(property='G.species',T=T)
+    this.G.Z <- ionize(a$values,ag$values)
+  } else {
+    ag <- affinity(property='G.species',T=T)
+    this.Z <- rep(NA,length(ip))
+    this.G.Z <- rep(NA,length(ip))
+  }
+  for(i in 1:length(ip)) {
+    p <- as.character(thermo$species$name[ip[i]])
     protein <- c(protein,p)
     length <- c(length,protein.length(p)[[1]])
     ii <- info(info(p))
     formula <- c(formula,as.character(ii$formula))
-    G <- c(G,ii$G)
-    Z <- c(Z,this.Z[[i]])
-    G.Z <- c(G.Z,this.G.Z[[i]])
-    protein.comp <- protein(p)
-    #ZC.protein <- sum(protein.comp[1,6:25] * ZC.group[1:20],ZC.group[21],(sum(protein.comp[1,6:25])-1)*ZC.group[22])
-    #nC.protein <- sum(protein.comp[1,6:25] * nC.group,nC.group[21],(sum(protein.comp[1,6:25])-1)*nC.group[22])
-    #ZC2 <- c(ZC2,ZC.protein/nC.protein)
+    #G <- c(G,ii$G)
+    # 20090827 use G values from G.species above (at T) 
+    G <- c(G,ag$values[[ip[i]]])
+    Z <- c(Z,this.Z[[ip[i]]])
+    G.Z <- c(G.Z,this.G.Z[[ip[i]]])
     # make sure all the elements we want are listed (even zeros)
     m <- as.data.frame(t(makeup(c(formula[i],'C0H0N0O0S0'))))
-    ZC1 <- c(ZC1,(-1*m$H+3*m$N+2*m$O+2*m$S)/m$C)
+    ZC <- c(ZC,(-1*m$H+3*m$N+2*m$O+2*m$S)/m$C)
   }
   # remove ionizable groups
-  species(is.only.ion,delete=TRUE)
+  if("H+" %in% colnames(thermo$species)) species(is.only.ion,delete=TRUE)
   cat('protein.info: converting things ...\n')
   length <- round(length,1)
-  Z <- round(Z,1)
-  G <- round(G/1000)
-  G.Z <- round(G.Z/1000)
+  Z <- round(Z,2)
+  ZC <- round(ZC,3)
+  G <- round(G/1000,2)
+  G.Z <- round(G.Z/1000,2)
   for(i in 1:length(formula)) {
     f <- makeup(formula[i])
     formula[i] <- makeup(makeup(round(f[order(rownames(f)),,drop=FALSE]),''),'')
   }
-  return(data.frame(protein=protein,length=length,formula=formula,G=G,Z=Z,G.Z=G.Z,ZC=ZC1))
+  return(data.frame(protein=protein,length=length,formula=formula,G=G,Z=Z,G.Z=G.Z,ZC=ZC))
+}
+
+residue.info <- function(T=25) {
+  # 20090902 calculate the per-residue composition
+  # of proteins that are in the species list
+  # which species are proteins
+  ip <- grep("_",thermo$species$name)
+  if(length(ip)==0) stop("no proteins are defined")
+  # grab the species definitions
+  ts <- thermo$species[ip,]
+  # calculate ionization states if H+ is a basis species
+  if("H+" %in% colnames(thermo$species)) {
+    pH <- -thermo$basis$logact[rownames(thermo$basis)=="H+"]
+    # load ionizable residues
+    iz <- ionize()
+    # calculate ionization states
+    a <- affinity(T=T)
+    z <- as.numeric(ionize(a$values,a$values)[ip])
+    # save the results
+    ts[,colnames(ts)=="H+"] <- z
+    # unload ionizable groups
+    species(iz,delete=TRUE)
+  }
+  # get lengths of proteins
+  pl <- protein.length(ts$name)
+  # calculate numbers of components per residue
+  nb <- nrow(thermo$basis)
+  for(i in 1:nb) ts[,i] <- ts[,i]/pl
+  # return the result
+  return(ts[,c(1:nb,ncol(ts))])
 }
 

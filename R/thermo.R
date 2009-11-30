@@ -32,7 +32,7 @@ eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
   # error: not a property
   notprop <- ! prop %in% tolower(props)
   if(TRUE %in% notprop) 
-    stop('thermo.args: properties ',c2s(prop[notprop]),' not in ',c2s(props),'.\n')
+    stop('thermo.args: properties ',c2s(prop[notprop]),' not in ',c2s(props),'\n')
   # return arguments
   return(list(props=props,prop=prop,Prop=Prop))
 
@@ -99,6 +99,73 @@ aminoacids <- function(seq=NULL,nchar=1) {
   rownames(a) <- 1:nrow(a)
   return(a)
 }
+
+nucleicacids <- function(seq=NULL,type="DNA",comp=NULL,comp2=NULL) {
+  # count bases or compute the formula, e.g.
+  # n <- nucleicacids(list("AGCT","TTTT"))  # a dataframe of counts
+  # f <- nucleicacids(n)  # a series of formulas
+  # 20090926 jmd
+  if(is.null(seq)) stop("please provide a sequence")
+  if(type=="DNA") {
+    na <- c("A","C","G","T")
+    na.NA <- c("adenine","cytosine","guanine","thymine")
+  } else if(type=="RNA") {
+    na <- c("U","G","C","A")
+    na.NA <- c("uracil","guanine","cytosine","adenine")
+  } else stop(paste("invalid type:",type))
+  if(is.data.frame(seq)) {
+    # compute the chemical formula of bases
+    if(!all(na %in% colnames(seq))) {
+      nabases <- c2s(na[which(!na %in% colnames(seq))],sep=" ")
+      stop(paste("requested type is",type,"but",nabases,"is/are not in the colnames of supplied dataframe"))
+    }
+    f.base <- thermo$obigt$formula[info(na.NA)]
+    f0 <- makeup("C0H0N0O0")
+    for(i in 1:4) {
+      m.base <- makeup(f0,makeup(f.base[i]))
+      if(i==1) m <- m.base else m <- cbind(m,m.base)
+    }
+    m <- as.matrix(m)
+    f.out <- character()
+    for(i in 1:nrow(seq)) {
+      s <- t(seq[i,])
+      c <- m %*% s
+      c <- as.data.frame(c,row.names=row.names(c))
+      colnames(c) <- "count"
+      f <- makeup(makeup(c,""),"")
+      f.out <- c(f.out,f)
+    }
+    return(f.out)
+  } else {
+    # count the numbers of nucleic acid bases in a sequence
+    # sequences are given as elements of the list seq
+    # to count the number of each amino acids in a sequence
+    count.na <- function(na,seq) sum(seq==na)
+    count.i <- function(i,seq) as.numeric(lapply(na,count.na,strsplit(toupper(seq[i]),"")[[1]]))
+    # count bases in each sequence
+    n <- t(as.data.frame(mylapply(1:length(seq),count.i,seq),optional=TRUE))
+    n <- as.data.frame(n)
+    # clean up row/column names
+    colnames(n) <- na
+    rownames(n) <- 1:nrow(n)
+    # return the complement if requested e.g.
+    # nucleicacids(x,type,"DNA")  # DNA complement
+    # nucleicacids(x,type,"RNA")  # RNA complement
+    # nucleicacids(x,type,"DNA","RNA")  # DNA, then RNA complement
+    if(!is.null(comp)) {
+      if(comp=="DNA") colnames(n) <- c("T","G","C","A")
+      else if(comp=="RNA") colnames(n) <- c("U","G","C","A")
+      else stop(paste("invalid complement request:",comp))
+    }
+    if(!is.null(comp2)) {
+      if(comp2=="DNA") colnames(n) <- c("A","C","G","T")
+      else if(comp2=="RNA") colnames(n) <- c("A","C","G","U")
+      else stop(paste("invalid complement request:",comp))
+    }
+    return(n)
+  }
+}
+
 
 
 GHS <- function(species=NULL,DG=NA,DH=NA,S=NA,T=thermo$opt$Tr) {
@@ -273,9 +340,9 @@ nuts <- function(units=NULL) {
   
   # show the current units, if none are specified
   if(missing(units)) {
-    cat(paste('nuts: temperature in ',thermo$opt$T.units,'.\n',sep=''))
-    cat(paste('nuts: energy in ',thermo$opt$E.units,'.\n',sep=''))
-    cat(paste('nuts: pressure in ',thermo$opt$P.units,'.\n',sep=''))
+    cat(paste('nuts: temperature in',thermo$opt$T.units,'\n'))
+    cat(paste('nuts: energy in',thermo$opt$E.units,'\n'))
+    cat(paste('nuts: pressure in',thermo$opt$P.units,'\n'))
     return(invisible())
   }
   
@@ -294,17 +361,17 @@ nuts <- function(units=NULL) {
     if(units[i] %in% c('c','k')) {
       if(units[i]=='c') thermo$opt$T.units <<- 'C'
       if(units[i]=='k') thermo$opt$T.units <<- 'K'
-      cat(paste('nuts: temperature in ',thermo$opt$T.units,'.\n',sep=''))
+      cat(paste('nuts: temperature in',thermo$opt$T.units,'\n'))
     }
     if(units[i] %in% c('j','cal')) {
       if(units[i]=='j') thermo$opt$E.units <<- 'J'
       if(units[i]=='cal') thermo$opt$E.units <<- 'cal'
-      cat(paste('nuts: energy in ',thermo$opt$E.units,'.\n',sep=''))
+      cat(paste('nuts: energy in',thermo$opt$E.units,'\n'))
     }
     if(units[i] %in% c('bar','mpa')) {
       if(units[i]=='bar') thermo$opt$P.units <<- 'bar'
       if(units[i]=='mpa') thermo$opt$P.units <<- 'MPa'
-      cat(paste('nuts: pressure in ',thermo$opt$P.units,'.\n',sep=''))
+      cat(paste('nuts: pressure in',thermo$opt$P.units,'\n'))
     }
   }
 }
@@ -484,23 +551,28 @@ thermo.axis <- function(lab='x-axis',side=1,line=1.5,cex=par('cex'),lwd=par('lwd
   if(!is.null(T)) par(opar)
 }
 
-thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par('lwd'),ticks=c(1,2,3,4),mgp=c(1.2,0.3,0),cex.axis=par('cex'),col=par('col'),yline=NULL,axs='i') {
+thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par('lwd'),side=c(1,2,3,4),
+  mgp=c(1.2,0.3,0),cex.axis=par('cex'),col=par('col'),yline=NULL,axs='i',do.box=TRUE,ticks=NULL) {
+  # start a new plot with some customized settings
+  # 20091108 changed argument name from 'ticks' to 'side' but
+  # keep 'ticks' for backward compatibility
+  if(!is.null(ticks)) side <- ticks 
   # 20090324 mar handling: NULL - a default setting; NA - par's setting
   # 20090413 changed mar of top side from 2 to 2.5
   if(is.null(mar)) mar <- c(3,3.5,2.5,1) else if(is.na(mar[1])) mar <- par('mar')
   par(mar=mar,mgp=mgp,tcl=0.3,las=1,xaxs=axs,yaxs=axs,cex=cex,lwd=lwd)
   plot.new()
   plot.window(xlim=xlim,ylim=ylim)
-  box()
+  if(do.box) box()
   # labels
   thermo.axis(xlab,side=1,line=mgp[1],cex=cex.axis,lwd=NULL)
   if(is.null(yline)) yline <- mgp[1]
   thermo.axis(ylab,side=2,line=yline,cex=cex.axis,lwd=NULL)
   # (optional) tick marks
-  if(1 %in% ticks) thermo.axis(NULL,side=1,lwd=lwd,col=par('col'))
-  if(2 %in% ticks) thermo.axis(NULL,side=2,lwd=lwd,col=par('col'))
-  if(3 %in% ticks) thermo.axis(NULL,side=3,lwd=lwd,col=par('col'))
-  if(4 %in% ticks) thermo.axis(NULL,side=4,lwd=lwd,col=par('col'))
+  if(1 %in% side) thermo.axis(NULL,side=1,lwd=lwd,col=par('col'))
+  if(2 %in% side) thermo.axis(NULL,side=2,lwd=lwd,col=par('col'))
+  if(3 %in% side) thermo.axis(NULL,side=3,lwd=lwd,col=par('col'))
+  if(4 %in% side) thermo.axis(NULL,side=4,lwd=lwd,col=par('col'))
 }
 
 water.lines <- function(xaxis='pH',yaxis='Eh',T=298.15,P='Psat',which=c('oxidation','reduction'),logaH2O=0,lty=2,col=par('fg'),xpoints=NULL) {
@@ -519,7 +591,7 @@ water.lines <- function(xaxis='pH',yaxis='Eh',T=298.15,P='Psat',which=c('oxidati
   if(xaxis=='pH' & (yaxis=='Eh' | yaxis=='O2' | yaxis=="pe")) {
     if('reduction' %in% which) {
       logfH2 <- 0
-      logK <- subcrt(c('H2O','O2','H2'),c(-1,0.5,1),T=T,P=P,convert=FALSE)$out$logK 
+      logK <- subcrt(c('H2O','oxygen','hydrogen'),c(-1,0.5,1),T=T,P=P,convert=FALSE)$out$logK 
       logfO2 <- 2 * logK - logfH2 + 2 * logaH2O
       if(yaxis=='O2') abline(h=logfO2,lty=lty,col=col) 
       else if(yaxis=="Eh") lines(xlim,convert(logfO2,'E0',T=T,P=P,pH=xlim),lty=lty,col=col)
@@ -549,7 +621,7 @@ water.lines <- function(xaxis='pH',yaxis='Eh',T=298.15,P='Psat',which=c('oxidati
     }
     if('reduction' %in% which) {
       logfH2 <- 0
-      logK <- subcrt(c('H2O','O2','H2'),c(-1,0.5,1),T=T,P=P,convert=FALSE)$out$logK 
+      logK <- subcrt(c('H2O','oxygen','hydrogen'),c(-1,0.5,1),T=T,P=P,convert=FALSE)$out$logK 
       logfO2 <- 2 * logK - logfH2 + 2 * logaH2O
       if(yaxis=='Eh') lines(xpoints,convert(logfO2,'E0',T=T,P=P,pH=xlim),lty=lty,col=col)
       else lines(xpoints,logfO2,lty=lty,col=col)
@@ -571,10 +643,13 @@ label.plot <- function(x,xfrac=0.95,yfrac=0.9,cex=1,paren=TRUE,adj=1) {
 
 axis.label <- function(x,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mol='mol') {
   # make axis labels
+  # 20090826: just return the argument if a comma is already present
+  if(length(grep(",",x)) > 0) return(x)
   lab <- x
   if(missing(opt)) do.opt <- TRUE else do.opt <- FALSE
   if(!is.null(opt)) if(is.na(opt)) do.opt <- TRUE
   if(lab %in% c('T','P','Eh','pH','pe','logK','IS')) {
+    # the label is one of these properties
     if(lab=='Eh') lab <- paste(lab,'(volt)')
     else if(lab=='T') {
       if(do.opt) T.units <- nuts('T') else T.units <- opt
@@ -591,14 +666,11 @@ axis.label <- function(x,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mo
 
     return(lab)
   } else {
+    # the label is a chemical activity or fugacity
     if(is.null(thermo$basis)) rn <- '' else rn <- rownames(basis())
     if(lab %in% rn) {
-      if(do.opt) {
-        # the default state
-        #opt <- thermo$opt$state
-        # 20090215: the state as this basis species is defined 
-        opt <- as.character(thermo$basis$state)[match(lab,rn)]
-      }
+      # 20090215: the state this basis species is in
+      if(do.opt) opt <- as.character(thermo$basis$state)[match(lab,rn)]
       state <- opt
       if(oldstyle) {
         # append (log a) or (log f)
@@ -621,7 +693,9 @@ axis.label <- function(x,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mo
             } else {
               # for charged species, don't show "Z" but do show e.g. "+2"
               lc <- labform$count[i]
-              if(lc > 0) lc <- paste("+",as.character(lc),sep="")
+              if(lc==-1) lc <- "-"
+              else if(lc==1) lc <- "+"
+              else if(lc > 0) lc <- paste("+",as.character(lc),sep="")
               newlab <- substitute(paste(a,b),list(a=newlab,b=lc))
             }
         }
@@ -635,7 +709,8 @@ axis.label <- function(x,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mo
       }
     } else {
       # a way to make expressions for various properties
-      # e.g. axis.label('DG0r','k')
+      # e.g. axis.label('DG0r','k') for standard molal Gibbs energy
+      # change of reaction in kcal/mol
       clab <- s2c(lab)
       wlab <- ''
       doital <- TRUE; dosub <- FALSE
@@ -1093,34 +1168,27 @@ change <- function(name,...) {
   }
 }
 
-examples <- function() {
+examples <- function(do.png=FALSE,long=TRUE) {
   # run all the examples in CHNOSZ
   .ptime <- proc.time()
-  example(CHNOSZ,ask=FALSE)
-  example(thermo,ask=FALSE)
-  example(examples,ask=FALSE)  # i.e., "utilities"
-  example(info,ask=FALSE)
-  example(hkf,ask=FALSE)  # i.e., "eos"
-  example(water,ask=FALSE)
-  example(subcrt,ask=FALSE)
-  example(nuts,ask=FALSE)
-  example(makeup,ask=FALSE)
-  example(basis,ask=FALSE)
-  example(species,ask=FALSE)
-  example(affinity,ask=FALSE)
-  example(diagram,ask=FALSE)
-  example(buffer,ask=FALSE)
-  example(protein,ask=FALSE)
-  example(ionize,ask=FALSE)
-  example(get.protein,ask=FALSE)
-  example(diversity,ask=FALSE)
-  example(transfer,ask=FALSE)
+  # "examples" refers to "utilities" help file
+  # "hkf" refers to "eos"
+  topics <- c("CHNOSZ","thermo","examples","info","hkf","water","subcrt",
+    "nuts","makeup","basis","species","affinity","diagram","buffer",
+    "protein","ionize","get.protein","revisit","transfer")
+  do.plot <- FALSE
+  if(is.character(do.png))
+    png(paste(do.png,"%d.png",sep=""),width=700,height=700,pointsize=18)
+  else if(do.png) do.plot <- TRUE
+  for(i in 1:length(topics)) {
+    if(do.plot) png(paste(topics[i],"%d.png",sep=""),width=700,height=700,pointsize=18)
+    myargs <- list(topic=topics[i],ask=FALSE)
+    do.call(example,myargs)
+    if(long) longex(topics[i])
+    if(do.plot) dev.off()
+  }
+  if(is.character(do.png)) dev.off()
   cat("Time elapsed: ", proc.time() - .ptime, "\n")
-}
-
-CHNOSZ <- function() {
-  # just runs the CHNOSZ.Rd examples
-  example(CHNOSZ,ask=FALSE)
 }
 
 nonideal <- function(species,proptable,IS,T) {
@@ -1213,20 +1281,28 @@ which.balance <- function(species) {
   return(ib[!is.na(ib)])
 }
 
-grep.file <- function(file,x="",y=NULL,ignore.case=TRUE,startswith=">") {
-  # return the line numbers of the
-  # file that contain
-  # the search term x
-  # and optionally don't contain y
-  lines <- readLines(file)
-  ix <- grep(x,lines,ignore.case=ignore.case)
-  if(!is.null(y)) {
-    iy <- grep(y,lines,ignore.case=ignore.case)
-    ix <- ix[!ix %in% iy] 
-  }
-  if(!is.null(startswith)) {
-    ihead <- which(substr(lines,1,1)==startswith)
-    ix <- ix[ix %in% ihead]
+grep.file <- function(file,x="",y=NULL,ignore.case=TRUE,startswith=">",lines=NULL,grep="grep") {
+  # return the line numbers of the file that contain
+  # the search term x and optionally don't contain y
+  # use the system's grep if available and y is NULL
+  # TODO: better test for system (include eg MacOSX etc)
+  if(is.null(y) & Sys.info()[[1]]=="Linux" & is.null(lines)) {
+    if(is.null(startswith)) startswith <- "" else startswith <- paste("^",startswith,".*",sep="")
+    if(ignore.case) ic <- "-i" else ic <- ""
+    # 20091021 changed grep to egrep
+    sysexp <- paste(grep,'-n',ic,paste('"',startswith,x,'"',sep=""),file,' | cut -f 1 -d ":"')
+    ix <- as.integer(system(sysexp,intern=TRUE))
+  } else {
+    if(is.null(lines)) lines <- readLines(file)
+    ix <- grep(x,lines,ignore.case=ignore.case)
+    if(!is.null(y)) {
+      iy <- grep(y,lines,ignore.case=ignore.case)
+      ix <- ix[!ix %in% iy] 
+    }
+    if(!is.null(startswith)) {
+      ihead <- which(substr(lines,1,1)==startswith)
+      ix <- ix[ix %in% ihead]
+    }
   }
   return(ix)
 }
@@ -1239,15 +1315,999 @@ mylapply <- function(X,FUN,...) {
   } else lapply(X,FUN,...)
 }
 
+spearman <- function(a,b) {
+  # calculate Spearman's rho (rank correlation coefficient)
+  # based on help(dSpearman) in package SuppDists
+  if(length(a)!=length(b)) stop("a and b must be same length")
+  ra <- rank(a)
+  rb <- rank(b)
+  dr <- rb - ra
+  d <- sum(dr^2)
+  r <- length(a)
+  x <- 1-6*d/(r*(r^2-1))
+  return(x)
+}
+
+unitize <- function(logact=NULL,length=NULL,logact.tot=0) {
+  # scale the logarithms of activities given in loga
+  # so that the logarithm of total activity of residues
+  # is zero (i.e. total activity of residues is one),
+  # or some other value set in loga.tot.
+  # length indicates the number of residues in each species.
+  # if loga is NULL, take the logarithms of activities from
+  # the current species definition. if any of those species
+  # are proteins, get their lengths using protein.length.
+  if(is.null(logact)) {
+    if(is.null(thermo$species)) stop("loga is NULL and no species are defined")
+    ts <- species()
+    logact <- ts$logact
+    length <- rep(1,length(logact))
+    ip <- grep("_",ts$name)
+    if(length(ip) > 0) length[ip] <- protein.length(ts$name[ip])
+  }
+  # the lengths of the species
+  if(is.null(length)) length <- 1
+  length <- rep(length,length.out=length(logact)) 
+  # remove the logarithms
+  act <- 10^logact
+  # the total activity
+  act.tot <- sum(act*length)
+  # the target activity
+  act.to.get <- 10^logact.tot
+  # the factor to apply
+  act.fact <- act.to.get/act.tot
+  # apply the factor
+  act <- act * act.fact
+  # take the logarithms
+  logact <- log10(act)
+  # done!
+}
+
+mtitle <- function(main,...) {
+  # make a possibly multi-line plot title 
+  # useful for including expressions on multiple lines 
+  l <- length(main)
+  for(i in 1:l) mtext(main[i],line=l-i,...)
+}
+
+longex <- function(which) {
+  if(which=="transfer") {
+    ## react potassium feldspar in a closed system
+    ## after Steinmann et al., 1994 and Helgeson et al., 1969
+    basis(c("Al+3","H4SiO4","K+","H2O","H+","O2"),c(0,-6,-6,0,0,0))
+    species(c("k-feldspar","muscovite","pyrophyllite","kaolinite","gibbsite"))
+    a <- affinity(H4SiO4=c(-6,-2),"K+"=c(-3,8))
+    diagram(a)
+    basis("pH",4)
+    species(1:5,c(-4,rep(-999,4)))
+    t <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
+    # plot the output from transfer
+    draw.transfer(t)
+    # reset the plot layout
+    layout(matrix(1))
+    # note, the same calculation can be performed using
+    # feldspar("closed")
+
+    ## react APC2 from Saccharomyces cerevisiae
+    ## to other proteins in the anaphase-promoting complex
+    basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
+    species(c("APC1","APC2","APC5","CDC16","APC10","SWM1"),"YEAST")
+    a <- affinity(CO2=c(-10,0),H2=c(-10,0))
+    diagram(a,as.residue=TRUE)
+    species(1:nrow(species()),-999)
+    species("APC2_YEAST",0)
+    t <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
+    # this calculation is also available with
+    # apc("closed")
+  } else if(which=="get.protein") {
+    ## Oxygen fugacity - activity of H2O predominance 
+    ## diagrams for proteologs for 23 YeastGFP localizations
+    # arranged by decreasing metastability:
+    # order of this list of locations is based on the 
+    # (dis)appearance of species on the current set of diagrams
+    names <- c("vacuole","early.Golgi","ER","lipid.particle",
+      "cell.periphery","ambiguous","Golgi","mitochondrion",
+      "bud","actin","cytoplasm","late.Golgi",
+      "endosome","nucleus","vacuolar.membrane","punctate.composite",
+      "peroxisome","ER.to.Golgi","nucleolus","spindle.pole",
+      "nuclear.periphery","bud.neck","microtubule")
+    nloc <- c(4,5,3,4,4,3)
+    inames <- 1:length(names)
+    # define the system
+    basis("CHNOS+")
+    # calculate amino acid compositions using "get.protein" function 
+    for(i in 1:length(names)) {
+      y <- yeastgfp(names[i])
+      p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
+      add.protein(p)
+    }
+    species(names,"SGD")
+    t <- affinity(H2O=c(-5,0,256),O2=c(-80,-66,256))
+    # setup the plot
+    layout(matrix(c(1,1,2:7),byrow=TRUE,nrow=4),heights=c(0.7,3,3,3))
+    par(mar=c(0,0,0,0))
+    plot.new()
+    text(0.5,0.5,paste("Subcellular proteologs of S. cerevisiae,",
+     "after Dick, 2009\n",describe(thermo$basis[-c(2,5),])),cex=1.5)
+    opar <- par(mar=c(3,4,1,1),xpd=TRUE)
+    for(i in 1:length(nloc)) {
+      diagram(t,balance="PBB",names=names[inames],
+        ispecies=inames,cex.axis=0.75)
+      label.plot(letters[i])
+      title(main=paste(length(inames),"locations"))
+      # take out the stable species
+      inames <- inames[-(1:nloc[i])]
+    }
+    # return to plot defaults
+    layout(matrix(1))
+    par(opar)
+
+    ## Compare calculated and experimenal relative abundances
+    ## of proteins in a subcellular location, after Dick, 2009
+    # get the amino acid composition of the proteins
+    loc <- "vacuolar.membrane"
+    y <- yeastgfp(loc)
+    ina <- which(is.na(y$abundance))
+    p <- get.protein(y$yORF[-ina],"SGD")
+    add.protein(p)
+    # set up the system
+    basis("CHNOS+")
+    # this is the logfO2 value that gives the best fit (see paper)
+    basis("O2",-74)
+    is <- species(p$protein,p$organism)
+    np <- length(is)
+    pl <- protein.length(species()$name)
+    # we use unitize so total activity of residues is unity
+    loga <- rep(0,np)
+    species(1:np,unitize(loga,pl))
+    a <- affinity()
+    d <- diagram(a,do.plot=FALSE)
+    calc.loga <- as.numeric(d$logact)
+    expt.loga <- unitize(log10(y$abundance[-ina]),pl)
+    # which ones are outliers
+    rmsd <- sqrt(sum((expt.loga-calc.loga)^2)/np)
+    residuals <- abs(expt.loga - calc.loga)
+    iout <- which(residuals > rmsd)
+    pch <- rep(16,length(is))
+    pch[iout] <- 1
+    # the colors reflect average oxidation number of carbon
+    ZC <- ZC(thermo$obigt$formula[species()$ispecies])
+    col <- rgb(0.15-ZC,0,0.35+ZC,max=0.5)
+    # there is a color-plotting error on line 567 of the plot.R file 
+    # of Dick, 2009 that can be reproduced with
+    #col <- rep(col,length.out=9)
+    xlim <- ylim <- extendrange(c(calc.loga,expt.loga))
+    thermo.plot.new(xlim=xlim,ylim=ylim,xlab=expression(list("log"*italic(a),
+      "calc")),ylab=expression(list("log"*italic(a),"expt")))
+    points(calc.loga,expt.loga,pch=pch,col=col)
+    lines(xlim,ylim+rmsd,lty=2)
+    lines(xlim,ylim-rmsd,lty=2)
+    title(main=paste("Calculated and experimental relative abundances of\n",
+      "proteins in ",loc,", after Dick, 2009",sep=""),cex.main=0.95)
+    
+
+    ### examples for stress response experiments
+
+    ## predominance fields for overall protein 
+    ## compositions induced by
+    ## carbon, sulfur and nitrogen limitation
+    ## (experimental data from Boer et al., 2003)
+    expt <- c("low.C","low.N","low.S")
+    for(i in 1:length(expt)) {
+      p <- get.protein(expt[i],"SGD",abundance=1)
+      add.protein(p)
+    }
+    basis("CHNOS+") 
+    basis("O2",-75.29)
+    species(expt,"SGD")
+    a <- affinity(CO2=c(-5,0),H2S=c(-10,0))
+    diagram(a,balance="PBB",names=expt,color=NULL)
+    title(main=paste("Metastabilities of proteins induced by",
+      "carbon, sulfur and nitrogen limitation",sep="\n"))
+
+    ## predominance fields for overall protein compositions 
+    ## induced and repressed in an/aerobic carbon limitation
+    ## (experiments of Tai et al., 2005)
+    # the activities of glucose, ammonium and sulfate
+    # are similar to the non-growth-limiting concentrations
+    # used by Boer et al., 2003
+    basis(c("glucose","H2O","NH4+","hydrogen","SO4-2","H+"),
+      c(-1,0,-1.3,999,-1.4,-7))
+    # the names of the experiments in thermo$stress
+    expt <- c("Clim.aerobic.down","Clim.aerobic.up",
+      "Clim.anaerobic.down","Clim.anaerobic.up")
+    # here we use abundance to indicate that the protein
+    # compositions should be summed together in equal amounts
+    for(i in 1:length(expt)) {
+      p <- get.protein(expt[i],"SGD",abundance=1)
+      add.protein(p)
+    }
+    species(expt,"SGD")
+    a <- affinity(C6H12O6=c(-35,-20),H2=c(-20,0))
+    diagram(a,color=NULL,as.residue=TRUE)
+    title(main=paste("Metastabilities of average protein residues in",
+      "an/aerobic carbon limitation in yeast",sep="\n"))
+  } else if(which=="diagram") {
+    ## Degrees of formation of ATP species as a function of 
+    ## temperature, after LaRowe and Helgeson, 2007
+    # Mg+2 here is the immobile component
+    # cf. LH07, where bulk composition of Mg+2 is specified
+    basis(c("CO2","NH3","H2O","H3PO4","O2","H+","Mg+2"),
+      c(999,999,999,999,999,-5,-4))
+    species(c("HATP-3","H2ATP-2","MgATP-2","MgHATP-"))
+    diagram(affinity(T=c(0,120,25)),alpha=TRUE)  
+    title(main=paste("Degrees of formation of ATP species,\n",
+      "pH=5, log(aMg+2)=-3. After LaRowe and Helgeson, 2007"),
+      cex.main=0.9)
+
+    ## speciation of phosphate as a function of ionic strength
+    basis("CHNOPS+")
+    T <- c(25,100)
+    species(c("HPO4-2","H2PO4-"))
+    diagram(affinity(IS=c(0,0.25),T=T[1]),ylim=c(-3.2,-2.8))
+    title(main=paste("Aqueous phosphate speciation, pH=7",
+      "25 and 100 deg C - black and red lines",sep="\n"))
+    diagram(affinity(IS=c(0,0.25),T=T[2]),ylim=c(-3.2,-2.8),add=TRUE,color="red")  
+    ## phosphate predominance f(IS,pH)
+    diagram(affinity(pH=c(6.8,7.2),IS=c(0,0.25),T=T[1]))
+    title(main=paste("Aqueous phosphate predominance, 25 deg C",
+      "and 100 deg C (dotted overlay)",sep="\n"))
+    diagram(affinity(pH=c(6.8,7.2),IS=c(0,0.25),T=T[2]),add=TRUE,dotted=2,
+      names=NULL)
+
+    ## using strip(): equilibrium abundances of 
+    ## proteins from different mammals
+    organisms <- c("BOVIN","CANFA","HUMAN","MOUSE","PIG")
+    proteins <- c("AQP1","MYG","P53")
+    basis("CHNOS+")
+    species(rep(proteins,each=5),organisms)
+    a <- affinity(O2=c(-85,-65,250))
+    ispecies <- list(1:5,6:10,11:15)
+    desc <- c("(Aquaporin-1)","(Myoglobin)",
+      "(Cellular tumor antigen p53)")
+    names(ispecies) <- paste(proteins,desc)
+    col <- rainbow(5)
+    strip(a,ispecies=ispecies,ymin=-0.7,col=col)
+    legend("bottomright",legend=organisms,col=col,
+      lty=1,lwd=4,bty="n")
+    title(main=paste("Equilibrium abundances of proteins",
+      "from different mammals",sep="\n"))
+    
+    
+    ### predominance diagrams (equal activities of
+    ### species as a function of two variables) 
+
+    ## T-P stability diagram for a unary system (SiO2)
+    ## after Ernst, 1976, Fig. 4.4
+    # the system is SiO2 (one component) but
+    # the basis species require all the elements:
+    # note that basis(c("SiO2","O2")) would identify SiO2(aq) 
+    # which is okay but brings in calculations of properties 
+    # of  water which are relatively slow.
+    basis(c("quartz","O2"))  # cr, gas
+    # browse the species of interest
+    info("SiO2 ")
+    # we'll take the crystalline ones
+    t <- info("SiO2","cr")
+    species(t)
+    # calculate chemical affinities
+    # the do.phases argument is necessary for 
+    # dealing with the phase transitions of minerals
+    t <- affinity(T=c(0,2000),P=c(0,30000),do.phases=TRUE)
+    diagram(t)
+    title(main="Phases of SiO2\nafter Ernst, 1976")
+
+    ## Distribution of copper on Eh-pH diagram
+    ## after Fig. 15 of Pourbaix, 1949
+    basis(c("Cu+2","Cl-","H2O","H+","e-"))
+    basis("Cl-",-2)
+    # two aqueous species, three solid ones
+    # (our CuCl is aq but it was cr in P's Fig. 15)
+    species(c("CuCl","Cu+2","copper","cuprite","tenorite"))
+    # (which is equivalent to ...)
+    # species(c("CuCl","Cu+2","Cu","Cu2O","CuO"),c("","","","","","cr"))
+    t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
+    # this one corresponds to activity contours of 
+    # aqueous species at 10^-3 (the default aq activity in CHNOSZ)
+    diagram(t,color=NULL)
+    # here we set activities to unity; aq-cr boundaries change
+    species(c("CuCl","Cu+2"),c(0,0))
+    t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
+    diagram(t,add=TRUE,names=NULL,col="blue",color=NULL)
+    water.lines()
+    title(main=paste("H2O-Cl-(Cu); activities of 10^-3 (black)\n",
+      "or 0 (blue); after Pourbaix, 1949"))
+
+    ## Eh-pH diagrams for copper-water-glycine
+    ## After Fig. 2 of Aksu and Doyle, 2001
+    # update rows of the database
+    i <- info(c("Cu(Gly)+","glycinate","e-","H+"))
+    n <- nrow(thermo$obigt <<- rbind(thermo$obigt,thermo$obigt[rep(i[1],2),]))
+    thermo$obigt$name[n-1] <<- "Cu(Gly)2-"
+    thermo$obigt$name[n] <<- "HCu(Gly)+2"
+    thermo$obigt$formula[n-1] <<- makeup(makeup(c(i[1],i[2],i[3]),""),"")
+    thermo$obigt$formula[n] <<- makeup(makeup(c(i[1],i[4]),""),"")
+    # In Fig 2b, total log activities of Cu (Cu_T) 
+    # and glycine (L_T) are -4 and -1
+    basis(c("Cu+2","H2O","H+","e-","glycine","CO2"),c(999,0,999,999,-1,999))
+    # solid species
+    species(c("copper","cuprite","tenorite"))
+    # aqueous species
+    species(c("glycinium","glycine","glycinate","Cu+","Cu+2","CuO2-2","HCuO2-",
+      "Cu(Gly)+","Cu(Gly)2","Cu(Gly)2-","HCu(Gly)+2"),-4)
+    ispecies <- species()$ispecies
+    # update the Gibbs energies using A&D's Table 1 and Table II
+    logK <- c(convert(convert(c(0,-146,-129.7,-384.061,-370.647,-314.833,
+      49.98,65.49,-183.6,-258.5,-298.2)*1000,"cal"),"logK"),15.64,10.1,2.92) 
+    # do it in order so later species take account of prev. species' values
+    for(i in 1:length(logK)) {
+      G <- convert(logK[i],"G")
+      if(i==12) G <- G + thermo$obigt$G[ispecies[8]] + 
+        2*thermo$obigt$G[ispecies[6]]
+      if(i==13) G <- G + thermo$obigt$G[ispecies[7]] + 
+        2*thermo$obigt$G[ispecies[6]]
+      if(i==14) G <- G + thermo$obigt$G[ispecies[11]]
+      thermo$obigt$G[ispecies[i]] <- G
+    }  # done with changing Gibbs free energies!
+    # we have to get some leftovers out of there or diagram() gets confused
+    species(c("glycinium","glycine","glycinate"),delete=TRUE)
+    # make a plot to see if it's working
+    ispecies <- ispecies[-(1:6)]
+    afun <- function(cu,gly) {
+      # from above: our fifth basis species is glycine(-ate,-ium)
+      basis(rownames(basis())[5],gly)
+      t <- match(ispecies,species()$ispecies)
+      species(t,cu)
+      affinity(pH=c(0,16),Eh=c(-0.6,1.0))
+    }
+    diagram(afun(-4,-1))
+    title(main=paste("Aqueous Copper + Glycine, 25 deg C, 1 bar",
+      "After Aksu and Doyle, 2001 Fig. 2b",sep="\n"))
+    # What's missing? Try glycinate not glycine in reactions at ph > ~9.8
+    basis(c("Cu+2","H2O","H+","e-","glycinate","CO2"),
+      c(999,0,999,999,-2,999))
+    species(c("copper","cuprite","tenorite","Cu+","Cu+2","CuO2-2","HCuO2-",
+      "Cu(Gly)+","Cu(Gly)2","Cu(Gly)2-","HCu(Gly)+2"))
+    loga_Cu <- -4
+    loga_Gly <- -1
+    diagram(afun(loga_Cu,loga_Gly),color=NULL,col="blue",
+      names=species()$name,col.names="blue",add=TRUE)
+    water.lines()
+    # the glycine ionization constants could be calculated using
+    # subcrt, here they are taken from A&D Table II
+    abline(v=c(2.35,9.778),lty=3)
+    # now put glycinium (low pH) in the basis
+    basis(c("Cu+2","H2O","H+","e-","glycinium","CO2"),c(999,0,999,999,-2,999))
+    species(c("copper","cuprite","tenorite","Cu+","Cu+2","CuO2-2","HCuO2-",
+      "Cu(Gly)+","Cu(Gly)2","Cu(Gly)2-","HCu(Gly)+2"))
+    diagram(afun(loga_Cu,loga_Gly),color=NULL,col="green",
+      names=NULL,col.names="green",add=TRUE)
+    # let's forget our changes to 'thermo' so the example 
+    # below that uses glycine will work as expected
+    data(thermo)
+
+    ## a pe-pH diagram for hydrated iron sulfides,
+    ## goethite and pyrite, After Majzlan et al., 2006
+    basis(c("Fe+2","SO4-2","H2O","H+","e-"),c(0,log10(3),log10(0.75),999,999))
+    species(c("rhomboclase","ferricopiapite","hydronium jarosite",
+      "goethite","melanterite","pyrite"))
+    a <- affinity(pH=c(-1,4),pe=c(-5,23))
+    diagram(a)
+    water.lines(yaxis="pe")
+    title(main=paste("Fe-S-O-H After Majzlan et al., 2006",
+      describe(thermo$basis[2:3,],digits=2),sep="\n"))
+
+    ## cysteine-cysteinate-cystine Eh-pH
+    ## at 25 and 100 deg C
+    basis("CHNOSe")
+    species(c("cysteine","cysteinate","cystine"))
+    a <- affinity(pH=c(5,10),Eh=c(-0.5,0))
+    diagram(a,color=NULL)
+    water.lines()
+    a <- affinity(pH=c(5,10),Eh=c(-0.5,0),T=100)
+    diagram(a,col="red",add=TRUE,names=NULL)
+    water.lines(T=convert(100,"K"),col="red")
+    title(main=paste("Cysteine Cysteinate Cystine",
+      "25 and 100 deg C",sep="\n"))
+    
+    ## Soil Organic Matter CO2-H2O, O2-H2O (after Tardy et al., 1997)
+    # NH3 is conserved, and H2O is on an axis of the 
+    # diagrams, so their activities are nonsensical here.
+    # formulas for aqueous species, names for phases ...
+    basis(c("NH3","water","CO2","O2"),c(999,999,-2.5,-28))
+    # switch to gaseous CO2 (aq is the default)
+    basis("CO2","gas")
+    # load the species of interest
+    species(c("microflore","plantes","acide fulvique",
+      "acide humique","humine"))
+    # proceed with the diagrams
+    diagram(affinity(H2O=c(-0.6,0.1),CO2=c(-3,-1)))
+    title(main=paste("Relative stabilities of soil organic matter\n",
+      "after Tardy et al., 1997"))
+    # this would be the O2-H2O diagram
+    # diagram(affinity(H2O=c(-1,0.5),O2=c(-28.5,-27.5)))
+
+    ## Aqueous Aluminum Species F-/OH- (afer Tagirov and Schott, 2001)
+    # in order to reproduce this calculation, we have to 
+    # consider the properties of species given by these authors,
+    # which are not the default ones in the database
+    # (see last example of 'thermo' help page)
+    thermo$opt$level <- 2
+    # The coefficients on H+ and O2 in all the formation reactions
+    # are zero, so the number of basis species here is three. Al+3 
+    # becomes the conservant, and F- and OH- are being plotted ...
+    # so their initial activities don't have to be set.
+    basis(c("Al+3","F-","OH-","H+","O2"),rep(999,5))
+    species(c("Al+3","Al(OH)4-","AlOH+2","Al(OH)2+","Al(OH)3",
+      "AlF+2","AlF2+","AlF3","AlF4-","Al(OH)2F2-","Al(OH)2F","AlOHF2"))
+    # Increase the x- and y- resolution from the default and calculate
+    # and plot predominance limits. Names of charged basis species,
+    # such as "H+", "e-" and the ones shown here, should be quoted
+    # when given as arguments to affinity(). The OH- values shown here
+    # correspond to pH=c(0,14) (at unit activity of water).
+    a <- affinity("OH-"=c(-14,0),"F-"=c(-1,-8),T=200)
+    diagram(a)
+    title(main=paste("Aqueous aluminium species, T=200 C, P=Psat\n",
+      "after Tagirov and Schott, 2001"))
+    # We could do this to overlay boundaries for a different pressure
+    #a.P <- affinity("OH-"=c(-14,0),"F-"=c(-1,-8),T=200,P=5000)
+    #diagram(a.P,names=NULL,color=NULL,col="blue",add=TRUE)
+    # restore data selection level to default
+    thermo$opt$level <- 1
+
+    ## Mineral equilibrium activity diagram
+    ## (After Bowers et al., 1984, p. 246)
+    # Consider the system denoted by BJH84 as 
+    # HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 deg C and 1000 bar
+    # HCl, CO2, O2 have zero stoichiometric coeffs in the species
+    # Ca+2, Mg+2 are going to be on the diagram
+    # SiO2 will be conserved (the immobile component)
+    # (try changing any of the 999's, the diagram will be unaffected)
+    basis(c("HCl","H2O","Ca+2","CO2","Mg+2","SiO2","O2","H+"),
+          c(999,0,999,999,999,999,999,-7))
+    # we have to tell CHNOSZ which species to include; there are
+    # others that could be in this system
+    species(c("quartz","talc","forsterite","tremolite","diopside",
+      "wollastonite","monticellite","merwinite"))
+    # calculate the chemical affinities of formation reactions
+    #t <- affinity("Mg+2"=c(-14,-8),"Ca+2"=c(-12,-4),T=300,P=1000)
+    t <- affinity("Mg+2"=c(-12,-4),"Ca+2"=c(-8,0),T=300,P=1000)
+    diagram(t)
+    title(main=paste("HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 deg C,\n",
+      "1000 bar and pH=7. After Bowers et al., 1984"))
+    # note: BJH84 use a different method for representing 
+    # the axes of the diagrams, similar to (a_Ca+2)/(a_H+)^2,
+    # so this is so far an approximate reproduction of their diagram.
+
+    ## Fe-S-O at 200 deg C, After Helgeson, 1970
+    basis(c("Fe","O2","S2"))
+    species(c("iron","ferrous-oxide","magnetite",
+      "hematite","pyrite","pyrrhotite"))
+    a <- affinity(S2=c(-50,0),O2=c(-90,-10),T=200)
+    diagram(a,color="heat")
+    title(main=paste("Fe-S-O, 200 degrees C, 1 bar",
+      "After Helgeson, 1970",sep="\n"))
+
+    ## Nucleobase - Amino Acid Interaction Eh-H2O
+    # for this example we try a unique basis definition
+    basis(c("CO2","H2O","glutamine","e-","H+"),c(-3,0,-3,0,-7))
+    species(c("uracil","cytosine","adenine","guanine",
+      "phenylalanine","proline","lysine","glycine"),"aq")
+    # this loaded four nucleobases and four related amino acids
+    # (coded for by the homocodon triplets)
+    # check out the predominance diagrams
+    a.1 <- affinity(H2O=c(-5,0),Eh=c(-0.5,0))
+    diagram(a.1,color=NULL)
+    # overlay a different temperature
+    a.2 <- affinity(H2O=c(-5,0),Eh=c(-0.5,0),T=100)
+    diagram(a.2,col="red",add=TRUE,names=NULL)
+    # start make a title for the plot
+    tb <- thermo$basis   # includes activities of basis species
+    # exclude those that are on the axes
+    tb <- tb[!((rownames(tb) %in% c("e-","H2O"))),]
+    title(main=paste("Nucleobases and amino acids,",
+      "T=25 and 100 C at Psat\n",
+      describe(tb,T=NULL,P=NULL)),cex.main=0.9)
+
+    ## Temperature-Pressure: kayanite-sillimanite-andalusite
+    basis(c("kyanite","quartz","oxygen"))
+    species(c("kyanite","sillimanite","andalusite"))
+    diagram(affinity(T=c(0,1000,200),P=c(500,5000,200)),color=NULL)
+    title(main="Al2SiO5")
+  } else if(which=="ionize") {
+    ## Eh-pH diagrams for intra/extracellular proteins
+    organism <- c("PYRFU","ECOLI","YEAST")
+    intracellular <- c("AMPM","AMPM","AMPM1")
+    extracellular <- c("O08452","AMY1","PST1")
+    basis("CHNOSe")  # for Eh we need electrons
+    mycol <- c("red","green","blue")
+    for(i in 1:3) {
+      species(delete=TRUE)
+      species(c(intracellular[i],extracellular[i]),organism[i])
+      if(i == 1) add <- FALSE else add <- TRUE
+      t <- affinity(pH=c(0,14),Eh=c(-1,0))
+      diagram(t,add=add,color=NULL,names=species()$name,
+        col=mycol[i],col.names=mycol[i])
+    }
+    title(main=paste("Intracellular (AMPM) and extracellular proteins\n",
+      describe(thermo$basis[1:4,])))
+    
+    ## Buffer + ionization: Metastablilities of
+    ## thiol peroxidases from model bactera
+    ## (ECOLI, BACSU mesophile; AQUAE thermophile,
+    ## THIDA acidophile, BACHD alkaliphile)
+    basis("CHNOS+")
+    organisms <- c("ECOLI","AQUAE","BACSU","BACHD","THIDA")
+    species("TPX",organisms)
+    # create a buffer with our proteins in it
+    mod.buffer("TPX",paste("TPX",organisms,sep="_"))
+    # set up the buffered activities
+    basis(c("CO2","H2O","NH3","O2"),"TPX")
+    t <- affinity(return.buffer=TRUE,T=50)
+    basis(c("CO2","H2O","NH3","O2"),as.numeric(t[1:4]))
+    t <- affinity(pH=c(0,14,200),T=c(25,80,200))
+    diagram(t,color=NULL)
+    title(main=paste("Thiol peroxidases from bacteria\n",
+      describe(thermo$basis[-6,],T=NULL)),cex.main=0.9)
+
+    ## Buffer + ionization: Metastable assemblage
+    ## for E. coli sigma factors on a T-pH diagram
+    # (sigma factors 24, 32, 38, 54, 70, i.e.
+    # RpoE, RpoH, RpoS, RpoN, RpoD)
+    proteins <- c("RPOE","RP32","RPOS","RP54","RPOD")
+    basis("CHNOS+")
+    basis("pH",7.4)
+    # define and set the buffer
+    change("_sigma",paste(proteins,"ECOLI",sep="_"))
+    basis(c("CO2","NH3","H2S","O2"),"sigma")
+    logact <- affinity(return.buffer=TRUE,T=25)
+    # Set the activities of the basis species to constants 
+    # corresponding to the buffer, and diagram the relative
+    # stabilities as a function of T and pH
+    basis(c("CO2","NH3","H2S","O2"),as.numeric(logact))
+    species(paste(proteins,"ECOLI",sep="_"))
+    a <- affinity(pH=c(5,10),T=c(10,40))
+    diagram(a,balance="PBB",residue=FALSE)
+    title(main=paste("Sigma factors in E. coli\n",
+      describe(thermo$basis[-6,],T=NULL)),cex.main=0.95)
+  } else if(which=="revisit") {
+    ## carboxylases from different organisms
+    # ribulose phosphate carboxylase/oxygenase
+    rubisco <- c("Q6JAI0_9RHOD","A5CKC7_9CHRO","RBL_SYNJA","A1E8R4_9CHLO",
+      "A8C9T6_9MYCO","A3EQE1_9BACT","A6YF84_9PROT", "RBL_BRAJA",
+      "A1RZJ5_THEPD","RBL_METJA","A3DND9_STAMF","RBL_PYRHO") 
+    # acetyl-coenzyme A carboxylase
+    accoaco <- c("Q05KD0_HYDTH","Q9F7M8_PRB01","A6CDM2_9PLAN","A0GZU2_9CHLR",
+      "ACCA_DEIRA","A1VC70_DESVV","A7WGI1_9AQUI","Q2JSS7_SYNJA",
+      "A4AGS7_9ACTN","ACCA_AQUAE","ACCA_CAUCR","A6VIX9_METM7")  
+    # calculate affinities as a function of T with
+    # buffered logfH2 and CO2.. adjust the glutathione buffer 
+    # (more oxidizing than default)
+    mod.buffer("GSH-GSSG",c("GSH","GSSG"),logact=c(-3,-7))
+    # add a CO2 gas saturation buffer
+    mod.buffer("CO2","CO2","gas",-1)
+    basis(c("CO2","H2O","NH4+","SO4-2","H2","H+"),
+      c("CO2",0,-4,-4,"GSH-GSSG",-7))
+    species(c(rubisco,accoaco))
+    a <- affinity(T=c(0,160))
+    # create speciation diagram with colors
+    col <- c(rep("red",12),rep("blue",12))
+    d <- diagram(a,residue=TRUE,color=col,ylim=c(-6,-1),legend.x=NULL)
+    legend("topleft",col=c("red","blue"),lty=1,
+      legend=c("ribulose phosphate carboxylase",
+      "acetyl-coenzyme A carboxylase"))
+    title(main=paste("Calculated relative abundances of",
+      "carboxylases from different organisms",sep="\n"))
+    # ... now on to a species richness diagram
+    # all the proteins, then rubisco and accoaco
+    draw.diversity(d,"richness",logactmin=-3.6)
+    draw.diversity(d,"richness",logactmin=-3.6,
+      ispecies=1:12,col="red",add=TRUE)
+    draw.diversity(d,"richness",logactmin=-3.6,
+      ispecies=13:24,col="blue",add=TRUE)
+    legend("bottomleft",col=c("red","blue","black"),lty=1,
+      legend=c("ribulose phosphate carboxylase",
+      "acetyl-coenzyme A carboxylase","all"))
+    title(main=paste("Carboxylases with activities",
+      "greater than 10^(-3.6)",sep="\n"))
+
+    ## continuing from above ... make a rank-abundance
+    ## diagram and fit with a lognormal distribution
+    #if(require(vegan)) {
+    #  basis("H2",-4)
+    #  a <- affinity()
+    #  logact <- diagram(a,residue=TRUE,do.plot=FALSE)$logact
+    #  act <- 10^as.numeric(logact)
+    #  # we use family=Gamma because our species have activities
+    #  # (i.e., proportional abundances) and not integer counts
+    #  mod <- rad.lognormal(act,family=Gamma)
+    #  plot(mod,main=paste("Relative abundances of carboxylases",
+    #    "fit with lognormal distribution",sep="\n"))
+    #  # calculate Shannon diversity index
+    #  # using revisit (CHNOSZ)
+    #  H1 <- revisit(act,"shannon",as.is=TRUE)
+    #  legend("topright",legend=paste("H =",round(H1,2)),pch=1)
+    #  # using diversity (vegan)
+    #  H2 <- diversity(matrix(act,nrow=1))
+    #  stopifnot(isTRUE(all.equal(H1,H2)))
+    #}
+
+    ### using grep.file, read.fasta, add.protein
+    # calculations for Pelagibacter ubique
+    f <- system.file("HTCC1062.faa",package="CHNOSZ")
+    # line numbers of all entries in the file
+    j <- grep.file(f)  # length = 1354
+    # locate entries whose names contain DNA
+    j <- grep.file(f,"hypothetical")
+    # get the amino acid compositions of these protein
+    p <- read.fasta(f,j)
+    # add these proteins to CHNOSZ's inventory
+    i <- add.protein(p)
+    # set up a thermodynamic system
+    basis("CHNOS+")
+    # calculate affinities in logfO2-pH space
+    a <- affinity(H2O=c(-10,-2),O2=c(-82,-76),iprotein=i)
+    # calculate the logarithms of activities
+    d <- diagram(a,do.plot=FALSE,mam=FALSE)
+    # show the protein richness
+    draw.diversity(d,"richness",logactmin="")
+    mtitle(c("Richness of hypothetical proteins in",
+      expression(italic("Pelagibacter ubique"))))
+    # show the coefficient of variation of activities
+    draw.diversity(d,"cv")
+    mtitle(c("Coefficient of variation of hypothetical",
+      expression("protein activities in"~italic("P. ubique"))))
+  } else if(which=="protein") {
+    ## subcellular homologs of yeast glutaredoxin
+    ## as a function of logfO2 - logaH2O, after Dick, 2009
+    basis("CHNOS+")
+    protein <- c("GLRX1","GLRX2","GLRX3","GLRX4","GLRX5")
+    loc <- c("(C)","(M)","(N)","(N)","(M)")
+    species(protein,"YEAST")
+    t <- affinity(H2O=c(-10,0),O2=c(-85,-60))
+    diagram(t,names=paste(protein,loc))
+    title(main=paste("Yeast glutaredoxins (black) and residues (blue)\n",
+      describe(thermo$basis[-c(2,5),])))
+    # note the difference when we set as.residue=TRUE to
+    # plot stability fields for the residue equivalents of the
+    # proteins instead of the proteins themselves ...
+    # the residue equivalent for one of the larger proteins appears
+    diagram(t,names=paste(protein,loc),as.residue=TRUE,
+      add=TRUE,col="blue")
+
+    ## surface-layer proteins from Methanococcus and others:
+    ## a speciation diagram for surface layer proteins
+    ## as a function of oxygen fugacity after Dick, 2008
+    # make our protein list
+    organisms <- c("METSC","METJA","METFE","HALJP","METVO",
+      "METBU","ACEKI","BACST","BACLI","AERSA")
+    proteins <- c(rep("CSG",6),rep("SLAP",4))
+    proteins <- paste(proteins,organisms,sep="_")
+    # set some graphical parameters
+    lwd <- c(rep(3,6),rep(1,4))
+    lty <- c(1:6,1:4)
+    # load the basis species and proteins
+    basis("CHNOS+")
+    species(proteins)
+    # calculate affinities
+    a <- affinity(O2=c(-100,-65))
+    # make diagram
+    d <- diagram(a,ylim=c(-5,-1),legend.x=NULL,lwd=lwd,
+      ylab=as.expression(quote(log~italic(a[j]))),yline=1.7)
+    # label diagram
+    text(-80,-1.9,"METJA")
+    text(-74.5,-1.9,"METVO")
+    text(-69,-1.9,"HALJP")
+    text(-78,-2.85,"METBU",cex=0.8,srt=-22)
+    text(-79,-3.15,"ACEKI",cex=0.8,srt=-25)
+    text(-81,-3.3,"METSC",cex=0.8,srt=-25)
+    text(-87,-3.1,"METFE",cex=0.8,srt=-17)
+    text(-79,-4.3,"BACST",cex=0.8)
+    text(-85.5,-4.7,"AERSA",cex=0.8,srt=38)
+    text(-87,-4.25,"BACLI",cex=0.8,srt=30)
+    # add water line
+    abline(v=-83.1,lty=2)
+    title(main=paste("Surface-layer proteins",
+      "After Dick, 2008",sep="\n"))
+
+    ## relative metastabilities of bovine proteins, 
+    ## as a function of temperature along a glutathione redox buffer
+    mod.buffer("GSH-GSSG",c("GSH","GSSG"),logact=c(-3,-7))   
+    basis(c("CO2","H2O","NH4+","SO4-2","H2","H+"),
+      c(-1,0,-4,-4,"GSH-GSSG",-7)) 
+    basis("CO2","gas")
+    species(c("CYC","RNAS1","BPT1","ALBU","INS","PRIO"),"BOVIN")
+    a <- affinity(T=c(0,200))
+    diagram(a,as.residue=TRUE,ylim=c(-2,0.5))
+    title(main="Bovine proteins")
+  } else if(which=="buffer") {
+    ## log fH2 - temperature diagram for mineral buffers
+    ## and for given activities of aqueous CH2O and HCN
+    ## After Schulte and Shock, 1995, Fig. 6: 
+    ## 300 bars, log fCO2=1, log fN2=0, log aH2O=0
+    # the mineral buffers FeFeO, QFM, PPM and HM are already
+    # included in the thermo$buffer table so let's plot them.
+    basis.logacts <- c(999,1,0,0,999,999,999)
+    basis(c("Fe","CO2","H2O","nitrogen","hydrogen",
+      "H2S","SiO2"),basis.logacts)
+    basis(c("CO2","N2"),"gas")
+    # initialize the plot
+    xlim <- c(0,350)
+    thermo.plot.new(xlim=xlim,ylim=c(-4,4),
+      xlab=axis.label("T"),ylab=axis.label("H2"))
+    res <- 50
+    Tseq <- seq(xlim[1],xlim[2],length.out=res) 
+    # a function to plot the log fH2 of buffers and label the lines
+    logfH2plot <- function(buffer,lty,where) {
+      basis("H2",buffer)
+      t <- as.numeric(affinity(T=c(xlim,res),P=300,return.buffer=TRUE)$H2)
+      lines(Tseq,t,lty=lty)
+      # "where" is the percent distance along the x-axis to plot the label
+      wherethis <- seq(xlim[1],xlim[2],length.out=100)[where]
+      if(length(grep("_",buffer)) > 0) tt <- 
+        thermo$buffer$logact[thermo$buffer$name==buffer] else tt <- buffer
+      text(wherethis,splinefun(Tseq,t)(wherethis),tt)
+    }
+    # plot log fH2 of each mineral buffer
+    logfH2plot("FeFeO",1,16)
+    logfH2plot("QFM",1,30)
+    logfH2plot("PPM",1,80)
+    logfH2plot("HM",1,40)
+    anotherplotfunction <- function(mybuff,lty,logact,where) {
+      for(i in 1:length(logact)) {
+        # update the species activity
+        mod.buffer(mybuff,logact=logact[i])
+        logfH2plot(mybuff,lty,where[i])
+      }
+    }
+    # add and plot new buffers (formaldehyde and HCN)
+    mod.buffer("mybuffer_1","formaldehyde","aq")
+    logact <- c(-6,-10,-15); where <- c(10,10,25)
+    anotherplotfunction("mybuffer_1",3,logact,where)
+    mod.buffer("mybuffer_2","HCN","aq")
+    where <- c(20,73,50)
+    anotherplotfunction("mybuffer_2",2,logact,where)
+    # title
+    title(main=paste("Mineral buffers (solid), HCN (dashed), formaldehyde",
+      "(dotted)\n",describe(thermo$basis[c(2,4),],T=NULL,P=300),
+      "After Schulte and Shock, 1995"),cex.main=0.9)
+  } else if(which=="affinity") {
+    ## Activity of glycine as a function of those of
+    ## HCN and formaldehyde (200 C, 300 bar)
+    ## After Schulte and Shock, 1995, Fig. 5
+    # we can define the basis as this:
+    basis(c("formaldehyde","H2O","HCN","O2"))
+    species("glycine")
+    a <- affinity(HCHO=c(-10,-2,9),HCN=c(-18,-2,9),T=200,P=300)
+    # that gave us *affinities* (dimensionless) for logact(glycine)=-3
+    # (the default). we can now find the *activities* that
+    # correspond to affinity=0
+    logact.glycine <- species()$logact + a$values[[1]]
+    # note transposition of the z-value matrix in the following command
+    contour(x=-10:-2,y=seq(-18,-2,by=2),z=t(logact.glycine),
+      xlab=axis.label("HCHO"),ylab=axis.label("HCN"),
+      labcex=1,xaxs="i",yaxs="i")
+    title(main=paste("log activity glycine, after Schulte and Shock, 1995",
+      "200 deg C, 300 bar, logaH2O = 1",sep="\n"))
+
+    ## amino acid synthesis at low and high temperatures
+    ## after Amend and Shock, 1998
+    # select the basis species and species of interest
+    # and set their activities (first for the 18 degree C case)
+    basis(c("H2O","CO2","NH4+","H2","H+","H2S"),
+      log10(c(1,1e-4,5e-8,2e-9,5e-9,1e-15)))
+    species(c("alanine","argininate","asparagine","aspartate","cysteine",
+      "glutamate","glutamine","glycine","histidine","isoleucine",
+      "leucine","lysinium","methionine","phenylalanine","proline",
+      "serine","threonine","tryptophan","tyrosine","valine"),
+      log10(c(3.9,0.7,1.1,3.3,0.5,3.8,1.0,5.8,1.2,0.7,
+      0.8,1.0,2.8,0.5,0.5,4.6,5.8,0.6,0.9,2.8)/1e9))
+    Tc <- 18
+    T <- convert(Tc,"K")
+    # converting A (dimensionless) to G of reaction (cal/mol) 
+    # is like converting log K to standard G of reaction 
+    AS98.18 <- 
+      convert(convert(as.numeric(affinity(T=Tc)$values),"G",T=T),"J")/1000
+    # the 100 degree C case
+    Tc <- 100
+    T <- convert(Tc,"K")
+    basis(c("H2O","CO2","NH4+","H2","H+","H2S"),
+      log10(c(1,2.2e-3,2.9e-6,3.4e-4,1.9e-6,1.6e-3)))
+    species(1:20,log10(c(2.8e-9,5.0e-10,7.9e-10,2.4e-9,3.6e-10,
+                         2.7e-9,7.2e-10,4.2e-9,8.6e-10,5.0e-10,
+                         5.7e-10,7.2e-10,2.0e-9,3.6e-10,3.6e-10,
+                         3.3e-9,4.2e-9,4.3e-10,6.5e-10,2.0e-9)))
+    AS98.100 <- 
+      convert(convert(as.numeric(affinity(T=Tc)$values),"G",T=T),"J")/1000
+    # the nominal carbon oxidation state
+    Z.C <- ZC(as.character(thermo$obigt$formula[thermo$species$ispecies]))
+    # put them together
+    print(data.frame(T100=AS98.100,T18=AS98.18,Z.C=Z.C))
+    # values not exactly reproducing AS98 - different amino acid parameters
+    # forget species to run next example
+    species(delete=TRUE)
+
+    ## affinities of metabolic reactions
+    ## after Amend and Shock, 2001, Fig. 7
+    basis(c("CO2","H2","NH3","O2","H2S","H+"))
+    basis(c("O2","H2"),"aq")   # O2 and H2 were gas
+    species("H2O")
+    doplot <- function(T) {
+      res <- 20
+      a <- affinity(H2=c(-10,0,res),O2=c(-10,0,res),T=T)
+      T.K <- convert(T,"K")   # temperature in Kelvin
+      a <- convert(a$values[[1]],"G",T.K)  # affinities (cal/mol)
+      a <- convert(a,"J")  # affinities (Joule)
+      contour(x=seq(-10,0,length.out=res),
+        y=seq(-10,0,length.out=res),z=t(a/1000),
+        labcex=1,xlab=axis.label("H2"),ylab=axis.label("O2"))
+    }
+    layout(matrix(c(1,1,2,3,4,5),ncol=2,byrow=TRUE),heights=c(1,4,4))
+    T <- c(25,55,100,150)
+    par(mar=c(0,0,0,0))
+    plot.new()
+    text(0.5,0.1,paste(c("H2(aq) + 0.5O2(aq) = H2O(liq)\n\n",
+      "after Amend and Shock, 2001")),cex=2)
+    par(mar=c(3,3,0.5,0.5),cex=1.3,mgp=c(2,1,0))
+    for(i in 1:length(T)) doplot(T[i])
+    # this is so the plots in the next examples show up OK
+    layout(matrix(1))
+
+    ## continuation of last example, affinity calculations 
+    ## in three dimensions
+    print(affinity(H2=c(-10,0,3),O2=c(-10,0,3),T=c(25,150,4))$values)
+
+    ## calculations on a transect
+    # suppose that temperature and oxygen fugacity
+    # both change in space (say from 1 to 6 meters),
+    # that we have six values for each but want to
+    # interpolate them to make a plot with smooth curves
+    T <- splinefun(1:6,c(0,25,30,40,55,75))(seq(1,5,length.out=100))
+    O2 <- splinefun(1:6,c(-90,-83,-78,-73,-68,-63))(seq(1,5,length.out=100))
+    # what system could this be? 
+    basis("CHNOS+")
+    species(paste("CSG",c("METBU","METVO","METTL","METJA"),sep="_"))
+    # now pass T and O2 to affinity, which because their lengths
+    # are greater than three, treats them like coordinates for a
+    # transect through chemical potential space rather than
+    # the definition of a 2-dimensional grid
+    a <- affinity(T=T,O2=O2)
+    diagram(a,ylim=c(-4,-2))
+    title(main=paste("Computed abundances of surface-layer proteins",
+      "as a function of T and logfO2",sep="\n"))
+  } else if(which=="subcrt") {
+    ## heat capacity of Fe(cr)
+    # compare calculated values of heat capacity with
+    # values from Robie and Hemingway, 1995, (from which 
+    # the parameters in the database were derived)
+    nuts(c("J","K"))  # set the units
+    # we set pressure here otherwise subcrt goes for 
+    # Psat (saturation vapor pressure of H2O above 
+    # 100 degrees C) which can not be calculated above 
+    # the critical point of H2O (~647 K)
+    t <- subcrt("Fe",T=seq(300,1800,20),P=1)
+    plot(t$out[[1]]$T,t$out[[1]]$Cp,type="l",
+      xlab=axis.label("T"),ylab=axis.label("Cp"))
+    # add points from RH95
+    RH95 <- thermo$expt$RH95
+    points(RH95[,1],RH95[,2])
+    title(main=paste("Heat capacity of Fe(cr)\n",
+      "(points - Robie and Hemingway, 1995)"))
+    # reset the units
+    nuts(c("C","cal"))
+    
+    ## Skarn example after Johnson et al., 1992
+    P <- seq(500,5000,500)
+    # this is like the temperature specification used 
+    # in the example by Johnson et al., 1992
+    # T <- seq(0,1000,100)
+    # we use this one to avoid warnings at 0 deg C, 5000 bar
+    T <- c(2,seq(100,1000,100))
+    subcrt(c("andradite","carbon dioxide","H2S","Cu+","quartz","calcite",
+      "chalcopyrite","H+","H2O"),coeff=c(-1,-3,-4,-2,3,3,2,2,3),
+      state=c("cr","g","aq","aq","cr","cr","cr","aq","liq"),
+      P=P,T=T,grid="P")
+    # the volumes are significantly different from SUPCRT92
+
+    ## Standard Gibbs energy of reactions with HCN and 
+    ## formaldehyde, after Schulte and Shock, 1995 Fig. 1
+    rxn1 <- subcrt(c("formaldehyde","HCN","H2O","glycolic acid","NH3"),
+      c(-1,-1,-2,1,1),P=300)
+    rxn2 <- subcrt(c("formaldehyde","HCN","H2O","glycine"),
+      c(-1,-1,-1,1),P=300)
+    plot(x=rxn1$out$T,rxn1$out$G/1000,type="l",ylim=c(-40,-10),
+      xlab=axis.label("T"),ylab=axis.label("DG0r","k"))
+    lines(rxn1$out$T,rxn2$out$G/1000)
+    # write the reactions on the plot
+    text(150,-14,describe(rxn1$reaction,
+      use.name=c(TRUE,FALSE,FALSE,TRUE,FALSE)))
+    text(200,-35,describe(rxn2$reaction,
+      use.name=c(TRUE,FALSE,FALSE,TRUE)))
+    title(main=paste("Standard Gibbs energy of reactions",
+      "after Schulte and Shock, 1995",sep="\n"))
+
+    ## Calculation of chemical affinities
+    # after LaRowe and Helgeson, 2007
+    # Fig. 3 (a): reduction of nicotinamide adenine 
+    # dinucleotide (NAD) coupled to oxidation of glucose
+    # list the available NAD species
+    info("NAD ")
+    T <- seq(0,120,10)
+    # oxidation of glucose (C6H12O6)
+    basis(c("glucose","H2O","NH3","CO2","H+"),c(-3,0,999,-3,-7))
+    t <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(0,0),T=T)
+    # LH07's diagrams are shown per mole of electron (24 e- per 12 NAD)
+    A <- t$out$A/24/1000
+    plot(x=T,y=A,xlim=range(T),ylim=c(1.4,5.4),
+      xlab=axis.label("T"),ylab=axis.label("A",opt="k"),type="l")
+    text("NAD(ox)-/NAD(red)-2 = 1",x=median(T),y=median(A))
+    # different activity ratio
+    t <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(1,0),T=T)
+    A <- t$out$A/24/1000
+    lines(x=T,y=A)
+    text("NAD(ox)-/NAD(red)-2 = 10",x=median(T),y=median(A))
+    # different activity ratio
+    t <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(0,1),T=T)
+    A <- t$out$A/24/1000
+    lines(x=T,y=t$out$A/24/1000)
+    text("NAD(ox)-/NAD(red)-2 = 0.1",x=median(T),y=median(A))
+    # this command prints the reaction on the plot
+    text(40,4.5,c2s(s2c(describe(t$reaction,
+      use.name=c(TRUE,TRUE,FALSE,FALSE,FALSE,FALSE)),
+      sep="=",move.sep=TRUE),sep="\n"))
+    # label the plot
+    title(main=paste("Chemical affinity of NAD reduction",
+     "after LaRowe and Helgeson, 2007",sep="\n"),
+     sub=describe(thermo$basis,T=NULL))
+
+    ### non-ideality calculations -- activity coefficients of 
+    ### aqueous species as a function of charge, temperature,
+    ### and ionic strength -- after Alberty, 2003 
+    ## p. 16 Table 1.3  apparent pKa of acetic acid with
+    ## changing ionic strength
+    subcrt(c("acetic acid","acetate","H+"),c(-1,1,1),
+      IS=c(0,0.1,0.25),T=25,property="logK")
+    # note that these *apparent* values of G and logK approach
+    # their *standard* counterparts as IS goes to zero.
+    ## p. 95: basis and elemental stoichiometries of species 
+    ## (a digression here from the nonideality calculations) 
+    # note coefficient of O2 and NH3 will be zero for these species
+    basis(c("ATP-4","H+","H2O","HPO4-2","O2","NH3"))
+    # cf Eq. 5.1-33: (basis composition) 
+    species(c("ATP-4","H+","H2O","HPO4-2","ADP-3","HATP-3","HADP-2","H2PO4-"))
+    lb <- length(basis())
+    # cf Eq. 5.1-32: (elemental composition)
+    as.matrix(species()[,1:lb]) %*% as.matrix(basis()[,1:lb]) 
+    ## p. 273-275: activity coefficient (gamma)
+    ## as a function of ionic strength and temperature
+    ## (as of 20080304, these do look quantitatively different 
+    ## from the plots in Alberty's book.)
+    iplotfun <- function(T,col,add=TRUE) {
+      IS <- seq(0,0.25,0.0025)
+      s <- subcrt(c("H2PO4-","HADP-2","HATP-3","ATP-4"),IS=IS,grid="IS",T=T)
+      if(!add) thermo.plot.new(xlim=range(IS),ylim=c(0,1),
+        xlab=axis.label("IS"),ylab="gamma")
+      for(i in 1:4) lines(IS,10^s$out[[i]]$loggam,col=col)
+    }
+    iplotfun(0,"blue",add=FALSE)
+    iplotfun(25,"black")
+    iplotfun(40,"red")
+    title(main=paste("activity coefficient (gamma) of -1,-2,-3,-4",
+      "charged species at 0, 25, 40 deg C, after Alberty, 2003",
+      sep="\n"),cex.main=0.95)
+  }
+
+}
+
 .First.lib <- function(lib,pkg) {
   # version figuring adapted from package mgcv
   pkghelp <- library(help=CHNOSZ)$info[[1]]
   # things are different for older versions of R
   if(length(pkghelp)==1) pkghelp <- library(help=CHNOSZ)$info[[2]]
-  version <- pkghelp[pmatch("Version",pkghelp)]
+  version <- pkghelp[pmatch("Version:",pkghelp)]
   um <- strsplit(version," ")[[1]]
   version <- um[nchar(um)>0][2]
-  date <- pkghelp[pmatch("Date",pkghelp)]
+  date <- pkghelp[pmatch("Date:",pkghelp)]
   um <- strsplit(date," ")[[1]]
   date <- um[nchar(um)>0][2]
   # identify the program and version
@@ -1258,16 +2318,12 @@ mylapply <- function(X,FUN,...) {
   if(file.exists('protein.csv')) {
     tr <- try(rbind(read.csv('protein.csv',as.is=TRUE),thermo$protein),silent=TRUE)
     if(identical(class(tr),'try-error')) cat("thermo: protein.csv in current directory is not compatible with thermo$protein data table.\n")
-    else {
-      add.protein("protein.csv")
-    }
+    else add.protein("protein.csv")
   }
   if(file.exists('obigt.csv')) {
     tr <- try(rbind(read.csv('obigt.csv',as.is=TRUE),thermo$obigt),silent=TRUE)
     if(identical(class(tr),'try-error')) cat("thermo: obigt.csv in current directory is not compatible with thermo$obigt data table.\n")
-    else {
-      add.obigt("obigt.csv")
-    }
+    else add.obigt("obigt.csv")
   }
 }
 

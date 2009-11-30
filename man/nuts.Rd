@@ -27,7 +27,7 @@
 
 \details{
 
-   The global units settings are used by \code{\link{subcrt}}, \code{\link{affinity}}, and \code{\link{diagram}} to accept input or convert output in the units desired by the user. The settings, which can be queried or changed with \code{nuts}, refer to the units of temperature (\code{K} or \code{C}), energy (\code{cal} or \code{J}), and pressure (\code{bar}, \code{MPa}). (The first value in each of those pairs refers to the default units). If the \code{units} argument to \code{nuts} is NULL (the default) the current units settings are printed (with a NULL return); if it is one of \samp{T}, \samp{P} or \samp{E}, the units for that property are printed and also returned.
+   The global units settings are used by \code{\link{subcrt}}, \code{\link{affinity}}, and \code{\link{diagram}} to accept input in or convert output to the units desired by the user. The settings, which can be queried or changed with \code{nuts}, refer to the units of temperature (\code{K} or \code{C}), energy (\code{cal} or \code{J}), and pressure (\code{bar}, \code{MPa}). (The first value in each of those pairs refers to the default units). If the \code{units} argument to \code{nuts} is NULL (the default) the current units settings are printed (with a NULL return); if it is one of \samp{T}, \samp{P} or \samp{E}, the units for that property are printed and also returned.
 
   The actual units conversions are handled by \code{convert}, through which \code{values} are transformed into destination \code{units} (names not case sensitive). The possible unit conversions are shown in the following table. Note that \samp{Eh} and \samp{E0} both stand for the value of Eh (do not confuse \samp{E0} with the standard reduction potential, which is written similarly); they have different names so that one can choose to convert to \samp{pe} or \samp{logfO2}. 
 
@@ -52,39 +52,37 @@
 
 \examples{
   \dontshow{data(thermo)}
-
   ## examples using convert
   # temperature (Kelvin) to degrees C
-  convert(273.15,'C')
+  convert(273.15,"C")
   # temperature (degrees C) to Kelvin
-  convert(100,'K')
+  convert(100,"K")
   # Gibbs energy (cal mol-1) to/from logK
-  convert(1000,'logK')		
-  convert(1000,'logK',T=373.15)
-  convert(1,'G') 
+  convert(1000,"logK")		
+  convert(1000,"logK",T=373.15)
+  convert(1,"G") 
   # Eh (volt) to pe 
-  convert(-1,'pe')		
-  convert(-1,'pe',T=373.15)
+  convert(-1,"pe")		
+  convert(-1,"pe",T=373.15)
   # logfO2 to E0 (volt)
-  convert(-80,'E0')             
-  convert(-80,'E0',pH=5)
-  convert(-80,'E0',pH=5,logaH2O=-5)
+  convert(-80,"E0")             
+  convert(-80,"E0",pH=5)
+  convert(-80,"E0",pH=5,logaH2O=-5)
   # calorie to/from joule
-  convert(10,'j')		
-  convert(10,'cal')
+  convert(10,"j")		
+  convert(10,"cal")
   # cm3bar to calories		
-  convert(10,'calories')
+  convert(10,"calories")
 
   ## examples showing user unit preference	
-  nuts('K')  # set temperature units
-  nuts('J')  # set energy units
+  nuts("K")  # set temperature units
+  nuts("J")  # set energy units
   # return the name of the (E)nergy units
-  nuts('E')	
+  nuts("E")	
   # print names of all units (NULL return)		
   nuts()	
   # defaults		
-  nuts('K'); nuts('bar'); nuts('cal')	
-  
+  nuts("K"); nuts("bar"); nuts("cal")	
 }
 
 \keyword{misc}

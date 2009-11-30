@@ -59,9 +59,6 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
     # dataframe for telling the user what species are found
     thisghs <- thermo$obigt[0,]
     for(i in 1:length(species)) {
-        # if there's more than one match use the first by default
-        iighs <- 1
-
         use.other.states <- FALSE
         if(length(grep('_',species[i]))>0) {
           # we're dealing with a protein
@@ -82,6 +79,8 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
               tghs <- thermo$obigt[nrow(thermo$obigt),]
             }
           }
+          iighs <- nrow(tghs)
+          if(iighs==0) iighs <- 1
         } else {
           # selection criteria: search names and abbreviations and formulas
           # and state, if the states argument is supplied
@@ -93,30 +92,30 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
             tghs <- thermo$obigt[(thermo$obigt$name %in% species[i] | 
               thermo$obigt$abbrv %in% species[i] | thermo$obigt$formula %in% species[i]) & 
               thermo$obigt$state %in% searchstates,]
-            if(states[i]=='cr') iighs <- 1:nrow(tghs)
+            iighs <- 1:nrow(tghs)
           }
           # allow other states if the argument is missing
           else {
             tghs <- thermo$obigt[(thermo$obigt$name %in% species[i] | 
               thermo$obigt$abbrv %in% species[i] | thermo$obigt$formula %in% species[i]),]
             # 20090416 if the name matched put that first
-            # (e.g. so that "oxygen" comes up as a gas)
             iname <- match(species[i],tghs$name)[1]
             if(!is.na(iname)) tghs <- tghs[c(iname,(1:nrow(tghs))[-iname]),]
-            # look for the species with the preferred state
-            # changed to NA 20090416 -- only do H2 and O2
-            desiredstate <- NA
-            # special handling for O2 and H2
-            # FIXME: remove this
-            if(species[i] %in% c('O2','H2')) desiredstate <- 'gas'
-            istate <- match(desiredstate,tghs$state)
-            if(!is.na(istate)) iighs <- istate else iighs <- 1
+            # except we like O2(g)
+            if(species[i]=="O2") {
+              iname <- match("oxygen",tghs$name)
+              if(!is.na(iname)) tghs <- tghs[c(iname,(1:nrow(tghs))[-iname]),]
+            }
+            # here we go to the last (duplicated) entry that thermo$opt$level allows
+            if(nrow(tghs)==0) iiighs <- 99
+            else iiighs <- which(tghs$state==tghs$state[1])
+            iighs <- max(min(thermo$opt$level,max(iiighs)),1)
             states[i] <- as.character(tghs$state[iighs])
           }
         }
 
         # notify the user of multiple matches
-        if(nrow(tghs)>1 & states[i]!='cr') { 
+        if(nrow(tghs)>1) { 
           if(!quiet) {
             tg <- tghs[,1:5]
             if(length(unique(tg$formula))==1 & length(unique(tg$name))==1) {
@@ -134,13 +133,7 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
               cat(paste('info:',species[i],'matches these species:\n'))
               print(tghs[,1:5])
             }
-              
           } 
-          #if(length(unique(tghs$state))>1) {
-          #    ostate <- unique(as.character(tghs$state))
-          #    ostate <- ostate[-match(states[i],ostate)]
-          #    cat(paste('info: matched ',tghs$formula[iighs],' ',states[i],' (',tghs$name[iighs],') ... other states are ',c2s(ostate),'.\n',sep=''))
-          #}
         }
 
         # notify the user of no matches
@@ -192,7 +185,7 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
             if(!quiet) cat(', and no approximate matches.\n')
             if(return.approx) ighs.list[length(ighs.list)+1] <- NA
           } else {
-            #  if we want to return the indices of approximat matches
+            #  if we want to return the indices of approximate matches
             if(return.approx) ighs.list[length(ighs.list)+1] <- list(t)
           }
         } 
@@ -237,29 +230,20 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
     nnspecies <- species[species > 0]
     myghs <- thermo$obigt[nnspecies,]
     # to keep track of the results of consistency checks
-    DCp <- DV <- DCp.supcrt <- DV.supcrt <- DG <- Di <- numeric()
+    DCp <- DV <- DG <- Di <- numeric()
     Dname <- Dstate <- character()
-    #for(i in 1:nrow(myghs)) {
     for(i in 1:length(species)) {
       if(species[i] > nrow(thermo$obigt) | species[i] < 1) {
         cat(paste("info: there aren't",species[i],"species.\n"))
         next
       }
-      dCp <- dV <- dCp.supcrt <- dV.supcrt <- dG <- NA
+      dCp <- dV <- dG <- NA
       # convert the eos parameters depending on state
       # and check them for NAs and consistency with Cp, V values
       if(myghs$state[i]=='aq') {
         myghs[i,13:20] <- myghs[i,13:20] * 10^c(-1,2,0,4,0,4,5,0)
         colnames(myghs)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
-        # "quiet" also means quick ... to skip some of these checks
-        #if(!quiet) {
         naEOS <- which(is.na(myghs[i,13:20]))
-        #if(length(naEOS)>0) {
-        #  cat(paste('info:',c2s(colnames(myghs)[13:20][naEOS],sep=','),'of',
-        #    myghs$name[i],myghs$state[i],'are NA; set to 0.\n'))
-        #  myghs[i,naEOS+12] <- 0
-        #}
-        #}
         if(!quiet) {
           # value of X consistent with CHNOSZ
           X <- -2.773788E-7
@@ -271,12 +255,12 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
               cat(paste('info: Cp (from EOS) of',
                 myghs$name[i],myghs$state[i],'differs by',round(Cp-myghs$Cp[i],2),
                 'from tabulated value.\n'),file=file,append=TRUE)
-              dCp.supcrt <- round(Cp-myghs$Cp[i],2)
+              dCp <- round(Cp-myghs$Cp[i],2)
             }
           } else {
             if(!is.na(Cp)) {
-              cat(paste('info: Cp of ',myghs$name[i],' ',myghs$state[i],
-                ' is NA; set by EOS parameters to ',round(Cp,2),'.\n',sep=''))
+              cat(paste('info: Cp of',myghs$name[i],myghs$state[i],
+                'is NA; set by EOS parameters to',round(Cp,2),'\n'))
               myghs$Cp[i] <- as.numeric(Cp)
             }
           }
@@ -294,12 +278,12 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
               cat(paste('info: V (from EOS) of',
                 myghs$name[i],myghs$state[i],'differs by',round(V-myghs$V[i],2),
                 'from tabulated value.\n'),file=file,append=TRUE)
-              dV.supcrt <- round(V-myghs$V[i],2)
+              dV <- round(V-myghs$V[i],2)
             }
           } else {
             if(!is.na(V)) {
-              cat(paste('info: V of ',myghs$name[i],' ',myghs$state[i],
-                ' is NA; set by EOS parameters to ',round(V,2),'.\n',sep=''))
+              cat(paste('info: V of',myghs$name[i],myghs$state[i],
+                'is NA; set by EOS parameters to',round(V,2),'\n'))
               myghs$V[i] <- as.numeric(V)
             }
           }
@@ -307,14 +291,12 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
       } else {
         myghs[i,13:20] <- myghs[i,13:20] * 10^c(0,-3,5,0,-5,0,0,0)
         colnames(myghs)[13:20] <- c('a','b','c','d','e','f','lambda','T')
-        #if(!quiet) {
         naEOS <- which(is.na(myghs[i,12:19]))
         if(length(naEOS)>0) {
             cat(paste('info:',c2s(colnames(myghs)[12:19][naEOS],sep=','),'of',
               myghs$name[i],myghs$state[i],'are NA; set to 0.\n'))
           myghs[i,naEOS+11] <- 0
         }
-        #}
         if(!quiet) {
           Cp <- cgl('Cp',eos=myghs[i,],ghs=myghs[i,],T=thermo$opt$Tr,P=thermo$opt$Pr)[[1]]
           if(!is.na(myghs$Cp[i]) & !is.na(Cp)) {
@@ -334,43 +316,35 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
         }
       }
       # check the GHS values
-      #if(!quiet) {
-        naGHS <- which(is.na(myghs[i,8:10]))
-        j <- as.numeric(rownames(myghs)[i])
-        if(length(naGHS)>1) {
-          # don't do this. keep NAs in there
-          ##cat(paste('info:',c2s(colnames(myghs)[8:10][naGHS],sep=','),'of',
-          ##  myghs$name[i],myghs$state[i],'are NA; set to 0.\n'))
-          ##myghs[i,naGHS+7] <- 0
-        } else if(length(naGHS)==1) {
-          GHS <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
-          if(!quiet) cat(paste('info: ',c2s(colnames(myghs)[8:10][naGHS]),' of ',
-            myghs$name[i],' ',myghs$state[i],' is NA; set to ',round(GHS,2),'.\n',sep=''))
-          myghs[i,naGHS+7] <- GHS
-        } else {
-          G <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
-          warn <- FALSE
-          if(!is.na(G)) {
-            if(abs(G-myghs[i,8])>1000) warn <- TRUE
-            #if(myghs[i,8]!=0) if(abs((G-myghs[i,8])/myghs[i,8])>0.05) warn <- TRUE
-            if(warn) {
-              if(!quiet) cat(paste('info: G (from H and S) of',myghs$name[i],myghs$state[i],'differs by',
-                round(G-myghs[i,8]),'from tabulated value.\n'),file=file,append=TRUE)
-              dG <- round(G-myghs[i,8])
-            }
-          } else {
-            if(!quiet) cat(paste('info: G of',myghs$name[i],myghs$state[i],'is NA!!! (maybe a missing element?)\n'),file=file,append=TRUE)
+      naGHS <- which(is.na(myghs[i,8:10]))
+      j <- as.numeric(rownames(myghs)[i])
+      if(length(naGHS)>1) {
+      } else if(length(naGHS)==1) {
+        GHS <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
+        if(!quiet) cat(paste('info: ',c2s(colnames(myghs)[8:10][naGHS]),' of ',
+          myghs$name[i],' ',myghs$state[i],' is NA; set to ',round(GHS,2),'.\n',sep=''))
+        myghs[i,naGHS+7] <- GHS
+      } else {
+        G <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
+        warn <- FALSE
+        if(!is.na(G)) {
+          if(abs(G-myghs[i,8])>1000) warn <- TRUE
+          #if(myghs[i,8]!=0) if(abs((G-myghs[i,8])/myghs[i,8])>0.05) warn <- TRUE
+          if(warn) {
+            if(!quiet) cat(paste('info: G (from H and S) of',myghs$name[i],myghs$state[i],'differs by',
+              round(G-myghs[i,8]),'from tabulated value.\n'),file=file,append=TRUE)
+            dG <- round(G-myghs[i,8])
           }
+        } else {
+          if(!quiet) cat(paste('info: G of',myghs$name[i],myghs$state[i],'is NA!!! (maybe a missing element?)\n'),file=file,append=TRUE)
         }
-      #}
+      }
       if(missing.species) {
-        if(!(is.na(dCp)&is.na(dV)&is.na(dCp.supcrt)&is.na(dV.supcrt)&is.na(dG)) ) {
+        if(!(is.na(dCp)&is.na(dV)&is.na(dG)) ) {
           Dname <- c(Dname,as.character(myghs$name[i]))
           Dstate <- c(Dstate,as.character(myghs$state[i]))
           DCp <- c(DCp,dCp)
           DV <- c(DV,dV)
-          DCp.supcrt <- c(DCp.supcrt,dCp.supcrt)
-          DV.supcrt <- c(DV.supcrt,dV.supcrt)
           DG <- c(DG,dG)
           Di <- c(Di,species[i])
         }
@@ -384,8 +358,7 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
     if(missing.species | all(is.na(myghs))) {
       # for some reason, DCp likes to become list. make it numeric
       DCp <- as.numeric(DCp)
-      #t <- data.frame(name=Dname,state=Dstate,DCp=DCp,DCp.supcrt=DCp.supcrt,DV=DV,DV.supcrt=DV.supcrt,DG=DG)
-      t <- data.frame(ispecies=Di,name=Dname,state=Dstate,DCp=DCp,DV=DV.supcrt,DG=DG)
+      t <- data.frame(ispecies=Di,name=Dname,state=Dstate,DCp=DCp,DV=DV,DG=DG)
       return(t)
     } else return(myghs)
   }

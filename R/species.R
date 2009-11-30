@@ -150,7 +150,13 @@ basis <- function(basis=NULL,values=NULL,values2=NULL,delete=FALSE) {
 
   put.basis <- function(basis,states) {
     # indices of the species in obigt
-    if(all(is.character(states))) ispecies <- info(basis,states,quiet=TRUE)
+    if(all(is.character(states))) {
+      ispecies <- numeric()
+      for(i in 1:length(basis)) {
+        ispec <- info(basis[i],states[i],quiet=TRUE)
+        ispecies <- c(ispecies,ispec[min(thermo$opt$level,length(ispec))])
+      }
+    }
     else ispecies <- info(basis,quiet=TRUE)
     if(NA %in% ispecies | is.list(ispecies)) {
       if(is.list(ispecies)) for(i in 1:length(ispecies))
@@ -231,13 +237,8 @@ basis <- function(basis=NULL,values=NULL,values2=NULL,delete=FALSE) {
   # in the current basis, just return the current basis
   if(!is.null(thermo$basis)) {
     # replace names of basis species with their formulas
-    #myformula <- formula
-    #iinobigt <- match(myformula,thermo$obigt$name[thermo$basis$ispecies])
-    #myformula[!is.na(iinobigt)] <- rownames(thermo$basis)[iinobigt[!is.na(iinobigt)]]
-    #print(myformula)
     if(!FALSE %in% (formula %in% rownames(thermo$basis))) {
       if(!is.null(values)) return(basis.values(formula,values)) 
-      #if(length(formula)==nrow(thermo$basis)) return(thermo$basis)
     }
   }
   # remove old species object
@@ -375,7 +376,11 @@ species <- function(species=NULL,state=NULL,delete=FALSE,quiet=TRUE) {
         # character first argument, species in thermo$obigt
         # but only give states if they are numeric
         is <- NULL; if(!can.be.numeric(state[[1]])) is <- state
-        ispecies <- info(species,is,quiet=TRUE)
+        ispecies <- numeric()
+        for(i in 1:length(species)) {
+          ispec <- info(species[i],is[i],quiet=TRUE)
+          ispecies <- c(ispecies,ispec[min(thermo$opt$level,length(ispec))])
+        }
         ispecies <- ispecies[!is.na(ispecies)]
         if(length(ispecies)==0) return(species())
         was.character <- TRUE
@@ -447,10 +452,19 @@ species <- function(species=NULL,state=NULL,delete=FALSE,quiet=TRUE) {
               doit <- TRUE
               if(NA %in% mj[k]) doit <- FALSE
               myform <- thermo$obigt$formula[thermo$species$ispecies[mj[k]]]
+              #iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]] | thermo$obigt$formula==myform)
               # 20080925 don't match formula -- two proteins might have the
               # same formula (e.g. YLR367W and YJL190C)
-              #iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]] | thermo$obigt$formula==myform)
-              iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]])
+              #iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]])
+              # 20091112 do match formula if it's not a protein -- be able to 
+              # change "carbon dioxide(g)" to "CO2(aq)"
+              if(length(grep("_",thermo$species$name[mj[k]])) > 0)  
+                iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]])
+              else {
+                iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]] & thermo$obigt$state==state[k])
+                if(length(iobigt)==0)
+                  iobigt <- which(thermo$obigt$name==thermo$species$name[mj[k]] | thermo$obigt$formula==myform)
+              }
               if(!state[k] %in% thermo$obigt$state[iobigt]) 
                 doit <- FALSE
               if(!doit) warning(paste('can\'t update state of species ',
@@ -459,6 +473,7 @@ species <- function(species=NULL,state=NULL,delete=FALSE,quiet=TRUE) {
                 ii <- match(state[k],thermo$obigt$state[iobigt])
                 thermo$species$state[mj[k]] <<- state[k]
                 thermo$species$name[mj[k]] <<- thermo$obigt$name[iobigt[ii]]
+                thermo$species$ispecies[mj[k]] <<- as.numeric(rownames(thermo$obigt)[iobigt[ii]])
               }
               #if(TRUE %in% can.be.numeric(s2c(thermo$species$state[mj]))) {
               #  warning(paste("forbidden: i won't change",

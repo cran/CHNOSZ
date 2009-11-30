@@ -3,7 +3,7 @@
 # calculate affinities of formation reactions
 # 20061027 jmd
 
-energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,do.phases=FALSE) {
+energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,do.phases=FALSE,transect=FALSE) {
   # 20090329 extracted from affinity() and made to
   # deal with >2 dimensions (variables)
 
@@ -33,10 +33,12 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,d
   ## the dimensions of our arrays
   resfun <- function(lim) lim[3]
   mydim <- sapply(lims,resfun)
-  ## the total number of points we're interested in
-  np <- prod(mydim)
+  if(transect) {
+    if(!isTRUE(all.equal(min(mydim),max(mydim)))) stop("variables define a transect but their lengths are not all equal")
+    mydim <- mydim[[1]]
+  }
   ## the number of dimensions we have
-  nd <- length(vars) # == length(mydim)
+  if(transect) nd <- 1 else nd <- length(vars) # == length(mydim)
   ## basis names / which vars denote basis species
   basisnames <- rownames(mybasis)
   ibasisvar <- match(vars,basisnames)
@@ -52,12 +54,11 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,d
   ibasis1 <- ibasis[ibasis %in% ibasisvar]
   if(identical(what,"logact.basis")) ispecies <- ibasis
   ## what subcrt variable is used to make a 2-D grid?
-  if(length(which(varissubcrt)) > 1) {
+  if(length(which(varissubcrt)) > 1 & !transect) {
     if("IS" %in% vars) grid <- "IS"
     else grid <- vars[varissubcrt][1]
   } else grid <- NULL
   ### done argument processing
-
 
   ### function to index the variables in a permutated order
   # by swapping ivar for the first
@@ -86,7 +87,7 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,d
     if(is.null(dim.in)) dim.in <- 0
     # why doesn't this work?
     # if(identical(dim.in,mydim))
-    if(all(dim.in==mydim)) return(vals[[ivar]])
+    if(all(dim.in==mydim) | transect) return(vals[[ivar]])
     else return(aperm(array(vals[[ivar]],mydim[ivars(ivar)]),ivars(ivar)))
   }
   # any basis species
@@ -147,7 +148,8 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,d
   # to get logK or subcrt props or other values into the dimensions we are using
   dim.fun <- function(x,idim=NULL) {
     if(is.null(idim)) {
-      if(is.null(grid)) {
+      if(transect) idim <- 1
+      else if(is.null(grid)) {
         # one of T,P,IS
         ivar <- which(vars %in% c("T","P","IS"))
         if(length(ivar)==0) ivar <- 1
@@ -181,7 +183,7 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,d
   } else if(length(agrep("species",what)) > 0) {
     # get subcrt properties for species
     # e.g. what=G.species, Cp.species etc
-    # NOTE! change from previous calling style
+    # NOTE: change from previous calling style
     # (particularly affects Cp example in ionize.Rd
     # and G.Z in protein.info function)
     mywhat <- s2c(what,sep=".",keep.sep=FALSE)[1]
@@ -218,6 +220,8 @@ energy.args <- function(args,quiet=FALSE) {
   # (or pH, pe, Eh)
   ## inputs are like c(T1,T2,res)
   # and outputs are like seq(T1,T2,length.out=res)
+  # unless transect: do the variables specify a transect? 20090627
+  transect <- any(sapply(args,length) > 3)
   ## convert T, P args and take care of 
   # single values for T, P or IS
   T <- thermo$opt$Tr
@@ -230,13 +234,17 @@ energy.args <- function(args,quiet=FALSE) {
   if(any(arg.is.T)) {
     T <- args[[which(arg.is.T)]]
     if(length(T) > 1) T.is.var <- TRUE
-    args[[which(arg.is.T)]][1:2] <- T[1:2] <- envert(T[1:2],'K')
+    if(transect) args[[which(arg.is.T)]] <- T <- envert(T,'K')
+    else args[[which(arg.is.T)]][1:2] <- T[1:2] <- envert(T[1:2],'K')
     T <- T[!is.na(T)]
   }
   if(any(arg.is.P)) {
     P <- args[[which(arg.is.P)]]
     if(length(P) > 1) P.is.var <- TRUE
-    if(!identical(P,"Psat")) args[[which(arg.is.P)]][1:2] <- P[1:2] <- envert(P[1:2],'bar')
+    if(!identical(P,"Psat")) {
+      if(transect) args[[which(arg.is.P)]] <- P <- envert(P,'bar')
+      else args[[which(arg.is.P)]][1:2] <- P[1:2] <- envert(P[1:2],'bar')
+    }
     P <- P[!is.na(P)]
   }
   if(any(arg.is.IS)) {
@@ -253,7 +261,6 @@ energy.args <- function(args,quiet=FALSE) {
   if(!IS.is.var & !identical(IS,0) & !quiet) cat(paste('affinity: ionic strength is ',IS,'\n',sep=''))
   # default values for resolution
   res <- 128
-  if(T.is.var & P.is.var) res <- 72
   # where we store the output
   what <- "A"
   vars <- character()
@@ -272,10 +279,12 @@ energy.args <- function(args,quiet=FALSE) {
   if(length(args) > 0) {
     for(i in 1:length(args)) {
       names.orig <- names(args)[i]
-      lims.orig <- args[[i]][1:2]
+      if(transect) lims.orig <- c(min(args[[i]]),max(args[[i]]))
+      else lims.orig <- args[[i]][1:2]
       if(names(args)[i]=="pH") {
         names(args)[i] <- "H+"
-        args[[i]][1:2] <- -args[[i]][1:2]
+        if(transect) args[[i]] <- -args[[i]]
+        else args[[i]][1:2] <- -args[[i]][1:2]
         if(!'H+' %in% rownames(thermo$basis)) 
           warning('energy.args: pH requested, but no H+ in the basis',immediate.=TRUE)
       } 
@@ -283,19 +292,26 @@ energy.args <- function(args,quiet=FALSE) {
         names(args)[i] <- "e-"
         if(!'e-' %in% rownames(thermo$basis)) 
           warning('energy.args: pe requested, but no e- in the basis',immediate.=TRUE)
-        args[[i]][1:2] <- -args[[i]][1:2]
+        if(transect) args[[i]] <- -args[[i]]
+        else args[[i]][1:2] <- -args[[i]][1:2]
       }
-      if(length(args[[i]]) < 3) args[[i]] <- c(args[[i]],res)
+      if(length(args[[i]]) < 3 & !transect) args[[i]] <- c(args[[i]],res)
       vars[length(vars)+1] <- names(args)[i]
-      vals[[length(vars)]] <- seq(args[[i]][1],args[[i]][2],length.out=args[[i]][3])
-      lims[[length(vars)]] <- args[[i]]
+      if(transect) {
+        vals[[length(vars)]] <- args[[i]]
+        lims[[length(vars)]] <- c(lims.orig,length(vals[[i]]))
+      } else {
+        vals[[length(vars)]] <- seq(args[[i]][1],args[[i]][2],length.out=args[[i]][3])
+        lims[[length(vars)]] <- args[[i]]
+      }
       names(lims)[length(vars)] <- names(args)[i]
       # say something
+      if(transect) n <- length(args[[i]]) else n <- args[[i]][3]
       if(!quiet) cat(paste("energy.args: variable",length(vars),"is",names.orig,"at",
-        args[[i]][3],"increments from",lims.orig[1],"to",lims.orig[2],"\n"))
+        n,"increments from",lims.orig[1],"to",lims.orig[2],"\n"))
     }
   }
-  args <- list(what=what,vars=vars,vals=vals,lims=lims,T=T,P=P,IS=IS)
+  args <- list(what=what,vars=vars,vals=vals,lims=lims,T=T,P=P,IS=IS,transect=transect)
 
   # convert Eh to pe
   if("Eh" %in% args$vars) {
@@ -305,7 +321,7 @@ energy.args <- function(args,quiet=FALSE) {
     Eh.var <- which(args$vars=="Eh")
     Eh.args$what <- args$vals[[Eh.var]]
     Eh.args$sout <- Eh.var
-    Eh <- do.call(energy,Eh.args)
+    Eh <- do.call("energy",Eh.args)
     # get temperature into our dimensions
     T.args <- args  
     if("T" %in% args$vars) {
@@ -316,7 +332,7 @@ energy.args <- function(args,quiet=FALSE) {
       T.args$what <- T
     }
     T.args$sout <- T.var
-    T <- do.call(energy,T.args)
+    T <- do.call("energy",T.args)
     # do the conversion on vectors
     mydim <- dim(Eh)
     Eh <- as.vector(Eh)
@@ -360,7 +376,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     # the user just wants an energy property
     buffer <- FALSE
     args$what <- property
-    out <- do.call(energy,args)
+    out <- do.call("energy",args)
     a <- out$a
     sout <- out$sout
   } else {
@@ -382,7 +398,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     ibufbasis <- which(!can.be.numeric(thermo$basis$logact))
     if(length(ibufbasis) > 0) {
       buffer <- TRUE
-      if(!quiet) cat('affinity: loading buffer species.\n')
+      if(!quiet) cat('affinity: loading buffer species\n')
       if(!is.null(thermo$species)) is.species <- 1:nrow(thermo$species) else is.species <- numeric()
       is.buffer <- buffer(logK=NULL)
       is.buff <- numeric()
@@ -398,7 +414,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     if( (!is.null(iprotein) | length(grep('_',as.character(thermo$species$name))) > 0) & 
         'H+' %in% rownames(thermo$basis) & thermo$opt$ionize) {
       ionize <- TRUE
-      if(!quiet) cat('affinity: loading ionizable protein groups.\n')
+      if(!quiet) cat('affinity: loading ionizable protein groups\n')
       is.species <- 1:nrow(thermo$species)
       is.ion <- ionize(affinity=NULL)
       is.only.ion <- is.ion[!is.ion %in% is.species]
@@ -408,7 +424,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     }
 
     # here we call energy
-    aa <- do.call(energy,args)
+    aa <- do.call("energy",args)
     a <- aa$a
     sout <- aa$sout
 
@@ -424,7 +440,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     if(buffer) {
       args$what <- "logact.basis"
       args$sout <- sout
-      logact.basis.new <- logact.basis <- do.call(energy,args)$a
+      logact.basis.new <- logact.basis <- do.call("energy",args)$a
       ibasis.new <- numeric()
       for(k in 1:length(buffers)) {
         ibasis <- which(as.character(thermo$basis$logact)==buffers[k])
@@ -489,9 +505,10 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       # 20090331 fast protein calculations
       # function to calculate affinity of formation reactions
       # from those of residues
+      logact.protein <- rep(logact.protein,length.out=length(iprotein))
       protein.fun <- function(ip) {
         if(ip %% 50 == 0) cat(paste(ip,"..",sep=""))
-        psum(pprod(a[ires],as.numeric(thermo$protein[iprotein[ip],5:25])))-logact.protein
+        psum(pprod(a[ires],as.numeric(thermo$protein[iprotein[ip],5:25])))-logact.protein[ip]
       }
       # use another level of indexing to let the function
       # report on its progress
@@ -532,7 +549,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     xname <- names(args$lims)[1]
     xlim <- args$lims[[1]]
   }
-  if(length(args$vars) > 1) {
+  if(length(args$vars) > 1 & !args$transect) {
     #yname <- args$vars[2]
     yname <- names(args$lims)[2]
     ylim <- args$lims[[2]]

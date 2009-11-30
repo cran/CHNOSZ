@@ -30,7 +30,8 @@ thermo <- list(
   expt = list(
     PM90 = read.csv("PM90.csv"),
     RH95 = read.csv("RH95.csv"),
-    RT71 = read.csv("RT71.csv")
+    RT71 = read.csv("RT71.csv"),
+    SOJSH92 = read.csv("SOJSH.csv")
   ),
   SGD = read.csv("SGD.csv",as.is=TRUE),
   ECO = read.csv("ECO.csv",as.is=TRUE),

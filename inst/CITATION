@@ -1,0 +1,19 @@
+citHeader("To cite CHNOSZ in publications use:")
+
+citEntry(entry = "Article",
+         title = "Calculation of the relative metastabilities of proteins using the CHNOSZ software package",
+         author = person(first="Jeffrey",last="Dick",middle="M.",email="jmdick@asu.edu"),
+         journal = "Geochemical Transactions",
+	 year = "2008",
+         volume = "9",
+         number = "10",
+         pages = "",
+	 month = "October",
+         url = "http://www.geochemicaltransactions.com/content/9/1/10", 
+         textVersion =   
+         paste("Dick, J. M. (2008). ",
+               "Calculation of the relative metastabilities of proteins using the CHNOSZ software package. ",
+               "Geochemical Transactions, Vol. 9 Art. 10.",sep="")
+	 )
+
+citFooter("See",sQuote("citation()"),"for citing R itself.")
