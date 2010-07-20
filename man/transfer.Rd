@@ -66,8 +66,7 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
 \examples{
   \dontshow{data(thermo)}
-  ### these examples can be run using longex("transfer")
-  \dontrun{
+  \donttest{
     ## react potassium feldspar in a closed system
     ## after Steinmann et al., 1994 and Helgeson et al., 1969
     basis(c("Al+3","H4SiO4","K+","H2O","H+","O2"),c(0,-6,-6,0,0,0))

@@ -118,50 +118,52 @@
   # now at constant pressure
   water(c('Q','Y','X','U'),T=T,P=2000)
   
-  ## NaCl dissocation logK f(T,P)
-  # after Shock et al., 1992, Fig. 1
-  # make note of the warning in the subcrt help page
-  species <- c('NaCl','Na+','Cl-')
-  coeffs <- c(-1,1,1)
-  # start a new plot with the experimental data
-  thermo.plot.new(xlim=c(0,1000),ylim=c(-5.5,1),
-    xlab=axis.label("T"),ylab=axis.label("logK"))
-  expt <- thermo$expt$SOJSH92
-  points(expt$T,expt$logK,pch=expt$pch)
-  T <- list(seq(0,370,25),seq(265,465,25),
-    seq(285,760,25),seq(395,920,25))
-  for(i in 5:9) T[[i]] <- seq(400,1000,25)
-  P <- list("Psat",500,1000,1500,2000,2500,3000,3500,4000)
-  for(i in 1:length(T)) {
-    s <- subcrt(species,coeffs,T=T[[i]],P=P[[i]])
-    lines(s$out$T,s$out$logK)
+  \donttest{
+    ## NaCl dissocation logK f(T,P)
+    # after Shock et al., 1992, Fig. 1
+    # make note of the warning in the subcrt help page
+    species <- c('NaCl','Na+','Cl-')
+    coeffs <- c(-1,1,1)
+    # start a new plot with the experimental data
+    thermo.plot.new(xlim=c(0,1000),ylim=c(-5.5,1),
+      xlab=axis.label("T"),ylab=axis.label("logK"))
+    expt <- thermo$expt$SOJSH92
+    points(expt$T,expt$logK,pch=expt$pch)
+    T <- list(seq(0,370,25),seq(265,465,25),
+      seq(285,760,25),seq(395,920,25))
+    for(i in 5:9) T[[i]] <- seq(400,1000,25)
+    P <- list("Psat",500,1000,1500,2000,2500,3000,3500,4000)
+    for(i in 1:length(T)) {
+      s <- subcrt(species,coeffs,T=T[[i]],P=P[[i]])
+      lines(s$out$T,s$out$logK)
+    }
+    legend("bottomleft",pch=unique(expt$pch),
+      legend=unique(expt$source))
+    title(main=paste('NaCl(aq) = Na+ + Cl-\n',
+      'Psat and 500-4000 bar, after Shock et al., 1992'))
+
+    ## comparing the computational options
+    prop <- c('A','G','S','U','H','Cv','Cp','w','epsilon',
+      'Y','Q','X','rho','Psat')
+    thermo$opt$water <- 'SUPCRT'
+    print(water(prop,T=convert(c(25,100,200,300),'K')))
+    thermo$opt$water <- 'IAPWS'
+    print(water(c(prop,'N','UBorn'),T=convert(c(25,100,200,300),'K')))
+    # fixme: things seem to be working except speed of
+    # sound in our IAPWS calculations
+
+    # calculating Q Born function
+    # after Table 22 of Johnson and Norton, 1991
+    thermo$opt$water <- 'SUPCRT'
+    T <- rep(c(375,400,425,450,475),each=5)
+    P <- rep(c(250,300,350,400,450),5)
+    t <- water('Q',T=convert(T,'K'),P=P)
+    # the rest is to make a readable table
+    t <- as.data.frame(matrix(t[[1]],nrow=5))
+    colnames(t) <- T[1:5*5]
+    rownames(t) <- P[1:5]
+    print(t)
   }
-  legend("bottomleft",pch=unique(expt$pch),
-    legend=unique(expt$source))
-  title(main=paste('NaCl(aq) = Na+ + Cl-\n',
-    'Psat and 500-4000 bar, after Shock et al., 1992'))
-
-  ## comparing the computational options
-  prop <- c('A','G','S','U','H','Cv','Cp','w','epsilon',
-    'Y','Q','X','rho','Psat')
-  thermo$opt$water <- 'SUPCRT'
-  print(water(prop,T=convert(c(25,100,200,300),'K')))
-  thermo$opt$water <- 'IAPWS'
-  print(water(c(prop,'N','UBorn'),T=convert(c(25,100,200,300),'K')))
-  # fixme: things seem to be working except speed of
-  # sound in our IAPWS calculations
-
-  # calculating Q Born function
-  # after Table 22 of Johnson and Norton, 1991
-  thermo$opt$water <- 'SUPCRT'
-  T <- rep(c(375,400,425,450,475),each=5)
-  P <- rep(c(250,300,350,400,450),5)
-  t <- water('Q',T=convert(T,'K'),P=P)
-  # the rest is to make a readable table
-  t <- as.data.frame(matrix(t[[1]],nrow=5))
-  colnames(t) <- T[1:5*5]
-  rownames(t) <- P[1:5]
-  print(t)
 }
 
 \references{

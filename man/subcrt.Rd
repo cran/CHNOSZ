@@ -152,8 +152,7 @@
   # above the T, P limits for the H2O equations of state
   subcrt("alanine",T=c(2250,2251),P=c(30000,30001),grid="T")
 
-  ### these examples can be run using longex("subcrt")
-  \dontrun{
+  \donttest{
     ## heat capacity of Fe(cr)
     # compare calculated values of heat capacity with
     # values from Robie and Hemingway, 1995, (from which 

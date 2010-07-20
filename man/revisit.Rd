@@ -64,8 +64,7 @@
 
 \examples{
   \dontshow{data(thermo)}
-  ### these examples can be run using longex("revisit")
-  \dontrun{
+  \donttest{
     ## carboxylases from different organisms
     # ribulose phosphate carboxylase/oxygenase
     rubisco <- c("Q6JAI0_9RHOD","A5CKC7_9CHRO","RBL_SYNJA","A1E8R4_9CHLO",
@@ -130,28 +129,26 @@
     ### using grep.file, read.fasta, add.protein
     # calculations for Pelagibacter ubique
     f <- system.file("HTCC1062.faa",package="CHNOSZ")
-    # line numbers of all entries in the file
-    j <- grep.file(f)  # length = 1354
-    # locate entries whose names contain DNA
-    j <- grep.file(f,"hypothetical")
+    # what types of proteins we want (set to "" for all proteins)
+    w <- "transcription"
+    # locate entries whose names contain what we want
+    j <- grep.file(f,w)
     # get the amino acid compositions of these protein
     p <- read.fasta(f,j)
     # add these proteins to CHNOSZ's inventory
     i <- add.protein(p)
     # set up a thermodynamic system
     basis("CHNOS+")
-    # calculate affinities in logfO2-pH space
-    a <- affinity(H2O=c(-10,-2),O2=c(-82,-76),iprotein=i)
+    # calculate affinities in logfO2-logaH2O space
+    a <- affinity(O2=c(-120,-40),H2O=c(-40,40),iprotein=i)
     # calculate the logarithms of activities
     d <- diagram(a,do.plot=FALSE,mam=FALSE)
-    # show the protein richness
-    draw.diversity(d,"richness",logactmin="")
-    mtitle(c("Richness of hypothetical proteins in",
-      expression(italic("Pelagibacter ubique"))))
-    # show the coefficient of variation of activities
+    # show the coefficient of variation of logarithms of activities
     draw.diversity(d,"cv")
-    mtitle(c("Coefficient of variation of hypothetical",
-      expression("protein activities in"~italic("P. ubique"))))
+    # make a title
+    expr <- as.expression(substitute(x~y~"proteins in"~
+      italic("P. ubique"),list(x=length(j),y=w)))
+    mtitle(c("Coefficient of variation of log activities of",expr))
   }
 }
 

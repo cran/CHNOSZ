@@ -100,39 +100,38 @@
   title(main=paste("Relation between logfO2(g), Eh and pH at\n",
     "25 degC and 1 bar. After Garrels, 1960"))
   
-  ## buffer of two species
-  # conditions for metastable equilibrium among 
-  # CO2 and acetic acid. note their starting activities:
-  print(mod.buffer("CO2-AC")) 
-  basis("CHNOS")
-  basis("O2","CO2-AC")
-  affinity(return.buffer=TRUE)  # logfO2 = -75.94248
-  basis("CO2",123)  # what the buffer reactions are balanced on
-  affinity(return.buffer=TRUE)  # unchanged
-  # consider more oxidizing conditions
-  mod.buffer("CO2-AC",logact=c(0,-10))
-  affinity(return.buffer=TRUE)
-  
-  ## buffers of three species
-  ## Pyrite-Pyrrhotite-Magnetite (PPM)
-  # specify basis species and initial activities
-  basis(c("FeS2","H2S","O2","H2O"),c(0,-10,-50,0))
-  # note that the affinity of formation of pyrite,
-  # which corresponds to FeS2 in the basis, is zero
-  species(c("pyrite","pyrrhotite","magnetite"))
-  affinity(T=c(200,400,11),P=2000)$values
-  # attach basis species H2S and O2 to the PPM buffer
-  basis(c("FeS2","H2S","O2","H2O"),c(0,"PPM","PPM",0))
-  # inspect values of H2S activity and O2 fugacity
-  affinity(T=c(200,400,11),P=2000,return.buffer=TRUE)
-  # now, the affinities of formation reactions of 
-  # species in the buffer are all equal to zero
-  print(a <- affinity(T=c(200,400,11),P=2000)$values)
-  for(i in 1:length(a)) stopifnot(isTRUE(
-    all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
+  \donttest{
+    ## buffer of two species
+    # conditions for metastable equilibrium among 
+    # CO2 and acetic acid. note their starting activities:
+    print(mod.buffer("CO2-AC")) 
+    basis("CHNOS")
+    basis("O2","CO2-AC")
+    affinity(return.buffer=TRUE)  # logfO2 = -75.94248
+    basis("CO2",123)  # what the buffer reactions are balanced on
+    affinity(return.buffer=TRUE)  # unchanged
+    # consider more oxidizing conditions
+    mod.buffer("CO2-AC",logact=c(0,-10))
+    affinity(return.buffer=TRUE)
+    
+    ## buffers of three species
+    ## Pyrite-Pyrrhotite-Magnetite (PPM)
+    # specify basis species and initial activities
+    basis(c("FeS2","H2S","O2","H2O"),c(0,-10,-50,0))
+    # note that the affinity of formation of pyrite,
+    # which corresponds to FeS2 in the basis, is zero
+    species(c("pyrite","pyrrhotite","magnetite"))
+    affinity(T=c(200,400,11),P=2000)$values
+    # attach basis species H2S and O2 to the PPM buffer
+    basis(c("FeS2","H2S","O2","H2O"),c(0,"PPM","PPM",0))
+    # inspect values of H2S activity and O2 fugacity
+    affinity(T=c(200,400,11),P=2000,return.buffer=TRUE)
+    # now, the affinities of formation reactions of 
+    # species in the buffer are all equal to zero
+    print(a <- affinity(T=c(200,400,11),P=2000)$values)
+    for(i in 1:length(a)) stopifnot(isTRUE(
+      all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
 
-  ### this example can be run using longex("buffer")
-  \dontrun{
     ## log fH2 - temperature diagram for mineral buffers
     ## and for given activities of aqueous CH2O and HCN
     ## After Schulte and Shock, 1995, Fig. 6: 

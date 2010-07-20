@@ -126,8 +126,7 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
 
   ### Metastability calculations
 
-  ### these examples can be run using longex("protein")
-  \dontrun{
+  \donttest{
     ## subcellular homologs of yeast glutaredoxin
     ## as a function of logfO2 - logaH2O, after Dick, 2009
     basis("CHNOS+")

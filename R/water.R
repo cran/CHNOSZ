@@ -391,7 +391,7 @@ water.WP02 <- function(property='rho.liquid',T=298.15) {
     rho.vapor <- rho.critical * exp (
       c1*V^(2/6) + c2*V^(4/6) + c3*V^(8/6) + c4*V^(18/6) + c5*V^(37/6) + c6*V^(71/6) )
     out <- rho.vapor
-  } else stop('i can not calculate',property)
+  } else stop(paste('i can not calculate',property))
   return(out)
 }
 
@@ -433,11 +433,17 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
     for(i in 1:length(Property)) if(Property[i] %in% names.CHNOSZ) 
       Property.new[i] <- names.SUPCRT[match(Property[i],names.CHNOSZ)]
       else Property.new[i] <- Property[i]
+    # deal with compressibility and expansivity 20091203
+    iE <- which(Property=="E")
+    ikT <- which(Property=="kT")
+    iV <- numeric()
+    if("kT" %in% Property | "E" %in% Property) iV <- length(Property.new <- c(Property.new,"V"))
     w.out <- water.SUPCRT92(Property.new,T=T,P=P)
+    # finish dealing with compressibility and expansivity
+    if("E" %in% Property) w.out[,iE] <- w.out$V*w.out$alpha
+    if("kT" %in% Property) w.out[,ikT] <- -w.out$V*w.out$beta
+    if(length(iV) > 0) w.out <- w.out[,-iV,drop=FALSE]
     colnames(w.out) <- Property
-    # convert names from SUPCRT
-    #for(i in 1:length(colnames(w.out))) if(colnames(w.out)[i] %in% names.SUPCRT)
-    #  colnames(w.out)[i] <- names.CHNOSZ[match(colnames(w.out)[i],names.SUPCRT)]
     return(w.out)
   } else {
     # check for same T, P as last time and keep values
@@ -620,7 +626,7 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
   } else my.rho <- rho()
   for(i in 1:length(property)) {
     if(property[i] %in% c('e','kt')) {
-      # expansibility isn't in the table yet... set it to zero
+      # expansivity isn't in the table yet... set it to zero
       warning('water: values of ',Property[i],' are NA.\n',call.=FALSE)
       inew <- rep(NA,length(T))
     } else {

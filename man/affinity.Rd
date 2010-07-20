@@ -101,8 +101,7 @@
   # Standard molal Gibbs energies of reactions
   affinity(property="G")
 
-  ### these examples can be run using longex("afffinity")
-  \dontrun{
+  \donttest{
     ## Activity of glycine as a function of those of
     ## HCN and formaldehyde (200 C, 300 bar)
     ## After Schulte and Shock, 1995, Fig. 5

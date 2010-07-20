@@ -45,17 +45,17 @@
   x <- affinity(pH=pH,T=T)
   z <- ionize(x$values,x$values)
   # plot charges at the temperatures we're interested in
-  plot(z[[1]][1,],x=seq(0,14,length.out=50),type="l",xlab="pH",
+  plot(z[[1]][,1],x=seq(0,14,length.out=50),type="l",xlab="pH",
     ylab="net charge (Z)")  # 25  deg C
-  lines(z[[1]][4,],x=seq(0,14,length.out=50),col="red")    # 100 deg C
-  lines(z[[1]][6,],x=seq(0,14,length.out=50),col="orange") # 150 deg C
+  lines(z[[1]][,4],x=seq(0,14,length.out=50),col="red")    # 100 deg C
+  lines(z[[1]][,6],x=seq(0,14,length.out=50),col="orange") # 150 deg C
   text(x=c(12,10,9),y=c(-15,-16,-18),labels=paste("T=",c(25,100,150),sep=""))
   # if cysteine is oxidized (to cystine disulfide bonds) it may not ionize. 
   # suppress its ionization by upping energy of the ionized group
   mod.obigt("[Cys-]",G=999999)
   x <- affinity(pH=pH,T=25)
   z <- ionize(x$values,x$values)
-  lines(z[[1]][1,],x=seq(0,14,length.out=50),lty=2)
+  lines(z[[1]],x=seq(0,14,length.out=50),lty=2)
   text(x=12,y=-7,"T=25, oxidized")
   # add experimental points
   points(thermo$expt$RT71$pH,thermo$expt$RT71$Z)
@@ -74,14 +74,14 @@
   a <- affinity(pH=pH,T=T)
   # values for non-ionized protein
   c <- affinity(pH=pH,T=T,property="Cp.species")
-  plot(T.values,c$values[[1]][,1],
+  plot(T.values,c$values[[1]][1,],
     xlab=axis.label("T"),ylab=axis.label("Cp"),
     ylim=c(5000,8000),type="l",mgp=c(2.2,0.2,0)) 
   # values for ionized protein
   cp <- ionize(a$values,c$values)
   for(i in 1:3) {
-    lines(seq(T[1],T[2],length.out=T[3]),cp[[1]][,i],lty=2)
-    text(80,cp[[1]][,i][21],paste("pH=",pH[i],sep=""))
+    lines(seq(T[1],T[2],length.out=T[3]),cp[[1]][i,],lty=2)
+    text(80,cp[[1]][i,][21],paste("pH=",pH[i],sep=""))
   }
   # Makhatadze and Privalov's group contributions
   T.MP <- c(5,25,50,75,100,125)
@@ -90,14 +90,13 @@
   e <- thermo$expt$PM90
   e <- e[e$protein=="LYSC_CHICK",]
   points(e$T,convert(e$Cp,"cal"),pch=16)
-  title(main=paste("Calc\"d heat capacity of LYSC_CHICK:",
+  title(main=paste("Calc'd heat capacity of LYSC_CHICK:",
     "non/ionized(solid/dashed);\n",
     "Makhatadze+Privalov 1990 (open, calc; filled, expt)"),
     cex.main=0.9)
 
   ### Metastability calculations using 'ionize'
-  ### these examples can be run using longex("ionize")
-  \dontrun{
+  \donttest{
     ## Eh-pH diagrams for intra/extracellular proteins
     organism <- c("PYRFU","ECOLI","YEAST")
     intracellular <- c("AMPM","AMPM","AMPM1")

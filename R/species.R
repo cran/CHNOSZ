@@ -154,7 +154,8 @@ basis <- function(basis=NULL,values=NULL,values2=NULL,delete=FALSE) {
       ispecies <- numeric()
       for(i in 1:length(basis)) {
         ispec <- info(basis[i],states[i],quiet=TRUE)
-        ispecies <- c(ispecies,ispec[min(thermo$opt$level,length(ispec))])
+        #ispecies <- c(ispecies,ispec[min(thermo$opt$level,length(ispec))])
+        ispecies <- c(ispecies,ispec[min(1,length(ispec))])
       }
     }
     else ispecies <- info(basis,quiet=TRUE)
@@ -379,7 +380,8 @@ species <- function(species=NULL,state=NULL,delete=FALSE,quiet=TRUE) {
         ispecies <- numeric()
         for(i in 1:length(species)) {
           ispec <- info(species[i],is[i],quiet=TRUE)
-          ispecies <- c(ispecies,ispec[min(thermo$opt$level,length(ispec))])
+          #ispecies <- c(ispecies,ispec[min(thermo$opt$level,length(ispec))])
+          ispecies <- c(ispecies,ispec[min(1,length(ispec))])
         }
         ispecies <- ispecies[!is.na(ispecies)]
         if(length(ispecies)==0) return(species())

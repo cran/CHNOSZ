@@ -1,9 +1,9 @@
 \name{get.protein}
 \alias{get.protein}
 \alias{yeastgfp}
-\title{Amino Acid Compositions of Collections of Proteins}
+\title{Proteins from Model Organisms}
 \description{
-Calculate the amino acid compositions of collections of proteins.}
+Calculate the amino acid compositions of one or more proteins from \emph{Escherichia coli} or \emph{Saccharomyces cerevisiae}.}
 
 \usage{
   get.protein(protein, organism, abundance = NULL, pname = NULL, 
@@ -100,46 +100,45 @@ Calculate the amino acid compositions of collections of proteins.}
     "from YeastGFP. Figure after Dick, 2009",sep="\n"))
 
 
-  ## Chemical activities of model subcellular proteins
-  # (one-dimensional speciation diagram as a function of logfO2)
-  # After Dick, 2009
-  basis("CHNOS+")
-  names <- colnames(thermo$yeastgfp)[6:28]
-  # calculate amino acid compositions using "get.protein" function 
-  for(i in 1:length(names)) {
-    y <- yeastgfp(names[i])
-    p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
-    add.protein(p)
-  }
-  species(names,"SGD")
-  # set unit activity of residues
-  pl <- protein.length(thermo$species$name)
-  species(NULL,unitize(thermo$species$logact,pl))
-  res <- 200
-  t <- affinity(O2=c(-82,-65,res))
-  mycolor <- topo.colors(6)[1:4]
-  mycolor <- rep(mycolor,times=rep(6,4))
-  oldpar <- par(bg="black",fg="white")
-  logact <- diagram(t,balance="PBB",names=names,ylim=c(-5,-3),legend.x=NULL,
-    color=mycolor,lwd=2)$logact
-  # so far good, but how about labels on the plot?
-  for(i in 1:length(logact)) {
-    myloga <- as.numeric(logact[[i]])
-    # don't take values that lie above the plot (vacuole in this example)
-    myloga[myloga > -3.1] <- -999
-    imax <- which.max(myloga)
-    adj <- 0.5
-    if(imax > 180) adj <- 1
-    if(imax < 20) adj <- 0
-    text(seq(-82,-65,length.out=res)[imax],logact[[i]][imax],
-      labels=names[i],adj=adj)
-  }
-  title(main=paste("Subcellular proteologs of S. cerevisiae, after Dick, 2009",
-    describe(thermo$basis[-5,]),sep="\n"),col.main=par("fg"),cex.main=0.9)
-  par(oldpar)
+  \donttest{
+    ## Chemical activities of model subcellular proteins
+    # (one-dimensional speciation diagram as a function of logfO2)
+    # After Dick, 2009
+    basis("CHNOS+")
+    names <- colnames(thermo$yeastgfp)[6:28]
+    # calculate amino acid compositions using "get.protein" function 
+    for(i in 1:length(names)) {
+      y <- yeastgfp(names[i])
+      p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
+      add.protein(p)
+    }
+    species(names,"SGD")
+    # set unit activity of residues
+    pl <- protein.length(thermo$species$name)
+    species(NULL,unitize(thermo$species$logact,pl))
+    res <- 200
+    t <- affinity(O2=c(-82,-65,res))
+    mycolor <- topo.colors(6)[1:4]
+    mycolor <- rep(mycolor,times=rep(6,4))
+    oldpar <- par(bg="black",fg="white")
+    logact <- diagram(t,balance="PBB",names=names,ylim=c(-5,-3),legend.x=NULL,
+      col=mycolor,lwd=2)$logact
+    # so far good, but how about labels on the plot?
+    for(i in 1:length(logact)) {
+      myloga <- as.numeric(logact[[i]])
+      # don't take values that lie above the plot (vacuole in this example)
+      myloga[myloga > -3.1] <- -999
+      imax <- which.max(myloga)
+      adj <- 0.5
+      if(imax > 180) adj <- 1
+      if(imax < 20) adj <- 0
+      text(seq(-82,-65,length.out=res)[imax],logact[[i]][imax],
+        labels=names[i],adj=adj)
+    }
+    title(main=paste("Subcellular proteologs of S. cerevisiae, after Dick, 2009",
+      describe(thermo$basis[-5,]),sep="\n"),col.main=par("fg"),cex.main=0.9)
+    par(oldpar)
 
-  ### these examples can be run using longex("diagram")
-  \dontrun{
     ## Oxygen fugacity - activity of H2O predominance 
     ## diagrams for proteologs for 23 YeastGFP localizations
     # arranged by decreasing metastability:

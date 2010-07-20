@@ -109,7 +109,8 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
             # here we go to the last (duplicated) entry that thermo$opt$level allows
             if(nrow(tghs)==0) iiighs <- 99
             else iiighs <- which(tghs$state==tghs$state[1])
-            iighs <- max(min(thermo$opt$level,max(iiighs)),1)
+            #iighs <- max(min(thermo$opt$level,max(iiighs)),1)
+            iighs <- max(min(1,max(iiighs)),1)
             states[i] <- as.character(tghs$state[iighs])
           }
         }
@@ -215,7 +216,7 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
           ii <- ighs[j]
           if(is.na(ii)) ii <- rownames(thisghs)[j]
           cat('info: ',ii,' refers to ',thisghs$name[j],tf,
-            ' ',thisghs$state[j],' (',thissource,').\n',sep='')
+            ' ',thisghs$state[j],' (',thissource,')\n',sep='')
         }
       }
     }

@@ -221,11 +221,10 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
               organism='SWISS',online=online)
           } 
           if(is.null(ip)) ip <- NA
-          #if(!is.na(ip)) cat(paste('protein: found amino acid composition of ',protein[i],'_',organism[i],' (length = ',round(as.numeric(protein.length(paste(protein[i],'_',organism[i],sep=''))),2),').\n',sep=''))
-          #else cat(paste('protein: no match for ',protein[i],'_',organism[i],'.\n',sep=''))
-          if(is.na(ip)) if(sys.nframe() < 2) cat(paste('protein: no match for ',protein[i],'_',organism[i],'.\n',sep=''))
+          if(is.na(ip)) if(sys.nframe() < 2) cat(paste('protein: no match for ',protein[i],'_',organism[i],'\n',sep=''))
           iprotein <- c(iprotein,ip)
         }
+        # strip NA results
         iprotein <- iprotein[!is.na(iprotein)]
         return(invisible(iprotein))
     }
@@ -347,70 +346,6 @@ get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,
   return(aa)
 }
 
-read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL) {
-  # read sequences from a fasta file
-  # all of them or only those indicated by i
-  # if aa=TRUE compile a data frame of the amino acid
-  # compositions suitable for add.protein
-  # some of the following code was adapted from 
-  # read.fasta in package seqinR
-  # TODO: better test for type of system
-  # value of 'ret' determines format of return value:
-  # aa: amino acid composition (same columns as thermo$protein)
-  # seq: amino acid sequence
-  # fas: fasta entry
-  is.nix <- Sys.info()[[1]]=="Linux"
-  if(is.nix & is.null(lines)) {
-    nlines <- as.integer(system(paste('grep -c "**"',file),intern=TRUE))
-    ihead <- as.integer(system(paste('grep -n "^>"',file,'| cut -f 1 -d ":"'),intern=TRUE))
-    #linefun <- function(i1,i2) as.character(system(paste('sed -n ',i1,',',i2,'p ',file,sep=""),intern=TRUE))
-    lines <- system(paste("cat",file),intern=TRUE)
-    linefun <- function(i1,i2) lines[i1:i2]
-  } else {
-    if(is.null(lines)) lines <- readLines(file)
-    nlines <- length(lines)
-    if(is.null(ihead)) ihead <- which(substr(lines,1,1)==">")
-    linefun <- function(i1,i2) lines[i1:i2]
-  }
-  if(is.null(i)) {
-    i <- ihead
-    start <- i + 1
-    end <- i - 1
-    end <- c(end[-1], nlines)
-  } else {
-    start <- i + 1
-    iend <- match(i,ihead)
-    # we have to be careful about the last record
-    iend[iend==ihead[length(ihead)]] <- NA
-    end <- ihead[iend+1] - 1
-    end[is.na(end)] <- nlines
-  } 
-  # just return the lines from the file
-  if(ret=="fas") {
-    iline <- numeric()
-    for(i in 1:length(start)) iline <- c(iline,(start[i]-1):end[i])
-    return(lines[iline])
-  }
-  seqfun <- function(i) paste(linefun(start[i],end[i]),collapse="")
-  sequences <- mylapply(1:length(i), seqfun)
-  nomfun <- function(j) {
-    firstword <- strsplit(linefun(i[j],i[j]), " ")[[1]][1]
-    substr(firstword, 2, nchar(firstword))
-  }
-  nomseq <- mylapply(1:length(i),nomfun) 
-  if(ret=="count") {
-    aa <- aminoacids(sequences)
-    colnames(aa) <- aminoacids(nchar=3)
-    protein <- as.character(nomseq)
-    organism <- s2c(file,sep=".",keep.sep=FALSE)[1]
-    source <- abbrv <- NA
-    chains <- 1
-    # 20090507 made stringsAsFactors FALSE
-    return(cbind(data.frame(protein=protein,organism=organism,
-      source=source,abbrv=abbrv,chains=chains,stringsAsFactors=FALSE),aa))
-  } else return(sequences)
-}
-
 protein.residue <- function(proteins) {
   # make new proteins corresponding to residues
   # of the original proteins
@@ -443,6 +378,16 @@ add.protein <- function(file="protein.csv") {
   # can also supply a dataframe (e.g. made using get.protein)
   ftext <- ""
   if(is.data.frame(file)) tp2 <- file else {
+    # if its a fasta file, read the sequences
+    if(is.fasta(file)) {
+      p <- read.fasta(file)
+      cat(paste("add.protein: first line in fasta file is\n"))
+      cat(readLines(file,n=1))
+      cat("\n")
+      # we recurse, using the data frame this time
+      ip <- add.protein(p)
+      return(ip)
+    }
     # 20090428 added colClasses here
     tp2 <- read.csv(file,colClasses=c(rep("character",4),rep("numeric",21)))
     ftext <- paste("from",file)
@@ -457,7 +402,7 @@ add.protein <- function(file="protein.csv") {
     cat(paste("add.protein: added ",length(iadd)," protein ",ftext,"with length ",
       protein.length(paste(tp2$protein[iadd],tp2$organism[iadd],sep="_")),"\n",sep=""))
   } else { 
-    cat(paste("add.protein: added",length(iadd),"proteins",ftext,"\n"))
+    cat(paste("add.protein: added",length(iadd),"of",nrow(tp2),"proteins",ftext,"\n"))
   }
   # return the indices of the proteins
   tp1.names <- paste(tp1$protein,tp1$organism,sep="_")

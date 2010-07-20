@@ -1,3 +1,21 @@
+CHNOSZ_0.9-1 (2010-07-20) Add expansivity (E) and compressibility (kT) to water
+(SUPCRT92) calculations.  Use double quotes to system calls to grep in
+grep.file() and read.fasta() so filenames with special characters can be
+processed.  The 'values' element of the list returned by affinity() now has
+dimensions equal to the number of variables. Use extendrange() to automatically
+get the y-limits of line (1-D) plots made by diagram(). Separate the utility
+functions in thermo.R into a number of util.* files, and also reorganize the
+corresponding documentation files. Add functions mtitle(), count.taxa(),
+is.fasta(), splitline(), trimfas(), protein.formula(), residue.formula(),
+species.label().  Add functions getnodes(), getrank(), parent(), allparents(),
+getnames() and sciname() for working with NCBI taxonomy files. Add function
+danger() for loading alternative entries to the thermodynamic database (this
+supersedes the functionality provided by the 'level' setting in thermo$opt,
+which is no longer supported). Move some of the longer examples from the
+documentation to longex(). Parts of the examples in the documentation that
+should not be run during e.g. the CRAN package checks are now protected by
+'\donttest'.
+
 CHNOSZ_0.9 (2009-11-30) Fix .First.lib so package date correctly displays when
 a CRAN-built package is loaded. Add URL to DESCRIPTION. In protein(), fix
 UniProt search and add colClasses to read.csv function call so names of

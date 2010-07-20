@@ -1,11 +1,12 @@
-\name{nuts}
+\name{util.units}
+\alias{util.units}
 \alias{nuts}
 \alias{convert}
 \alias{envert}
 \alias{outvert}
-\title{Unit Conversions}
+\title{Functions to Convert Units}
 \description{
-  Set units preferences and convert values between units.
+  These functions to convert values between units and set the user's preferred units.
 }
 
 \usage{
