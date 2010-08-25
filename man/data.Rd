@@ -12,6 +12,7 @@
 \alias{SGD}
 \alias{ECO}
 \alias{groups}
+\alias{SOJSH}
 \title{Thermodynamic Properties and Compositional Data}
 \description{
  

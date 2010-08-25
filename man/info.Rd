@@ -1,5 +1,6 @@
 \name{info}
 \alias{info}
+\alias{check}
 \title{Search the Thermodynamic Database}
 \description{
   Search for species by name or formula, and retrieve their thermodynamic properties and parameters.

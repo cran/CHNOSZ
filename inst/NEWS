@@ -1,3 +1,6 @@
+CHNOSZ_0.9-2 (2010-08-25) Add missing aliases in help files for data sets
+'SOJSH' and 'check'.
+
 CHNOSZ_0.9-1 (2010-07-20) Add expansivity (E) and compressibility (kT) to water
 (SUPCRT92) calculations.  Use double quotes to system calls to grep in
 grep.file() and read.fasta() so filenames with special characters can be
