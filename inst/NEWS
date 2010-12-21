@@ -1,3 +1,16 @@
+CHNOSZ_0.9-3 (2010-12-21) diagram() by default does not plot legends on 1D
+diagrams if there are more than 10 species, and now handles activity
+calculations in more than two dimensions (still only up to two are plotted).
+Change 'title' argument to 'main' and 'property' to 'what'; if latter is set to
+the name of a basis species the function calculates its equilibrium activity.
+get.protein() now searches the "AC" column in ECO.csv. Add HUM.csv for human
+proteins. Merge draw.diversity() into revisit(); add new targets (qqr, rmsd,
+cvrmsd, ratio) and plots (scatterplots with legend and LOESS fit). affinity()
+now returns x- and y-values used for calculations.  Change argument 'x' to
+'pattern' in grep.file() and implement search for multiple patterns.  Add
+vignettes on energy of rotein formation, getting started with CHNOSZ, and
+growth temperature and relative stabilities of proteins. 
+
 CHNOSZ_0.9-2 (2010-08-25) Add missing aliases in help files for data sets
 'SOJSH' and 'check'.
 

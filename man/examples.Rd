@@ -27,7 +27,8 @@
     \code{cordierite} \tab equilibrium constant of hydrous cordierite dehydration \cr
     \code{phosphate} \tab phosphate speciation with pH, temperature and ionic strength \cr
     \code{nucleobase} \tab relative stabilities of nucleobases and some amino acids \cr
-    \code{pie} \tab pie charts for relative abundances of organisms and model proteins \cr
+    \code{pie} \tab pie charts comparing relative abundances of organisms and model proteins in metastable equilibrium \cr
+    \code{orp} \tab oxidation-reduction potential of redox standards as a function of temperature \cr
   }
 
 }
@@ -37,6 +38,6 @@
 \examples{
   \dontshow{data(thermo)}
   \donttest{
-    longex("cordierite")
+    longex(c("copper","orp"))
   }
 }

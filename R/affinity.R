@@ -1,7 +1,5 @@
 # CHNOSZ/affinity.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # calculate affinities of formation reactions
-# 20061027 jmd
 
 energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,do.phases=FALSE,transect=FALSE) {
   # 20090329 extracted from affinity() and made to
@@ -24,7 +22,7 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,d
   mybasis <- thermo$basis  # FIXME: use basis() here
   nbasis <- nrow(mybasis)
   ## species definition / number of species
-  myspecies <- species()
+  myspecies <- species(quiet=TRUE)
   if(is.character(what)) {
     if(is.null(myspecies)) stop('species properties requested, but species have not been defined')
     nspecies <- nrow(myspecies)
@@ -337,7 +335,7 @@ energy.args <- function(args,quiet=FALSE) {
 }
 
 affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
-  return.buffer=FALSE,balance="PBB",quiet=FALSE,iprotein=NULL,logact.protein=-3) {
+  return.buffer=FALSE,balance="PBB",quiet=FALSE,iprotein=NULL,loga.protein=-3) {
   # ...: variables over which to calculate
   # property: what type of energy
   #   (G.basis,G.species,logact.basis,logK,logQ,A)
@@ -349,6 +347,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
   # quiet: make less noise
   # iprotein: build these proteins from residues (speed optimization)
 
+  # history: 20061027 jmd version 1
   # this is where energy.args() used to sit
   # this is where energy() used to sit
 
@@ -378,13 +377,13 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       resnames <- c("H2O",aminoacids(nchar=3))
       # residue activities set to zero;
       # account for protein activities later
-      ires <- species(paste(resnames,"RESIDUE",sep="_"),0)
+      ires <- species(paste(resnames,"RESIDUE",sep="_"),0,quiet=TRUE)
     }
 
     # buffer stuff
     buffer <- FALSE
-    ibufbasis <- which(!can.be.numeric(thermo$basis$logact))
-    if(length(ibufbasis) > 0) {
+    ibufbasis <- which(!can.be.numeric(mybasis$logact))
+    if(!is.null(mybasis) & length(ibufbasis) > 0) {
       buffer <- TRUE
       if(!quiet) cat('affinity: loading buffer species\n')
       if(!is.null(thermo$species)) is.species <- 1:nrow(thermo$species) else is.species <- numeric()
@@ -400,15 +399,14 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
     # ionization stuff
     ionize <- FALSE
     if( (!is.null(iprotein) | length(grep('_',as.character(thermo$species$name))) > 0) & 
-        'H+' %in% rownames(thermo$basis) & thermo$opt$ionize) {
+        'H+' %in% rownames(mybasis) & thermo$opt$ionize) {
       ionize <- TRUE
       if(!quiet) cat('affinity: loading ionizable protein groups\n')
       is.species <- 1:nrow(thermo$species)
       is.ion <- ionize(affinity=NULL)
       is.only.ion <- is.ion[!is.ion %in% is.species]
       # keep the value of H+ if we're buffering it
-      H.act <- as.character(thermo$basis$logact[rownames(thermo$basis)=='H+'])
-      #if(!can.be.numeric(H.act)) thermo$basis$logact[rownames(thermo$basis)=='H+'] <<- -7
+      H.act <- as.character(mybasis$logact[rownames(mybasis)=='H+'])
     }
 
     # here we call energy
@@ -431,7 +429,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       logact.basis.new <- logact.basis <- do.call("energy",args)$a
       ibasis.new <- numeric()
       for(k in 1:length(buffers)) {
-        ibasis <- which(as.character(thermo$basis$logact)==buffers[k])
+        ibasis <- which(as.character(mybasis$logact)==buffers[k])
         # calculate the logKs from the affinities
         logK <- a
         for(i in 1:length(logK)) {
@@ -440,7 +438,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
             logK[[i]] <- logK[[i]] - logact.basis.new[[j]] * thermo$species[i,j]
             # add ionization correction to proteins
             #if(i %in% is.buffer & length(grep('_',as.character(thermo$species$name[i])))>0 & 
-            #  thermo$opt$ionize & rownames(thermo$basis)[j]=='H+') {
+            #  thermo$opt$ionize & rownames(mybasis)[j]=='H+') {
             #  logK[[i]] <- logK[[i]] - logact.basis[[j]] * 
             #    as.data.frame(charge[[match(thermo$species$ispecies[i],names(charge))]]) 
             #}
@@ -453,7 +451,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
         is.only.buffer.new <- is.only.buffer[is.only.buffer %in% is.buffer[[k]]]
         for(i in 1:length(a)) {
           if(i %in% is.only.buffer.new) next
-          for(j in 1:nrow(thermo$basis)) {
+          for(j in 1:nrow(mybasis)) {
             # let's only do this for the basis species specified by the user
             # even if others could be buffered
             if(!j %in% ibufbasis) next
@@ -493,10 +491,10 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       # 20090331 fast protein calculations
       # function to calculate affinity of formation reactions
       # from those of residues
-      logact.protein <- rep(logact.protein,length.out=length(iprotein))
+      loga.protein <- rep(loga.protein,length.out=length(iprotein))
       protein.fun <- function(ip) {
         if(ip %% 50 == 0) cat(paste(ip,"..",sep=""))
-        psum(pprod(a[ires],as.numeric(thermo$protein[iprotein[ip],5:25])))-logact.protein[ip]
+        psum(pprod(a[ires],as.numeric(thermo$protein[iprotein[ip],5:25])))-loga.protein[ip]
       }
       # use another level of indexing to let the function
       # report on its progress
@@ -517,7 +515,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       # the numbers of basis species in formation reactions of the proteins
       protbasis <- t(t((resspecies[ires,1:nrow(mybasis)])) %*% t((thermo$protein[iprotein,5:25])))
       # put them together
-      protspecies <- cbind(protbasis,data.frame(ispecies=ispecies,logact=logact.protein,state=state,name=name))
+      protspecies <- cbind(protbasis,data.frame(ispecies=ispecies,logact=loga.protein,state=state,name=name))
       myspecies <- rbind(myspecies,protspecies)
       rownames(myspecies) <- 1:nrow(myspecies)
       ## update the affinity values
@@ -533,17 +531,23 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
   P <- args$P
   xname <- yname <- ""
   xlim <- ylim <- ""
+  xvals <- yvals <- ""
   if(length(args$vars) > 0) {
     xname <- names(args$lims)[1]
     xlim <- args$lims[[1]]
+    xvals <- args$vals[[1]]
+    if(xname=="T") xvals <- outvert(xvals,"K")
   }
   if(length(args$vars) > 1 & !args$transect) {
     #yname <- args$vars[2]
     yname <- names(args$lims)[2]
     ylim <- args$lims[[2]]
+    yvals <- args$vals[[2]]
+    if(yname=="T") yvals <- outvert(yvals,"K")
   }
 
-  a <- list(sout=sout,property=property,basis=mybasis,species=myspecies,T=T,P=P,xname=xname,xlim=xlim,yname=yname,ylim=ylim,values=a)
+  a <- list(sout=sout,property=property,basis=mybasis,species=myspecies,T=T,P=P,
+    xname=xname,xlim=xlim,xvals=xvals,yname=yname,ylim=ylim,yvals=yvals,values=a)
   if(buffer) a <- c(a,list(buffer=tb))
   return(a)
 
@@ -557,7 +561,7 @@ ionize <- function(affinity=NULL,other=NULL) {
   neutral <- c('[Asp]','[Glu]','[His]','[Lys]','[Arg]','[Cys]','[Tyr]','[AABB]')
   charged <- c('[Asp-]','[Glu-]','[His+]','[Lys+]','[Arg+]','[Cys-]','[Tyr-]','[AABB+]','[AABB-]')
   if(identical(affinity,FALSE)) {
-    s <- species()
+    s <- species(quiet=TRUE)
     is <- match(c(neutral,charged),s$name)
     if(any(is.na(is))) is <- is[!is.na(is)]
     if(length(is) > 0) species(is,delete=TRUE)

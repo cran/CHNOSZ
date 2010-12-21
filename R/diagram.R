@@ -1,13 +1,12 @@
 # CHNOSZ/diagram.R
-# Copyright (C) 2006-2010 Jeffrey M. Dick
 # plot predominance or activity diagrams 
 # from affinities of formation reactions
 # 20061023 jmd
 
-diagram <- function(affinity,ispecies=NULL,balance=NULL,
-  names=NA,color=NA,add=FALSE,dotted=0,cex=par('cex'),col=par('col'),pe=TRUE,pH=TRUE,
-  ylog=TRUE,title=NULL,cex.names=1,legend.x='topright',lty=NULL,
-  col.names=par('fg'),cex.axis=par('cex'),logact=NA,property=NULL,lwd=par('lwd'),
+diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
+  names=NA,color=NA,add=FALSE,dotted=0,cex=par('cex'),col=par('col'),
+  pe=TRUE,pH=TRUE,ylog=TRUE,main=NULL,cex.names=1,legend.x='topright',
+  lty=NULL,col.names=par('fg'),cex.axis=par('cex'),logact=NA,lwd=par('lwd'),
   alpha=FALSE,mar=NULL,residue=FALSE,yline=par('mgp')[1]+1,xrange=NULL,
   ylab=NULL,xlab=NULL,do.plot=TRUE,as.residue=FALSE,mam=TRUE,group=NULL,
   bg=par("bg"),side=1:4,xlim=NULL,ylim=NULL) {
@@ -18,9 +17,9 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   # number of species possible
   nspecies.orig <- nspecies <- length(aval)
   # number of dimensions (T, P or chemical potentials that are varied)
-  nd <- 0
-  if(length(affinity$xlim) > 1) nd <- nd + 1
-  if(length(affinity$ylim) > 1) nd <- nd + 1
+  mydim <- dim(aval[[1]])
+  nd <- length(mydim)
+  if(nd==1) if(mydim==1) nd <- 0
   # 'ispecies' which species to consider
   if(is.null(ispecies)) {
     ispecies <- 1:nspecies
@@ -31,19 +30,33 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     }
   }
   if(!identical(ispecies,1:nspecies)) {
+    if(length(ispecies)==0) {
+      cn <- caller.name()
+      stop(paste("the length of ispecies is zero ( from",cn,")"))
+    }
     cat(paste('diagram: using',length(ispecies),'of',nspecies,'species.\n'))
     affinity$species <- affinity$species[ispecies,]
     aval <- aval[ispecies]
   }
   # number of species that are left
   nspecies <- length(aval)
-  # the property we're plotting
-  if(is.null(property)) {
-    property <- affinity$property
-    if(property=='A') property <- 'affinity'
+  # what property we're plotting (jmd 20101014)
+  do.loga.equil <- FALSE
+  if(affinity$property=="A") {
+    if(what %in% rownames(affinity$basis)) {
+      # to calculate the loga of basis species at equilibrium
+      do.loga.equil <- TRUE
+      residue <- FALSE
+      balance <- 1
+    }
+  } else {
+    # it might be the values returned by affinity()
+    if(missing(what)) what <- affinity$property
+    else if(what != affinity$property) stop(paste("can't plot",what,"since the property in 'a' is",affinity$property))
   }
+
   # consider a different number of species if we're grouping them together
-  if(property=='affinity' & (!mam | nd==0 | nd==1) & !is.null(group)) {
+  if(what=='affinity' & (!mam | nd==0 | nd==1) & !is.null(group)) {
     nspecies.orig <- ngroup <- length(group) 
     ispecies <- 1:ngroup
   } else {
@@ -73,11 +86,14 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       }
     }
   }
+  # handle legend argument (turn off legend
+  # in 1D diagrams if too many species)
+  if(nd==1 & ngroup > 10 & missing(legend.x)) legend.x <- NULL
   # covert from activities of proton or electron to pH or pe
-  if(affinity$xname=='H+' & pH) { affinity$xname <- 'pH'; affinity$xlim[1:2] <- -affinity$xlim[1:2] }
-  if(affinity$xname=='e-' & pe) { affinity$xname <- 'pe'; affinity$xlim[1:2] <- -affinity$xlim[1:2] }
-  if(affinity$yname=='H+' & pH) { affinity$yname <- 'pH'; affinity$ylim[1:2] <- -affinity$ylim[1:2] }
-  if(affinity$yname=='e-' & pe) { affinity$yname <- 'pe'; affinity$ylim[1:2] <- -affinity$ylim[1:2] }
+  if(affinity$xname=='H+' & pH) { affinity$xname <- 'pH'; affinity$xlim[1:2] <- -affinity$xlim[1:2]; affinity$xvals <- -affinity$xvals }
+  if(affinity$xname=='e-' & pe) { affinity$xname <- 'pe'; affinity$xlim[1:2] <- -affinity$xlim[1:2]; affinity$xvals <- -affinity$xvals }
+  if(affinity$yname=='H+' & pH) { affinity$yname <- 'pH'; affinity$ylim[1:2] <- -affinity$ylim[1:2]; affinity$yvals <- -affinity$yvals }
+  if(affinity$yname=='e-' & pe) { affinity$yname <- 'pe'; affinity$ylim[1:2] <- -affinity$ylim[1:2]; affinity$yvals <- -affinity$yvals }
   # T/P conversions
   if(nuts('T')=='C') {
     if(affinity$xname=='T') { affinity$xlim[1:2] <- convert(affinity$xlim[1:2],nuts('T')) }
@@ -309,12 +325,12 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     text(lx,ly,labels=names[is],cex=cex.names,col=col.names[is])
   }
   ### property description
-  axis.title <- function(property,suffix="") {
-    if(property=='A') return(as.expression(substitute(italic(bold("A"))/2.303*italic(R)*italic(T)~~x,list(x=suffix))))
-    else if(property=="affinity") return(as.expression(substitute(log*italic(a)~~x,list(x=suffix))))
-    else if(property=='logact.basis') return(paste('logQ*',suffix))
-    else if(!property %in% c("logK","logQ")) return(paste("Delta",property,suffix))
-    else return(property)
+  axis.title <- function(what,suffix="") {
+    if(what=="A") return(as.expression(substitute(italic(bold("A"))/2.303*italic(R)*italic(T)~~x,list(x=suffix))))
+    else if(what=="logact") return(as.expression(substitute(log*italic(a)~~x,list(x=suffix))))
+    else if(what=='logact.basis') return(paste('logQ*',suffix))
+    else if(!what %in% c("logK","logQ")) return(paste("Delta",what,suffix))
+    else return(what)
   }
   balance.title <- function(balance) {
     if(balance==1) return('per mole of product')
@@ -326,9 +342,9 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
   ### now on to the calculation and plots
   # do speciation calculations
   # unless using mam (maximum affinity method) for 2-D diagram
-  if(property=='affinity' & (!mam | nd==0 | nd==1) ) {
-    # compute the abundances of species
-    # total logarithm of activity of the balanced component
+  if(what=="logact" & (!mam | nd==0 | nd==1) ) {
+    # compute the activities of species
+    # logarithm of total activity of the balanced component
     ib <- match(balance,colnames(affinity$species))
     if(!is.numeric(logact)) {
       thisa <- sum(10^affinity$species$logact * nbalance)
@@ -345,11 +361,11 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
     Astar <- aval
     if(residue) {
       for(j in 1:length(Astar)) Astar[[j]] <- Astar[[j]] + oldlogact[j]/oldbalance[j]
-      A <- abundance.new(Astar,nbalance,logatotal)
+      A <- logact.mb(Astar,nbalance,logatotal)
     }
     else {
       for(j in 1:length(Astar)) Astar[[j]] <- Astar[[j]] + affinity$species$logact[j]
-      A <- abundance.old(Astar,aval,nbalance,logatotal)
+      A <- logact.react(Astar,aval,nbalance,logatotal)
     }
     # if we rewrote the formation reactions per residue,
     # get back to activities of species
@@ -380,13 +396,25 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       }
       A <- B
     }
+  } else if(do.loga.equil) {
+    # calculate the logarithm of activity of a basis species
+    # at equilibrium
+    ibasis <- match(what,rownames(affinity$basis))
+    # the reference logact
+    AV <- aval
+    loga.basis <- as.numeric(affinity$basis$logact[ibasis])
+    if(is.na(loga.basis)) stop(paste("the logact for basis species",what,"is not numeric"))
+    nu.basis <- affinity$species[,ibasis]
+    # the logact where affinity = 0
+    A <- lapply(1:length(AV),function(x) {loga.basis - AV[[x]]/nu.basis[x]})
   }
+
   ### 0-D properties of species or reactions for single set of conditions
   if(nd==0) {
     if(do.plot) {
       mgp <- par("mgp")
       mgp[1] <- yline
-      if(property=="affinity") {
+      if(what=="logact") {
         # the logarithms of activities
         v <- numeric()
         # alpha: plot degree of formation instead of logact
@@ -398,32 +426,39 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
           loga <- 0; a <- loga - loga.sum
           for(j in 1:length(A)) A[[j]] <- 10^(A[[j]] + a)
           ylab <- "alpha"
-          if(missing(title)) title <- "alpha"
+          if(missing(main)) main <- "alpha"
         } else {
-          ylab <- axis.title(property)
-          if(missing(title)) title <- "logarithm of activity"
+          ylab <- axis.title(what)
+          if(missing(main)) main <- "logarithm of activity"
         }
         for(i in 1:length(A)) v <- c(v,A[[i]])
         barplot(v,names.arg=names,ylab=ylab,mgp=mgp,cex.names=cex.names,col=col)
-        if(missing(title)) title <- title
-        title(main=title)
+        if(missing(main)) main <- main
+        title(main=main)
+      } else if(do.loga.equil) {
+        # the equilibrium logact of a basis species
+        v <- as.numeric(A)
+        barplot(v,names.arg=names,ylab=axis.label(what),mgp=mgp,cex.names=cex.names,col=col)
+        if(!is.null(main)) title(main=main)
       } else {
         # the value of a property like affinity, standard gibbs energy etc
         for(i in 1:nspecies) aval[[i]] <- aval[[i]]/nbalance[i]
         v <- as.numeric(aval)
-        barplot(v,names.arg=names,ylab=axis.title(affinity$property),mgp=mgp,cex.names=cex.names,col=col)
-        if(!is.null(title)) title(main=title)
-        else title(main=as.expression(axis.title(affinity$property,balance.title(balance))))
+        barplot(v,names.arg=names,ylab=axis.title(what),mgp=mgp,cex.names=cex.names,col=col)
+        if(!is.null(main)) title(main=main)
+        else title(main=as.expression(axis.title(what,balance.title(balance))))
       }
     }
-    if(property=="affinity") return(invisible(list(logact=A)))
-    else return(invisible(aval))
+    if(what=="logact" | do.loga.equil) return(invisible(list(basis=affinity$basis,species=affinity$species,
+      T=affinity$T,P=affinity$P,xname=affinity$xname,xlim=affinity$xlim,yname=affinity$yname,
+      ylim=affinity$ylim,logact=A)))
+    else return(invisible(list(aval)))
   }
   ### 1-D (property or speciation) diagram
   if(nd==1) {
-    xvalues <- seq(affinity$xlim[1],affinity$xlim[2],length.out=affinity$xlim[3])
+    xvalues <- affinity$xvals
     if(is.null(xlab)) xlab <- axis.label(affinity$xname,as.character(affinity$basis$state[match(affinity$xname,rownames(affinity$basis))]))
-    if(property == 'affinity') {
+    if(what == 'logact') {
       # alpha: plot degree of formation instead of logact
       if(alpha) {
         ylog <- FALSE
@@ -447,10 +482,14 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
         }
         for(i in 1:length(A)) aval[[i]] <- 10^A[[i]]
       }
+    } else if(do.loga.equil) {
+      # plot equilibrium logarithms of activities of basis species
+      aval <- A
+      if(is.null(ylab)) ylab <- axis.label(what)
     } else {
+      # plot metastable equilibrium logarithms of activities of species or values of properties
       A <- aval
-      ylab <- axis.title(property)
-      # plot logarithms of activities or values of properties
+      if(is.null(ylab)) ylab <- axis.title(what)
       for(i in 1:nspecies) aval[[i]] <- aval[[i]]/nbalance[i]
     }
     # now make the plot
@@ -471,24 +510,29 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       if(length(col) < ngroup) col <- rep(col,ngroup)
       for(i in 1:length(A)) lines(xvalues,as.numeric(aval[[i]]),col=col[i],lty=lty[i],lwd=lwd[i])
       # label the plot
-      if(affinity$property=='logact.basis') names <- rownames(affinity$basis)
+      if(what=="logact.basis") names <- rownames(affinity$basis)
       # 20090826: use bg argument
       if(do.plot & !add & !is.null(legend.x)) legend(x=legend.x,lty=lty,legend=names,col=col,bg=bg,cex=cex.names,lwd=lwd)
+      # add a title
+      if(!missing(main)) title(main=main)
     }
     if(alpha) for(i in 1:length(A)) A[[i]] <- 10^A[[i]]
     # 20090324 return list with single element 'logact'
-    if(property=="affinity") return(invisible(list(basis=affinity$basis,species=affinity$species,
+    out <- list(basis=affinity$basis,species=affinity$species,
       T=affinity$T,P=affinity$P,xname=affinity$xname,xlim=affinity$xlim,yname=affinity$yname,
-      ylim=affinity$ylim,logact=A)))
-    else return(invisible(aval))
+      ylim=affinity$ylim)
+    if(what=="logact" | do.loga.equil) out <- c(out,list(logact=A))
+    else out <- c(out,list(aval=aval))
+    return(invisible(out))
   }
+
   ### 2-D predominance diagram aka equal activity diagram
-  if(property=='affinity') {
+  if(what=="logact") {
     # we don't do only one species
     if(length(aval)==1) stop('refusing to make a predominance diagram for a single species')
     # predict predominant species
     if(mam) {
-      # mam=TRUE: maximum affinity method
+      # mam=TRUE: maximum affinity method 
       if(residue) {
         # account for length 1: affinity of residues
         for(i in 1:length(aval))
@@ -504,21 +548,63 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
       }
       myvalues <- aval
     } else {
-      # mam=FALSE: use abundances from speciation calculation
+      # mam=FALSE: use activities from speciation calculation
       myvalues <- A
     }
-    # out: the index of the predominant species
-    out <- myvalues[[1]]
-    for(j in 1:nrow(out)) {
-      values <- list()
-      for(k in 1:ngroup) values[[k]] <- myvalues[[k]][j,]
-      out[j,] <- which.pmax(values,na.rm=TRUE)
+    # only make a 2-D plot
+    if(nd==2) {
+      # out: the index of the predominant species
+      out <- myvalues[[1]]
+      for(j in 1:nrow(out)) {
+        values <- list()
+        for(k in 1:ngroup) values[[k]] <- myvalues[[k]][j,]
+        out[j,] <- which.pmax(values,na.rm=TRUE)
+      }
+      # the x, y and z values 
+      xs <- seq(affinity$xlim[1],affinity$xlim[2],length.out=affinity$xlim[3])
+      ys <- seq(affinity$ylim[1],affinity$ylim[2],length.out=affinity$ylim[3])
+      # 20090217 added test for do.plot here
+      if(do.plot) {
+        if(!add) {
+          xstate=as.character(affinity$basis$state[match(affinity$xname,rownames(affinity$basis))])
+          ystate=as.character(affinity$basis$state[match(affinity$yname,rownames(affinity$basis))])
+          if(is.null(xlab)) xlab <- axis.label(as.character(affinity$xname),xstate)
+          if(is.null(ylab)) ylab <- axis.label(as.character(affinity$yname),ystate)
+          thermo.plot.new(xlim=affinity$xlim[1:2],ylim=affinity$ylim[1:2],
+            xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,yline=yline,side=side)
+        }
+        # colors and curves
+        # put out in the right order for image() etc
+        o <- out
+        for(i in 1:ncol(out)) o[,i] <- out[,ncol(out)+1-i]
+        out <- t(o)
+        if(!is.null(color)) plot.color(xs,ys,out,color,ngroup)
+        if(!is.null(names)) plot.names(out,xs,ys,names)
+        if(!is.null(dotted)) plot.line(out,affinity$xlim[1:2],
+          affinity$ylim[1:2],dotted,col,xrange=xrange)
+        # return the formation reactions as they were balanced
+        species <- affinity$species
+        basis <- affinity$basis
+        for(i in 1:nrow(basis)) species[,i] <- species[,i]/nbalance
+      }
+      # give back the results
+      if(mam) return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,
+        xname=affinity$xname,xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,out=out,aval=aval)))
+      else return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,xname=affinity$xname,
+        xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,out=out,aval=aval,logact=A)))
+    } else {
+      #cat(paste('diagram: 2-D plot of',property,'not available\n'))
+      if(mam) return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,
+        xname=affinity$xname,xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,aval=aval)))
+      else return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,xname=affinity$xname,
+        xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,aval=aval,logact=A)))
     }
-    # the x, y and z values 
-    xs <- seq(affinity$xlim[1],affinity$xlim[2],length.out=affinity$xlim[3])
-    ys <- seq(affinity$ylim[1],affinity$ylim[2],length.out=affinity$ylim[3])
-    # 20090217 added test for do.plot here
-    if(do.plot) {
+  } else {
+    # if we're not calculating predominances we can only make a contour plot for properties
+    # of a single reaction
+    if(!do.loga.equil) A <- aval
+    if(length(A)!=1) warning(paste("can't make contour plot of",what,"for more than one reaction. suggestion: select a single one with 'ispecies'"))
+    else if(do.plot & nd==2) {
       if(!add) {
         xstate=as.character(affinity$basis$state[match(affinity$xname,rownames(affinity$basis))])
         ystate=as.character(affinity$basis$state[match(affinity$yname,rownames(affinity$basis))])
@@ -526,169 +612,16 @@ diagram <- function(affinity,ispecies=NULL,balance=NULL,
         if(is.null(ylab)) ylab <- axis.label(as.character(affinity$yname),ystate)
         thermo.plot.new(xlim=affinity$xlim[1:2],ylim=affinity$ylim[1:2],
           xlab=xlab,ylab=ylab,cex=cex,cex.axis=cex.axis,mar=mar,yline=yline,side=side)
+        if(missing(main)) main <- axis.label(what)
+        title(main=main)
       }
-      # colors and curves
-      # put out in the right order for image() etc
-      o <- out
-      for(i in 1:ncol(out)) o[,i] <- out[,ncol(out)+1-i]
-      out <- t(o)
-      if(!is.null(color)) plot.color(xs,ys,out,color,ngroup)
-      if(!is.null(names)) plot.names(out,xs,ys,names)
-      if(!is.null(dotted)) plot.line(out,affinity$xlim[1:2],
-        affinity$ylim[1:2],dotted,col,xrange=xrange)
-      # return the formation reactions as they were balanced
-      species <- affinity$species
-      basis <- affinity$basis
-      for(i in 1:nrow(basis)) species[,i] <- species[,i]/nbalance
+      xs <- seq(affinity$xlim[1],affinity$xlim[2],length.out=affinity$xlim[3])
+      ys <- seq(affinity$ylim[1],affinity$ylim[2],length.out=affinity$ylim[3])
+      contour(xs,ys,A[[1]],add=TRUE,col=col,lty=lty,lwd=lwd,labcex=cex)
     }
-    # give back the results
-    if(mam) return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,
-      xname=affinity$xname,xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,out=out,aval=aval)))
-    else return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,xname=affinity$xname,
-      xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,out=out,aval=aval,logact=A)))
-  } else stop(paste('diagram: 2-D plot of',property,'not available'))
-}
-
-abundance.new <- function(Astar,nbalance,thisloga) {
-  # 20090217 new "abundance" function
-  # return logactivity of species
-  # works using Boltzmann distribution
-  # A/At = e^(Astar/nbalance) / sum(e^(Astar/nbalance))
-  # A/At = e^(Astar/nbalance) / sum(e^(Astar/nbalance))
-  # where A is activity of the ith residue and
-  # At is total activity of residues
-  # advantages over abundance.old
-  # 1) works on vectors (also matrices - 2D plots now possible)
-  # 2) loops over species only - way faster
-  # 3) always works (no root finding games)
-  # disadvantage:
-  # 1) only works for residue reactions
-  # 2) can create NaN logacts if the Astars are huge/small
-
-  # initialize output object
-  A <- Astar
-  # remember the dimensions of elements of Astar (could be vector,matrix)
-  Astardim <- dim(Astar[[1]])
-  Anames <- names(Astar)
-  # first loop: make vectors
-  A <- mylapply(1:length(A),function(i) as.vector(A[[i]]))
-  # second loop: get the exponentiated Astars (numerators)
-  # need to convert /2.303RT to /RT
-  #A[[i]] <- exp(log(10)*Astar[[i]]/nbalance[i])/nbalance[i]
-  A <- mylapply(1:length(A),function(i) exp(log(10)*Astar[[i]]/nbalance[i]))
-  # third loop: accumulate the denominator
-  # initialize variable to hold the sum
-  At <- A[[1]]; At[] <- 0
-  for(i in 1:length(A)) At <- At + A[[i]]*nbalance[i]
-  # fourth loop: calculate log abundances and replace the dimensions
-  A <- mylapply(1:length(A),function(i) thisloga + log10(A[[i]]/At))
-  # fifth loop: replace dimensions
-  for(i in 1:length(A)) dim(A[[i]]) <- Astardim
-  # add names and we're done!
-  names(A) <- Anames
-  return(A)
-}
-
-abundance.old <- function(Astar,av,nbalance,thisloga) {
-  # 20090217 extracted from diagram and renamed to abundance.old
-  # to turn the affinities/RT (A) of formation reactions into 
-  # logactivities of species (logact(things)) at metastable equilibrium
-  # 20080217 idea: for any reaction stuff = thing,
-  # logQ = logact(thing) - logact(stuff),
-  # A = logK - logQ = logK - logact(thing) + logact(stuff),
-  # logact(thing) = Astar - A
-  # where Astar = logK + logact(stuff)
-  # ( Astar = A + logact(thing) )
-  # and Abar = ( Astar - logact(thing) ) / n
-  # ( or logact(thing) = Astar + Abar * n )
-  # where thing has n of the balanced quantity
-  # below, j indexes species and i indexes conditions
-  # remember the dimensions (could be vector,matrix)
-  Adim <- dim(Astar[[1]])
-  # first loop: make vectors
-  for(i in 1:length(Astar)) {
-    Astar[[i]] <- as.vector(Astar[[i]])
-    av[[i]] <- as.vector(av[[i]])
+    return(invisible(list(basis=affinity$basis,species=species,T=affinity$T,P=affinity$P,xname=affinity$xname,
+      xlim=affinity$xlim,yname=affinity$yname,ylim=affinity$ylim,aval=aval,logact=A)))
   }
-  A <- Astar2 <- av
-
-  # some function definitions
-  # calculate logact(thing) from Abar and Astar
-  activityfun <- function(Abar,j,i) (Astar[[j]][i] - Abar * nbalance[j])
-  # difference between total activity of balanced quantity
-  # computed from affinities and the mass-balanced quantity (thisloga)
-  activityfun2 <- function(Abar,i) {
-    act <- 0
-    for(j in 1:length(A)) act <- act + (10^activityfun(Abar,j,i))*nbalance[j]
-    if(act < 0) {
-      act <- -act
-      logact <- log10(act)
-      diff <- thisloga - logact
-    } else {
-      logact <- log10(act)
-      diff <- logact - thisloga
-    }
-    return(diff)
-  }
-  for(i in 1:length(A[[1]])) {
-    # gather the min/max values of original affinities
-    # to constrain our search interval
-    Abar.max <- Abar.min <- NULL
-    for(j in 1:length(A)) {
-      thisAbar <- (A[[j]][i])/nbalance[j]
-      thisAbarstar <- (Astar[[j]][i])/nbalance[j]
-      thisAbarstar2 <- (Astar2[[j]][i])/nbalance[j]
-      if(!is.infinite(activityfun2(thisAbar,i))) {
-        if(is.null(Abar.max)) Abar.max <- thisAbar
-          else if(thisAbar > Abar.max) Abar.max <-thisAbar
-        if(is.null(Abar.min)) Abar.min <- thisAbar
-          else if(thisAbar < Abar.min) Abar.min <-thisAbar
-      }
-      if(!is.infinite(activityfun2(thisAbarstar,i))) {
-        if(is.null(Abar.max)) Abar.max <- thisAbarstar
-          else if(thisAbarstar > Abar.max) Abar.max <-thisAbarstar
-        if(is.null(Abar.min)) Abar.min <- thisAbarstar
-          else if(thisAbarstar < Abar.min) Abar.min <-thisAbarstar
-      }
-    }
-    # make sure A.min < A.max
-    #if(Abar.min >= Abar.max) Abar.min <- Abar.max - 1
-    # avoid the complication when using uniroot,
-    # "f() values at end points not of opposite sign"
-    fmin <- function(Abar.min) activityfun2(Abar.min,i)
-    fmax <- function(Abar.max) activityfun2(Abar.max,i)
-    maxiter <- 1000
-    myiter <- 0
-    while(sign(fmin(Abar.min))==sign(fmax(Abar.max))) {
-      # spread out the values until we have opposite signs 
-      diff <- Abar.max - Abar.min
-      Abar.min <- Abar.min - diff/2
-      Abar.max <- Abar.max + diff/2
-      myiter <- myiter + 1
-      if(myiter==maxiter) stop(paste('diagram: i tried it',maxiter,
-        'times but can\'t make it work :< ... giving up on Abar'))
-    }
-    # how badly we want the right answer, might
-    # have to be adjusted in certain cases
-    Atol <- 1e-5
-    # find the affinity that gives us the right amount of stuff
-    Abar.new <- uniroot(activityfun2,interval=c(Abar.min,Abar.max),i=i,tol=Atol)$root
-    # test: did we converge? this shouldn't be required,
-    # as uniroot would spit out warnings or errors ... but it doesn't, 
-    # even when the tolerance isn't reached by a factor of 100?!
-    shouldbezero <- activityfun2(A=Abar.new,i=i)
-    if(abs(shouldbezero) > Atol*100) 
-      cat(paste('diagram: poor convergence in step ',i,' (remainder in logact of ',
-        shouldbezero,')\n',sep=''))
-    # and save the activities of the species
-    for(j in 1:length(A)) A[[j]][i] <- activityfun(Abar.new,j,i)
-  }
-  # replace dimensions
-  for(i in 1:length(A)) {
-    dim(A[[i]]) <- Adim
-    dim(av[[i]]) <- Adim
-  }
-  return(A)
 }
 
 strip <- function(affinity,ispecies=NULL,col=NULL,ns=NULL,
@@ -721,14 +654,14 @@ strip <- function(affinity,ispecies=NULL,col=NULL,ns=NULL,
     # get the degrees of formation
     d <- diagram(a,residue=TRUE,do.plot=FALSE,alpha=TRUE,ispecies=ispecies[[j]])
     # depict the relative stabilities of the proteins as color bars
-    # make vertical color bars sizes proportional to abundances
+    # make vertical color bars sizes proportional to activities
     xs <- seq(xlim[1],xlim[2],length.out=length(d$logact[[1]]))
     # total height of the stack
     ly <- 0.5  
     # where to start plotting on the y-axis
     y0 <- j-ly
     for(i in 1:length(d$logact[[1]])) {
-      # create a vector of abundances
+      # create a vector of activities
       loga <- numeric()
       for(k in 1:length(ispecies[[j]])) loga <- c(loga,d$logact[[k]][i])
       loga.order <- order(loga,decreasing=FALSE)

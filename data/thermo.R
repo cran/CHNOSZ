@@ -27,14 +27,9 @@ thermo <- list(
   species = NULL,
   water = NULL,
   water2 = NULL,
-  expt = list(
-    PM90 = read.csv("PM90.csv"),
-    RH95 = read.csv("RH95.csv"),
-    RT71 = read.csv("RT71.csv"),
-    SOJSH92 = read.csv("SOJSH.csv")
-  ),
-  SGD = read.csv("SGD.csv",as.is=TRUE),
   ECO = read.csv("ECO.csv",as.is=TRUE),
+  SGD = read.csv("SGD.csv",as.is=TRUE),
+  HUM = read.csv("HUM.csv",as.is=TRUE),
   yeastgfp = ygfp
 )
 
@@ -42,11 +37,11 @@ thermo <- list(
 rm(ygfp)
 rm(warn)
 
-cat(paste("thermo: loaded",nrow(thermo$obigt[thermo$obigt$state=="aq",]),"aqueous,",nrow(thermo$obigt),
-  "total species to thermo$obigt\n"))
-cat(paste("thermo: loaded",nrow(thermo$ECO),"proteins to thermo$ECO\n"))
-cat(paste("thermo: loaded",nrow(thermo$SGD),"proteins to thermo$SGD\n"))
-cat(paste("thermo: loaded",nrow(thermo$yeastgfp),"localizations and",
-  length(thermo$yeastgfp$abundance[!is.na(thermo$yeastgfp$abundance)]),"abundances to thermo$yeastgfp\n"))
+cat(paste("thermo$obigt has",nrow(thermo$obigt[thermo$obigt$state=="aq",]),"aqueous,",nrow(thermo$obigt),
+  "total species\n"))
+#cat(paste("thermo: loaded",nrow(thermo$ECO),"proteins to thermo$ECO\n"))
+#cat(paste("thermo: loaded",nrow(thermo$SGD),"proteins to thermo$SGD\n"))
+#cat(paste("thermo: loaded",nrow(thermo$yeastgfp),"localizations and",
+#  length(thermo$yeastgfp$abundance[!is.na(thermo$yeastgfp$abundance)]),"abundances to thermo$yeastgfp\n"))
 
 

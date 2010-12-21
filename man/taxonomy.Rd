@@ -31,18 +31,18 @@
 
 \details{
 
-  These functions provide a convenient way to read data from NCBI taxonomy files. The \code{taxdir} argument is used to specify the directory where the \code{nodes.dmp} and \code{names.dmp} files are located. \code{getnodes} and \code{getnames} read these files into data frames. \code{getrank} returns the rank (species, genus, etc) of the node with the given taxonomic \code{id}. \code{parent} returns the taxonomic ID of the next-lowest node below that specified by the \code{id} in the argument, unless \code{rank} is supplied, in which case the function descends the tree until a node with that rank is found. \code{allparents} returns all the taxonomic IDs of all nodes between that specified by \code{id} and the root of the tree, inclusive. \code{sciname} returns the scientific name of the node with the given \code{id}.
+  These functions provide a convenient way to read data from NCBI taxonomy files (i.e., the contents of \code{taxdump.tar.gz}, which can be downloaded from \url{ftp://ftp.ncbi.nih.gov/pub/taxonomy/}). 
 
+  The \code{taxdir} argument is used to specify the directory where the \code{nodes.dmp} and \code{names.dmp} files are located. \code{getnodes} and \code{getnames} read these files into data frames. \code{getrank} returns the rank (species, genus, etc) of the node with the given taxonomic \code{id}. \code{parent} returns the taxonomic ID of the next-lowest node below that specified by the \code{id} in the argument, unless \code{rank} is supplied, in which case the function descends the tree until a node with that rank is found. \code{allparents} returns all the taxonomic IDs of all nodes between that specified by \code{id} and the root of the tree, inclusive. \code{sciname} returns the scientific name of the node with the given \code{id}.
+  
   The \code{id} argument can be of length greater than 1 except for \code{allparents}. If \code{getrank}, \code{parent}, \code{allparents} or \code{sciname} need to be called repeatedly, the operation can be hastened by supplying the output of \code{getnodes} in the \code{nodes} argument and/or the output of \code{getnames} in the \code{names} argument.
-
-  The \code{nodes.dmp} and \code{names.dmp} files packaged with \pkg{CHNOSZ} are excerpted from the complete files available on the NCBI ftp site. These excerpts contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes in the respective lineages (genus, family, etc.).
 
 }
 
 \examples{
   ## get information about Homo sapiens from the
-  ## supplied taxonomy files
-  taxdir <- system.file(package="CHNOSZ")
+  ## packaged taxonomy files
+  taxdir <- system.file("data",package="CHNOSZ")
   # H. sapiens' taxonomic id
   id1 <- 9606
   # that is a species
@@ -64,7 +64,7 @@
 
   ## the names of the organisms in the supplied
   ## taxonomy files
-  taxdir <- system.file(package="CHNOSZ")
+  taxdir <- system.file("data",package="CHNOSZ")
   id5 <- c(83333,4932,9606,186497,243232)
   sciname(id5,taxdir)
   # these are not all species, though
@@ -81,7 +81,7 @@
   ## so it helps to store them in memory when performing multiple queries
   ## (this doesn't have a noticeable speed-up for the small files
   ## we use in this example)
-  taxdir <- system.file(package="CHNOSZ")
+  taxdir <- system.file("data",package="CHNOSZ")
   nodes <- getnodes(taxdir=taxdir)
   # all of the node ids in this file
   id7 <- nodes$id
@@ -89,10 +89,6 @@
   id8 <- unique(parent(id7,nodes=nodes))
   names <- getnames(taxdir=taxdir)
   sciname(id8,names=names)
-}
-
-\references{
-  NCBI taxonomy database. \url{ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15.
 }
 
 \keyword{misc}

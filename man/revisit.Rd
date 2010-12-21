@@ -3,31 +3,27 @@
 \alias{richness}
 \alias{extremes}
 \alias{where.extreme}
-\alias{draw.diversity}
 \title{Diversity Calculations for Chemical Species}
 \description{
   Calculate species richness, or standard deviation, coefficient of variation or Shannon diversity index of activities or logarithms of activities of chemical species, and plot the results. 
 }
 
 \usage{
-  revisit(logact, which = "cv", as.is = FALSE)
-  richness(logact, logactmin = -4, mult = 1, as.is = FALSE)
-  extremes(z, what = "minimum")
-  where.extreme(z, what= "minimum")
-  draw.diversity(d, which = "cv", logactmin = -4, col = par("fg"),
-    as.is = FALSE, yline = 2, ylim = NULL, ispecies = NULL,
-    add = FALSE, cex = par("cex"), lwd = par("lwd"), mar = par("mar"),
-    mult = 1, side = 1:4)
+  revisit(d, target = "cv", loga.ref = NULL,
+    do.plot = NULL, col = par("fg"), yline = 2, ylim = NULL, 
+    ispecies = NULL, add = FALSE, cex = par("cex"), lwd = par("lwd"), 
+    mar = NULL, side = 1:4, xlim = NULL, labcex = 0.6, pch = 1, 
+    legend = "", legend.x = NULL, lpch = NULL, main = NULL, 
+    lograt.ref = NULL, plot.ext = TRUE)
+  extremes(z, target)
+  where.extreme(z, target, do.sat = FALSE)
 }
 
 \arguments{
-  \item{logact}{list, logarithms of activities of species.}
-  \item{d}{list, output from \code{\link{diagram}}.}
-  \item{which}{character, type of diversity index to calculate.}
-  \item{as.is}{logical, do not convert logarithms of activities to activities?}
-  \item{logactmin}{numeric, cutoff value for a species to be counted in richness calculations.}
-  \item{z}{numeric, matrix of values.}
-  \item{what}{character, \samp{minimum} or \samp{maximum}.}
+  \item{d}{list, output from \code{\link{diagram}}, or list of logarithms of activities of species.}
+  \item{target}{character, what statistic to calculate.}
+  \item{loga.ref}{numeric, logarithm of activities for comparison statistics}
+  \item{do.plot}{logical, make a plot?}
   \item{col}{character, color to use for line plots.}
   \item{yline}{numeric, margin line for y-axis label.}
   \item{ylim}{numeric, limits of y axis.}
@@ -36,119 +32,90 @@
   \item{cex}{numeric, character expansion factor.}
   \item{lwd}{numeric, line width.}
   \item{mar}{numeric, plot margin specifications.}
-  \item{mult}{numeric, multiply richness counts by this factor.}
   \item{side}{numeric, which sides of plot to draw axes.}
+  \item{xlim}{numeric, limits of x axis.}
+  \item{labcex}{numeric, character expansion factor for species labels.}
+  \item{pch}{numeric, plotting symbol(s) to use for points.}
+  \item{legend}{character, text to use for legend.}
+  \item{legend.x}{character, placement of legend.}
+  \item{lpch}{numeric, plotting symbol(s) to use in legend.}
+  \item{main}{character, main title for plot.}
+  \item{lograt.ref}{numeric, log10 of reference abundance ratios.}
+  \item{plot.ext}{logical, show the location of the extreme value(s)?}
+  \item{z}{numeric, matrix of values.}
+  \item{do.sat}{logical, identify multiple extreme values.}
 }
 
 \details{
 
+  The purpose of \code{richness} is to calculate and visualize summary statistics for logarithms of activities of chemical species. For most uses, supply the output of \code{\link{diagram}} as the value for \code{d}. Alternatively, \code{d} can be a list of logarithms of activities; the list elements each correspond to a different species and can be vectors, matrices, or higher-dimensional arrays, but they must all have the same dimensions. (This is always the case for \code{d$logact} if \code{d} is the output from \code{diagram}; the dimensionality is determined by the number of variables used in the calculations of \code{\link{affinity}}.) The type of statistic to be calculations is indicated by \code{target}, as summarized in the following table.
 
-  \code{revisit} and \code{richness} both take as input a list of logarithms of activities of chemical species calculated using \code{\link{diagram}}. The calculations available in \code{revisit} are the Shannon index, standard deviation, and coefficient of variation, which are specified in \code{which} by \samp{shannon}, \samp{sd} and \samp{cv}, respectively. By default the input is assumed to contain logarithms of activities which are exponentiated so that activities of species are used in the calculations, but if \code{as.is} is set to \code{TRUE}, the values are not changed. 
+  \tabular{llll}{
+    target \tab description \tab extremum \tab additional arguments \cr
+    \code{sd} \tab standard deviation \tab min \tab none \cr
+    \code{cv} \tab coefficient of variation \tab min \tab none \cr
+    \code{shannon} \tab Shannon diversity index \tab max \tab none \cr
+    \code{qqr} \tab correlation coefficient on q-q plot (normal distribution) \tab max \tab none \cr
+    \code{richness} \tab species richness \tab max \tab loga.ref \cr
+    \code{cvrmsd} \tab coefficient of variation of RMSD \tab min \tab loga.ref \cr
+    \code{spearman} \tab Spearman correlation coefficient \tab max \tab loga.ref \cr
+    \code{pearson} \tab Pearson correlation coefficient \tab max \tab loga.ref \cr
+  }
 
+  \code{sd}, \code{cv}, \code{shannon} and \code{qqrr} all operate on just the sample values. \code{richness} counts the numbers of species whose logarithms of activities are above \code{log.min}. \code{cvrmsd}, \code{spearman} and \code{pearson} are comparison statistics where \code{loga.target} represents the observed values. \code{ratio} determines the correlation coefficient of a predicted change in loga ratios (\code{d$logact} vs. loga.ref) plotted agains observed changed in loga ratios (e.g., from changes in protein expression deduced from microarray experiments; given in loga.target)
 
-  \code{richness} simply counts the numbers of species whose logarithms of activities are above \code{logactmin}. The species can be weighted differently by supplying values of \code{mult} other than unity. If \code{logactmin} is any character value, its values are calculated as the mean of activities at each point (or mean of logarithms of activities if as.is is TRUE).
+  If \code{do.plot} is TRUE, \code{d} is the output from \code{diagram}, and the number of variables is 1 or 2, the results are plotted -- a line diagram in 1 dimension or a contour plot in 2 dimensions. 
 
-  Given a matrix of numeric values in \code{z}, \code{extremes} locates the maximum or minimum values in both dimensions. That is, the \eqn{x}{x} values that are returned are the column numbers where the extreme is found for each row, and the \eqn{y}{y} values that are returned are the row numbers where the extreme is found for each column. \code{where.extreme} takes a matrix and returns the row and column numbers where the overall maximum or minimum value is found. If the extreme value is repeated, the row and column numbers for all instances are returned.
+  The value of \samp{extremum} in the table shows whether the extreme value that optimizes the system is the minimum (\code{sd}, \code{cv}, \code{cvrmsd}) or the maximum (all the others). On plots the location of the extreme value is indicated (by a dashed vertical line on a 1-D plot or a point marked by an asterisk on a 2-D plot). On 2-D plots the valleys (or ridges) leading to the location of the extremum are plotted. The ridges or valleys are plotted as dashed lines and are colored green for the \eqn{x}{x} values returned by \code{extremes} and blue for the \eqn{y}{y} values returned by \code{extremes}.
 
-  \code{draw.diversity} takes output from \code{\link{diagram}}, calls either \code{diversity} or \code{richness}, and plots the results. For systems of two variables \code{where.extreme} (and \code{extremes}) are used to indicate the location of the maximum Shannon index or richness (and the ridges around it), or minimum standard deviation or coefficient of variation (and the valleys around it). The ridges and valleys are plotted as dashed lines and are colored green for the \eqn{x}{x} values returned by \code{extremes} and blue for the \eqn{y}{y} values returned by \code{extremes}.
+  The location of the extreme value in a matrix or vector \code{z} is calculated using \code{where.extreme}. Whether the extreme is the minimum or the maximum value depends on the value of \code{target}. For matrices, if \code{do.sat} is TRUE, if the extreme value is repeated, the row and columns numbers for all instances are returned. Given a matrix of numeric values in \code{z}, \code{extremes} locates the maximum or minimum values in both dimensions. That is, the \eqn{x}{x} values that are returned are the column numbers where the extreme is found for each row, and the \eqn{y}{y} values that are returned are the row numbers where the extreme is found for each column. 
 
-  The name was changed from \code{diversity} to \code{revisit} in \pkg{CHNOSZ}-0.9 because there is a function named \code{\link[vegan]{diversity}} in the \pkg{vegan} package. There is some overlap in the related functions from the different packages. The major difference in the interfaces is that \code{diversity} takes a matrix with species on the columns, while \code{revisit} takes a list with species as the elements of the list. See the examples for a calculation that uses \code{revisit}, as well as \code{\link[vegan]{radfit}} from \pkg{vegan}.
+  If \code{lograt.ref} is provided, these values are the reference values for logarithm of abundance ratio.
+ 
+  The function name was changed from \code{diversity} to \code{revisit} in \pkg{CHNOSZ}-0.9 because there is a function named \code{\link[vegan]{diversity}} in the \pkg{vegan} package. If you are a \pkg{vegan} user experimenting with \pkg{CHNOSZ}, note that while \code{diversity} takes a matrix with species on the columns, \code{revisit} takes a list with species as the elements of the list. See the examples for a calculation that uses both \code{revisit} and \code{\link[vegan]{radfit}} from \pkg{vegan}.
 
 }
 
 \value{
 
-  \code{diversity} and \code{richness} return a numeric (vector or matrix) that has the same dimensions as a single element of \code{logact}. \code{extremes} and \code{where.extreme} both return a list of \eqn{x}{x} and \eqn{y}{y} values. \code{draw.diversity} returnes a list with elements \code{H} (the result of either \code{diversity} or \code{richness}), \code{ixmin} and \code{iymin} (the column and row numbers where the maximum or minimum value is found), \code{xmin} and \code{ymin} (the values of the x and y variables where the maximum or minimum is found) and \code{extval} (the value of \code{H} at the maximum or minimum).
+  \code{revisit} returns a list containing at least an element named \samp{H} giving the calculated values for the target statistic. This has the same dimensions as a single element of \code{d} (or \code{d$logact}, if \code{d} was the output from \code{diagram}). For calculations as a function of one or two variables, the output also contains the elements \code{ix} (location of the extremum in the first direction), \code{x} (x-value at the extremum), and \code{extval} (extreme value). For calculations as a function of two variables, the output also contains the elements \code{iy} (location of the extremum in the second direction) and \code{y} (y-value at the extremum).
 
 }
 
 \examples{
   \dontshow{data(thermo)}
   \donttest{
-    ## carboxylases from different organisms
-    # ribulose phosphate carboxylase/oxygenase
-    rubisco <- c("Q6JAI0_9RHOD","A5CKC7_9CHRO","RBL_SYNJA","A1E8R4_9CHLO",
-      "A8C9T6_9MYCO","A3EQE1_9BACT","A6YF84_9PROT", "RBL_BRAJA",
-      "A1RZJ5_THEPD","RBL_METJA","A3DND9_STAMF","RBL_PYRHO") 
-    # acetyl-coenzyme A carboxylase
-    accoaco <- c("Q05KD0_HYDTH","Q9F7M8_PRB01","A6CDM2_9PLAN","A0GZU2_9CHLR",
-      "ACCA_DEIRA","A1VC70_DESVV","A7WGI1_9AQUI","Q2JSS7_SYNJA",
-      "A4AGS7_9ACTN","ACCA_AQUAE","ACCA_CAUCR","A6VIX9_METM7")  
-    # calculate affinities as a function of T with
-    # buffered logfH2 and CO2.. adjust the glutathione buffer 
-    # (more oxidizing than default)
-    mod.buffer("GSH-GSSG",c("GSH","GSSG"),logact=c(-3,-7))
-    # add a CO2 gas saturation buffer
-    mod.buffer("CO2","CO2","gas",-1)
-    basis(c("CO2","H2O","NH4+","SO4-2","H2","H+"),
-      c("CO2",0,-4,-4,"GSH-GSSG",-7))
-    species(c(rubisco,accoaco))
-    a <- affinity(T=c(0,160))
-    # create speciation diagram with colors
-    col <- c(rep("red",12),rep("blue",12))
-    d <- diagram(a,residue=TRUE,color=col,ylim=c(-6,-1),legend.x=NULL)
-    legend("topleft",col=c("red","blue"),lty=1,
-      legend=c("ribulose phosphate carboxylase",
-      "acetyl-coenzyme A carboxylase"))
-    title(main=paste("Calculated relative abundances of",
-      "carboxylases from different organisms",sep="\n"))
-    # ... now on to a species richness diagram
-    # all the proteins, then rubisco and accoaco
-    draw.diversity(d,"richness",logactmin=-3.6)
-    draw.diversity(d,"richness",logactmin=-3.6,
-      ispecies=1:12,col="red",add=TRUE)
-    draw.diversity(d,"richness",logactmin=-3.6,
-      ispecies=13:24,col="blue",add=TRUE)
-    legend("bottomleft",col=c("red","blue","black"),lty=1,
-      legend=c("ribulose phosphate carboxylase",
-      "acetyl-coenzyme A carboxylase","all"))
-    title(main=paste("Carboxylases with activities",
-      "greater than 10^(-3.6)",sep="\n"))
-
-    ## continuing from above ... make a rank-abundance
-    ## diagram and fit with a lognormal distribution
-    if(require(vegan)) {
-      basis("H2",-4)
-      a <- affinity()
-      logact <- diagram(a,residue=TRUE,do.plot=FALSE)$logact
-      act <- 10^as.numeric(logact)
-      # we use family=Gamma because our species have activities
-      # (i.e., proportional abundances) and not integer counts
-      mod <- rad.lognormal(act,family=Gamma)
-      plot(mod,main=paste("Relative abundances of carboxylases",
-        "fit with lognormal distribution",sep="\n"))
-      # calculate Shannon diversity index
-      # using revisit (CHNOSZ)
-      H1 <- revisit(act,"shannon",as.is=TRUE)
-      legend("topright",legend=paste("H =",round(H1,2)),pch=1)
-      # using diversity (vegan)
-      H2 <- diversity(matrix(act,nrow=1))
-      stopifnot(isTRUE(all.equal(H1,H2)))
-    }
-
     ### using grep.file, read.fasta, add.protein
     # calculations for Pelagibacter ubique
-    f <- system.file("HTCC1062.faa",package="CHNOSZ")
-    # what types of proteins we want (set to "" for all proteins)
-    w <- "transcription"
-    # locate entries whose names contain what we want
+    f <- system.file("data/HTCC1062.faa",package="CHNOSZ")
+    # what proteins to select (set to "" for all proteins)
+    w <- "ribosomal"
+    # locate entries whose names contain w
     j <- grep.file(f,w)
     # get the amino acid compositions of these protein
     p <- read.fasta(f,j)
     # add these proteins to CHNOSZ's inventory
     i <- add.protein(p)
-    # set up a thermodynamic system
+    # set up a the chemical system
     basis("CHNOS+")
-    # calculate affinities in logfO2-logaH2O space
-    a <- affinity(O2=c(-120,-40),H2O=c(-40,40),iprotein=i)
-    # calculate the logarithms of activities
-    d <- diagram(a,do.plot=FALSE,mam=FALSE)
-    # show the coefficient of variation of logarithms of activities
-    draw.diversity(d,"cv")
+    # calculate affinities of formation in logfO2 space
+    a <- affinity(O2=c(-90,-60),iprotein=i)
+    # show the equilibrium activities
+    d <- diagram(a,cex=1.5,logact=0)
     # make a title
     expr <- as.expression(substitute(x~y~"proteins in"~
       italic("P. ubique"),list(x=length(j),y=w)))
-    mtitle(c("Coefficient of variation of log activities of",expr))
+    mtitle(c("Equilibrium activities of",expr),cex=1.5)
+    # show the coefficient of variation
+    revisit(d,"CV",cex=1.5)
+    mtitle(c("CV of equilibrium activities of",expr),cex=1.5)
+    # calculate affinities in logfO2-logaH2O space
+    a <- affinity(O2=c(-90,-60),H2O=c(-20,0),iprotein=i)
+    # calculate the equilibrium activities
+    d <- diagram(a,do.plot=FALSE,mam=FALSE,logact=0)
+    # show the coefficient of variation
+    revisit(d,"CV",cex=1.5)
+    mtitle(c("CV of equilibrium activities of",expr),cex=1.5)
   }
 }
 

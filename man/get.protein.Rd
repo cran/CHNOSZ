@@ -31,9 +31,6 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
   (NOTE: \code{get.protein} replaces the \code{proteome} function that was present in \pkg{CHNOSZ} up to version 0.7-2. \code{proteome} had a coding error that led to incorrect calculations of the average composition of proteins when \code{abundance} was not equal to 1.)
 
   The \code{yeastgfp} function returns the identities and abundances of proteins with the requested subcellular localization (specified in \code{location}) using data from the YeastGFP project that is stored in \code{\link{thermo}$yeastgfp}. The default value of \code{exclusive} (\code{FALSE}) tells the function to grab all proteins that are localized to a compartment even if they are also localized to other compartments. If \code{exclusive} is \code{TRUE}, only those proteins that are localized exclusively to the requested compartments are identified, unless there are no such proteins, then the non-exclusive localizations are used (applies to the \samp{bud} localization). The values returns by \code{yeastgfp} can be fed to \code{get.protein} in order to get the amino acid compositions of the proteins.
-
-  \samp{HTCC1062.faa} is a FASTA file of 1354 protein sequences in the organism \emph{Pelagibacter ubique} HTCC1062 downloaded from the NCBI RefSeq collection on 2009-04-12. The search term was Protein: txid335992[Organism:noexp] AND "refseq"[Filter].
-
 }
 
 \value{
@@ -63,7 +60,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
   ## to cytoplasm of S. cerevisiae with reported expression levels
   y <- yeastgfp("cytoplasm")
   p <- get.protein(y$yORF,"SGD",y$abundance,"cytoplasm")
-  # add the proteolog and calculate its properties
+  # add the protein and calculate its properties
   i <- add.protein(p)
   protein(i)
 
@@ -83,7 +80,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
   logact <- unitize(rep(1,length(ip)),pl)
   # load the proteins
   basis("CHNOS+")
-  a <- affinity(O2=c(-80,-73),iprotein=ip,logact.protein=logact)
+  a <- affinity(O2=c(-80,-73),iprotein=ip,loga.protein=logact)
   # make a speciation diagram
   diagram(a,ylim=c(-4.9,-2.9))
   # where we are closest to experimental log activity
@@ -98,7 +95,6 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
   # add title
   title(main=paste("ER.to.Golgi; points - relative abundances",
     "from YeastGFP. Figure after Dick, 2009",sep="\n"))
-
 
   \donttest{
     ## Chemical activities of model subcellular proteins
@@ -135,7 +131,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
       text(seq(-82,-65,length.out=res)[imax],logact[[i]][imax],
         labels=names[i],adj=adj)
     }
-    title(main=paste("Subcellular proteologs of S. cerevisiae, after Dick, 2009",
+    title(main=paste("Subcellular proteins of S. cerevisiae, after Dick, 2009",
       describe(thermo$basis[-5,]),sep="\n"),col.main=par("fg"),cex.main=0.9)
     par(oldpar)
 
@@ -166,17 +162,24 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     layout(matrix(c(1,1,2:7),byrow=TRUE,nrow=4),heights=c(0.7,3,3,3))
     par(mar=c(0,0,0,0))
     plot.new()
-    text(0.5,0.5,paste("Subcellular proteologs of S. cerevisiae,",
+    text(0.5,0.5,paste("Subcellular proteins of S. cerevisiae,",
      "after Dick, 2009\n",describe(thermo$basis[-c(2,5),])),cex=1.5)
     opar <- par(mar=c(3,4,1,1),xpd=TRUE)
     for(i in 1:length(nloc)) {
+      cex.axis <- 0.75
+      # uncomment the following and dev.off() below to generate png files
+      #png(paste(i,"png",sep="."),width=300,height=250); cex.axis <- 1
       diagram(t,balance="PBB",names=names[inames],
-        ispecies=inames,cex.axis=0.75)
+        ispecies=inames,cex.axis=cex.axis)
       label.plot(letters[i])
       title(main=paste(length(inames),"locations"))
+      #dev.off()
       # take out the stable species
       inames <- inames[-(1:nloc[i])]
     }
+    # make an animated gif from png files (with ImageMagick convert tool)
+    #system(paste("convert -delay 100 1.png 1.png 1.png 2.png",
+    #  "3.png 4.png 5.png 6.png 6.png 6.png yeast.gif"))
     # return to plot defaults
     layout(matrix(1))
     par(opar)
@@ -210,6 +213,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     pch <- rep(16,length(is))
     pch[iout] <- 1
     # the colors reflect average oxidation number of carbon
+    # corrects misassigned colors in Figs. 5 and 6 of Dick 2009
     ZC <- ZC(thermo$obigt$formula[species()$ispecies])
     col <- rgb(0.15-ZC,0,0.35+ZC,max=0.5)
     # there is a color-plotting error on line 567 of the plot.R file 
@@ -224,11 +228,9 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     title(main=paste("Calculated and experimental relative abundances of\n",
       "proteins in ",loc,", after Dick, 2009",sep=""),cex.main=0.95)
     
-
     ### examples for stress response experiments
 
-    ## predominance fields for overall protein 
-    ## compositions induced by
+    ## predominance fields for overall protein compositions induced by
     ## carbon, sulfur and nitrogen limitation
     ## (experimental data from Boer et al., 2003)
     expt <- c("low.C","low.N","low.S")
@@ -241,7 +243,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     species(expt,"SGD")
     a <- affinity(CO2=c(-5,0),H2S=c(-10,0))
     diagram(a,balance="PBB",names=expt,color=NULL)
-    title(main=paste("Metastabilities of proteins induced by",
+    title(main=paste("Proteins induced by",
       "carbon, sulfur and nitrogen limitation",sep="\n"))
 
     ## predominance fields for overall protein compositions 
@@ -264,7 +266,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     species(expt,"SGD")
     a <- affinity(C6H12O6=c(-35,-20),H2=c(-20,0))
     diagram(a,color=NULL,as.residue=TRUE)
-    title(main=paste("Metastabilities of average protein residues in",
+    title(main=paste("Average protein residue composition in",
       "an/aerobic carbon limitation in yeast",sep="\n"))
   }
 }
@@ -278,7 +280,6 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
   Richmond, C. S., Glasner, J. D., Mau, R., Jin, H. F. and Blattner, F. R., 1999. Genome-wide expression profiling in \emph{Escherichia coli} K-12. \emph{Nucleic Acids Res.}, 27, 3821-3835. \url{http://nar.oxfordjournals.org/cgi/content/abstract/27/19/3821}
 
   Tai, S. L., Boer, V. M., Daran-Lapujade, P., Walsh, M. C., de Winde, J. H., Daran, J.-M. and Pronk, J. T., 2005. Two-dimensional transcriptome analysis in chemostat cultures: Combinatorial effects of oxygen availability and macronutrient limitation in \emph{Saccharomyces cerevisiae}. \emph{J. Biol. Chem.}, 280, 437-447. \url{http://dx.doi.org/10.1074/jbc.M410573200}
-
 
 }
 

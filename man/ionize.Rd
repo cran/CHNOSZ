@@ -58,13 +58,15 @@
   lines(z[[1]],x=seq(0,14,length.out=50),lty=2)
   text(x=12,y=-7,"T=25, oxidized")
   # add experimental points
-  points(thermo$expt$RT71$pH,thermo$expt$RT71$Z)
+  RT71 <- read.csv(system.file("data/RT71.csv",package="CHNOSZ"))
+  points(RT71$pH,RT71$Z)
   title(main=paste("Ionization of unfolded LYSC_CHICK\n",
     "Experimental points at 25 degC from Roxby and Tanford, 1971"),
      cex.main=0.9)
   # forget our changes to thermo$obigt for next examples
   data(thermo)
 
+  \donttest{
   ## Heat capacity of LYSC_CHICK as a function of T
   basis("CHNOS+"); species("LYSC_CHICK")
   pH <- c(5,9,3); T <- c(0,100,25)
@@ -87,7 +89,7 @@
   T.MP <- c(5,25,50,75,100,125)
   points(T.MP,convert(MP90.cp(T.MP,"LYSC_CHICK"),"cal"))
   # Privalov and Makhatadze's experimental values
-  e <- thermo$expt$PM90
+  e <- read.csv(system.file("data/PM90.csv",package="CHNOSZ"))
   e <- e[e$protein=="LYSC_CHICK",]
   points(e$T,convert(e$Cp,"cal"),pch=16)
   title(main=paste("Calc'd heat capacity of LYSC_CHICK:",
@@ -96,62 +98,62 @@
     cex.main=0.9)
 
   ### Metastability calculations using 'ionize'
-  \donttest{
-    ## Eh-pH diagrams for intra/extracellular proteins
-    organism <- c("PYRFU","ECOLI","YEAST")
-    intracellular <- c("AMPM","AMPM","AMPM1")
-    extracellular <- c("O08452","AMY1","PST1")
-    basis("CHNOSe")  # for Eh we need electrons
-    mycol <- c("red","green","blue")
-    for(i in 1:3) {
-      species(delete=TRUE)
-      species(c(intracellular[i],extracellular[i]),organism[i])
-      if(i == 1) add <- FALSE else add <- TRUE
-      t <- affinity(pH=c(0,14),Eh=c(-1,0))
-      diagram(t,add=add,color=NULL,names=species()$name,
-        col=mycol[i],col.names=mycol[i])
-    }
-    title(main=paste("Intracellular (AMPM) and extracellular proteins\n",
-      describe(thermo$basis[1:4,])))
-    
-    ## Buffer + ionization: Metastablilities of
-    ## thiol peroxidases from model bactera
-    ## (ECOLI, BACSU mesophile; AQUAE thermophile,
-    ## THIDA acidophile, BACHD alkaliphile)
-    basis("CHNOS+")
-    organisms <- c("ECOLI","AQUAE","BACSU","BACHD","THIDA")
-    species("TPX",organisms)
-    # create a buffer with our proteins in it
-    mod.buffer("TPX",paste("TPX",organisms,sep="_"))
-    # set up the buffered activities
-    basis(c("CO2","H2O","NH3","O2"),"TPX")
-    t <- affinity(return.buffer=TRUE,T=50)
-    basis(c("CO2","H2O","NH3","O2"),as.numeric(t[1:4]))
-    t <- affinity(pH=c(0,14,200),T=c(25,80,200))
-    diagram(t,color=NULL)
-    title(main=paste("Thiol peroxidases from bacteria\n",
-      describe(thermo$basis[-6,],T=NULL)),cex.main=0.9)
 
-    ## Buffer + ionization: Metastable assemblage
-    ## for E. coli sigma factors on a T-pH diagram
-    # (sigma factors 24, 32, 38, 54, 70, i.e.
-    # RpoE, RpoH, RpoS, RpoN, RpoD)
-    proteins <- c("RPOE","RP32","RPOS","RP54","RPOD")
-    basis("CHNOS+")
-    basis("pH",7.4)
-    # define and set the buffer
-    change("_sigma",paste(proteins,"ECOLI",sep="_"))
-    basis(c("CO2","NH3","H2S","O2"),"sigma")
-    logact <- affinity(return.buffer=TRUE,T=25)
-    # Set the activities of the basis species to constants 
-    # corresponding to the buffer, and diagram the relative
-    # stabilities as a function of T and pH
-    basis(c("CO2","NH3","H2S","O2"),as.numeric(logact))
-    species(paste(proteins,"ECOLI",sep="_"))
-    a <- affinity(pH=c(5,10),T=c(10,40))
-    diagram(a,balance="PBB",residue=FALSE)
-    title(main=paste("Sigma factors in E. coli\n",
-      describe(thermo$basis[-6,],T=NULL)),cex.main=0.95)
+  ## Eh-pH diagrams for intra/extracellular proteins
+  organism <- c("PYRFU","ECOLI","YEAST")
+  intracellular <- c("AMPM","AMPM","AMPM1")
+  extracellular <- c("O08452","AMY1","PST1")
+  basis("CHNOSe")  # for Eh we need electrons
+  mycol <- c("red","green","blue")
+  for(i in 1:3) {
+    species(delete=TRUE)
+    species(c(intracellular[i],extracellular[i]),organism[i])
+    if(i == 1) add <- FALSE else add <- TRUE
+    t <- affinity(pH=c(0,14),Eh=c(-1,0))
+    diagram(t,add=add,color=NULL,names=species()$name,
+      col=mycol[i],col.names=mycol[i])
+  }
+  title(main=paste("Intracellular (AMPM) and extracellular proteins\n",
+    describe(thermo$basis[1:4,])))
+  
+  ## Buffer + ionization: Metastablilities of
+  ## thiol peroxidases from model bactera
+  ## (ECOLI, BACSU mesophile; AQUAE thermophile,
+  ## THIDA acidophile, BACHD alkaliphile)
+  basis("CHNOS+")
+  organisms <- c("ECOLI","AQUAE","BACSU","BACHD","THIDA")
+  species("TPX",organisms)
+  # create a buffer with our proteins in it
+  mod.buffer("TPX",paste("TPX",organisms,sep="_"))
+  # set up the buffered activities
+  basis(c("CO2","H2O","NH3","O2"),"TPX")
+  t <- affinity(return.buffer=TRUE,T=50)
+  basis(c("CO2","H2O","NH3","O2"),as.numeric(t[1:4]))
+  t <- affinity(pH=c(0,14,200),T=c(25,80,200))
+  diagram(t,color=NULL)
+  title(main=paste("Thiol peroxidases from bacteria\n",
+    describe(thermo$basis[-6,],T=NULL)),cex.main=0.9)
+
+  ## Buffer + ionization: Metastable assemblage
+  ## for E. coli sigma factors on a T-pH diagram
+  # (sigma factors 24, 32, 38, 54, 70, i.e.
+  # RpoE, RpoH, RpoS, RpoN, RpoD)
+  proteins <- c("RPOE","RP32","RPOS","RP54","RPOD")
+  basis("CHNOS+")
+  basis("pH",7.4)
+  # define and set the buffer
+  change("_sigma",paste(proteins,"ECOLI",sep="_"))
+  basis(c("CO2","NH3","H2S","O2"),"sigma")
+  logact <- affinity(return.buffer=TRUE,T=25)
+  # Set the activities of the basis species to constants 
+  # corresponding to the buffer, and diagram the relative
+  # stabilities as a function of T and pH
+  basis(c("CO2","NH3","H2S","O2"),as.numeric(logact))
+  species(paste(proteins,"ECOLI",sep="_"))
+  a <- affinity(pH=c(5,10),T=c(10,40))
+  diagram(a,balance="PBB",residue=FALSE)
+  title(main=paste("Sigma factors in E. coli\n",
+    describe(thermo$basis[-6,],T=NULL)),cex.main=0.95)
   }
 }
 

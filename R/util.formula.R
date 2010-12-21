@@ -130,7 +130,7 @@ protein.formula <- function(proteins,as.residue=FALSE) {
   rf <- residue.formula()
   out <- as.matrix(proteins[,5:25]) %*% as.matrix(rf)
   if(as.residue) out <- out/rowSums(proteins[,6:25])
-  row.names(out) <- paste(proteins$protein,proteins$organism,sep="_")
+  row.names(out) <- make.unique(paste(proteins$protein,proteins$organism,sep="_"))
   out <- as.data.frame(out)
   return(out)
 }

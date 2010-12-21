@@ -142,8 +142,9 @@ add.obigt <- function(file="obigt.csv",force=FALSE) {
 
 danger <- function() {
   cat("danger: loading supplemental thermodynamic data file\n")
-  cat("danger: it DOES break self-consistency\n")
-  myfile <- system.file("OBIGT-2.csv",package="CHNOSZ")
+  cat("danger: use with care; some properties are not thermodynamically\n")
+  cat("danger: consistent with the default database\n")
+  myfile <- system.file("data/OBIGT-2.csv",package="CHNOSZ")
   i <- add.obigt(myfile,force=TRUE)
   cat("danger: to undo, reinitialize data object with 'data(thermo)'\n")
   return(invisible(i))

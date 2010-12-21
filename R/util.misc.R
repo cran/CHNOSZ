@@ -1,5 +1,4 @@
 # CHNOSZ/thermo.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # utility functions for the CHNOSZ package
 # speciate/thermo.R 20051021 jmd
 
@@ -20,6 +19,9 @@ protein.length <- function(protein) {
       return(NA)
     }
     po <- s2c(as.character(name),sep='_',keep.sep=FALSE)
+    # okay, what if there are underscores in the organism name?
+    # then let's keep them there
+    if(length(po) > 2) po[2] <- c2s(po[2:length(po)],sep="_")
     ip <- as.character(thermo$protein$protein)==po[1] & 
       as.character(thermo$protein$organism)==po[2]
     ip <- ip[!is.na(ip)]
@@ -180,17 +182,18 @@ basis.comp <- function(basis) {
   #if(any(!is.numeric(basis))) stop('argument must be numeric index of species')
   #else if(any(basis < 0)) stop('numeric argument must be positive')
   # retrieve basis stoichiometries of species
-  elements <- colnames(basis())
-  comp0 <- expand.formula(rownames(basis()))
+  myb <- basis(quiet=TRUE)
+  elements <- colnames(myb)
+  comp0 <- expand.formula(rownames(myb))
   for(i in 1:length(basis)) {
     if(identical(basis,0)) makeup <- makeup(thermo$obigt$formula[1]) 
     else if(is.numeric(basis[i])) makeup <- makeup(as.character(thermo$obigt$formula[basis[i]])) 
     else makeup <- makeup(basis[i])
     comprow <- expand.formula(elements,makeup)
     # solve for the basis coefficients
-    comprow <- solve(t(basis()),comprow)
+    comprow <- solve(t(myb),comprow)
     comprow <- data.frame(matrix(comprow,byrow=TRUE,nrow=1))
-    colnames(comprow) <- rownames(basis())
+    colnames(comprow) <- rownames(myb)
     missingelements <- which(!rownames(makeup) %in% elements)
     if(length(missingelements)>0) {
       if(length(missingelements)==1) p <- '' else p <- 's'
@@ -287,19 +290,6 @@ which.balance <- function(species) {
   return(ib[!is.na(ib)])
 }
 
-spearman <- function(a,b) {
-  # calculate Spearman's rho (rank correlation coefficient)
-  # based on help(dSpearman) in package SuppDists
-  if(length(a)!=length(b)) stop("a and b must be same length")
-  ra <- rank(a)
-  rb <- rank(b)
-  dr <- rb - ra
-  d <- sum(dr^2)
-  r <- length(a)
-  x <- 1-6*d/(r*(r^2-1))
-  return(x)
-}
-
 unitize <- function(logact=NULL,length=NULL,logact.tot=0) {
   # scale the logarithms of activities given in loga
   # so that the logarithm of total activity of residues
@@ -333,6 +323,22 @@ unitize <- function(logact=NULL,length=NULL,logact.tot=0) {
   # take the logarithms
   logact <- log10(act)
   # done!
+}
+
+caller.name <- function(n=2) {
+  # returns the name of the calling function n frames up
+  # (n=2: the caller of the function that calls this one)
+  # or character() if called interactively
+  if(sys.nframe() < n) name <- character()
+  else {
+    sc <- sys.call(-n)[[1]]
+    name <- try(as.character(sc),silent=TRUE)
+    # also return character() if the value from sys.call is
+    # the function itself (why does this sometimes happen,
+    # e.g. when called from affinity()?)
+    if(class(name)=="try-error") name <- character()
+  }
+  return(name)
 }
 
 .First.lib <- function(lib,pkg) {

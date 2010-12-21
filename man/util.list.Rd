@@ -37,7 +37,7 @@
 
   \code{which.pmax} takes a list of equal-length numeric vectors (or objects that can be coerced to numeric) in \code{elts} and returns the index of the vector holding the maximum value at each position. If \code{na.rm} is \code{TRUE}, values of \code{NA} are removed; if \code{pmin} is \code{TRUE} the function finds locations of the minimum values instead.
 
- \code{mylapply} passes the given arguments to \code{\link{lapply}}, or to \code{mclapply} if the \pkg{multicore} package is loaded and the length of \code{X} is greater than 20. \code{mylapply} is used in \code{\link{affinity}} (in calculations for proteins activated by the \code{iprotein} argument), \code{\link{abundance.new}} (in parallel operations on list elements), and \code{\link{aminoacids}} and \code{\link{protein.length}} (in counting amino acids in sequences and determining lengths of proteins).
+ \code{mylapply} passes the given arguments to \code{\link{lapply}}, or to \code{mclapply} if the \pkg{multicore} package is loaded and the length of \code{X} is greater than 20. \code{mylapply} is used in \code{\link{affinity}} (in calculations for proteins activated by the \code{iprotein} argument), \code{\link{logact.mb}} (in parallel operations on list elements), and \code{\link{aminoacids}} and \code{\link{protein.length}} (in counting amino acids in sequences and determining lengths of proteins).
 
 }
 

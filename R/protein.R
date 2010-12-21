@@ -300,14 +300,21 @@ get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,
     # which columns have the amino acids in the order of thermo$protein 
     iaa <- c(1,5,4,7,14,8,9,10,12,11,13,3,15,6,2,16,17,20,18,19) + 2
   } else if(organism=="ECO") {
-    searchcols <- c("OLN","Name")
-    iaa <- 1:20 + 4
+    searchcols <- c("protein","abbrv")
+    iaa <- 1:20 + 5
+  } else if(organism=="HUM") {
+    searchcols <- c("protein","abbrv")
+    iaa <- 1:20 + 5
   }
   icols <- match(searchcols,colnames(mydata))
   # find the matches
   imatch <- match(protein,mydata[,icols[1]])
   imatch2 <- match(protein,mydata[,icols[2]])
   imatch[!is.na(imatch2)] <- imatch2[!is.na(imatch2)]
+  if(length(searchcols) > 2) {
+    imatch3 <- match(protein,mydata[,icols[3]])
+    imatch[!is.na(imatch3)] <- imatch3[!is.na(imatch3)]
+  }
   # report and remember the unsuccessful matches
   inotmatch <- which(is.na(imatch)) 
   if(length(inotmatch) > 0) {

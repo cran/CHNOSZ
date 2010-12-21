@@ -5,7 +5,8 @@
 \alias{add.protein}
 \alias{change}
 \alias{danger}
-\title{Functions to Modify the Thermodynamic Database}
+\alias{OBIGT-2}
+\title{Modify the Thermodynamic Database}
 \description{
   These functions add species to or alter properties of species in the thermodynamic database (\code{thermo$obigt}) or in the buffer definition table (\code{thermo$buffer}).
 }

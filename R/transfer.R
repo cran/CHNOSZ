@@ -372,7 +372,7 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
       # chemical affinities (near-equilibrium rates)
       # 20090409 use abundance here -- relative
       # abundances of species in equilibrium
-      molspecies3 <- 10^as.numeric(abundance.new(myaff,rep(1,length(myaff)),0))
+      molspecies3 <- 10^as.numeric(logact.mb(myaff,rep(1,length(myaff)),0))
     }
     # the number of moles of basis species used
     ipresent <- which(log10(molspecies3) > logpresent)

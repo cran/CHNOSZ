@@ -1,5 +1,4 @@
 # CHNOSZ/util.plot.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # Functions to create and modify plots
 
 thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par('lwd'),side=c(1,2,3,4),
@@ -111,7 +110,7 @@ label.plot <- function(x,xfrac=0.95,yfrac=0.9,cex=1,paren=TRUE,adj=1) {
   text( pu[1]+xfrac*(pu[2]-pu[1]), pu[3]+yfrac*(pu[4]-pu[3]), labels=x, cex=cex , adj=adj)
 }
 
-axis.label <- function(lab,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mol='mol') {
+axis.label <- function(lab,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mol='mol',state=NULL,as.expression=TRUE) {
   # make axis labels
   # 20090826: just return the argument if a comma is already present
   if(length(grep(",",lab)) > 0) return(lab)
@@ -122,31 +121,33 @@ axis.label <- function(lab,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,
     if(lab=='Eh') lab <- paste(lab,'(volt)')
     else if(lab=='T') {
       if(do.opt) T.units <- nuts('T') else T.units <- opt
-      if(T.units=='C') lab <- as.expression(quote(list(italic(T),degree*C)))
-      else lab <- as.expression(quote(list(italic(T),K)))
+      if(T.units=='C') lab <- quote(list(italic(T),degree*C))
+      else lab <- quote(list(italic(T),K))
     } 
     else if(lab=='P') {
       if(do.opt) P.units <- nuts('P') else P.units <- opt
-      if(P.units=='bar') lab <- as.expression(quote(list(italic(P),bar)))
-      else lab <- as.expression(quote(list(italic(P),MPa)))
+      if(P.units=='bar') lab <- quote(list(italic(P),bar))
+      else lab <- quote(list(italic(P),MPa))
     } 
-    else if(lab=='logK') lab <- as.expression(quote(log~italic(K)))
-    else if(lab=='IS') lab <- as.expression(quote(list(IS,mol~~kg^{-1})))
-    return(lab)
+    else if(lab=='logK') lab <- quote(log~italic(K))
+    else if(lab=='IS') lab <- quote(list(IS,mol~~kg^{-1}))
+    if(as.expression) lab <- as.expression(lab)
+    else return(lab)
   } else {
     # the label is a chemical activity or fugacity
-    if(is.null(thermo$basis)) rn <- '' else rn <- rownames(basis())
-    if(lab %in% rn) {
-      # 20090215: the state this basis species is in
-      if(do.opt) opt <- as.character(thermo$basis$state)[match(lab,rn)]
-      state <- opt
+    if(is.null(thermo$basis)) rn <- '' else rn <- rownames(basis(quiet=TRUE))
+    if(lab %in% rn | !is.null(state)) {
+      if(is.null(state)) {
+        # 20090215: the state this basis species is in
+        state <- as.character(thermo$basis$state)[match(lab,rn)]
+      }
       if(oldstyle) {
         # append (log a) or (log f)
         if(state %in% c('gas')) llab <- '(log f)' else llab <- '(log a)'
         newlab <- paste(lab,llab,sep=' ')
         return(newlab)
       } else {
-        return(species.label(lab,do.state=do.state,state=state,do.log=TRUE))
+        return(species.label(lab,do.state=do.state,state=state,do.log=TRUE,as.expression=as.expression))
       }
     } else {
       # a way to make expressions for various properties
@@ -206,7 +207,7 @@ axis.label <- function(lab,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,
   }
 }
 
-species.label <- function(formula,do.state=FALSE,state="",do.log=FALSE) {
+species.label <- function(formula,do.state=FALSE,state="",do.log=FALSE,as.expression=TRUE) {
   # make plotting expressions for chemical formulas
   # that include subscripts, superscripts (if charged)
   # and optionally designations of states +/- loga or logf prefix
@@ -240,7 +241,8 @@ species.label <- function(formula,do.state=FALSE,state="",do.log=FALSE) {
       newlab <- substitute(a[b],list(a=llab,b=newlab))
     }
   }
-  return(as.expression(newlab))
+  if(as.expression) return(as.expression(newlab))
+  else return(newlab)
 }
 
 

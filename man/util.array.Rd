@@ -25,21 +25,17 @@
 \details{
   \code{list2array} turns a list of \code{\link{array}}s, each with the same dimensions, into a new array having one more dimension whose size is equal to the number of initial arrays.
 
-  \code{slice} extracts or assigns values from/to the \code{i}th slice(s) in the \code{d}th dimension of an array. Values are assigned to an array if \code{value} is not NULL. This function works by building an expression containing the extraction operator (\code{\link{[}}) and was written because \R does not (it seems) have a \emph{\code{\link{function}}} that performs this operation.
+  \code{slice} extracts or assigns values from/to the \code{i}th slice(s) in the \code{d}th dimension of an array. Values are assigned to an array if \code{value} is not NULL. This function works by building an expression containing the extraction operator (\code{\link{[}}).
 
   \code{dimSums} sums an array along the \code{d}th dimension using only the \code{i}th slices in that dimension. If \code{i} is NULL, all slices in that dimension are summed together. For matrices, \code{dimSums(x,1)} has the same result as \code{\link{colSums}(x)} and \code{dimSums(x,2)} has the same result as \code{\link{rowSums}(x)}.
 
-  In the examples below, the \dQuote{stopifnot} tests fail unless \samp{a} and \samp{b} are both created as multiples of the starting matrix \samp{x}. This might have something to to with the internal representation of these matrices in \R.
-}
-
-\value{
-  An array.
+  In the examples below, the \dQuote{stopifnot} tests fail unless \samp{a} and \samp{b} are both created as multiples of the starting matrix \samp{x}. This behavior probably reflects the internal representation of these matrices in \R.
 }
 
 \examples{
   # start with a matrix
   x <- matrix(1:12,ncol=3)
-  # pay attention to the following... it complicates
+  # pay attention to the following when
   # writing examples that test for identity!
   identical(1*x,x)   # FALSE
   # create two matrices that are multiples of the first

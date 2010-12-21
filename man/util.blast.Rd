@@ -27,7 +27,6 @@
 \details{
   The BLAST (Altschul et al., 1997) tabular output file can be generated using the -m 8 switch to the \dQuote{blastall} command. The BLAST results are tied to taxon ids using the \code{gi.taxid} list. For this to work, the sequence identifiers in BLAST database (and that show up in the output file) must be the same as those in the \code{gi.taxid} list. 
 
-  Five example files are packages with CHNOSZ to illustrate the use of this function. The files \dQuote{bisonX_vs_refseq39.blastp} where X is one of N, R or P are tabular BLAST results for proteins in the Bison Pool Environmental Genome. The BLAST files contain the first hit for each of 2500 query sequences. The target database for the searches was constructed from microbial protein sequences in National Center for Biotechnology Information (NCBI) RefSeq database version 39. \dQuote{gi.taxid.txt} is a table that lists all of the sequence identifiers (gi numbers) that appear in the example BLAST files, together with the corresponding taxon ids used in the NCBI databases. \dQuote{taxid.phylum.csv} lists all of the taxon ids and the corresponding phylum and species names.
 }
 
 \value{
@@ -38,13 +37,13 @@
    # process some of the BLAST output for proteins
    # from Bison Pool metagenome (JGI, 2007)
    # read the file that connects taxids with the sequence identifier
-   tfile <- system.file("gi.taxid.txt",package="CHNOSZ")
+   tfile <- system.file("data/gi.taxid.txt",package="CHNOSZ")
    gi.taxid <- scan(tfile,what=as.list(character(2)),flush=TRUE)
    # read the file that connects names with the taxids
-   nfile <- system.file("taxid.phylum.csv",package="CHNOSZ")
+   nfile <- system.file("data/taxid.phylum.csv",package="CHNOSZ")
    taxid.phylum <- read.csv(nfile)
    # the BLAST files
-   bfile <- paste("bison",c("N","R","P"),"_vs_refseq39.blastp",sep="")
+   bfile <- paste("data/bison",c("N","R","P"),"_vs_refseq39.blastp",sep="")
    for(i in 1:3) {
      file <- system.file(bfile[i],package="CHNOSZ")
      # process the blast file -- get taxon names
@@ -63,7 +62,8 @@
    bardata <- t(t(bardata)/colSums(bardata))
    colnames(bardata) <- c("N","R","P")
    # make a bar chart
-   bp <- barplot(as.matrix(bardata),col=rainbow(nrow(bardata)))
+   bp <- barplot(as.matrix(bardata),col=rainbow(nrow(bardata)),
+     xlab="location",ylab="fractional abundance")
    # add labels to the bars
    names <- substr(row.names(bardata),1,3)
    for(i in 1:3) {
@@ -80,7 +80,6 @@
 
   Altschul, S. F., Madden, T. L., Schaffer, A. A., Zhang, J. H., Zhang, Z., Miller, W. and Lipman, D. J., 1997. Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. \emph{Nucleic Acids Res.}, 25, 3389-3402. \url{http://dx.doi.org/doi:10.1093/nar/25.17.3389} 
 
-  Joint Genome Institute, 2007. Bison Pool Environmental Genome. Protein sequence files downloaded from IMG/M (\url{http://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=FindGenomes&page=findGenomes}) on 2009-05-13.
 
 }
 

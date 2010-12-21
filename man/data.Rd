@@ -6,14 +6,19 @@
 \alias{opt}
 \alias{source}
 \alias{stress}
+\alias{SGD}
+\alias{ECO}
+\alias{HUM}
+\alias{groups}
 \alias{PM90}
 \alias{RH95}
 \alias{RT71}
-\alias{SGD}
-\alias{ECO}
-\alias{groups}
 \alias{SOJSH}
-\title{Thermodynamic Properties and Compositional Data}
+\alias{gi.taxid}
+\alias{taxid.phylum}
+\alias{AA03}
+\alias{ISR+08}
+\title{Thermodynamic Database and System Definition}
 \description{
  
   This data object holds the thermodynamic database of properties of species, along with operational parameters for \pkg{CHNOSZ}, the properties of elements, references to sources of thermodynamic and compositional data, compositions of chemical activity buffers, amino acid compositions of proteins, and miscellaneous other data taken from the literature. The \code{thermo} object also holds intermediate data used in calculations, in particular the definitions of basis species and species of interest input by the user, and the properties of \code{\link{water}} so that subsequent calculations at the same temperature-pressure conditions can be accelerated.
@@ -29,6 +34,8 @@
 \usage{data(thermo)}
 
 \format{
+
+  The primary data files, on which CHNOSZ depends for its basic features and operation, are documented below.
 
   \itemize{
      
@@ -69,9 +76,10 @@
 
   As of \pkg{CHNOSZ} version 0.7, the data in \code{OBIGT.csv} represent 179 minerals, 16 gases, and 294 aqueous (largely inorganic) species taken from the data file included in the \acronym{SUPCRT92} distribution (Johnson et al., 1992), an additional 14 minerals, 6 gases, and 1049 aqueous organic and inorganic species from the \acronym{slop98.dat} file (Shock et al., 1998), and approximately 50 other minerals, 175 crystalline organic and biochemical species, 220 organic gases, 300 organic liquids, 650 aqueous inorganic, organic, and biochemical species, and 40 organic groups taken from the recent literature. Each entry is referenced to one or two literature sources listed in \code{thermo$source}. Some entries taken from the \acronym{SUPCRT92} or \acronym{slop98.dat} databases have been superseded, or duplicated, by later data that may be present in a separate file (OBIGT-2.csv; for more information see the help for \code{\link{danger}}). 
 
-  Note the following modifications to some of the data:
+  Note the following modifications:
 
   \itemize{
+     \item Use corrected values of \eqn{a_2}{a2} and \eqn{a_4}{a4} for [-CH2NH2] (were inadverdently set to zero in Table 6 of Dick et al., 2006).
      \item The standard molal thermodynamic properties and equations of state parameters of the aqueous electron are zero except for the standard molal entropy at 25 \eqn{^{\circ}}{degrees }C and 1 bar, which is the opposite of that for the element of charge (\code{Z}, see above).
      \item The properties and parameters of some reference unfolded proteins used by Dick et al., 2006 are included here. Their names have dashes, instead of underscores, so that they are not confused with proteins whose properties are generated at runtime.
      \item The standard molal Gibbs energies and enthalpies of formation of the elements and entropies at 25 \eqn{^{\circ}}{degrees }C and 1 bar of aqueous metal-amino acid (alanate or glycinate) complexes reported by Shock and Koretsky, 1995 were recalculated by adding to their values the differences in the corresponding properties between the values for aqueous alanate and glycinate used by Shock and Koretsky, 1995, and those used by Amend and Helgeson, 1997b and Dick et al., 2006.
@@ -199,20 +207,6 @@
     \item \code{thermo$water2}
     The properties calculated with \code{water.SUPCRT} at multiple T, P points (minimum of 26) are stored here.
 
-    \item \code{thermo$expt} 
-    List of experimental data that are used in the examples.
-
-      \describe{
-           \code{thermo$expt$PM90} Heat capacities of four unfolded aqueous proteins taken from Privalov and Makhatadze, 1990. Names of proteins are in the first column, temperature in \eqn{^{\circ}}{degrees }C in the second, and heat capacities in J mol\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} in the third.
-
-           \code{thermo$expt$RH95} Heat capacity data for iron taken from Robie and Hemingway, 1995. Temperature in Kelvin is in the first column, heat capacity in J K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} in the second.
-
-           \code{thermo$expt$RT71} pH titration measurements for unfolded lysozyme (\samp{LYSC_CHICK}) taken from Roxby and Tanford, 1971. pH is in the first column, net charge in the second.
-
-           \code{thermo$expt$SOJSH92} Experimental equilibrium constants for the reaction NaCl(aq) = Na+ + Cl- as a function of temperature and pressure taken from Fig. 1 of Shock et al., 1992. Data were extracted from the figure using g3data (\url{http://www.frantz.fi/software/g3data.php}).
-
-      }
-
     \item \code{thermo$SGD}
     Dataframe of amino acid composition of proteins from the \emph{Saccharomyces} Genome Database.
 
@@ -228,13 +222,49 @@
     }
 
 
+    \item \code{thermo$HUM}
+
+    \describe{
+      Downloaded the file \code{uniprot_sprot_human.dat.gz}, dated 2010-08-10, from \url{ftp://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/}, converted from UniProt to FASTA format using the \code{seqret} tool from EMBOSS (\url{http://emboss.sourceforge.net/}). Counted amino acid frequencies using \code{\link{read.fasta}}. Columns are as described in \code{thermo$protein}, except column \code{protein} and \code{abbrv} contain Swiss-Prot name and accession number, respectively (both taken from the header lines in the FASTA file).
+    }
+
+
     \item \code{thermo$yeastgfp}
 
     \describe{
       Has 28 columns; the names of the first five are \code{yORF}, \code{gene name}, \code{GFP tagged?}, \code{GFP visualized?}, and \code{abundance}. The remaining columns correspond to the 23 subcellular localizations considered in the YeastGFP project (Huh et al., 2003 and Ghaemmaghami et al., 2003) and hold values of either \code{T} or \code{F} for each protein. \samp{yeastgfp.csv} was downloaded on 2007-02-01 from http://yeastgfp.ucsf.edu using the Advanced Search, setting options to download the entire dataset and to include localization table and abundance, sorted by orf number.
     }
+
+  }  % end of itemize with long descriptions
      
-  }  % end of itemize
+  The following are additional data files that support the examples in the package documentation and vignettes. Some list measurements of thermodynamic properties:
+
+    \itemize{
+      \item \code{PM90.csv} Heat capacities of four unfolded aqueous proteins taken from Privalov and Makhatadze, 1990. Names of proteins are in the first column, temperature in \eqn{^{\circ}}{degrees }C in the second, and heat capacities in J mol\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} in the third.
+      \item \code{RH95.csv} Heat capacity data for iron taken from Robie and Hemingway, 1995. Temperature in Kelvin is in the first column, heat capacity in J K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} in the second.
+      \item \code{RT71.csv} pH titration measurements for unfolded lysozyme (\samp{LYSC_CHICK}) taken from Roxby and Tanford, 1971. pH is in the first column, net charge in the second.
+      \item \code{SOJSH.csv} Experimental equilibrium constants for the reaction NaCl(aq) = Na+ + Cl- as a function of temperature and pressure taken from Fig. 1 of Shock et al., 1992. Data were extracted from the figure using g3data (\url{http://www.frantz.fi/software/g3data.php}).
+    }
+
+  Some of the additional files relate to processing metagenomic data and taxonimic classification:
+    \itemize{
+      \item \code{bisonN_vs_refseq39.blast}, \code{bisonR_vs_refseq39.blast}, \code{bisonP_vs_refseq39.blast} are tabular BLAST results for proteins in the Bison Pool Environmental Genome. The BLAST files contain the first hit for each of 2500 query sequences. The target database for the searches was constructed from microbial protein sequences in National Center for Biotechnology Information (NCBI) RefSeq database version 39. 
+
+      \item \code{gi.taxid.txt} is a table that lists all of the sequence identifiers (gi numbers) that appear in the example BLAST files (for bisonN, bisonR, bisonP, see above), together with the corresponding taxon ids used in the NCBI databases. 
+
+      \item \code{names.dmp} and \code{nodes.dmp} are excerpted from the taxonomy files available on the NCBI ftp site (\url{ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15.). These excerpts contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes in the respective lineages (genus, family, etc.).
+
+      \item \code{taxid.phylum.csv} lists all of the taxon ids and the corresponding phylum and species names from the NCBI taxonomy files.
+
+    }
+
+  The remaining files contain either protein sequences or abundance data:
+  \itemize{
+      \item \code{HTCC1062.faa} is a FASTA file of 1354 protein sequences in the organism \emph{Pelagibacter ubique} HTCC1062 downloaded from the NCBI RefSeq collection on 2009-04-12. The search term was Protein: txid335992[Organism:noexp] AND "refseq"[Filter].
+      \item \code{AA03.csv} has reference abundances for 71 proteins taken from Fig. 3 of Anderson and Anderson, 2002 (as corrected in Anderson and Anderson, 2003). The columns with data taken from this source are type (hemoglobin, plasma, tissue, interleukin), description (name used in the original figure), log10(pg/ml) (upper limit of abundance interval shown in figure, log10 concentration in pg/ml). The additional columns are name (nominal SWISS-PROT code for this protein) and corresponding values of protein length (number of residues), protein mass (g/mol), logm(residue) (log10 of molality of residues) and residue mass (g/mol).
+      \item \code{ISR+08.csv} has columns excerpted from Additional File 2 of Ishihama et al., 2008. The columns in this file are ID (Swiss-Prot ID), accession (Swiss-Prot accession), emPAI (exponentially modified protein abundance index), copynumber (emPAI-derived copy number/cell), GRAVY (Kyte-Doolittel), FunCat (FunCat class description), PSORT (PSORT localisation), ribosomal (yes/no).
+%%      \item \code{GLL+98.csv} has columns "oln" for ordered locus name and "ratio" for change in expression of yeast proteins in response to H2O2 treatment, from Godon et al., 1998. One protein, YMR108W, was listed as both induced and repressed in the original data set and is not included in this table.
+  }
 
 } % end of format
 
@@ -265,6 +295,10 @@
 
   Amend, J. P. and Helgeson, H. C., 1997b. Calculation of the standard molal thermodynamic properties of aqueous biomolecules at elevated temperatures and pressures. Part 1. L-\eqn{\alpha}{alpha}-amino acids. \emph{J. Chem. Soc., Faraday Trans.}, 93, 1927-1941. \url{http://dx.doi.org/10.1039/a608126f}
 
+  Anderson, N. L. and Anderson, N. G., 2002. The human plasma proteome: History, character and diagnostic prospects. \emph{Molecular and Cellular Proteomics}, 1, 845-867. \url{http://dx.doi.org/10.1074/mcp.R200007-MCP200}
+
+  Anderson, N. L. and Anderson, N. G., 2003. The human plasma proteome: History, character and diagnostic prospects (Vol. 1 (2002) 845-867). \emph{Molecular and Cellular Proteomics}, 2, 50.
+
   Cox, J. D., Wagman, D. D. and Medvedev, V. A., eds., 1989. \emph{CODATA Key Values for Thermodynamics}. Hemisphere Publishing Corporation, New York, 271 p. \url{http://www.worldcat.org/oclc/18559968}
 
   Dick, J. M., LaRowe, D. E. and Helgeson, H. C., 2006. Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences}, 3, 311-336. \url{http://www.biogeosciences.net/3/311/2006/bg-3-311-2006.html}
@@ -277,7 +311,11 @@
 
   Huh, W. K., Falvo, J. V., Gerke, L. C., Carroll, A. S., Howson, R. W., Weissman, J. S. and O'Shea, E. K., 2003. Global analysis of protein localization in budding yeast. \emph{Nature}, 425, 686-691. \url{http://dx.doi.org/10.1038/nature02026}
 
+  Ishihama, Y., Schmidt, T., Rappsilber, J., Mann, M., Hartl, F. U., Kerner, M. J. and Frishman, D. Protein abundance profiling of the Escherichia coli cytosol. \emph{BMC Genomics}, 2008, 9. \url{http://dx.doi.org/10.1186/1471-2164-9-102}
+
   Johnson, J. W., Oelkers, E. H. and Helgeson, H. C., 1992. SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\eqn{^{\circ}}{degrees }C. \emph{Comp. Geosci.}, 18, 899-947. \url{http://dx.doi.org/10.1016/0098-3004(92)90029-Q}
+
+  Joint Genome Institute, 2007. Bison Pool Environmental Genome. Protein sequence files downloaded from IMG/M (\url{http://img.jgi.doe.gov/cgi-bin/m/main.cgi?section=FindGenomes&page=findGenomes}) on 2009-05-13.
 
   Privalov, P. L. and Makhatadze, G. I., 1990. Heat capacity of proteins. II. Partial molar heat capacity of the unfolded polypeptide chain of proteins: Protein unfolding effects. \emph{J. Mol. Biol.}, 213, 385-391. \url{http://dx.doi.org/10.1016/S0022-2836(05)80198-6}
 

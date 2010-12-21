@@ -6,7 +6,7 @@
 }
 
 \usage{
-  species(species = NULL, state = NULL, delete = FALSE, quiet = TRUE)
+  species(species = NULL, state = NULL, delete = FALSE, quiet = FALSE)
 }
 
 \arguments{

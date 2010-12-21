@@ -10,7 +10,7 @@
 \usage{
   affinity(..., property=NULL, sout=NULL, do.phases=FALSE,
     return.buffer=FALSE, balance="PBB", quiet=FALSE, 
-    iprotein=NULL, logact.protein=-3)
+    iprotein=NULL, loga.protein=-3)
   energy(what, vars, vals, lims, T=thermo$opt$Tr, P="Psat", IS=0, 
     sout=NULL, do.phases=FALSE, transect = FALSE)
   energy.args(args, quiet = FALSE)
@@ -22,7 +22,7 @@
     \item{return.buffer}{logical. If \code{TRUE}, and a \code{\link{buffer}} has been associated with one or more basis species in the system, return the values of the activities of the basis species calculated using the buffer (it is not necessary in this case to have defined any species of interest). Default is \code{FALSE}.}
     \item{balance}{character. This argument is passed to \code{\link{buffer}} to identify a conserved basis species (or \samp{PBB}) in a chemical activity buffer. Default is \samp{PBB}.}
     \item{iprotein}{numeric, indices of proteins in \code{\link{thermo}$protein} for which to calculate properties.}
-    \item{logact.protein}{numeric, logarithms of activities of proteins identified in \code{iprotein}.}
+    \item{loga.protein}{numeric, logarithms of activities of proteins identified in \code{iprotein}.}
     \item{what}{character, name of property to calculate.}
     \item{vars}{character, names of variables over which to calculate a property.}
     \item{vals}{list of numeric, values for each variable.}
@@ -53,7 +53,7 @@
 
   If proteins are in the species definition (which are distinguished from other species by having an underscore character in the name), and the basis species are charged, and \code{\link{thermo}$opt$ionize} is TRUE, \code{affinity} calls \code{\link{ionize}} to calculate the properties of charged proteins. If one or more buffers are assigned to the definition of \code{\link{basis}} species, \code{affinity} calls \code{\link{buffer}} to calculate the logarithms of activities of these basis species from the buffer.
 
-   The \code{iprotein} and \code{logact.protein} arguments can be used to compute the chemical affinities of formation reactions of proteins that are not in the global \code{\link{species}} definition. This approach takes advantage of the commutative properties of the protein group additivity algorithm (Dick et al., 2006), and can be utilized in order to calculate the properties of many proteins in a fraction of the time it would take to calculate them individually. The appropriate \code{\link{basis}} species still must be defined prior to calling \code{affinity}. The user can give the indices of desired proteins contained in \code{\link{thermo}$protein} and \code{affinity} will automatically add to the species list the amino acid \emph{residues} and protein backbone group then calculate the properties of the reactions for the residues, and add them together to get those of the indicated proteins. The \code{iprotein} option is compatible with calculations for \code{\link{ionize}}d proteins.
+   The \code{iprotein} and \code{loga.protein} arguments can be used to compute the chemical affinities of formation reactions of proteins that are not in the global \code{\link{species}} definition. This approach takes advantage of the commutative properties of the protein group additivity algorithm (Dick et al., 2006), and can be utilized in order to calculate the properties of many proteins in a fraction of the time it would take to calculate them individually. The appropriate \code{\link{basis}} species still must be defined prior to calling \code{affinity}. The user can give the indices of desired proteins contained in \code{\link{thermo}$protein} and \code{affinity} will automatically add to the species list the amino acid \emph{residues} and protein backbone group then calculate the properties of the reactions for the residues, and add them together to get those of the indicated proteins. The \code{iprotein} option is compatible with calculations for \code{\link{ionize}}d proteins.
 
 
   In \pkg{CHNOSZ} version 0.9, \code{energy} gained a new argument \samp{transect} which is set to TRUE by \code{energy.args} when the length(s) of the variables is(are) greater than three. In this mode of operation, instead of performing the calculations on an \eqn{n}{n}-dimensional grid, the affinities are calculated on an \eqn{n}{n}-dimensional transect through chemical potential (possibly including T and/or P) space. 
@@ -102,109 +102,109 @@
   affinity(property="G")
 
   \donttest{
-    ## Activity of glycine as a function of those of
-    ## HCN and formaldehyde (200 C, 300 bar)
-    ## After Schulte and Shock, 1995, Fig. 5
-    # we can define the basis as this:
-    basis(c("formaldehyde","H2O","HCN","O2"))
-    species("glycine")
-    a <- affinity(HCHO=c(-10,-2,9),HCN=c(-18,-2,9),T=200,P=300)
-    # that gave us *affinities* (dimensionless) for logact(glycine)=-3
-    # (the default). we can now find the *activities* that
-    # correspond to affinity=0
-    logact.glycine <- species()$logact + a$values[[1]]
-    # note transposition of the z-value matrix in the following command
-    contour(x=-10:-2,y=seq(-18,-2,by=2),z=t(logact.glycine),
-      xlab=axis.label("HCHO"),ylab=axis.label("HCN"),
-      labcex=1,xaxs="i",yaxs="i")
-    title(main=paste("log activity glycine, after Schulte and Shock, 1995",
-      "200 deg C, 300 bar, logaH2O = 1",sep="\n"))
+  ## Activity of glycine as a function of those of
+  ## HCN and formaldehyde (200 C, 300 bar)
+  ## After Schulte and Shock, 1995, Fig. 5
+  # we can define the basis as this:
+  basis(c("formaldehyde","H2O","HCN","O2"))
+  species("glycine")
+  a <- affinity(HCHO=c(-10,-2,9),HCN=c(-18,-2,9),T=200,P=300)
+  # that gave us *affinities* (dimensionless) for logact(glycine)=-3
+  # (the default). we can now find the *activities* that
+  # correspond to affinity=0
+  logact.glycine <- species()$logact + a$values[[1]]
+  # note transposition of the z-value matrix in the following command
+  contour(x=-10:-2,y=seq(-18,-2,by=2),z=t(logact.glycine),
+    xlab=axis.label("HCHO"),ylab=axis.label("HCN"),
+    labcex=1,xaxs="i",yaxs="i")
+  title(main=paste("log activity glycine, after Schulte and Shock, 1995",
+    "200 deg C, 300 bar, logaH2O = 1",sep="\n"))
 
-    ## amino acid synthesis at low and high temperatures
-    ## after Amend and Shock, 1998
-    # select the basis species and species of interest
-    # and set their activities (first for the 18 degree C case)
-    basis(c("H2O","CO2","NH4+","H2","H+","H2S"),
-      log10(c(1,1e-4,5e-8,2e-9,5e-9,1e-15)))
-    species(c("alanine","argininate","asparagine","aspartate","cysteine",
-      "glutamate","glutamine","glycine","histidine","isoleucine",
-      "leucine","lysinium","methionine","phenylalanine","proline",
-      "serine","threonine","tryptophan","tyrosine","valine"),
-      log10(c(3.9,0.7,1.1,3.3,0.5,3.8,1.0,5.8,1.2,0.7,
-      0.8,1.0,2.8,0.5,0.5,4.6,5.8,0.6,0.9,2.8)/1e9))
-    Tc <- 18
-    T <- convert(Tc,"K")
-    # converting A (dimensionless) to G of reaction (cal/mol) 
-    # is like converting log K to standard G of reaction 
-    AS98.18 <- 
-      convert(convert(as.numeric(affinity(T=Tc)$values),"G",T=T),"J")/1000
-    # the 100 degree C case
-    Tc <- 100
-    T <- convert(Tc,"K")
-    basis(c("H2O","CO2","NH4+","H2","H+","H2S"),
-      log10(c(1,2.2e-3,2.9e-6,3.4e-4,1.9e-6,1.6e-3)))
-    species(1:20,log10(c(2.8e-9,5.0e-10,7.9e-10,2.4e-9,3.6e-10,
-                         2.7e-9,7.2e-10,4.2e-9,8.6e-10,5.0e-10,
-                         5.7e-10,7.2e-10,2.0e-9,3.6e-10,3.6e-10,
-                         3.3e-9,4.2e-9,4.3e-10,6.5e-10,2.0e-9)))
-    AS98.100 <- 
-      convert(convert(as.numeric(affinity(T=Tc)$values),"G",T=T),"J")/1000
-    # the nominal carbon oxidation state
-    Z.C <- ZC(as.character(thermo$obigt$formula[thermo$species$ispecies]))
-    # put them together
-    print(data.frame(T100=AS98.100,T18=AS98.18,Z.C=Z.C))
-    # values not exactly reproducing AS98 - different amino acid parameters
-    # forget species to run next example
-    species(delete=TRUE)
+  ## amino acid synthesis at low and high temperatures
+  ## after Amend and Shock, 1998
+  # select the basis species and species of interest
+  # and set their activities (first for the 18 degree C case)
+  basis(c("H2O","CO2","NH4+","H2","H+","H2S"),
+    log10(c(1,1e-4,5e-8,2e-9,5e-9,1e-15)))
+  species(c("alanine","argininate","asparagine","aspartate","cysteine",
+    "glutamate","glutamine","glycine","histidine","isoleucine",
+    "leucine","lysinium","methionine","phenylalanine","proline",
+    "serine","threonine","tryptophan","tyrosine","valine"),
+    log10(c(3.9,0.7,1.1,3.3,0.5,3.8,1.0,5.8,1.2,0.7,
+    0.8,1.0,2.8,0.5,0.5,4.6,5.8,0.6,0.9,2.8)/1e9))
+  Tc <- 18
+  T <- convert(Tc,"K")
+  # converting A (dimensionless) to G of reaction (cal/mol) 
+  # is like converting log K to standard G of reaction 
+  AS98.18 <- 
+    convert(convert(as.numeric(affinity(T=Tc)$values),"G",T=T),"J")/1000
+  # the 100 degree C case
+  Tc <- 100
+  T <- convert(Tc,"K")
+  basis(c("H2O","CO2","NH4+","H2","H+","H2S"),
+    log10(c(1,2.2e-3,2.9e-6,3.4e-4,1.9e-6,1.6e-3)))
+  species(1:20,log10(c(2.8e-9,5.0e-10,7.9e-10,2.4e-9,3.6e-10,
+                       2.7e-9,7.2e-10,4.2e-9,8.6e-10,5.0e-10,
+                       5.7e-10,7.2e-10,2.0e-9,3.6e-10,3.6e-10,
+                       3.3e-9,4.2e-9,4.3e-10,6.5e-10,2.0e-9)))
+  AS98.100 <- 
+    convert(convert(as.numeric(affinity(T=Tc)$values),"G",T=T),"J")/1000
+  # the nominal carbon oxidation state
+  Z.C <- ZC(as.character(thermo$obigt$formula[thermo$species$ispecies]))
+  # put them together
+  print(data.frame(T100=AS98.100,T18=AS98.18,Z.C=Z.C))
+  # values not exactly reproducing AS98 - different amino acid parameters
+  # forget species to run next example
+  species(delete=TRUE)
 
-    ## affinities of metabolic reactions
-    ## after Amend and Shock, 2001, Fig. 7
-    basis(c("CO2","H2","NH3","O2","H2S","H+"))
-    basis(c("O2","H2"),"aq")   # O2 and H2 were gas
-    species("H2O")
-    doplot <- function(T) {
-      res <- 20
-      a <- affinity(H2=c(-10,0,res),O2=c(-10,0,res),T=T)
-      T.K <- convert(T,"K")   # temperature in Kelvin
-      a <- convert(a$values[[1]],"G",T.K)  # affinities (cal/mol)
-      a <- convert(a,"J")  # affinities (Joule)
-      contour(x=seq(-10,0,length.out=res),
-        y=seq(-10,0,length.out=res),z=t(a/1000),
-        labcex=1,xlab=axis.label("H2"),ylab=axis.label("O2"))
-    }
-    layout(matrix(c(1,1,2,3,4,5),ncol=2,byrow=TRUE),heights=c(1,4,4))
-    T <- c(25,55,100,150)
-    par(mar=c(0,0,0,0))
-    plot.new()
-    text(0.5,0.1,paste(c("H2(aq) + 0.5O2(aq) = H2O(liq)\n\n",
-      "after Amend and Shock, 2001")),cex=2)
-    par(mar=c(3,3,0.5,0.5),cex=1.3,mgp=c(2,1,0))
-    for(i in 1:length(T)) doplot(T[i])
-    # this is so the plots in the next examples show up OK
-    layout(matrix(1))
+  ## affinities of metabolic reactions
+  ## after Amend and Shock, 2001, Fig. 7
+  basis(c("CO2","H2","NH3","O2","H2S","H+"))
+  basis(c("O2","H2"),"aq")   # O2 and H2 were gas
+  species("H2O")
+  doplot <- function(T) {
+    res <- 20
+    a <- affinity(H2=c(-10,0,res),O2=c(-10,0,res),T=T)
+    T.K <- convert(T,"K")   # temperature in Kelvin
+    a <- convert(a$values[[1]],"G",T.K)  # affinities (cal/mol)
+    a <- convert(a,"J")  # affinities (Joule)
+    contour(x=seq(-10,0,length.out=res),
+      y=seq(-10,0,length.out=res),z=t(a/1000),
+      labcex=1,xlab=axis.label("H2"),ylab=axis.label("O2"))
+  }
+  layout(matrix(c(1,1,2,3,4,5),ncol=2,byrow=TRUE),heights=c(1,4,4))
+  T <- c(25,55,100,150)
+  par(mar=c(0,0,0,0))
+  plot.new()
+  text(0.5,0.1,paste(c("H2(aq) + 0.5O2(aq) = H2O(liq)\n\n",
+    "after Amend and Shock, 2001")),cex=2)
+  par(mar=c(3,3,0.5,0.5),cex=1.3,mgp=c(2,1,0))
+  for(i in 1:length(T)) doplot(T[i])
+  # this is so the plots in the next examples show up OK
+  layout(matrix(1))
 
-    ## continuation of last example, affinity calculations 
-    ## in three dimensions
-    print(affinity(H2=c(-10,0,3),O2=c(-10,0,3),T=c(25,150,4))$values)
+  ## continuation of last example, affinity calculations 
+  ## in three dimensions
+  print(affinity(H2=c(-10,0,3),O2=c(-10,0,3),T=c(25,150,4))$values)
 
-    ## calculations on a transect
-    # suppose that temperature and oxygen fugacity
-    # both change in space (say from 1 to 6 meters),
-    # that we have six values for each but want to
-    # interpolate them to make a plot with smooth curves
-    T <- splinefun(1:6,c(0,25,30,40,55,75))(seq(1,5,length.out=100))
-    O2 <- splinefun(1:6,c(-90,-83,-78,-73,-68,-63))(seq(1,5,length.out=100))
-    # what system could this be? 
-    basis("CHNOS+")
-    species(paste("CSG",c("METBU","METVO","METTL","METJA"),sep="_"))
-    # now pass T and O2 to affinity, which because their lengths
-    # are greater than three, treats them like coordinates for a
-    # transect through chemical potential space rather than
-    # the definition of a 2-dimensional grid
-    a <- affinity(T=T,O2=O2)
-    diagram(a,ylim=c(-4,-2))
-    title(main=paste("Computed abundances of surface-layer proteins",
-      "as a function of T and logfO2",sep="\n"))
+  ## calculations on a transect
+  # suppose that temperature and oxygen fugacity
+  # both change in space (say from 1 to 6 meters),
+  # that we have six values for each but want to
+  # interpolate them to make a plot with smooth curves
+  T <- splinefun(1:6,c(0,25,30,40,55,75))(seq(1,5,length.out=100))
+  O2 <- splinefun(1:6,c(-90,-83,-78,-73,-68,-63))(seq(1,5,length.out=100))
+  # what system could this be? 
+  basis("CHNOS+")
+  species(paste("CSG",c("METBU","METVO","METTL","METJA"),sep="_"))
+  # now pass T and O2 to affinity, which because their lengths
+  # are greater than three, treats them like coordinates for a
+  # transect through chemical potential space rather than
+  # the definition of a 2-dimensional grid
+  a <- affinity(T=T,O2=O2)
+  diagram(a,ylim=c(-4,-2))
+  title(main=paste("Computed abundances of surface-layer proteins",
+    "as a function of T and logfO2",sep="\n"))
   }
   
 }

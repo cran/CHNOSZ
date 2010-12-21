@@ -1,6 +1,6 @@
 # CHNOSZ/buffer.R
-# Copyright (C) 2006-2007 Jeffrey M. Dick
 # Calculate chemical activities of buffered species
+# 20061102 jmd
 
 mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
   # 20071102 add or change a buffer system
@@ -53,7 +53,6 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
 }
 
 buffer <- function(logK=NULL,ibasis=NULL,logact.basis=NULL,is.buffer=NULL,balance='PBB') {
-  # 20061102 jmd
   # if logK is NULL load the buffer species
   # otherwise perform buffer calculations.
   if(is.null(logK)) {

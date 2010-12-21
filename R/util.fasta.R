@@ -9,20 +9,17 @@ is.fasta <- function(file) {
   if(length(grep("^>",l)) == 0) return(FALSE) else return(TRUE)
 }
 
-grep.file <- function(file,x="",y=NULL,ignore.case=TRUE,startswith=">",lines=NULL,grep="grep") {
+grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lines=NULL,grep="grep") {
   # return the line numbers of the file that contain
   # the search term x and optionally don't contain y
-  # use the system's grep if available and y is NULL
-  # TODO: better test for system (include eg MacOSX etc)
-  if(is.null(y) & Sys.info()[[1]]=="Linux" & is.null(lines)) {
-    if(is.null(startswith)) startswith <- "" else startswith <- paste("^",startswith,".*",sep="")
-    if(ignore.case) ic <- "-i" else ic <- ""
+  sysgrep <- function(i) {
     # 20091021 changed grep to egrep
-    sysexp <- paste(grep,' -n ',ic,' "',startswith,x,'" "',file,'" | cut -f 1 -d ":"',sep="")
+    sysexp <- paste(grep,' -n ',ic,' "',startswith,pattern[i],'" "',file,'" | cut -f 1 -d ":"',sep="")
     ix <- as.integer(system(sysexp,intern=TRUE))
-  } else {
-    if(is.null(lines)) lines <- readLines(file)
-    ix <- grep(x,lines,ignore.case=ignore.case)
+    return(ix)
+  }
+  Rgrep <- function(i) {
+    ix <- grep(pattern[i],lines,ignore.case=ignore.case)
     if(!is.null(y)) {
       iy <- grep(y,lines,ignore.case=ignore.case)
       ix <- ix[!ix %in% iy] 
@@ -31,11 +28,26 @@ grep.file <- function(file,x="",y=NULL,ignore.case=TRUE,startswith=">",lines=NUL
       ihead <- which(substr(lines,1,1)==startswith)
       ix <- ix[ix %in% ihead]
     }
+    return(ix)
   }
-  return(ix)
+  # use the system's grep if available and y is NULL
+  # TODO: include other *nix
+  if(is.null(y) & Sys.info()[[1]]=="Linux" & is.null(lines)) {
+    # use the system grep
+    if(is.null(startswith)) startswith <- "" else startswith <- paste("^",startswith,".*",sep="")
+    if(ignore.case) ic <- "-i" else ic <- ""
+    out <- mylapply(1:length(pattern),sysgrep)
+  } else {
+    # use R grep
+    if(is.null(lines)) lines <- readLines(file)
+    out <- mylapply(1:length(pattern),Rgrep)
+  }
+  # make numeric (NA for ones that aren't matched)
+  out <- as.numeric(sapply(out,as.numeric))
+  return(as.numeric(out))
 }
 
-read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL) {
+read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE) {
   # read sequences from a fasta file
   # all of them or only those indicated by i
   # if aa=TRUE compile a data frame of the amino acid
@@ -47,6 +59,7 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL) {
   # aa: amino acid composition (same columns as thermo$protein)
   # seq: amino acid sequence
   # fas: fasta entry
+  # pnff: take the protein name from filename (TRUE) or entry name (FALSE)
   is.nix <- Sys.info()[[1]]=="Linux"
   if(is.nix & is.null(lines)) {
     nlines <- as.integer(system(paste('grep -c "**" "',file,'"',sep=""),intern=TRUE))
@@ -81,16 +94,44 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL) {
   }
   seqfun <- function(i) paste(linefun(start[i],end[i]),collapse="")
   sequences <- mylapply(1:length(i), seqfun)
-  nomfun <- function(j) {
-    firstword <- strsplit(linefun(i[j],i[j]), " ")[[1]][1]
-    substr(firstword, 2, nchar(firstword))
+  # process the header line for each entry
+  # (strip the ">" and go to the first space or underscore)
+  nomfun <- function(befund) {
+    nomnomfun <- function(j,pnff) {
+      # get the text of the line
+      f1 <- linefun(i[j],i[j])
+      # stop if the first character is not ">"
+      # or the first two charaters are "> "
+      if(substr(f1,1,1)!=">" | length(grep("^> ",f1)>0))
+        stop(paste("file",basename(file),"line",j,"doesn't begin with FASTA header '>'."))
+      # discard the leading '>'
+      f2 <- substr(f1, 2, nchar(f1))
+      # keep everything before the first space
+      f3 <- strsplit(f2," ")[[1]][1]
+      # then before or after the first underscore
+      if(befund) f4 <- strsplit(f3,"_")[[1]][1]
+      else f4 <- strsplit(f3,"_")[[1]][2]
+      return(f4)
+    }
+    noms <- as.character(mylapply(1:length(i),nomnomfun))
+    return(noms)
   }
-  nomseq <- mylapply(1:length(i),nomfun) 
+  # process the file name
+  # (basename minus extension)
+  bnf <- strsplit(basename(file),split=".",fixed=TRUE)[[1]][1]
+  if(pnff) {
+    # protein name is from file name
+    # organism name is from entry
+    protein <- bnf
+    organism <- nomfun(befund=FALSE)
+  } else {
+    # vice versa
+    protein <- nomfun(befund=TRUE)
+    organism <- bnf
+  }
   if(ret=="count") {
     aa <- aminoacids(sequences)
     colnames(aa) <- aminoacids(nchar=3)
-    protein <- as.character(nomseq)
-    organism <- s2c(file,sep=".",keep.sep=FALSE)[1]
     source <- abbrv <- NA
     chains <- 1
     # 20090507 made stringsAsFactors FALSE

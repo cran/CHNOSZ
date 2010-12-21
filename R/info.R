@@ -1,9 +1,8 @@
 # CHNOSZ/info.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # search information and thermodynamic properties of species
 # 20061024 extraced from species.R jmd
 
-info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE) {
+info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE,check=FALSE) {
   # file argument: where to cat the messages about inconsistencies among
   # GHS, and between eos parameters and Cp, V ('' for console)
 
@@ -11,26 +10,38 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
   # and eos/Cp/V values and also makes things run faster
   #if(missing(quiet)) if(sys.nframe()>1) quiet <- TRUE
 
-  # if species is missing, run a consistency check for each species,
+  # if check=TRUE, run a consistency check for each species,
   # returning a nice table at the end ...
-  missing.species <- FALSE
-  if(missing(species)) {
-    missing.species <- TRUE
-    species <- 1:nrow(thermo$obigt)
-    cat(paste('info: checking consistency of parameters for',length(species),'species.\n'))
-    #for(i in 1:nrow(thermo$obigt)) {
-    #  if(i %% 10 == 0) cat(paste(i,'\n'),file=file,append=TRUE)
-    #  t <- info(i)
-    #}
+  if(check) {
+    if(missing(species)) species <- 1:nrow(thermo$obigt)
+    cat(paste('info: checking consistency of parameters for',length(species),'species\n'))
+    if(file != "") cat(paste('info: saving output to file',file,'\n'))
+    else cat("info: this will take a while...\n")
+  } else {
+    if(missing(species)) {
+      # a friendly summary of thermodynamic information? 20101129
+      cat("info: species is NULL; summarizing information about thermo data object...\n")
+      cat(paste("thermo$obigt has",nrow(thermo$obigt[thermo$obigt$state=="aq",]),"aqueous,",
+        nrow(thermo$obigt),"total species\n"))
+      cat(paste("number of literature sources:",nrow(thermo$source),", available elements:",
+        nrow(thermo$element),", buffers:",length(unique(thermo$buffer$name)),"\n"))
+      cat(paste("number of proteins in thermo$protein is",nrow(thermo$protein),"from",
+        length(unique(thermo$protein$organism)),"organisms\n"))
+      cat(paste("number of proteins from complete genomes:",nrow(thermo$ECO),"(ECO),",
+        nrow(thermo$HUM),"(HUM),",nrow(thermo$SGD),"(SGD)\n"))
+      cat(paste("thermo$yeastgfp has",nrow(thermo$yeastgfp),"localizations and",
+        length(thermo$yeastgfp$abundance[!is.na(thermo$yeastgfp$abundance)]),"abundances\n"))
+    }
   }
 
   # show license or release notes
-  if(identical(species,'license') | identical(species,'licence') | identical(species,'copying')) {
-    licensefile <- file.path(system.file(package="CHNOSZ"), "COPYING")
-    file.show(licensefile)
-    return()
+  if(identical(tolower(species),'license') | identical(tolower(species),'licence') | 
+    identical(tolower(species),'copying')) {
+      licensefile <- file.path(system.file(package="CHNOSZ"), "COPYING")
+      file.show(licensefile)
+      return()
   }
-  if(identical(species,'CHNOSZ') | identical(species,'news')) {
+  if(identical(tolower(species),'chnosz') | identical(tolower(species),'news')) {
     newsfile <- file.path(system.file(package="CHNOSZ"), "NEWS")
     file.show(newsfile)
     return()
@@ -340,7 +351,7 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
           if(!quiet) cat(paste('info: G of',myghs$name[i],myghs$state[i],'is NA!!! (maybe a missing element?)\n'),file=file,append=TRUE)
         }
       }
-      if(missing.species) {
+      if(check) {
         if(!(is.na(dCp)&is.na(dV)&is.na(dG)) ) {
           Dname <- c(Dname,as.character(myghs$name[i]))
           Dstate <- c(Dstate,as.character(myghs$state[i]))
@@ -356,7 +367,7 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
       cat('info: the species are in aqueous and other states\n')
       colnames(myghs)[13:20] <- colnames(thermo$obigt)[13:20]
     }
-    if(missing.species | all(is.na(myghs))) {
+    if(check | all(is.na(myghs))) {
       # for some reason, DCp likes to become list. make it numeric
       DCp <- as.numeric(DCp)
       t <- data.frame(ispecies=Di,name=Dname,state=Dstate,DCp=DCp,DV=DV,DG=DG)

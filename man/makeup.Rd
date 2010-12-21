@@ -87,7 +87,7 @@
   makeup("NH4Z")
   # constitution of the electron
   makeup(info("e-"))
-  # this produce an INcorrect makeup for the electron, 
+  # this produce an incorrect makeup for the electron, 
   # and gives a warning because "e" is not in the
   # table of elements.
   makeup("e-")

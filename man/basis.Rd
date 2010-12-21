@@ -6,7 +6,8 @@
 }
 
 \usage{
-  basis(basis = NULL, values = NULL, values2=NULL, delete = FALSE)
+  basis(basis = NULL, values = NULL, values2=NULL, delete = FALSE, 
+    quiet = FALSE)
 }
 
 \arguments{
@@ -14,6 +15,7 @@
   \item{values}{character or numeric, physical states or names of buffers, or logarithms of activities or fugacities.}
   \item{values2}{character or numeric, physical states, or logarithms of activities or fugacities.}
   \item{delete}{logical, delete the current basis species definition?}
+  \item{quiet}{logical, suppress printing the basis definition?}
 }
 
 \details{

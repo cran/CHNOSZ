@@ -1,5 +1,4 @@
 # CHNOSZ/util.array.R
-# Copyright (C) 2010 Jeffrey M. Dick
 # functions to work on multidimensional arrays
 # 20100314 jmd
 
@@ -14,8 +13,7 @@ list2array <- function(l) {
   # the total size of the output array
   nt <- prod(c(ni,n))
   # lapply is fast, but is just returns another list
-  # and sapply (and unlist) is slow, presumably because it 
-  # doesn't do any preallocation
+  # and sapply (and unlist) is slow
   #arr <- sapply(l,as.numeric)
   arr <- numeric(nt)
   # enter values into the vector
@@ -26,14 +24,19 @@ list2array <- function(l) {
 }
 
 slice <- function(arr,d=NULL,i=1,value=NULL) {
-  # extract/assign values from/to the ith slice(s) in the dth dimension of an array
-  # build an expression used to index the array
+  # extract/assign values from/to the ith slice(s) 
+  # in the dth dimension of an array
   mydim <- dim(arr)
   nd <- length(mydim) 
-  expr <- rep("",nd)
+  # build an expression used to index the array 20101031
+  prefix <- paste(rep(",",d-1),collapse="")
+  suffix <- paste(rep(",",nd-d),collapse="")
   # the ith slices of the dth dimension
-  expr[d] <- "i"
-  expr <- c2s(expr,sep=",")
+  expr <- paste(prefix,deparse(i),suffix,sep="")
+  # the old (maybe slower) way
+  #expr <- rep("",nd)
+  #expr[d] <- "i"
+  #expr <- c2s(expr,sep=",")
   if(is.null(value)) {
     expr <- paste("arr[",expr,"]",sep="")
     return(eval(parse(text=expr)))

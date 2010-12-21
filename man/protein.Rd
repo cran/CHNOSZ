@@ -72,6 +72,7 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
   # thermodynamic properties can be calculated with subcrt()
   subcrt("LYSC_CHICK")				
 
+  \donttest{
   ### Table of properties of some proteins
   basis("CHNOS+")
   species(c("LYSC_CHICK","CYC_BOVIN","MYG_HORSE","RNAS1_BOVIN"))
@@ -126,69 +127,68 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
 
   ### Metastability calculations
 
-  \donttest{
-    ## subcellular homologs of yeast glutaredoxin
-    ## as a function of logfO2 - logaH2O, after Dick, 2009
-    basis("CHNOS+")
-    protein <- c("GLRX1","GLRX2","GLRX3","GLRX4","GLRX5")
-    loc <- c("(C)","(M)","(N)","(N)","(M)")
-    species(protein,"YEAST")
-    t <- affinity(H2O=c(-10,0),O2=c(-85,-60))
-    diagram(t,names=paste(protein,loc))
-    title(main=paste("Yeast glutaredoxins (black) and residues (blue)\n",
-      describe(thermo$basis[-c(2,5),])))
-    # note the difference when we set as.residue=TRUE to
-    # plot stability fields for the residue equivalents of the
-    # proteins instead of the proteins themselves ...
-    # the residue equivalent for one of the larger proteins appears
-    diagram(t,names=paste(protein,loc),as.residue=TRUE,
-      add=TRUE,col="blue")
+  ## subcellular homologs of yeast glutaredoxin
+  ## as a function of logfO2 - logaH2O, after Dick, 2009
+  basis("CHNOS+")
+  protein <- c("GLRX1","GLRX2","GLRX3","GLRX4","GLRX5")
+  loc <- c("(C)","(M)","(N)","(N)","(M)")
+  species(protein,"YEAST")
+  t <- affinity(H2O=c(-10,0),O2=c(-85,-60))
+  diagram(t,names=paste(protein,loc))
+  title(main=paste("Yeast glutaredoxins (black) and residues (blue)\n",
+    describe(thermo$basis[-c(2,5),])))
+  # note the difference when we set as.residue=TRUE to
+  # plot stability fields for the residue equivalents of the
+  # proteins instead of the proteins themselves ...
+  # the residue equivalent for one of the larger proteins appears
+  diagram(t,names=paste(protein,loc),as.residue=TRUE,
+    add=TRUE,col="blue")
 
-    ## surface-layer proteins from Methanococcus and others:
-    ## a speciation diagram for surface layer proteins
-    ## as a function of oxygen fugacity after Dick, 2008
-    # make our protein list
-    organisms <- c("METSC","METJA","METFE","HALJP","METVO",
-      "METBU","ACEKI","BACST","BACLI","AERSA")
-    proteins <- c(rep("CSG",6),rep("SLAP",4))
-    proteins <- paste(proteins,organisms,sep="_")
-    # set some graphical parameters
-    lwd <- c(rep(3,6),rep(1,4))
-    lty <- c(1:6,1:4)
-    # load the basis species and proteins
-    basis("CHNOS+")
-    species(proteins)
-    # calculate affinities
-    a <- affinity(O2=c(-100,-65))
-    # make diagram
-    d <- diagram(a,ylim=c(-5,-1),legend.x=NULL,lwd=lwd,
-      ylab=as.expression(quote(log~italic(a[j]))),yline=1.7)
-    # label diagram
-    text(-80,-1.9,"METJA")
-    text(-74.5,-1.9,"METVO")
-    text(-69,-1.9,"HALJP")
-    text(-78,-2.85,"METBU",cex=0.8,srt=-22)
-    text(-79,-3.15,"ACEKI",cex=0.8,srt=-25)
-    text(-81,-3.3,"METSC",cex=0.8,srt=-25)
-    text(-87,-3.1,"METFE",cex=0.8,srt=-17)
-    text(-79,-4.3,"BACST",cex=0.8)
-    text(-85.5,-4.7,"AERSA",cex=0.8,srt=38)
-    text(-87,-4.25,"BACLI",cex=0.8,srt=30)
-    # add water line
-    abline(v=-83.1,lty=2)
-    title(main=paste("Surface-layer proteins",
-      "After Dick, 2008",sep="\n"))
+  ## surface-layer proteins from Methanococcus and others:
+  ## a speciation diagram for surface layer proteins
+  ## as a function of oxygen fugacity after Dick, 2008
+  # make our protein list
+  organisms <- c("METSC","METJA","METFE","HALJP","METVO",
+    "METBU","ACEKI","BACST","BACLI","AERSA")
+  proteins <- c(rep("CSG",6),rep("SLAP",4))
+  proteins <- paste(proteins,organisms,sep="_")
+  # set some graphical parameters
+  lwd <- c(rep(3,6),rep(1,4))
+  lty <- c(1:6,1:4)
+  # load the basis species and proteins
+  basis("CHNOS+")
+  species(proteins)
+  # calculate affinities
+  a <- affinity(O2=c(-100,-65))
+  # make diagram
+  d <- diagram(a,ylim=c(-5,-1),legend.x=NULL,lwd=lwd,
+    ylab=as.expression(quote(log~italic(a[j]))),yline=1.7)
+  # label diagram
+  text(-80,-1.9,"METJA")
+  text(-74.5,-1.9,"METVO")
+  text(-69,-1.9,"HALJP")
+  text(-78,-2.85,"METBU",cex=0.8,srt=-22)
+  text(-79,-3.15,"ACEKI",cex=0.8,srt=-25)
+  text(-81,-3.3,"METSC",cex=0.8,srt=-25)
+  text(-87,-3.1,"METFE",cex=0.8,srt=-17)
+  text(-79,-4.3,"BACST",cex=0.8)
+  text(-85.5,-4.7,"AERSA",cex=0.8,srt=38)
+  text(-87,-4.25,"BACLI",cex=0.8,srt=30)
+  # add water line
+  abline(v=-83.1,lty=2)
+  title(main=paste("Surface-layer proteins",
+    "After Dick, 2008",sep="\n"))
 
-    ## relative metastabilities of bovine proteins, 
-    ## as a function of temperature along a glutathione redox buffer
-    mod.buffer("GSH-GSSG",c("GSH","GSSG"),logact=c(-3,-7))   
-    basis(c("CO2","H2O","NH4+","SO4-2","H2","H+"),
-      c(-1,0,-4,-4,"GSH-GSSG",-7)) 
-    basis("CO2","gas")
-    species(c("CYC","RNAS1","BPT1","ALBU","INS","PRIO"),"BOVIN")
-    a <- affinity(T=c(0,200))
-    diagram(a,as.residue=TRUE,ylim=c(-2,0.5))
-    title(main="Bovine proteins")
+  ## relative metastabilities of bovine proteins, 
+  ## as a function of temperature along a glutathione redox buffer
+  mod.buffer("GSH-GSSG",c("GSH","GSSG"),logact=c(-3,-7))   
+  basis(c("CO2","H2O","NH4+","SO4-2","H2","H+"),
+    c(-1,0,-4,-4,"GSH-GSSG",-7)) 
+  basis("CO2","gas")
+  species(c("CYC","RNAS1","BPT1","ALBU","INS","PRIO"),"BOVIN")
+  a <- affinity(T=c(0,200))
+  diagram(a,as.residue=TRUE,ylim=c(-2,0.5))
+  title(main="Relative metastabilities of bovine proteins")
   }
 }
 

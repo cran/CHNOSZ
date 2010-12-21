@@ -70,8 +70,16 @@ psum <- function(x) {
 mylapply <- function(X,FUN,...) {
   # wrapper to run lapply or mclapply
   if(length(X) > 20) {
-    if("multicore" %in% (.packages())) do.call("mclapply",list(X,FUN,...))
-    else lapply(X,FUN,...)
-  } else lapply(X,FUN,...)
+    if("multicore" %in% (.packages())) {
+      # tell the user the number of iterations and the name of the calling function
+      cn <- caller.name()
+      if(length(cn)==0) ntext <- "..." else ntext <- paste("called by",cn,"...")
+      if(thermo$opt$verbose) cat("mylapply:",length(X),"calculations using multicore",ntext)
+      out <- do.call("mclapply",list(X,FUN,...))
+      if(thermo$opt$verbose) cat("done!\n")
+    }
+    else out <- lapply(X,FUN,...)
+  } else out <- lapply(X,FUN,...)
+  return(out)
 }
 

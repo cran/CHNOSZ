@@ -8,11 +8,11 @@
 \alias{basis.comp}
 \alias{nonideal}
 \alias{which.balance}
-\alias{spearman}
 \alias{unitize}
+\alias{caller.name}
 \title{Miscellaneous Utility Functions}
 \description{
-  Calculate \eqn{dP/dT}{dP/dT} and temperature of phase transitions, calculate heat capacities of unfolded proteins using an equation from the literature, calculate non-ideal contributions to apparent standard molal properties, identify a conserved basis species, execute multicore calculations, calculate Spearman's rank correlation coefficient, scale logarithms of activity to a desired total activity.
+  Calculate \eqn{dP/dT}{dP/dT} and temperature of phase transitions, calculate heat capacities of unfolded proteins using an equation from the literature, calculate non-ideal contributions to apparent standard molal properties, identify a conserved basis species, execute multicore calculations, scale logarithms of activity to a desired total activity, get name of calling function.
 }
 
 \usage{
@@ -25,8 +25,8 @@
   basis.comp(basis)
   nonideal(species, proptable, IS, T)
   which.balance(species)
-  spearman(a, b)
   unitize(logact = NULL, length = NULL, logact.tot = 0)
+  caller.name(n)
 }
 
 \arguments{
@@ -42,11 +42,10 @@
   \item{species}{Names or indices of species for which to calculate nonideal properties (\code{nonideal}), or dataframe, species definition such as that in \code{\link{thermo}$species} (\code{which.balance}).}
   \item{proptable}{list of dataframes of species properties.}
   \item{IS}{numeric, ionic strength(s) used in nonideal calculations, mol kg\eqn{^{-1}}{^-1}.}
-  \item{a}{numeric values.}
-  \item{b}{numeric values.}
   \item{logact}{numeric, logarithms of activity.}
   \item{length}{numeric, numbers of residues.}
   \item{logact.tot}{numeric, logarithm of total activity.}
+  \item{n}{numeric, number of frame to go up.}
 }
 
 \details{
@@ -69,8 +68,7 @@
 
   \code{unitize} scales the logarithms of activities given in \code{logact} so that the logarithm of total activity of residues is equal to zero (i.e. total activity of residues is one), or to some other value set in \code{logact.tot}.  \code{length} indicates the number of residues in each species. If \code{logact} is NULL, the function takes the logarithms of activities from the current species definition. If any of those species are proteins, the function gets their lengths using \code{protein.length}.
 
-
-
+  \code{caller.name} returns the name of the calling function \code{n} frames up (i.e., for \code{n} equal to 2, the caller of the function that calls this one). If called interactively, returns character().
 }
 
 \value{
@@ -86,10 +84,6 @@
 
 \examples{
   \dontshow{data(thermo)}
-  ## Spearman's rho
-  spearman(c(1,2,3),c(2,3,4))  # 1
-  spearman(c(1,2,3),c(4,3,2))  # -1
-
   ## calculate protein length
   protein.length("LYSC_CHICK")
   # another way to do it

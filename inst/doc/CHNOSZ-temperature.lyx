@@ -1,0 +1,4412 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass literate-article
+\begin_preamble
+%\VignetteIndexEntry{3 - Growth temperature and relative stabilities of proteins}
+
+% note: this is not compatible with multicore; with multicore
+% loaded the PDF files of the images are damaged
+\end_preamble
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman lmodern
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize letterpaper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine natbib_numerical
+\use_bibtopic false
+\paperorientation portrait
+\branch 0D
+\selected 1
+\color #000000
+\end_branch
+\branch 1D
+\selected 1
+\color #000000
+\end_branch
+\branch 2D
+\selected 1
+\color #000000
+\end_branch
+\branch 3D
+\selected 1
+\color #000000
+\end_branch
+\branch 4D
+\selected 1
+\color #000000
+\end_branch
+\branch 5D
+\selected 1
+\color #000000
+\end_branch
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Growth temperature and relative stabilities of proteins
+\end_layout
+
+\begin_layout Author
+Jeffrey M.
+ Dick
+\end_layout
+
+\begin_layout Abstract
+This vignette demonstrates an analysis of the relative stabilities of 24
+ carboxylases from model organisms that grow optimally at different temperatures.
+ In the chemical thermodynamic model, changes in both temperature and oxidation
+ potential influence the relative stabilities of the proteins with an overall
+ progression that fits with the growth temperatures of the organisms.
+ The calculations supporting this study are presented using a series of
+ equilibrium activity diagrams constructed using CHNOSZ.
+ First, equilibrium activity diagrams as a function of either temperature
+ or 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ (at constant values of the other variable) show that both variables contribute
+ significantly to the relative stabilities of the proteins.
+ Second, an equilibrium predominance diagram is used to formulate an expression
+ for 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ as a function of temperature that crosses the protein stability fields
+ in order of increasing growth temperature of the organism.
+ Third, equilibrium activity and chemical species richness diagrams based
+ on this function show pattern that mirrors the natural growth temperature
+ of the organism.
+ The final piece of code produces an animated series of rank-abundance diagrams
+ for the proteins as both temperature and 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ are increased.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<options,echo=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+options(width=80,continue=" ")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+The motivation for this set of calculations is to explore how differences
+ in the chemical stabilities of proteins might underlie adaptation of organisms
+ to a range of environments that vary in temperature and chemical characteristic
+s.
+ The approach we take is to perform chemical thermodynamic calculations
+ of the relative stabilities of proteins from different organisms.
+ These calculations are carried out using the CHNOSZ package 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08"
+
+\end_inset
+
+ for the R software environment 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "RDCT"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+A collection of model organisms and proteins is listed in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:carboxylase"
+
+\end_inset
+
+.
+ The organisms listed in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:carboxylase"
+
+\end_inset
+
+ were chosen because the represent a cross-section of mesophilic and thermophili
+c organisms.
+ This list was inspired by recognizing the great diversity of organisms
+ reported in Yellowstone hot springs (see references in the table), but
+ it also contains organisms from soils, ocean and submarine hot spring environme
+nts.
+ Where possible, literature reference that identify types of organisms found
+ in Yellowstone National Park are listed, as are references giving the optimal
+ growth temperatures of the model organisms.
+\end_layout
+
+\begin_layout Standard
+Carboxylases were identified as the model proteins in part because they
+ are found in a wide range organisms and their sequences are often available,
+ even for those organisms which have not whole genomes available.
+ Homologs of the enzyme ribulose biphosphate carboxylase (RuBisCo) have
+ been shown to be useful in exploring evolutionary relationships of organisms
+ that have this enzyme 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Ray05,ABR+06,WRW+09"
+
+\end_inset
+
+.
+ Homologs of both RuBisCo and acetyl-coenzyme A carboxylase (AcCoACo is
+ the abbreviation used here) are listed in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:carboxylase"
+
+\end_inset
+
+.
+ The AcCoACo homologs were included in order to expand the range of organisms
+ considered here.
+\end_layout
+
+\begin_layout Standard
+For each protein family there are twelve organisms listed in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:carboxylase"
+
+\end_inset
+
+, in approximate order of increasing optimal growth temperature.
+ For the purposes of the calculations described below, the first six proteins
+ in each group are classified as coming from low-temperature environments,
+ and the last six as coming from high-temperature environments.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:carboxylase"
+
+\end_inset
+
+Model organisms and identities of model carboxylases used in this study.
+ The protein IDs are those used in the SWISS-PROT/UNIPROT database 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "BBA+03"
+
+\end_inset
+
+; if the ID is a SWISS-PROT name the accession number is given in parentheses.
+ Abbreviations: A -- archaea; B -- bacteria; E -- eukarya; 
+\begin_inset Formula $T_{\mathrm{opt}}$
+\end_inset
+
+ -- optimal growth temperature.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="27" columns="6">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A/B/E
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Organism
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $T_{\mathrm{opt}}$
+\end_inset
+
+, 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ID
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Formula
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Length
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Ribulose bisphosphate carboxylase (large subunit except *)
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+\begin_inset Formula $\alpha$
+\end_inset
+
+-proteobacterium 
+\emph default
+(
+\emph on
+B.
+ japonicum
+\emph default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+25
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+RBL_BRAJA (Q9ZI34)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2403}H_{3735}N_{663}O_{702}S_{21}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+486
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\beta$
+\end_inset
+
+- 
+\emph on
+proteobacterium 
+\emph default
+(
+\emph on
+T.
+ denitrificans
+\emph default
+) 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "FB72"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+28-32 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "KW00"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ A6YF84_9PROT (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1061}H_{1670}N_{312}O_{299}S_{11}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+213
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+E
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Bracteacoccus giganteus 
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "NC06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+--
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A1E8R4_9CHLO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1325}H_{2091}N_{383}O_{379}S_{14}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+269
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Mycobacterium
+\emph default
+ sp.
+ DSM 3803 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "WSP05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+--
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A8C9T6_9MYCO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2344}H_{3614}N_{640}O_{690}S_{19}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+476
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Leptospirillum 
+\emph default
+sp.
+ Group II UBA 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "WSP05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\sim$
+\end_inset
+
+37
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A3EQE1_9BACT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1901}H_{3060}N_{530}O_{543}S_{23}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+392
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Cyanobium
+\emph default
+ sp.
+ PCC 7009 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "NC06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\sim$
+\end_inset
+
+45
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A5CKC7_9CHRO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2345}H_{3606}N_{646}O_{687}S_{19}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+470
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Cyanobacterium
+\emph default
+ (
+\emph on
+Synechococcus
+\emph default
+)
+\emph on
+ 
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "ABR+06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+50 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "ABR+06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+RBL_SYNJA (Q2JV67)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2366}H_{3652}N_{650}O_{683}S_{21}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+474
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+E
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Cyanidiales
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FB72,WSP05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+50--55 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "CYP+04"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Q6JAIO_9RHOD
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2029}H_{3169}N_{551}O_{575}S_{16}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+405
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Methanococcus jannaschii 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+85 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "JLM+83"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+RBL_METJA (Q58632) (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2151}H_{3412}N_{574}O_{627}S_{16}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+425
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Staphylothermus marinus
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "MSA05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+85--92 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Ste96,FSJ+86"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A3DND9_STAMF
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2264}H_{3529}N_{603}O_{633}S_{13}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+443
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Thermofilum pendens 
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "MSA05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+85--90 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Ste96"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A1RZJ5_THEPD
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2215}H_{3468}N_{598}O_{630}S_{13}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+443
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Pyrococcus horokoshii 
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "MSA05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+98 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "GMR+98"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+RBL_PYRHO (O58677) (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2179}H_{3409}N_{587}O_{615}S_{18}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+430
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Acetyl-coenzyme A carboxylase (* carboxyl transferase subunit alpha)
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\gamma$
+\end_inset
+
+-
+\emph on
+proteobacterium
+\emph default
+ EBAC31A08 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FBS+03,SWM+05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+--
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Q9F7M8_PRB01
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2222}H_{3505}N_{607}O_{675}S_{19}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+447
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Deinococcus radiodurans
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+25--30 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "McD01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ACCA_DEIRA (Q9RV16) (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1494}H_{2419}N_{453}O_{455}S_{8}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+316
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Planctomyces maris
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FBS+03"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+30 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "BS76"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A6CDM2_9PLAN
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1611}H_{2578}N_{436}O_{477}S_{13}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+322
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Actinobacterium
+\emph default
+ PHSC20C1
+\emph on
+ 
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "WSP05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\sim$
+\end_inset
+
+30 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Lee07"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A4AGS7_9ACTN
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{3108}H_{4983}N_{889}O_{981}S_{19}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+675
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+\begin_inset Formula $\alpha$
+\end_inset
+
+-proteobacterium 
+\emph default
+(
+\emph on
+C.
+ crescentus
+\emph default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ACCA_CAUCR (Q9A448) (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1517}H_{2440}N_{450}O_{464}S_{11}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+320
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+\begin_inset Formula $\delta$
+\end_inset
+
+-proteobacterium 
+\emph default
+(
+\emph on
+D.
+ vulgaris
+\emph default
+) 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FBS+03"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+37 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "LFF+06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A1VC70_DESVV
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{3761}H_{5876}N_{1084}O_{1085}S_{29}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+751
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Methanococcus maripaludis
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+35--40 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "JPG83"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A6VIX9_METM7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2443}H_{3887}N_{659}O_{729}S_{17}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+494
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Cyanobacterium 
+\emph default
+(
+\emph on
+Synechococcus
+\emph default
+) 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "ABR+06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+50 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "ABR+06"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Q2JSS7_SYNJA (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1608}H_{2590}N_{464}O_{478}S_{9}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+327
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Chloroflexus aggregans
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FBS+03"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+55 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "HHS+95"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A0GZU2_9CHLR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2831}H_{4515}N_{821}O_{827}S_{17}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+590
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Hydrogenobaculum 
+\emph default
+sp.
+ Y04AAS1
+\emph on
+ 
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "SWM+05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+58 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FLB+07"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+A7WGI1_9AQUI
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2360}H_{3732}N_{622}O_{702}S_{13}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+472
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Hydrogenobacter thermophilus
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "SWM+05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+70--75 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "KIK+84"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Q05KD0_HYDTH
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{2218}H_{3568}N_{612}O_{641}S_{19}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+444
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\emph on
+Aquifex aeolicus
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "SWM+05"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+85 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "HWH+92"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ACCA_AQUAE (O67260) (*)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mathrm{C_{1635}H_{2616}N_{440}O_{457}S_{14}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+323
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Code
+\end_layout
+
+\begin_layout Standard
+Load CHNOSZ.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<libraryCHNOSZ>>=
+\end_layout
+
+\begin_layout Scrap
+library(CHNOSZ)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Put the names of the model proteins in the variables 
+\family typewriter
+rubisco
+\family default
+ and 
+\family typewriter
+accoaco
+\family default
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<proteins>>=
+\end_layout
+
+\begin_layout Scrap
+# ribulose phosphate carboxylase
+\end_layout
+
+\begin_layout Scrap
+# in order of increasing growth temperature
+\end_layout
+
+\begin_layout Scrap
+rubisco <- c("RBL_BRAJA","A6YF84_9PROT","A1E8R4_9CHLO","A8C9T6_9MYCO","A3EQE1_9B
+ACT","A5CKC7_9CHRO",
+\end_layout
+
+\begin_layout Scrap
+  "RBL_SYNJA","Q6JAI0_9RHOD","RBL_METJA","A3DND9_STAMF","A1RZJ5_THEPD","RBL_PYRH
+O")
+\end_layout
+
+\begin_layout Scrap
+rubisco.organisms <- c("a-proteobacterium-R","b-proteobacterium","Bracteacoccus",
+"Mycobacterium",
+\end_layout
+
+\begin_layout Scrap
+  "Leptospirillum","Cyanobium","Synechococcus","Cyanidiales",
+\end_layout
+
+\begin_layout Scrap
+  "Methanococcus-R","Desulfurococcus","Thermofilum","Pyrococcus")
+\end_layout
+
+\begin_layout Scrap
+accoaco <- c("Q9F7M8_PRB01","ACCA_DEIRA","A6CDM2_9PLAN","A4AGS7_9ACTN","ACCA_CAU
+CR","A1VC70_DESVV",
+\end_layout
+
+\begin_layout Scrap
+  "A6VIX9_METM7","Q2JSS7_SYNJA","A0GZU2_9CHLR","A7WGI1_9AQUI","Q05KD0_HYDTH","AC
+CA_AQUAE")
+\end_layout
+
+\begin_layout Scrap
+accoaco.organisms <- c("g-proteobacterium","Deinococcus","Planctomyces","Actinoba
+cterium",
+\end_layout
+
+\begin_layout Scrap
+  "a-proteobacterium-A","d-proteobacterium","Methanococcus-A","Synechococcus",
+\end_layout
+
+\begin_layout Scrap
+  "Chloroflexus","Hydrogenobaculum","Hydrogenobacter","Aquifex")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Set up the basis species.
+ The activities of basis species (except for 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+, which is specified in the calculations below) are set to 
+\begin_inset Formula $\log a_{\mathrm{H_{2}O}}=0$
+\end_inset
+
+, 
+\begin_inset Formula $\log a_{\mathrm{CO_{2}}}=-3$
+\end_inset
+
+, 
+\begin_inset Formula $\log a_{\mathrm{NH_{3}}}=-4$
+\end_inset
+
+, 
+\begin_inset Formula $\log a_{\mathrm{H_{2}S}}=-7$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{pH}=7$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<basis>>=
+\end_layout
+
+\begin_layout Scrap
+basis(c("CO2","H2O","NH3","H2","H2S","H+"),
+\end_layout
+
+\begin_layout Scrap
+  c("aq","liq","aq","aq","aq","aq"),c(-3,0,-4,-6,-7,-7))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Define a function for 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ as a function of temperature.
+ This is the same function used in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<getlogaH2>>=
+\end_layout
+
+\begin_layout Scrap
+get.logaH2 <- function(T) return(-11+T*3/40)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Write a function, named 
+\family typewriter
+plot.it
+\family default
+, to make the equilibrium activity diagrams, making use of the 
+\family typewriter
+affinity
+\family default
+ and 
+\family typewriter
+diagram
+\family default
+ functions in CHNOSZ.
+ The function contains additional code for coloring the lines, adding legends
+ to plots, and shading a rectangular area of the plot.
+ 
+\family typewriter
+plot.it
+\family default
+ also returns the result of the 
+\family typewriter
+diagram
+\family default
+ function (the calculated equilibrium activities of the proteins) for use
+ in further calculations.
+ Instead of printing out the entire function here, only the argument list
+ is shown.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<plot.it,echo=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+# function to make various equilibrium activity diagrams
+\end_layout
+
+\begin_layout Scrap
+# for the carboxylases
+\end_layout
+
+\begin_layout Scrap
+plot.it <- function(vars='H2',lims=c(-15,0),
+\end_layout
+
+\begin_layout Scrap
+  do.plot=TRUE,dolegend=NULL,ylim=c(-6,-2),
+\end_layout
+
+\begin_layout Scrap
+  rect=NULL,drawme=c("rubisco","accoaco")) {
+\end_layout
+
+\begin_layout Scrap
+  proteins <- c('rubisco','accoaco')
+\end_layout
+
+\begin_layout Scrap
+  r.p <- get(proteins[1])
+\end_layout
+
+\begin_layout Scrap
+  a.p <- get(proteins[2])
+\end_layout
+
+\begin_layout Scrap
+  my.p <- list(r.p,a.p)
+\end_layout
+
+\begin_layout Scrap
+  species(c(r.p,a.p))
+\end_layout
+
+\begin_layout Scrap
+  if(is.list(lims)) myargs <- lims else myargs <- list(lims)
+\end_layout
+
+\begin_layout Scrap
+  names(myargs) <- vars
+\end_layout
+
+\begin_layout Scrap
+  a <- do.call(affinity,myargs)
+\end_layout
+
+\begin_layout Scrap
+  # colors: reds for thermo, blue for meso
+\end_layout
+
+\begin_layout Scrap
+  r.cols <- c(rep("blue",6),rep("red",6))
+\end_layout
+
+\begin_layout Scrap
+  r.lty <- rep(3,12)
+\end_layout
+
+\begin_layout Scrap
+  r.lwd <- rep(2,length(r.p))
+\end_layout
+
+\begin_layout Scrap
+  a.cols <- c(rep("blue",6),rep("red",6))
+\end_layout
+
+\begin_layout Scrap
+  a.lty <- rep(1,12)
+\end_layout
+
+\begin_layout Scrap
+  a.lwd <- rep(2,length(a.p))
+\end_layout
+
+\begin_layout Scrap
+  if(!"rubisco" %in% drawme) r.lty <- rep(0,length(r.p))
+\end_layout
+
+\begin_layout Scrap
+  if(!"accoaco" %in% drawme) {
+\end_layout
+
+\begin_layout Scrap
+    r.lty <- a.lty
+\end_layout
+
+\begin_layout Scrap
+    a.lty <- rep(0,length(a.p))
+\end_layout
+
+\begin_layout Scrap
+  }
+\end_layout
+
+\begin_layout Scrap
+  my.cols <- list(r.cols,a.cols)
+\end_layout
+
+\begin_layout Scrap
+  my.lty <- list(r.lty,a.lty)
+\end_layout
+
+\begin_layout Scrap
+  my.lwd <- list(r.lwd,a.lwd)
+\end_layout
+
+\begin_layout Scrap
+  # setup the plot
+\end_layout
+
+\begin_layout Scrap
+  if(do.plot) {
+\end_layout
+
+\begin_layout Scrap
+    # leave the top y-axis open if we are plotting as a 
+\end_layout
+
+\begin_layout Scrap
+    # function of two variables
+\end_layout
+
+\begin_layout Scrap
+    if(length(vars)==1) {
+\end_layout
+
+\begin_layout Scrap
+      side <- 1:4
+\end_layout
+
+\begin_layout Scrap
+      xline <- 1
+\end_layout
+
+\begin_layout Scrap
+    } else {
+\end_layout
+
+\begin_layout Scrap
+      side <- c(1,2,4)
+\end_layout
+
+\begin_layout Scrap
+      xline <- 2.5
+\end_layout
+
+\begin_layout Scrap
+    }     
+\end_layout
+
+\begin_layout Scrap
+    thermo.plot.new(xlim=range(myargs[[1]]),ylim=ylim,
+\end_layout
+
+\begin_layout Scrap
+      xlab=axis.label(vars[1]),ylab=expression(log~italic(a)),
+\end_layout
+
+\begin_layout Scrap
+      yline=2,mar=c(2.5,3,xline,1),side=side)
+\end_layout
+
+\begin_layout Scrap
+    if(!is.null(rect)) rect(rect[1],rect[2],rect[3],rect[4],col="grey80",border=N
+A)
+\end_layout
+
+\begin_layout Scrap
+  }
+\end_layout
+
+\begin_layout Scrap
+  # calculate equilibrium activities
+\end_layout
+
+\begin_layout Scrap
+  # use unit total activity of amino acid residue
+\end_layout
+
+\begin_layout Scrap
+  d <- diagram(a,residue=TRUE,col=c(r.cols,a.cols),lty=c(r.lty,a.lty),
+\end_layout
+
+\begin_layout Scrap
+    legend.x=NULL,do.plot=do.plot,cex=2,lwd=c(r.lwd,a.lwd),
+\end_layout
+
+\begin_layout Scrap
+    mam=FALSE,add=TRUE,logact=0)
+\end_layout
+
+\begin_layout Scrap
+  # legends and possibly second y-axis
+\end_layout
+
+\begin_layout Scrap
+  if(do.plot) {
+\end_layout
+
+\begin_layout Scrap
+    if(!is.null(dolegend)) {
+\end_layout
+
+\begin_layout Scrap
+      if(length(dolegend)==2) {
+\end_layout
+
+\begin_layout Scrap
+        which.p <- match(dolegend[1],proteins)
+\end_layout
+
+\begin_layout Scrap
+        legend('topleft',legend=c(dolegend[1],my.p[[which.p]]),
+\end_layout
+
+\begin_layout Scrap
+          lty=c(NA,my.lty[[which.p]]),col=c(NA,my.cols[[which.p]]),
+\end_layout
+
+\begin_layout Scrap
+          lwd=c(NA,my.lwd[[which.p]]),cex=0.6,bg='white')
+\end_layout
+
+\begin_layout Scrap
+      }
+\end_layout
+
+\begin_layout Scrap
+      ld <- length(dolegend)
+\end_layout
+
+\begin_layout Scrap
+      which.p <- match(dolegend[ld],proteins)
+\end_layout
+
+\begin_layout Scrap
+      legend('topright',legend=c(dolegend[ld],my.p[[which.p]]),
+\end_layout
+
+\begin_layout Scrap
+        lty=c(NA,my.lty[[which.p]]),col=c(NA,my.cols[[which.p]]),
+\end_layout
+
+\begin_layout Scrap
+        lwd=c(NA,my.lwd[[which.p]]),cex=0.6,bg='white')
+\end_layout
+
+\begin_layout Scrap
+    }
+\end_layout
+
+\begin_layout Scrap
+    # add a second y-axis
+\end_layout
+
+\begin_layout Scrap
+    #if(length(vars)==2) secondaxis(vars[2],range(lims[[2]]))
+\end_layout
+
+\begin_layout Scrap
+  }
+\end_layout
+
+\begin_layout Scrap
+  return(invisible(list(a=a,d=d)))
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<plot.it.args>>=
+\end_layout
+
+\begin_layout Scrap
+print(args(plot.it))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Define the limits of temperature and 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ that we will use on the plots.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<limits>>=
+\end_layout
+
+\begin_layout Scrap
+Tlim <- c(0,140)
+\end_layout
+
+\begin_layout Scrap
+H2lim <- c(-10,-2)
+\end_layout
+
+\begin_layout Scrap
+Tval <- seq(Tlim[1],Tlim[2],length.out=128)
+\end_layout
+
+\begin_layout Scrap
+H2val <- seq(H2lim[1],H2lim[2],length.out=128)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Identify the low- and high-temperature model organisms.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status collapsed
+
+\begin_layout Scrap
+<<itemp>>=
+\end_layout
+
+\begin_layout Scrap
+ilowT <- c(1:6,13:18)
+\end_layout
+
+\begin_layout Scrap
+ihighT <- c(7:12,19:24)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Define the chemical activity cutoff for counting chemical species richness.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 0D
+status open
+
+\begin_layout Scrap
+<<loga.ref>>=
+\end_layout
+
+\begin_layout Scrap
+loga.ref <- -5
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:1"
+
+\end_inset
+
+Changing a single variable
+\end_layout
+
+\begin_layout Standard
+Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:1"
+
+\end_inset
+
+a shows the metastable equilibrium activities of the proteins as a function
+ of temperature at 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}=-6$
+\end_inset
+
+, and Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:1"
+
+\end_inset
+
+b shows the metastable equilibrium activities of the proteins as a function
+ of 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ at 
+\begin_inset Formula $T=25$
+\end_inset
+
+ 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C.
+ The calculations were carried out for unit total activity of amino acid
+ residues.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%% change figure width
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 1D
+status collapsed
+
+\begin_layout Scrap
+<<carboxylase1,fig=T,results=hide>>=
+\end_layout
+
+\begin_layout Scrap
+# Figure 1: relative abundances and richness f(T,logaH2)
+\end_layout
+
+\begin_layout Scrap
+par(mfrow=c(1,2))
+\end_layout
+
+\begin_layout Scrap
+par(cex=1,lwd=1,mar=c(2.5,3,1,1))
+\end_layout
+
+\begin_layout Scrap
+# Figure 1a: relative abundances as a function of temperature
+\end_layout
+
+\begin_layout Scrap
+Tout <- plot.it('T',Tlim,dolegend='accoaco',rect=c(Tlim[1],-6,Tlim[2],loga.ref))
+\end_layout
+
+\begin_layout Scrap
+label.plot('a',xfrac=0.1)
+\end_layout
+
+\begin_layout Scrap
+# Figure 1b: relative abundances as a function of logaH2
+\end_layout
+
+\begin_layout Scrap
+H2out <- plot.it('H2',H2lim,dolegend='rubisco',rect=c(H2lim[1],-6,H2lim[2],loga.re
+f))
+\end_layout
+
+\begin_layout Scrap
+label.plot('b',xfrac=0.1)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The figures each have all 24 proteins.
+ The legend is split between the two panes, with AcCoACo listed on the left
+ (solid lines) and RuBisCO on the right (dotted lines).
+ The colors of the lines indicate the growth temperatures of the organisms
+ taken from Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:carboxylase"
+
+\end_inset
+
+.
+ The two figures are approximately mirror images of each other; increasing
+ 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ at constant temperature (right) has a similar effect as decreasing temperature
+ at constant 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ (left).
+ According to the figures, either of these changes tends to stabilize the
+ proteins from the organisms adapted to growth at high temperature; that
+ is, there are more red lines higher on the diagram at either low temperature
+ or high 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:2"
+
+\end_inset
+
+Counting species
+\end_layout
+
+\begin_layout Standard
+If we count the numbers of red and blue lines that are above the shaded
+ area in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:1"
+
+\end_inset
+
+, we get the diagrams shown in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:2"
+
+\end_inset
+
+.
+ These figures, constructed using the 
+\family typewriter
+revisit
+\family default
+ function in CHNOSZ, show predicted richness, i.e.
+ counts of chemical species whose activities are above a certain value (
+\begin_inset Formula $-3.4$
+\end_inset
+
+ in this case).
+ The red line, which indicates the sum of proteins from organisms adapted
+ to growth at high temperature, moves to higher values at low temperature
+ and/or high 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 2D
+status collapsed
+
+\begin_layout Scrap
+<<carboxylase2,fig=T,results=hide>>=
+\end_layout
+
+\begin_layout Scrap
+# Figure 2: richness plot as a function of temperature
+\end_layout
+
+\begin_layout Scrap
+par(mfrow=c(1,2))
+\end_layout
+
+\begin_layout Scrap
+par(cex=1,lwd=1,mar=c(2.5,3,1,1))
+\end_layout
+
+\begin_layout Scrap
+revisit(Tout$d,"richness",loga.ref=loga.ref,yline=2,plot.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+revisit(Tout$d,"richness",loga.ref=loga.ref,ispecies=ilowT,col="blue",add=TRUE,plo
+t.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+revisit(Tout$d,"richness",loga.ref=loga.ref,ispecies=ihighT,col="red",add=TRUE,plo
+t.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+label.plot("a",xfrac=0.1)
+\end_layout
+
+\begin_layout Scrap
+# Figure 2b: richness plot as a function of logaH2
+\end_layout
+
+\begin_layout Scrap
+revisit(H2out$d,"richness",loga.ref=loga.ref,yline=2,plot.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+revisit(H2out$d,"richness",loga.ref=loga.ref,ispecies=ilowT,col="blue",add=TRUE,pl
+ot.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+revisit(H2out$d,"richness",loga.ref=loga.ref,ispecies=ihighT,col="red",add=TRUE,pl
+ot.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+label.plot("b",xfrac=0.1)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If you're like me, you wonder why low temperatures apparently favor formation
+ of the proteins from no-so-hot organisms.
+ Conversely, high 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ apparently favors the hot organisms, which might make sense if hot environments
+ are also relatively reducing.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:3"
+
+\end_inset
+
+As a function of two variables
+\end_layout
+
+\begin_layout Standard
+Let's look at what happens when we vary temperature and 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ independently.
+ The following diagram is an equilibrium predominance diagram with all 24
+ proteins as candidates; only a few most stable proteins appear (they correspond
+ to the highest lines in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:1"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%% change figure width
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=0.6
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 3D
+status collapsed
+
+\begin_layout Scrap
+<<carboxylase3,fig=T,results=hide>>=
+\end_layout
+
+\begin_layout Scrap
+# Figure 3: logaH2-T protein stability diagram 
+\end_layout
+
+\begin_layout Scrap
+par(cex=1.5,lwd=1.5)
+\end_layout
+
+\begin_layout Scrap
+# first get the logaH2 values
+\end_layout
+
+\begin_layout Scrap
+logaH2.line <- get.logaH2(Tval)
+\end_layout
+
+\begin_layout Scrap
+# calculate affinities; proteins were loaded previously
+\end_layout
+
+\begin_layout Scrap
+a <- affinity(T=Tlim,H2=H2lim)
+\end_layout
+
+\begin_layout Scrap
+# plot the protein stabilities
+\end_layout
+
+\begin_layout Scrap
+col <- rep(c(rep("blue",6),rep("red",6)),2)
+\end_layout
+
+\begin_layout Scrap
+diagram(a,residue=TRUE,col.names=col,color=NULL)
+\end_layout
+
+\begin_layout Scrap
+# as well as water reduction line, taking fH2=Psat
+\end_layout
+
+\begin_layout Scrap
+s <- subcrt(c("H2","H2"),c("gas","aq"),c(-1,1),T=Tval)
+\end_layout
+
+\begin_layout Scrap
+logaH2 <- s$out$logK + log10(s$out$P)
+\end_layout
+
+\begin_layout Scrap
+lines(Tval,logaH2,lwd=4,lty=2,col="forestgreen")
+\end_layout
+
+\begin_layout Scrap
+# and show our logaH2 function
+\end_layout
+
+\begin_layout Scrap
+lines(Tval,logaH2.line,lwd=4,lty=3,col="forestgreen")
+\end_layout
+
+\begin_layout Scrap
+legend("bottomright",legend=c("H2O reduction","logaH2 = -11 + T*3/40"),
+\end_layout
+
+\begin_layout Scrap
+  lty=c(2,3),lwd=3,col="forestgreen")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The color code used for the protein names is the same as above: red for
+ organisms from higher temperatures (the last six organisms in each part
+ of Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:carboxylase"
+
+\end_inset
+
+) and blue for the others.
+ The dashed green line indicates the reduction stability limit of 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+, i.e.
+ the value of 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ taken from
+\begin_inset Formula \[
+\mathrm{H_{2}}_{\left(g\right)}\rightleftarrows\mathrm{H_{2}}_{\left(aq\right)}\,,\]
+
+\end_inset
+
+using 
+\begin_inset Formula $\log f_{\mathrm{H_{2}}_{\left(g\right)}}=1$
+\end_inset
+
+ below 100 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C and 
+\begin_inset Formula $\log f_{\mathrm{H_{2}}_{\left(g\right)}}=P_{\mathrm{sat}}$
+\end_inset
+
+, or pressure of vapor-liquid equilibrium of 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+, at or above 100 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C.
+ The dotted green line is a hypothetical trajectory of 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ given by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\log a_{\mathrm{H_{2}}}=-11+T*3/40\,.\]
+
+\end_inset
+
+This equation is simply a proposal for a line cutting across the predominance
+ diagram that lands in the low-temperature-protein fields at low temperatures
+ and the high-temperature-protein fields at high temperatures.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:4"
+
+\end_inset
+
+Along the temperature-oxidation trajectory
+\end_layout
+
+\begin_layout Standard
+Now let's make a chemical activity diagram showing the equilibrium activities
+ of the proteins when temperature and 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ are varied simultaneously according to the equation above.
+ This ends up using the provision in 
+\family typewriter
+affinity
+\family default
+ for specifying arbitrary increments of variables.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+%% change figure width
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=0.9
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 4D
+status collapsed
+
+\begin_layout Scrap
+<<carboxylase4,fig=T,results=hide>>=
+\end_layout
+
+\begin_layout Scrap
+    # Figure 4: relative abundances with logaH2 as linear f(T)
+\end_layout
+
+\begin_layout Scrap
+    par(mfrow=c(2,1))
+\end_layout
+
+\begin_layout Scrap
+    # Figure 3a: relative abundances with logaH2 as linear f(T)
+\end_layout
+
+\begin_layout Scrap
+    mylogaH2 <- get.logaH2(Tval)
+\end_layout
+
+\begin_layout Scrap
+    out <- plot.it(c("T","H2"),list(Tval,mylogaH2),rect=c(Tlim[1],-6,Tlim[2],loga.
+ref))
+\end_layout
+
+\begin_layout Scrap
+    label.plot("a",xfrac=0.1)
+\end_layout
+
+\begin_layout Scrap
+    # Figure 3b: richness with linear logaH2
+\end_layout
+
+\begin_layout Scrap
+    revisit(out$d,"richness",loga.ref=loga.ref,yline=2,side=c(1,2,4),plot.ext=FALSE
+)
+\end_layout
+
+\begin_layout Scrap
+    revisit(out$d,"richness",loga.ref=loga.ref,ispecies=ilowT,
+\end_layout
+
+\begin_layout Scrap
+      col="blue",add=TRUE,plot.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+    revisit(out$d,"richness",loga.ref=loga.ref,ispecies=ihighT,
+\end_layout
+
+\begin_layout Scrap
+      col="red",add=TRUE,plot.ext=FALSE)
+\end_layout
+
+\begin_layout Scrap
+    label.plot("b",xfrac=0.1)
+\end_layout
+
+\begin_layout Scrap
+    # to plot a second x-axis  
+\end_layout
+
+\begin_layout Scrap
+    usr <- par('usr')
+\end_layout
+
+\begin_layout Scrap
+    usr[1:2] <- range(mylogaH2)
+\end_layout
+
+\begin_layout Scrap
+    opar <- par(usr=usr)
+\end_layout
+
+\begin_layout Scrap
+    thermo.axis(axis.label("H2"),side=3,line=par("mgp")[1],cex=par("cex"))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now, we see that higher temperatures coupled with higher values of 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ stabilize the proteins from organisms adapted to growth at higher temperatures.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:5"
+
+\end_inset
+
+Toward species abundance distributions
+\end_layout
+
+\begin_layout Standard
+Another way of portraying the chemical activities shown in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:4"
+
+\end_inset
+
+ above is with a rank-activity diagram.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 5D
+status collapsed
+
+\begin_layout Scrap
+<<plot.rank,echo=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+plot.rank <- function(T=25,ntop=5,pretext=NULL,lcex=1) {
+\end_layout
+
+\begin_layout Scrap
+  proteins <- c('rubisco','accoaco')
+\end_layout
+
+\begin_layout Scrap
+  organisms <- c(rubisco.organisms,accoaco.organisms)
+\end_layout
+
+\begin_layout Scrap
+  # new scheme 20090611: red for hot, blue for cold
+\end_layout
+
+\begin_layout Scrap
+  # open for rubisco, filled for accoaco
+\end_layout
+
+\begin_layout Scrap
+  col <- rep(c(rep("blue",6),rep("red",6)),2)
+\end_layout
+
+\begin_layout Scrap
+  pch <- c(rep(c(0:2,5:7),2),rep(c(15:20),2))
+\end_layout
+
+\begin_layout Scrap
+  H2 <- get.logaH2(T)
+\end_layout
+
+\begin_layout Scrap
+  if(length(T)==1) {
+\end_layout
+
+\begin_layout Scrap
+    basis("H2",H2)
+\end_layout
+
+\begin_layout Scrap
+    a <- affinity(T=T)
+\end_layout
+
+\begin_layout Scrap
+  } else a <- affinity(T=T,H2=H2)
+\end_layout
+
+\begin_layout Scrap
+  d <- diagram(a,residue=TRUE,legend.x=NULL,ylim=c(-6,-2),do.plot=FALSE)
+\end_layout
+
+\begin_layout Scrap
+  # for each point make a rank plot
+\end_layout
+
+\begin_layout Scrap
+  rank <- 1:length(d$logact)
+\end_layout
+
+\begin_layout Scrap
+  # put some lead-in and lead-out frames
+\end_layout
+
+\begin_layout Scrap
+  res <- length(T)
+\end_layout
+
+\begin_layout Scrap
+  ido <- c(rep(1,15),1:res,rep(res,20))
+\end_layout
+
+\begin_layout Scrap
+  if(res==1) ido <- 1
+\end_layout
+
+\begin_layout Scrap
+  for(i in ido) {
+\end_layout
+
+\begin_layout Scrap
+    loga <- numeric()
+\end_layout
+
+\begin_layout Scrap
+    for(j in 1:length(d$logact)) loga <- c(loga,d$logact[[j]][i])
+\end_layout
+
+\begin_layout Scrap
+    if(i > 4) myrank4 <- myrank3
+\end_layout
+
+\begin_layout Scrap
+    if(i > 3) myrank3 <- myrank2
+\end_layout
+
+\begin_layout Scrap
+    if(i > 2) myrank2 <- myrank1
+\end_layout
+
+\begin_layout Scrap
+    if(i > 1) myrank1 <- myrank
+\end_layout
+
+\begin_layout Scrap
+    order <- order(loga,decreasing=TRUE)
+\end_layout
+
+\begin_layout Scrap
+    myrank <- rank(loga)
+\end_layout
+
+\begin_layout Scrap
+    cex <- rep(1.2,24)
+\end_layout
+
+\begin_layout Scrap
+    # show changed by increasing point size
+\end_layout
+
+\begin_layout Scrap
+    # any points that changed on the step before the step 
+\end_layout
+
+\begin_layout Scrap
+    # before the step before?
+\end_layout
+
+\begin_layout Scrap
+    if(i > 4) {
+\end_layout
+
+\begin_layout Scrap
+      ichanged <- myrank3 != myrank4
+\end_layout
+
+\begin_layout Scrap
+      cex[ichanged[order]] <- cex[ichanged[order]] + 0.1
+\end_layout
+
+\begin_layout Scrap
+    }
+\end_layout
+
+\begin_layout Scrap
+    # any points that changed on the step before the step before?
+\end_layout
+
+\begin_layout Scrap
+    if(i > 3) {
+\end_layout
+
+\begin_layout Scrap
+      ichanged <- myrank2 != myrank3
+\end_layout
+
+\begin_layout Scrap
+      cex[ichanged[order]] <- cex[ichanged[order]] + 0.2
+\end_layout
+
+\begin_layout Scrap
+    }
+\end_layout
+
+\begin_layout Scrap
+   # any points that changed on the step before?
+\end_layout
+
+\begin_layout Scrap
+    if(i > 2) {
+\end_layout
+
+\begin_layout Scrap
+      ichanged <- myrank1 != myrank2
+\end_layout
+
+\begin_layout Scrap
+      cex[ichanged[order]] <- cex[ichanged[order]] + 0.3
+\end_layout
+
+\begin_layout Scrap
+    }
+\end_layout
+
+\begin_layout Scrap
+    # any points that changed on this step?
+\end_layout
+
+\begin_layout Scrap
+    if(i > 1) {
+\end_layout
+
+\begin_layout Scrap
+      ichanged <- myrank != myrank1
+\end_layout
+
+\begin_layout Scrap
+      cex[ichanged[order]] <- cex[ichanged[order]] + 0.4
+\end_layout
+
+\begin_layout Scrap
+    }
+\end_layout
+
+\begin_layout Scrap
+    plot(rank,loga[order],col=col[order],pch=pch[order],
+\end_layout
+
+\begin_layout Scrap
+      ylab=expression(log~italic(a)),cex=cex,cex.main=1,cex.lab=1,cex.axis=1)
+\end_layout
+
+\begin_layout Scrap
+    myT <- format(round(T,1))[i]
+\end_layout
+
+\begin_layout Scrap
+    myH2 <- format(round(H2,2))[i]
+\end_layout
+
+\begin_layout Scrap
+    if(!is.null(pretext)) title(main=substitute(list(Z~X~degree*C,
+\end_layout
+
+\begin_layout Scrap
+      log*italic(a)[paste(H2)]==Y),list(X=myT,Y=myH2,Z=pretext)))
+\end_layout
+
+\begin_layout Scrap
+    else title(main=substitute(list(X~degree*C, log*italic(a)[paste(H2)]==Y),
+\end_layout
+
+\begin_layout Scrap
+      list(X=myT,Y=myH2)))
+\end_layout
+
+\begin_layout Scrap
+    legend("topright",legend=c(paste("top",ntop),organisms[order[1:ntop]]),
+\end_layout
+
+\begin_layout Scrap
+      pch=c(NA,pch[order[1:ntop]]),col=c(NA,col[order[1:ntop]]),
+\end_layout
+
+\begin_layout Scrap
+      pt.cex=c(NA,cex[1:ntop]),cex=lcex)
+\end_layout
+
+\begin_layout Scrap
+    order <- order(loga)
+\end_layout
+
+\begin_layout Scrap
+    legend("bottomleft",legend=c(paste("low",ntop),organisms[order[ntop:1]]),
+\end_layout
+
+\begin_layout Scrap
+      pch=c(NA,pch[order[ntop:1]]),col=c(NA,col[order[ntop:1]]),
+\end_layout
+
+\begin_layout Scrap
+      pt.cex=c(NA,cex[24:(24-ntop+1)]),cex=lcex)
+\end_layout
+
+\begin_layout Scrap
+  }
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+%% change figure width
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=0.5
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 5D
+status collapsed
+
+\begin_layout Scrap
+<<carboxylase5,fig=T,results=hide>>=
+\end_layout
+
+\begin_layout Scrap
+plot.rank(T=25)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The open symbols represent RuBisCo and the closed symbols AcCoACo.
+ Note that the proteins with the highest activity in this figure are the
+ same as those with the highest activities at 
+\begin_inset Formula $T=25$
+\end_inset
+
+ 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:4"
+
+\end_inset
+
+.
+ Next up are the 100 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C results.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 5D
+status collapsed
+
+\begin_layout Scrap
+<<carboxylase6,fig=T,results=hide>>=
+\end_layout
+
+\begin_layout Scrap
+plot.rank(T=100)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Going from low to high temperature (along with the associated changes in
+ 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+) there is clearly a major shift in the structure of the metastable assemblage
+ of proteins.
+ Not only do the most dominant (in metastable equilibrium) proteins change,
+ but the overall shape goes from something that resembles a lognormal distributi
+on to one that is more even.
+\end_layout
+
+\begin_layout Standard
+The plotting was actually done using a function defined here called 
+\family typewriter
+plot.rank
+\family default
+.
+ The function is too long to print out here, so check it out in the Sweave
+ source for this vignette.
+ The function might seem long and intimidating, but a lot of it is there
+ to add the title and legends and to deal with sequences of plots (i.e., increasin
+g the point sizes for proteins that changed rank in the previous few frames).
+ For example, the following bit of code produces a bunch of png files along
+ a temperature/
+\begin_inset Formula $\log a_{\mathrm{H_{2}}}$
+\end_inset
+
+ profile.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch 5D
+status open
+
+\begin_layout Scrap
+<<makepng,eval=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+png(filename="Rplot%03d.png",width=420,height=320)
+\end_layout
+
+\begin_layout Scrap
+plot.rank(T=25:125,lcex=0.8)
+\end_layout
+
+\begin_layout Scrap
+dev.off()
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The png files can be converted to an animated GIF using the ImageMagick
+ (
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://imagemagick.org
+\end_layout
+
+\end_inset
+
+) 
+\family typewriter
+convert
+\family default
+ program (e.g., 
+\family typewriter
+convert -loop 0 -delay 15 Rplot*.png movie.gif
+\family default
+).
+ A movie produced using this method (
+\family typewriter
+carboxylase.gif
+\family default
+) is available online at the CHNOSZ website (
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://chnosz.net/vignettes
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\begin_layout Standard
+The calculations described above summarize a simple chemical thermodynamic
+ model that uses protein reactions to study the adaptation of organisms
+ to different growth temperatures.
+ Using the parameters in the model, changing temperature alone produces
+ results that do not align with the actual growth temperatures of organisms.
+ When a temperature-dependent value of oxidation potential (expressed as
+ activity of dissolved hydrogen) is imposed on the system, the predicted
+ stabilities of the proteins fit better with the growth temperatures of
+ the organisms.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "vig"
+options "plainnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

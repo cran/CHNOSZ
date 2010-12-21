@@ -71,7 +71,29 @@
   affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
   # change the activity of species in the buffer
   mod.buffer("AC",logact=-10)
-  affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
+  a.buffer <- affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
+  # equivalently, can solve for the logact of a 
+  # basis species using the 'what' argument of diagram
+  basis("CO2",999)
+  species("acetic acid",-3)
+  a <- affinity(O2=c(-85,-70,4),T=c(25,100,4))
+  # hacking to write a title with formulas and subscripts
+  lCO2 <- axis.label("CO2",as.expression=FALSE)
+  lAC <- species.label("CH3COOH",as.expression=FALSE)
+  main <- substitute(a~~b~~c,list(a=lCO2,b="buffered by",
+    c="acetic acid"))
+  d <- diagram(a,what="CO2",main=main)
+  species(1,-10)
+  a <- affinity(O2=c(-85,-70,4),T=c(25,100,4))
+  d <- diagram(a,what="CO2",add=TRUE,lty=2)
+  # add a legend
+  ltext <- c(axis.label("CH3COOH",state="aq"),-3,-10)
+  lty <- c(NA,1,2)
+  legend("topright",legend=ltext,lty=lty,bg="white")
+  # did return.buffer and diagram(what) give the same results?
+  ana <- as.numeric(unlist(a.buffer[[1]]))
+  and <- as.numeric(d$logact[[1]])
+  stopifnot(all.equal(ana,and))
 
   ## show values of logfO2 on an Eh-pH diagram
   ## After Garrels, 1960, Figure 6
@@ -101,87 +123,87 @@
     "25 degC and 1 bar. After Garrels, 1960"))
   
   \donttest{
-    ## buffer of two species
-    # conditions for metastable equilibrium among 
-    # CO2 and acetic acid. note their starting activities:
-    print(mod.buffer("CO2-AC")) 
-    basis("CHNOS")
-    basis("O2","CO2-AC")
-    affinity(return.buffer=TRUE)  # logfO2 = -75.94248
-    basis("CO2",123)  # what the buffer reactions are balanced on
-    affinity(return.buffer=TRUE)  # unchanged
-    # consider more oxidizing conditions
-    mod.buffer("CO2-AC",logact=c(0,-10))
-    affinity(return.buffer=TRUE)
-    
-    ## buffers of three species
-    ## Pyrite-Pyrrhotite-Magnetite (PPM)
-    # specify basis species and initial activities
-    basis(c("FeS2","H2S","O2","H2O"),c(0,-10,-50,0))
-    # note that the affinity of formation of pyrite,
-    # which corresponds to FeS2 in the basis, is zero
-    species(c("pyrite","pyrrhotite","magnetite"))
-    affinity(T=c(200,400,11),P=2000)$values
-    # attach basis species H2S and O2 to the PPM buffer
-    basis(c("FeS2","H2S","O2","H2O"),c(0,"PPM","PPM",0))
-    # inspect values of H2S activity and O2 fugacity
-    affinity(T=c(200,400,11),P=2000,return.buffer=TRUE)
-    # now, the affinities of formation reactions of 
-    # species in the buffer are all equal to zero
-    print(a <- affinity(T=c(200,400,11),P=2000)$values)
-    for(i in 1:length(a)) stopifnot(isTRUE(
-      all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
+  ## buffer of two species
+  # conditions for metastable equilibrium among 
+  # CO2 and acetic acid. note their starting activities:
+  print(mod.buffer("CO2-AC")) 
+  basis("CHNOS")
+  basis("O2","CO2-AC")
+  affinity(return.buffer=TRUE)  # logfO2 = -75.94248
+  basis("CO2",123)  # what the buffer reactions are balanced on
+  affinity(return.buffer=TRUE)  # unchanged
+  # consider more oxidizing conditions
+  mod.buffer("CO2-AC",logact=c(0,-10))
+  affinity(return.buffer=TRUE)
+  
+  ## buffers of three species
+  ## Pyrite-Pyrrhotite-Magnetite (PPM)
+  # specify basis species and initial activities
+  basis(c("FeS2","H2S","O2","H2O"),c(0,-10,-50,0))
+  # note that the affinity of formation of pyrite,
+  # which corresponds to FeS2 in the basis, is zero
+  species(c("pyrite","pyrrhotite","magnetite"))
+  affinity(T=c(200,400,11),P=2000)$values
+  # attach basis species H2S and O2 to the PPM buffer
+  basis(c("FeS2","H2S","O2","H2O"),c(0,"PPM","PPM",0))
+  # inspect values of H2S activity and O2 fugacity
+  affinity(T=c(200,400,11),P=2000,return.buffer=TRUE)
+  # now, the affinities of formation reactions of 
+  # species in the buffer are all equal to zero
+  print(a <- affinity(T=c(200,400,11),P=2000)$values)
+  for(i in 1:length(a)) stopifnot(isTRUE(
+    all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
 
-    ## log fH2 - temperature diagram for mineral buffers
-    ## and for given activities of aqueous CH2O and HCN
-    ## After Schulte and Shock, 1995, Fig. 6: 
-    ## 300 bars, log fCO2=1, log fN2=0, log aH2O=0
-    # the mineral buffers FeFeO, QFM, PPM and HM are already
-    # included in the thermo$buffer table so let's plot them.
-    basis.logacts <- c(999,1,0,0,999,999,999)
-    basis(c("Fe","CO2","H2O","nitrogen","hydrogen",
-      "H2S","SiO2"),basis.logacts)
-    basis(c("CO2","N2"),"gas")
-    # initialize the plot
-    xlim <- c(0,350)
-    thermo.plot.new(xlim=xlim,ylim=c(-4,4),
-      xlab=axis.label("T"),ylab=axis.label("H2"))
-    res <- 50
-    Tseq <- seq(xlim[1],xlim[2],length.out=res) 
-    # a function to plot the log fH2 of buffers and label the lines
-    logfH2plot <- function(buffer,lty,where) {
-      basis("H2",buffer)
-      t <- as.numeric(affinity(T=c(xlim,res),P=300,return.buffer=TRUE)$H2)
-      lines(Tseq,t,lty=lty)
-      # "where" is the percent distance along the x-axis to plot the label
-      wherethis <- seq(xlim[1],xlim[2],length.out=100)[where]
-      if(length(grep("_",buffer)) > 0) tt <- 
-        thermo$buffer$logact[thermo$buffer$name==buffer] else tt <- buffer
-      text(wherethis,splinefun(Tseq,t)(wherethis),tt)
+  ## log fH2 - temperature diagram for mineral buffers
+  ## and for given activities of aqueous CH2O and HCN
+  ## After Schulte and Shock, 1995, Fig. 6: 
+  ## 300 bars, log fCO2=1, log fN2=0, log aH2O=0
+  # the mineral buffers FeFeO, QFM, PPM and HM are already
+  # included in the thermo$buffer table so let's plot them.
+  basis.logacts <- c(999,1,0,0,999,999,999)
+  basis(c("Fe","CO2","H2O","nitrogen","hydrogen",
+    "H2S","SiO2"),basis.logacts)
+  basis(c("CO2","N2"),"gas")
+  # initialize the plot
+  xlim <- c(0,350)
+  thermo.plot.new(xlim=xlim,ylim=c(-4,4),
+    xlab=axis.label("T"),ylab=axis.label("H2"))
+  res <- 50
+  Tseq <- seq(xlim[1],xlim[2],length.out=res) 
+  # a function to plot the log fH2 of buffers and label the lines
+  logfH2plot <- function(buffer,lty,where) {
+    basis("H2",buffer)
+    t <- as.numeric(affinity(T=c(xlim,res),P=300,return.buffer=TRUE)$H2)
+    lines(Tseq,t,lty=lty)
+    # "where" is the percent distance along the x-axis to plot the label
+    wherethis <- seq(xlim[1],xlim[2],length.out=100)[where]
+    if(length(grep("_",buffer)) > 0) tt <- 
+      thermo$buffer$logact[thermo$buffer$name==buffer] else tt <- buffer
+    text(wherethis,splinefun(Tseq,t)(wherethis),tt)
+  }
+  # plot log fH2 of each mineral buffer
+  logfH2plot("FeFeO",1,16)
+  logfH2plot("QFM",1,30)
+  logfH2plot("PPM",1,80)
+  logfH2plot("HM",1,40)
+  anotherplotfunction <- function(mybuff,lty,logact,where) {
+    for(i in 1:length(logact)) {
+      # update the species activity
+      mod.buffer(mybuff,logact=logact[i])
+      logfH2plot(mybuff,lty,where[i])
     }
-    # plot log fH2 of each mineral buffer
-    logfH2plot("FeFeO",1,16)
-    logfH2plot("QFM",1,30)
-    logfH2plot("PPM",1,80)
-    logfH2plot("HM",1,40)
-    anotherplotfunction <- function(mybuff,lty,logact,where) {
-      for(i in 1:length(logact)) {
-        # update the species activity
-        mod.buffer(mybuff,logact=logact[i])
-        logfH2plot(mybuff,lty,where[i])
-      }
-    }
-    # add and plot new buffers (formaldehyde and HCN)
-    mod.buffer("mybuffer_1","formaldehyde","aq")
-    logact <- c(-6,-10,-15); where <- c(10,10,25)
-    anotherplotfunction("mybuffer_1",3,logact,where)
-    mod.buffer("mybuffer_2","HCN","aq")
-    where <- c(20,73,50)
-    anotherplotfunction("mybuffer_2",2,logact,where)
-    # title
-    title(main=paste("Mineral buffers (solid), HCN (dashed), formaldehyde",
-      "(dotted)\n",describe(thermo$basis[c(2,4),],T=NULL,P=300),
-      "After Schulte and Shock, 1995"),cex.main=0.9)
+  }
+  # add and plot new buffers (formaldehyde and HCN)
+  mod.buffer("mybuffer_1","formaldehyde","aq")
+  logact <- c(-6,-10,-15); where <- c(10,10,25)
+  anotherplotfunction("mybuffer_1",3,logact,where)
+  mod.buffer("mybuffer_2","HCN","aq")
+  where <- c(20,73,50)
+  anotherplotfunction("mybuffer_2",2,logact,where)
+  # title
+  title(main=paste("Mineral buffers (solid), HCN (dashed), formaldehyde",
+    "(dotted)\n",describe(thermo$basis[c(2,4),],T=NULL,P=300),
+    "After Schulte and Shock, 1995"),cex.main=0.9)
   }
 }
 
