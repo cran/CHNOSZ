@@ -87,7 +87,7 @@
   \donttest{
     ### using grep.file, read.fasta, add.protein
     # calculations for Pelagibacter ubique
-    f <- system.file("data/HTCC1062.faa",package="CHNOSZ")
+    f <- system.file("extdata/HTCC1062.faa",package="CHNOSZ")
     # what proteins to select (set to "" for all proteins)
     w <- "ribosomal"
     # locate entries whose names contain w

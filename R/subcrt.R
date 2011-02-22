@@ -1,5 +1,4 @@
 # CHNOSZ/subcrt.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # calculate standard molal thermodynamic propertes
 # and import and export thermodynamic data in SUPCRT format
 # 20060817 jmd
@@ -259,7 +258,7 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
     # than possible many times in hkf()).
     wprop.PT <- character()
     wprop.PrTr <- 'rho'
-    dosupcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max=0.3))!=0
+    dosupcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3))!=0
     if(TRUE %in% (prop %in% c('logk','g','h','s'))) wprop.PrTr <- c(wprop.PrTr,'Y')
     if(dosupcrt | TRUE %in% (prop %in% c('logk','g','h'))) wprop.PrTr <- c(wprop.PrTr,'epsilon')
     H2O.PrTr <- water(wprop.PrTr,T=thermo$opt$Tr,P=thermo$opt$Pr)
@@ -586,9 +585,13 @@ read.supcrt <- function(file) {
 
   # read the entire file
   tab <- scan(file,what='character')
+  # scanning the file fooled by an entry starting with
+  # RIBOSE-5-PHOSPHATE-2C5H9O8P2-
+  # which really means "RIBOSE-5-PHOSPHATE-2" "C5H9O8P2-"
+
 
   # function to identify separators
-  # (long strings that begin with)
+  # (lines that begin with ******)
   is.separator <- function(s) {
     if( nchar(s) > 5 & identical(substr(s,1,1),'*') ) return(TRUE)
     return(FALSE)
@@ -596,21 +599,27 @@ read.supcrt <- function(file) {
 
   # function to find the first data position
   # for our desired state
-  ifirst <- function(tab,state,istart=1,transitions=NULL) {
-    for(i in istart:length(tab)) {
-      if(is.separator(tab[i])) {
-        if( identical(state,'aq') & identical(tab[i-1],'species') ) return(i+1)
-        if( identical(state,'gas') & identical(tab[i-1],'gases' ) ) return(i+1)
-        if( identical(state,'cr') & identical(transitions,0) 
-          & identical(tab[i-3],'undergo') ) return(i+1)
-        if( identical(state,'cr') & identical(transitions,1) 
-          & identical(tab[i-3],'one') ) return(i+1)
-        if( identical(state,'cr') & identical(transitions,2) 
-          & identical(tab[i-3],'two') ) return(i+1)
-        if( identical(state,'cr') & identical(transitions,3) 
-          & identical(tab[i-3],'three') ) return(i+1)
-      }
+  ifirst <- function(tab,state,transitions=0) {
+    isep <- which(substr(tab,1,5)=="*****")
+    isep <- isep[!isep==1]
+    if( state=='aq' ) return(isep[match("species",tab[isep-1])]+1)
+    if( state=='gas' ) return(isep[match("gases",tab[isep-1])]+1)
+    if( state=="cr" ) {
+      # what word we search for
+      txt <- (c("undergo","one","two","three"))[transitions+1]
+      return(isep[match(txt,tab[isep-3])]+1)
     }
+  }
+
+  # a function that strips trailing decimal points
+  # (so e.g. -66.310. typo Gf for LYSINE- in SLOP07.dat can be processed)
+  striptrailingdot <- function(x) {
+    istart <- rep(1,length(x))
+    iend <- nchar(x)
+    hastrailingdot <- grep("\\.$",x)
+    if(length(hastrailingdot) > 0) iend[hastrailingdot] <- iend[hastrailingdot] - 1
+    x <- substr(x,istart,iend)
+    return(x)
   }
 
   name.lower <- function(name,abbrv,formula,state) {
@@ -661,18 +670,9 @@ read.supcrt <- function(file) {
   source <- toupper(strip(file))
   
   read.cr.transitions <- function(tab,istart,transitions) {
-    if(identical(transitions,0)) ni <- 14
-    if(identical(transitions,1)) ni <- 21
-    if(identical(transitions,2)) ni <- 28
-    if(identical(transitions,3)) ni <- 35
-    cr <- list()
-    cr[[ni]] <- numeric()
-    for(i in seq(istart,length(tab),ni)) {
-      if(is.separator(tab[i])) break
-      for(j in 1:ni) {
-        cr[[j]] <- c(cr[[j]],tab[i+j-1])
-      }
-    }
+    ntail <- c(8,15,22,29)[transitions+1]
+    gsd <- get.state.data(tab,istart,nhead=6,ntail=ntail)
+    cr <- gsd$gas
     ghs <- data.frame( name=name.lower(strip(cr[[1]]),strip(cr[[3]]),
       strip(cr[[2]]),'cr'), abbrv=cr[[3]], formula=strip(cr[[2]]),
       state=rep('cr',length(cr[[1]])), source=strip(cr[[5]]),
@@ -687,23 +687,23 @@ read.supcrt <- function(file) {
         a=cr[[it[4]]], b=cr[[it[5]]], c=cr[[it[6]]], T=cr[[it[7]]] )
       trans <- rbind(trans,t)
     }
-    return(list(ghs=ghs,eos=eos,transitions=trans,ilast=i))
+    return(list(ghs=ghs,eos=eos,transitions=trans,ilast=gsd$ilast))
   }
 
   read.cr <- function(tab) {
-    icr0 <- ifirst(tab,'cr',1,0)
+    icr0 <- ifirst(tab,'cr')
     cr0 <- read.cr.transitions(tab,icr0,0)
+    icr1 <- ifirst(tab,'cr',1)
     cat(paste('read.supcrt:',nrow(cr0$ghs),
       'minerals that do not undergo phase transition\n'))
-    icr1 <- ifirst(tab,'cr',cr0$ilast,1)
     cr1 <- read.cr.transitions(tab,icr1,1)
+    icr2 <- ifirst(tab,'cr',2)
     cat(paste('read.supcrt:',nrow(cr1$ghs),
       'minerals that undergo one phase transition\n'))
-    icr2 <- ifirst(tab,'cr',cr1$ilast,2)
     cr2 <- read.cr.transitions(tab,icr2,2)
+    icr3 <- ifirst(tab,'cr',3)
     cat(paste('read.supcrt:',nrow(cr2$ghs),
       'minerals that undergo two phase transitions\n'))
-    icr3 <- ifirst(tab,'cr',cr2$ilast,3)
     cr3 <- read.cr.transitions(tab,icr3,3)
     cat(paste('read.supcrt:',nrow(cr3$ghs),
       'minerals that undergo three phase transitions\n'))
@@ -713,14 +713,31 @@ read.supcrt <- function(file) {
     return(list(ghs=ghs,eos=eos,transitions=transitions,ilast=cr3$ilast))
   }
 
-  read.gas <- function(tab,istart) {
+  get.state.data <- function(tab,istart,nhead=6,ntail=8) {
+    # get all the data for particular section
     gas <- list()
-    gas[[14]] <- numeric()
+    gas[[nhead+ntail]] <- numeric()
     # populating the list
-    for(i in seq(istart,length(tab),14)) {
+    inext <- istart
+    for(i in istart:length(tab)) {
       if(is.separator(tab[i])) break
-      for(j in 1:14) gas[[j]] <- c(gas[[j]],tab[i+j-1])
+      # don't go into the footer of the file
+      if(tab[i+1]=="minerals" & tab[i+2]=="that") break
+      if(i==inext) {
+        # entries start with nhead identifying fields
+        # followed by ntail numeric (thermodynamic data) fields
+        for(j in 1:nhead) gas[[j]] <- c(gas[[j]],tab[i+j-1])
+      } else if((i > (inext+nhead-1)) & can.be.numeric(striptrailingdot(tab[i]))) {
+        for(j in 1:ntail) gas[[j+nhead]] <- c(gas[[j+nhead]],tab[i+j-1])
+        inext <- i+j
+      }
     }
+    return(list(gas=gas,ilast=i))
+  }
+
+  read.gas <- function(tab,istart) {
+    gsd <- get.state.data(tab,istart,nhead=6,ntail=8)
+    gas <- gsd$gas
     # processing the list
     ghs <- data.frame( name=tolower(gas[[2]]), 
       abbrv=strip(gas[[3]]), formula=strip(gas[[3]]),
@@ -728,30 +745,24 @@ read.supcrt <- function(file) {
       date=strip(gas[[6]]),Gf=gas[[7]], Hf=gas[[8]], S=gas[[9]] )
     eos <- data.frame( name=ghs$name, source=strip(gas[[5]]),
       a=gas[[11]], b=gas[[12]], c=gas[[13]], V=gas[[10]], T=gas[[14]] )
-    return(list(ghs=ghs,eos=eos,ilast=i))
+    return(list(ghs=ghs,eos=eos,ilast=gsd$ilast))
   }
 
   read.aq <- function(tab,istart) {
-    aq <- list()
-    aq[[17]] <- numeric()
-    for(i in seq(istart,length(tab),17)) {
-      if(is.separator(tab[i])) break
-      for(j in 1:17) aq[[j]] <- c(aq[[j]],tab[i+j-1])
-    }
+    gsd <- get.state.data(tab,istart,6,11)
+    aq <- gsd$gas
     ghs <- data.frame( name=strip(aq[[1]]),
       abbrv=strip(aq[[3]]), formula=strip(aq[[2]]),
-    #ghs <- data.frame( name=name.lower(strip(aq[[1]]),strip(aq[[3]]),
-    #  strip(aq[[2]]),'aq'), abbrv=strip(aq[[3]]), formula=strip(aq[[2]]),
       state=rep('aq',length(aq[[1]])), source=strip(aq[[5]]),
       date=strip(aq[[6]]), Gf=aq[[7]], Hf=aq[[8]], S=aq[[9]] )
     eos <- data.frame( name=ghs$name, source=strip(aq[[5]]),
       a1=aq[[10]], a2=aq[[11]], a3=aq[[12]], a4=aq[[13]], 
       c1=aq[[14]], c2=aq[[15]], omega=aq[[16]] )
-    return(list(ghs=ghs,eos=eos,ilast=i))
+    return(list(ghs=ghs,eos=eos,ilast=gsd$ilast))
   }
 
   cr <- read.cr(tab)
-  igas <- ifirst(tab,'gas',cr$ilast)
+  igas <- ifirst(tab,'gas')
   gas <- read.gas(tab,igas)
   cat(paste('read.supcrt:',nrow(gas$ghs),'gases\n'))
   iaq <- ifirst(tab,'aq',gas$ilast)
@@ -1085,7 +1096,6 @@ write.supcrt <- function(file='supcrt.dat',obigt=thermo$obigt) {
 
   # header: identify the file (change this as appropriate)
   write(paste('***',file,'of',date()),file)
-  #write('*** maintained by Jeffrey M. Dick <jedick@berkeley.edu>',file,append=TRUE)
   # header: the sources
   s1 <- as.character(obigt$source1[c(iaq,igas,imin0,imin1,imin2,imin3)])
   s2 <- as.character(obigt$source2[c(iaq,igas,imin0,imin1,imin2,imin3)])

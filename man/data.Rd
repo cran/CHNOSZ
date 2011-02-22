@@ -18,6 +18,7 @@
 \alias{taxid.phylum}
 \alias{AA03}
 \alias{ISR+08}
+\alias{protein_refseq}
 \title{Thermodynamic Database and System Definition}
 \description{
  
@@ -74,7 +75,7 @@
 
   This dataframe is a thermodynamic database of standard molal thermodynamic properties and equations of state parameters of species. \acronym{OBIGT} is an acronym for \samp{OrganoBioGeoTherm}, which refers to a software package produced by Harold C. Helgeson and coworkers at the Laboratory of Theoretical Geochemistry and Biogeochemistry at the University of California, Berkeley. (There may be an additional meaning for the acronym: \dQuote{One BIG Table} of thermodynamic data.)
 
-  As of \pkg{CHNOSZ} version 0.7, the data in \code{OBIGT.csv} represent 179 minerals, 16 gases, and 294 aqueous (largely inorganic) species taken from the data file included in the \acronym{SUPCRT92} distribution (Johnson et al., 1992), an additional 14 minerals, 6 gases, and 1049 aqueous organic and inorganic species from the \acronym{slop98.dat} file (Shock et al., 1998), and approximately 50 other minerals, 175 crystalline organic and biochemical species, 220 organic gases, 300 organic liquids, 650 aqueous inorganic, organic, and biochemical species, and 40 organic groups taken from the recent literature. Each entry is referenced to one or two literature sources listed in \code{thermo$source}. Some entries taken from the \acronym{SUPCRT92} or \acronym{slop98.dat} databases have been superseded, or duplicated, by later data that may be present in a separate file (OBIGT-2.csv; for more information see the help for \code{\link{danger}}). 
+  As of \pkg{CHNOSZ} version 0.7, the data in \code{OBIGT.csv} represent 179 minerals, 16 gases, and 294 aqueous (largely inorganic) species taken from the data file included in the \acronym{SUPCRT92} distribution (Johnson et al., 1992), an additional 14 minerals, 6 gases, and 1049 aqueous organic and inorganic species from the \acronym{slop98.dat} file (Shock et al., 1998), and approximately 50 other minerals, 175 crystalline organic and biochemical species, 220 organic gases, 300 organic liquids, 650 aqueous inorganic, organic, and biochemical species, and 40 organic groups taken from the recent literature. Each entry is referenced to one or two literature sources listed in \code{thermo$source}. Some entries taken from the \acronym{SUPCRT92} or \acronym{slop98.dat} databases have been superseded, or duplicated, by later data that may be present in a separate file (\code{data/OBIGT-2.csv}; for more information see the help for \code{\link{add.obigt}}). 
 
   Note the following modifications:
 
@@ -250,7 +251,7 @@
     \itemize{
       \item \code{bisonN_vs_refseq39.blast}, \code{bisonR_vs_refseq39.blast}, \code{bisonP_vs_refseq39.blast} are tabular BLAST results for proteins in the Bison Pool Environmental Genome. The BLAST files contain the first hit for each of 2500 query sequences. The target database for the searches was constructed from microbial protein sequences in National Center for Biotechnology Information (NCBI) RefSeq database version 39. 
 
-      \item \code{gi.taxid.txt} is a table that lists all of the sequence identifiers (gi numbers) that appear in the example BLAST files (for bisonN, bisonR, bisonP, see above), together with the corresponding taxon ids used in the NCBI databases. 
+      \item \code{extdata/gi.taxid.txt} is a table that lists all of the sequence identifiers (gi numbers) that appear in the example BLAST files (for bisonN, bisonR, bisonP, see above), together with the corresponding taxon ids used in the NCBI databases. 
 
       \item \code{names.dmp} and \code{nodes.dmp} are excerpted from the taxonomy files available on the NCBI ftp site (\url{ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15.). These excerpts contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes in the respective lineages (genus, family, etc.).
 
@@ -258,17 +259,18 @@
 
     }
 
-  The remaining files contain either protein sequences or abundance data:
+  The remaining files contain either protein sequences, amino acid compositions of proteins, or protein abundance data:
   \itemize{
       \item \code{HTCC1062.faa} is a FASTA file of 1354 protein sequences in the organism \emph{Pelagibacter ubique} HTCC1062 downloaded from the NCBI RefSeq collection on 2009-04-12. The search term was Protein: txid335992[Organism:noexp] AND "refseq"[Filter].
       \item \code{AA03.csv} has reference abundances for 71 proteins taken from Fig. 3 of Anderson and Anderson, 2002 (as corrected in Anderson and Anderson, 2003). The columns with data taken from this source are type (hemoglobin, plasma, tissue, interleukin), description (name used in the original figure), log10(pg/ml) (upper limit of abundance interval shown in figure, log10 concentration in pg/ml). The additional columns are name (nominal SWISS-PROT code for this protein) and corresponding values of protein length (number of residues), protein mass (g/mol), logm(residue) (log10 of molality of residues) and residue mass (g/mol).
       \item \code{ISR+08.csv} has columns excerpted from Additional File 2 of Ishihama et al., 2008. The columns in this file are ID (Swiss-Prot ID), accession (Swiss-Prot accession), emPAI (exponentially modified protein abundance index), copynumber (emPAI-derived copy number/cell), GRAVY (Kyte-Doolittel), FunCat (FunCat class description), PSORT (PSORT localisation), ribosomal (yes/no).
 %%      \item \code{GLL+98.csv} has columns "oln" for ordered locus name and "ratio" for change in expression of yeast proteins in response to H2O2 treatment, from Godon et al., 1998. One protein, YMR108W, was listed as both induced and repressed in the original data set and is not included in this table.
+      \item \code{protein_refseq.csv} contains the average amino acid compositions of all protein sequences for each organism identified by taxonomic ID in the NCBI Reference Sequence (RefSeq) database, version 45. The file was generated using code provided in the \code{refseq} directory of the CHNOSZ installation directory. 
   }
 
 } % end of format
 
-\seealso{ \code{\link{add.protein}} and \code{\link{add.obigt}} for adding data from local .csv files.
+\seealso{ \code{\link{add.protein}} and \code{\link{add.obigt}} for adding amino acid compositions of proteins and thermodynamic data from local .csv files.
 }
 
 \examples{

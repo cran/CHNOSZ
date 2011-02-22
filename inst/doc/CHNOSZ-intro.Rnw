@@ -35,7 +35,7 @@
 {\end{list}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-%\VignetteIndexEntry{2 - Getting started with CHNOSZ}
+%\VignetteIndexEntry{1. Getting started with CHNOSZ}
 
 \makeatother
 

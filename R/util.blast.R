@@ -1,23 +1,23 @@
 # CHNOSZ/blast.R
-# Copyright (C) 2010 Jeffrey M. Dick
-# 20100320 jmd
 # functions to analyze BLAST output files
+# 20100320 jmd
 
 ## process a blast tabular output file, counting 
 ## representation of each phylum
 count.taxa <- function(file,gi.taxid,taxid.phylum,
   similarity=30,evalue=1e-5,max.hits=10,min.query=0,min.phylum=0,min.taxon=0) {
   # read the blast tabular file
+  cat(paste("count.taxa: reading",file,"\n"))
   blast <- read.csv(file,header=FALSE,sep="\t",stringsAsFactors=FALSE)
-  cat(paste("read blast file with",nrow(blast),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  cat(paste("  read",nrow(blast),"lines with",length(unique(blast$V1)),"query sequences\n"))
   # take out rows that don't meet our desired similarity
   is <- which(blast$V3 >= similarity)
   blast <- blast[is,]
-  cat(paste("similarity filtering leaves",length(is),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  cat(paste("  similarity filtering leaves",length(is),"lines and",length(unique(blast$V1)),"query sequences\n"))
   # take out rows that don't meet our desired e-value
   ie <- which(blast$V11 <= evalue)
   blast <- blast[ie,]
-  cat(paste("evalue filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  cat(paste("  evalue filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
   # now take only max hits for each query sequence
   query.shift <- query <- blast$V1
   lq <- length(query)
@@ -28,13 +28,24 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
   query.shift <- query.shift[c((lq-max.hits+1):lq,1:(lq-max.hits))]
   ib <- which(query!=query.shift)
   blast <- blast[ib,]
-  cat(paste("max hits filtering leaves",length(ib),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  cat(paste("  max hits filtering leaves",length(ib),"lines and",length(unique(blast$V1)),"query sequences\n"))
   # what are gi numbers of the hits
   gi <- blast$V2
   ugi <- unique(gi)
   # what taxid do they hit
-  cat("getting taxids ... ")
-  imatch <- match(ugi,gi.taxid[[1]])
+  cat("  getting taxids ... ")
+  # we use def2gi to extract just the gi numbers
+  def2gi <- function(def) {
+    # extract gi numbers from FASTA deflines 20110131
+    stuff <- strsplit(def,"\\|")
+    gi <- sapply(1:length(stuff),function(x) {
+      # the gi number should be in the 2nd position (after "gi")
+      if(length(stuff[[x]])==1) return(stuff[[x]][1])
+      else return(stuff[[x]][2])
+    })
+    return(gi)
+  }
+  imatch <- match(def2gi(ugi),def2gi(gi.taxid[[1]]))
   utaxid <- gi.taxid[[2]][imatch]
   # what phyla are these
   cat("getting taxon names ... ")
@@ -57,7 +68,7 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
   it <- which(nt/sum(nt) >= min.taxon)
   itt <- which(blast$taxid %in% names(nt)[it])
   blast <- blast[itt,]
-  cat(paste("min taxon abundance filtering leaves",length(unique(blast$query)),
+  cat(paste("  min taxon abundance filtering leaves",length(unique(blast$query)),
     "query sequences,",length(unique(blast$phylum)),"phyla,",length(unique(blast$taxid)),"taxa\n"))
   # only take phylum assignments that make up at least a certain 
   # fraction ('amin') of hits to the query sequence
@@ -89,12 +100,12 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
   #iq <- as.numeric(lapply(1:length(uquery),iqfun))
   #iq <- iq[!is.na(iq)]
   if(min.query!=0) {
-    cat("filtering by phylum representation per query... ")
+    cat("  filtering by phylum representation per query... ")
     iq <- numeric()
     for(i in 1:length(uquery)) iq <- c(iq,iqfun(i))
     cat("done!\n")
     blast <- blast[iq,]
-    cat(paste("min query representation filtering leaves",length(iq),"query sequences,",length(unique(blast$phylum)),
+    cat(paste("  min query representation filtering leaves",length(iq),"query sequences,",length(unique(blast$phylum)),
       "phyla,",length(unique(blast$taxid)),"taxa\n"))
   } else {
     # we'll just take the first hit for each query sequence
@@ -106,7 +117,7 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
   ip <- which(np/sum(np) >= min.phylum)
   ipp <- which(blast$phylum %in% names(np)[ip])
   blast <- blast[ipp,]
-  cat(paste("min phylum abundance filtering leaves",length(ipp),"query sequences,",length(unique(blast$phylum)),
+  cat(paste("  min phylum abundance filtering leaves",length(ipp),"query sequences,",length(unique(blast$phylum)),
     "phyla,",length(unique(blast$taxid)),"taxa\n"))
   return(blast)
 } 

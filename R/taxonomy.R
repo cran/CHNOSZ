@@ -1,5 +1,4 @@
 # CHNOSZ/taxonomy.R
-# Copyright (C) 2010 Jeffrey M. Dick
 # functions to work with NCBI taxonomy files
 # 20100311 jmd
 # 20100613 getnames and getnodes now only use the 'scan' function
@@ -38,7 +37,8 @@ parent <- function(id,taxdir,rank=NULL,nodes=NULL) {
     } else {
       # parent, grandparent, etc.
       myrank <- getrank(myid,taxdir,nodes)
-      while(myrank != rank) {
+      if(is.na(myrank)) myid <- NA
+      else while(myrank != rank) {
         myid <- parent(myid,taxdir,nodes=nodes)
         myrank <- getrank(myid,taxdir,nodes)
         if(myid==1) break

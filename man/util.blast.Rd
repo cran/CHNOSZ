@@ -37,13 +37,13 @@
    # process some of the BLAST output for proteins
    # from Bison Pool metagenome (JGI, 2007)
    # read the file that connects taxids with the sequence identifier
-   tfile <- system.file("data/gi.taxid.txt",package="CHNOSZ")
+   tfile <- system.file("extdata/gi.taxid.txt",package="CHNOSZ")
    gi.taxid <- scan(tfile,what=as.list(character(2)),flush=TRUE)
    # read the file that connects names with the taxids
    nfile <- system.file("data/taxid.phylum.csv",package="CHNOSZ")
    taxid.phylum <- read.csv(nfile)
    # the BLAST files
-   bfile <- paste("data/bison",c("N","R","P"),"_vs_refseq39.blastp",sep="")
+   bfile <- paste("extdata/bison",c("N","R","P"),"_vs_refseq39.blastp",sep="")
    for(i in 1:3) {
      file <- system.file(bfile[i],package="CHNOSZ")
      # process the blast file -- get taxon names

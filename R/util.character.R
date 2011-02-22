@@ -1,6 +1,5 @@
 # CHNOSZ/util.character.R
 # functions to work with character objects
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 
 c2s <- function(x, sep=' ') {
   # make a string out of a character vector
@@ -10,51 +9,37 @@ c2s <- function(x, sep=' ') {
   return(s)
 }
 
-s2c <- function(x,sep=NULL,keep.sep=TRUE,n=NULL,move.sep=FALSE) {
-  if(!is.null(sep)) {
-    isep <- numeric()
-    mysep <- character()
-    for(i in 1:nchar(x)) {
-    xnew <- x
-      for(j in 1:length(sep)) {
-        if(substr(x,i,i+nchar(sep[j])-1)==sep[j]) {
-          if(!keep.sep) xnew <- c2s(c(substr(x,1,i-1),substr(x,i+nchar(sep[j]),nchar(x))),sep='')
-          isep <- c(isep,i)
-          mysep <- c(mysep,sep[j])
-          break
-        }
+s2c <- function(x,sep=NULL,keep.sep=TRUE) {
+  # recursively split 'x' according to separation strings in 'sep'
+  do.split <- function(x,sep,keep.sep=TRUE) {
+    # split the elements of x according to sep
+    # output is a list the length of x
+    if(is.list(x)) stop("x is a list; it must be a character object (can have length > 1)")
+    x <- as.list(x)
+    for(i in 1:length(x)) {
+      # do the splitting
+      xi <- strsplit(x[[i]],sep,fixed=TRUE)[[1]]
+      # paste the separation term term back in
+      if(keep.sep & !is.null(sep)) {
+        xhead <- character()
+        xtail <- xi
+        if(length(xi) > 1) {
+          xhead <- head(xi,1)
+          xtail <- tail(xi,-1)
+          # in-between matches
+          xtail <- paste("",xtail,sep=sep)
+        } 
+        # a match at the end
+        if(length(grep(paste(sep,"$",sep=""),x[[i]]) > 0)) xtail <- c(xtail,sep)
+        xi <- c(xhead,xtail)
       }
-    x <- xnew
+      x[[i]] <- xi
     }
-  } else isep <- 0:nchar(x)
-  # the values of isep bracket the lengths of 
-  # string we want to split
-  if(length(isep)==0) {
-    if(length(sys.calls())==1) cat(paste('s2c: no match for',sep,'in',x,'\n'))
     return(x)
   }
-  if(!isep[1]==1 & !is.null(sep)) isep <- c(0,isep)
-  if(isep[length(isep)] <= nchar(x) &!is.null(sep)) isep <- c(isep,nchar(x))
-  v <- character()
-  if(is.null(sep)) j <- 0 else {
-    j <- -1
-    isep[length(isep)] <- isep[length(isep)] + 1
-  }
-  # n: the number of elements we want to grab
-  if(is.null(n)) n <- length(isep) else n <- n + 1
-  for(i in 2:n) {
-    v <- c(v,substr(x,isep[i-1]+1+j,isep[i]+j))
-  }
-  # alternatively move the separator to previous element
-  if(move.sep & keep.sep & length(v) > 1) {
-    for(i in 1:length(v)) {
-      myv <- v[i]
-      if(i!=length(v)) myv <- paste(myv,mysep[i],sep='')
-      if(i!=1) myv <- substr(myv,start=length(mysep[i-1])+1,stop=nchar(myv))
-      v[i] <- myv
-    }
-  }
-  return(v)
+  # now do it!
+  for(i in 1:length(sep)) x <- unlist(do.split(x,sep[i],keep.sep=keep.sep))
+  return(x)
 }
 
 can.be.numeric <- function(x) {

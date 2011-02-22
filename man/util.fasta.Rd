@@ -70,7 +70,7 @@
 
   # get the first ten positions of each of the sequences
   # in a FASTA file
-  f <- system.file("data/HTCC1062.faa",package="CHNOSZ")
+  f <- system.file("extdata/HTCC1062.faa",package="CHNOSZ")
   fnew <- trimfas(f,1,10)
 }
 

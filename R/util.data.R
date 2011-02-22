@@ -106,10 +106,14 @@ change <- function(name,...) {
   }
 }
 
-add.obigt <- function(file="obigt.csv",force=FALSE) {
-  # add/replace entries in thermo$obigt
-  # from values saved in a file
-  # only replace if force=TRUE
+add.obigt <- function(file=system.file("data/OBIGT-2.csv",package="CHNOSZ"),force=FALSE) {
+  # add/replace entries in thermo$obigt from values saved in a file
+  # only replace if force==TRUE
+  if(missing(file)) {
+    # we use force=TRUE for the default data file
+    if(missing(force)) force <- TRUE
+  }
+  cat(paste("add.obigt: loading thermodynamic data from",file,"\n"))
   to1 <- thermo$obigt
   id1 <- paste(to1$name,to1$state)
   to2 <- read.csv(file,as.is=TRUE)
@@ -136,16 +140,8 @@ add.obigt <- function(file="obigt.csv",force=FALSE) {
     to1 <- rbind(to1,to2[iadd,])
   }
   thermo$obigt <<- to1
-  cat(paste("add.obigt: added",length(iadd),"of",nrow(to2),"species from",file,"(",ndup,"replacements,",nnew,"new )\n"))
+  cat(paste("add.obigt: added",length(iadd),"of",nrow(to2),"species","(",ndup,"replacements,",nnew,"new )\n"))
+  cat("add.obigt: to restore default database, use data(thermo)\n")
   return(invisible(inew))
 }
 
-danger <- function() {
-  cat("danger: loading supplemental thermodynamic data file\n")
-  cat("danger: use with care; some properties are not thermodynamically\n")
-  cat("danger: consistent with the default database\n")
-  myfile <- system.file("data/OBIGT-2.csv",package="CHNOSZ")
-  i <- add.obigt(myfile,force=TRUE)
-  cat("danger: to undo, reinitialize data object with 'data(thermo)'\n")
-  return(invisible(i))
-}

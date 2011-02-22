@@ -422,6 +422,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       #if(!can.be.numeric(H.act)) thermo$basis$logact[rownames(thermo$basis)=='H+'] <<- H.act
     }
 
+
     # more buffer stuff
     if(buffer) {
       args$what <- "logact.basis"
@@ -494,7 +495,8 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       loga.protein <- rep(loga.protein,length.out=length(iprotein))
       protein.fun <- function(ip) {
         if(ip %% 50 == 0) cat(paste(ip,"..",sep=""))
-        psum(pprod(a[ires],as.numeric(thermo$protein[iprotein[ip],5:25])))-loga.protein[ip]
+        tpext <- as.numeric(thermo$protein[iprotein[ip],5:25])
+        return(psum(pprod(a[ires],tpext)) - loga.protein[ip])
       }
       # use another level of indexing to let the function
       # report on its progress
@@ -615,7 +617,17 @@ ionize <- function(affinity=NULL,other=NULL) {
     affinity[[iprotein[i]]] <- a
   }
   #affinity <- affinity[-c(ineutral,icharged)]
+  class(affinity) <- "affinity"
   return(affinity)
 }
 
+
+slice.affinity <- function(affinity,d=1,i=1) {
+  # take a slice of affinity along one dimension
+  a <- affinity
+  for(j in 1:length(a$values)) {
+    a$values[[j]] <- as.array(slice(a$values[[j]],d=d,i=i))
+  }
+  return(a)
+}
 

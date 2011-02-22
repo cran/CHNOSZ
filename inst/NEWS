@@ -1,3 +1,16 @@
+CHNOSZ_0.9-4 (2011-02-22) Add 'cex.names' argument to strip(). Rewrite s2c() to
+use strsplit(). diagram() now accepts a 'group' argument without names. Update
+read.supcrt() to be able to import SLOP07.dat (fixes some problems with
+strangely formatted header and data fields). Add cyclohexane,aq data from
+Plyasunov and Shock, 2001. Add scripts in 'refseq' directory for processing
+NCBI RefSeq data, and add 'protein_refseq.csv' datafile with computed amino
+acid compositions for each taxon ID (taxid). Move code from danger() to
+add.obigt() (used to activate supplementary thermodynamic data). Add anim.TCA()
+for making animated stability diagrams for reactants in tricarboxylic acid
+cycle. New function slice.affinity() for extracting results from affinity()
+along a particular dimension. Move data files with non-standard file types to
+new 'extdata' directory.
+
 CHNOSZ_0.9-3 (2010-12-21) diagram() by default does not plot legends on 1D
 diagrams if there are more than 10 species, and now handles activity
 calculations in more than two dimensions (still only up to two are plotted).

@@ -26,7 +26,7 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
   if('s' %in% contrib) {
     H2O.props <- c('Q','X','Y','epsilon')
     # only take these ones if we're in SUPCRT92 compatibility mode
-    dosupcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max=0.3))!=0
+    dosupcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3))!=0
     if(dosupcrt) {
       # (E, daldT, V - for partial derivatives of omega (g function))
       H2O.props <- c(H2O.props,'E','daldT','kT','Z')

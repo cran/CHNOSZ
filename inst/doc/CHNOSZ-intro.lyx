@@ -4,7 +4,7 @@
 \begin_header
 \textclass literate-article
 \begin_preamble
-%\VignetteIndexEntry{2 - Getting started with CHNOSZ}
+%\VignetteIndexEntry{1. Getting started with CHNOSZ}
 \end_preamble
 \use_default_options true
 \language english

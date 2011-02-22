@@ -42,7 +42,7 @@
 \examples{
   ## get information about Homo sapiens from the
   ## packaged taxonomy files
-  taxdir <- system.file("data",package="CHNOSZ")
+  taxdir <- system.file("extdata",package="CHNOSZ")
   # H. sapiens' taxonomic id
   id1 <- 9606
   # that is a species
@@ -64,7 +64,7 @@
 
   ## the names of the organisms in the supplied
   ## taxonomy files
-  taxdir <- system.file("data",package="CHNOSZ")
+  taxdir <- system.file("extdata",package="CHNOSZ")
   id5 <- c(83333,4932,9606,186497,243232)
   sciname(id5,taxdir)
   # these are not all species, though
@@ -81,7 +81,7 @@
   ## so it helps to store them in memory when performing multiple queries
   ## (this doesn't have a noticeable speed-up for the small files
   ## we use in this example)
-  taxdir <- system.file("data",package="CHNOSZ")
+  taxdir <- system.file("extdata",package="CHNOSZ")
   nodes <- getnodes(taxdir=taxdir)
   # all of the node ids in this file
   id7 <- nodes$id

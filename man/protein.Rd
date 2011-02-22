@@ -122,7 +122,7 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
   t$reaction$coeff <- round(t$reaction$coeff,3)
   d <- describe(t$reaction,
     use.name=c(TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE))
-  text(170,-3,c2s(s2c(d,sep="=",move.sep=TRUE),sep="\n"),cex=0.8)
+  text(170,-3,c2s(s2c(d,sep="="),sep="\n"),cex=0.8)
 
 
   ### Metastability calculations

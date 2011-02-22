@@ -71,22 +71,16 @@
       "S5O6-2","S2O6-2","HSO3-","SO2","HSO4-"))
     # to minimize the standard deviations of the loga of the species
     target <- "sd"
-    # this one gives logfO2=-27.7
+    # this one gives logfO2=-27.8
     f1 <- findit(list(O2=c(-50,-15)),target,T=325,P=350,n=3)
-    # this one gives logfO2=-28 pH=5.4
+    # this one gives logfO2=-30.0 pH=9.38
     f2 <- findit(list(O2=c(-50,-15),pH=c(0,14)),target,T=325,P=350,res=16,n=4)
-    # this one gives T=256 degC logfO2=-32.6 pH=4.48
-    f3 <- findit(list(T=c(100,400),O2=c(-70,-15),pH=c(0,14)),
-      target,P=500,res=5,n=5)
-    # the parameters and target at each iteration
-    par(mgp=c(2.5,1,0))
-    plot(f3)
 
     # an organic example: 
     # find chemical activities where metastable activities of
     # selected proteins in P. ubique have high correlation
     # with a lognormal distribution (i.e., maximize r of q-q plot)
-    f <- system.file("data/HTCC1062.faa",package="CHNOSZ")
+    f <- system.file("extdata/HTCC1062.faa",package="CHNOSZ")
     # search for three groups of proteins
     myg <- c("ribosomal","nucle","membrane")
     g <- lapply(myg,function(x) grep.file(f,x))

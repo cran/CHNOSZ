@@ -153,9 +153,9 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
           findnames <- function(species,state=NA,max) {
             if(!is.na(state)) altghs <- thermo$obigt[thermo$obigt$state==state,]
             else altghs <- thermo$obigt
-            anames <- unique(c(agrep(species,as.character(altghs$name),value=TRUE,max=max),
-                               agrep(species,as.character(altghs$abbrv),value=TRUE,max=max),
-                               agrep(species,as.character(altghs$formula),value=TRUE,max=max)))
+            anames <- unique(c(agrep(species,as.character(altghs$name),value=TRUE,max.distance=max),
+                               agrep(species,as.character(altghs$abbrv),value=TRUE,max.distance=max),
+                               agrep(species,as.character(altghs$formula),value=TRUE,max.distance=max)))
             if(length(anames)>0) {
               # finish off the message and print the approximate matches
               # 20090301 observe quiet

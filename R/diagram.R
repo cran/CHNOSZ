@@ -116,7 +116,7 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
   if(is.null(balance)) {
     ib <- which.balance(affinity$species)
     if(!is.null(ib)) {
-      balance <- rownames(basis())[ib[1]]
+      balance <- rownames(basis(quiet=TRUE))[ib[1]]
       nbalance <- affinity$species[,ib[1]]
       cat(paste('diagram: immobile component is',balance,'\n'))
     } else {
@@ -135,7 +135,7 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
         cat(paste('diagram: immobile component is protein backbone group\n'))
       } else {
       # is the balance the name of a basis species
-        ib <- match(balance,rownames(basis()))
+        ib <- match(balance,rownames(basis(quiet=TRUE)))
         if(!is.na(ib)) {
           nbalance <- affinity$species[,ib]
           if(TRUE %in% (nbalance==0)) {
@@ -182,7 +182,10 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
       # properties of basis species or reactions?
       if(affinity$property %in% c('G.basis','logact.basis')) names <- rownames(affinity$basis)
       else {
-        if(!is.null(group)) names <- names(group)
+        if(!is.null(group)) {
+          if(is.null(names(group))) names(group) <- paste("group",1:length(group),sep="")
+          names <- names(group)
+        }
         else names <- as.character(affinity$species$name)
         # remove common organism label for proteins
         if(all(grep("_",names)>0)) {
@@ -625,7 +628,7 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
 }
 
 strip <- function(affinity,ispecies=NULL,col=NULL,ns=NULL,
-  xticks=NULL,ymin=-0.2,xpad=1) {
+  xticks=NULL,ymin=-0.2,xpad=1,cex.names=0.7) {
   # make strip chart(s) showing the degrees of formation
   # of species as color bars of varying widths
   # extracted from bison/plot.R 20091102 jmd
@@ -676,7 +679,7 @@ strip <- function(affinity,ispecies=NULL,col=NULL,ns=NULL,
       }
     }
     # label the color bar
-    text(xlim[1],j-ly*1.4,names(ispecies[j]),adj=0,cex=0.7)
+    text(xlim[1],j-ly*1.4,names(ispecies[j]),adj=0,cex=cex.names)
     # add inset plot showing the relative numbers of species
     if(!is.null(ns)) {
       ys1 <- y0 - 0.85*ly

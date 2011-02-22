@@ -400,7 +400,7 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
   # T in Kelvin, P in bar
   if(is.null(property)) stop('property was NULL.')
   # this tells us to do the calculations using code taken from SUPCRT
-  do.supcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max=0.3)) > 0
+  do.supcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3)) > 0
   eargs <- eos.args('water',property=property,T=T,P=P)
   property <- eargs$prop; Property <- eargs$Prop
   # working out the arguments

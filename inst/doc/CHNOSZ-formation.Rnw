@@ -44,7 +44,7 @@
  \makeatother
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-%\VignetteIndexEntry{1 - A different kind of stability: Energy of protein formation}
+%\VignetteIndexEntry{2. A different kind of stability: Energy of protein formation}
 % beamer stuff
 %\usepackage{beamerthemeshadow}
 \usetheme{Frankfurt}
@@ -548,7 +548,7 @@ dev.off()
 
 # read the amino acid compositions of the proteins
 
-f <- system.file("data/EF-Tu.aln",package="CHNOSZ")
+f <- system.file("extdata/EF-Tu.aln",package="CHNOSZ")
 
 # we only use six of the proteins
 

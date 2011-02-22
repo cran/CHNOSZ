@@ -231,7 +231,7 @@
     # this command prints the reaction on the plot
     text(40,4.5,c2s(s2c(describe(t$reaction,
       use.name=c(TRUE,TRUE,FALSE,FALSE,FALSE,FALSE)),
-      sep="=",move.sep=TRUE),sep="\n"))
+      sep="="),sep="\n"))
     # label the plot
     title(main=paste("Chemical affinity of NAD reduction",
      "after LaRowe and Helgeson, 2007",sep="\n"),

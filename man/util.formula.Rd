@@ -80,16 +80,48 @@
   expand.formula(c("H","O"),t)
   expand.formula(c("C","H","S"),t)
 
-  ## nominal carbon oxidation states
-  ZC("CHNOSZ")
-  t <- info(info("LYSC_CHICK"))
-  ZC(t$formula)
-
   ## calculate the average chemical formula of all of 
   ## the proteins in CHNOSZ' database
   ## this is much faster than a for-loop
   pf <- protein.formula(thermo$protein)
   colSums(pf)/nrow(pf)
+
+  ## nominal carbon oxidation states
+  ZC("CO2")  # 4
+  ZC("CH4")  # -4
+  ZC("CHNOSZ") # 7
+  t <- info(info("LYSC_CHICK"))
+  ZC(t$formula)  # 0.01631
+
+
+  ## plot ZC of reference protein sequence
+  ## for different organisms
+  file <- system.file("data/protein_refseq.csv",package="CHNOSZ")
+  ip <- add.protein(file)
+  # only use those organisms with a certain
+  # number of sequenced bases
+  ip <- ip[as.numeric(thermo$protein$abbrv[ip])>100000]
+  pf <- protein.formula(thermo$protein[ip,])
+  zc <- ZC(pf)
+  # the organism names we search for
+  # "" matches all organisms
+  terms <- c("Streptomyces","Pseudomonas","Salmonella",
+    "Escherichia","Vibrio","Bacteroides","Lactobacillus",
+    "Staphylococcus","Streptococcus","Methano","Bacillus","Thermo","")
+  tps <- thermo$protein$source[ip]
+  plot(0,0,xlim=c(1,13),ylim=c(-0.3,-0.05),pch="",
+    ylab="average oxidation state of carbon in proteins",
+    xlab="",xaxt="n",mar=c(6,3,1,1))
+  for(i in 1:length(terms)) {
+    it <- grep(terms[i],tps)
+    zct <- zc[it]
+    points(jitter(rep(i,length(zct))),zct,pch=20)
+  }
+  terms[13] <- paste("all organisms")
+  axis(1,1:13,terms,las=2)
+  title(main=paste("Average Oxidation State of Carbon:",
+    "Total Protein per taxID in NCBI RefSeq",sep="\n"))
+  
 }
 
 \references{

@@ -18,7 +18,7 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
     as.residue = FALSE, mam = TRUE, group = NULL, bg = par("bg"),
     side = 1:4, xlim = NULL, ylim = NULL)
   strip(affinity, ispecies = NULL, col = NULL, ns = NULL, 
-    xticks = NULL, ymin = -0.2, xpad = 1)
+    xticks = NULL, ymin = -0.2, xpad = 1, cex.names = 0.7)
 }
 
 \arguments{
@@ -196,8 +196,8 @@ col <- rainbow(5)
 strip(a,ispecies=ispecies,ymin=-0.7,col=col)
 legend("bottomright",legend=organisms,col=col,
   lty=1,lwd=4,bty="n")
-title(main=paste("Equilibrium abundances of proteins",
-  "from different mammals",sep="\n"))
+title(main=paste("Equilibrium degrees of formation of",
+  "proteins from different mammals",sep="\n"))
 
 ### predominance diagrams (equal activities of
 ### species as a function of two variables) 
@@ -246,7 +246,7 @@ title(main=paste("H2O-Cl-(Cu); activities of 10^-3 (black)\n",
 ## a pe-pH diagram for hydrated iron sulfides,
 ## goethite and pyrite, After Majzlan et al., 2006
 # add some of these species to the database
-danger()
+add.obigt()
 basis(c("Fe+2","SO4-2","H2O","H+","e-"),c(0,log10(3),log10(0.75),999,999))
 species(c("rhomboclase","ferricopiapite","hydronium jarosite",
   "goethite","melanterite","pyrite"))
@@ -274,7 +274,7 @@ title(main=paste("Cysteine Cysteinate Cystine",
 ## Soil Organic Matter CO2-H2O, O2-H2O (after Tardy et al., 1997)
 # NH3 is conserved, and H2O is on an axis of the diagram
 # formulas for aqueous species, names for phases ...
-danger()
+add.obigt()
 basis(c("NH3","water","CO2","O2"),c(999,999,-2.5,-28))
 # switch to gaseous CO2 (aq is the default)
 basis("CO2","gas")
@@ -293,7 +293,7 @@ data(thermo)
 # in order to reproduce this calculation, we have to 
 # consider the properties of species given by these authors,
 # which are not the default ones in the database
-danger()
+add.obigt()
 # The coefficients on H+ and O2 in all the formation reactions
 # are zero, so the number of basis species here is three. Al+3 
 # becomes the conservant, and F- and OH- are being plotted ...

@@ -44,7 +44,7 @@ longex <- function(which) {
     os1 <- thermo$obigt$source1
     os2 <- thermo$obigt$source2
     # sources also in the supplemental database
-    danger()
+    add.obigt()
     os3 <- thermo$obigt$source1
     os4 <- thermo$obigt$source2
     data(thermo)

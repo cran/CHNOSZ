@@ -80,13 +80,18 @@
   basis("CHNOS")			
   ispecies <- info(c("glutamic acid","phenylalanine"))
   basis(ispecies)
+
+  ## changing basis species
+  b1 <- basis("CHNOS+")
+  # different basis species, same elements
+  b2 <- basis(c("HCO3-","H2O","NH4+","HS-","H2","H+"))
+  # back to starting basis species
+  b3 <- basis(c("CO2","H2O","NH3","H2S","O2","H+"))
+  stopifnot(all.equal(b1$logact,b3$logact))
 			
   ## changing the basis species
-  basis("CHNOPS+")
+  basis("MgCHNOPS+") 
   # load species whose names are like "ATP"
-  species(info("ATP ")[[1]])
-  # notice missing elements; try a new basis
-  basis("MgCHNOPS+")  # species are deleted
   species(info("ATP ")[[1]])
   # different basis species, but same elements
   basis(c("MgSO4","HCHO","CH4","NO","CO","H3PO4","CS2","OH-"))

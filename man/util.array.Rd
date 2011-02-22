@@ -3,6 +3,7 @@
 \alias{list2array}
 \alias{slice}
 \alias{dimSums}
+\alias{slice.affinity}
 \title{Functions to Work with Multidimensional Arrays}
 \description{
   These functions can be used to turn a list into an array and extract or replace values or take the sum along a certain dimension of an array.
@@ -12,6 +13,7 @@
   list2array(l)
   slice(arr, d = NULL, i = 1, value = NULL)
   dimSums(arr, d = 1, i = NULL)
+  slice.affinity(affinity, d = 1, i = 1)
 }
 
 \arguments{
@@ -20,12 +22,15 @@
   \item{d}{numeric, what dimension to use.}
   \item{i}{numeric, what slice to use.}
   \item{value}{values to assign to the portion of an array specified by \code{d} and \code{i}.}
+  \item{affinity}{list, output from \code{\link{affinity}} function.}
 }
 
 \details{
   \code{list2array} turns a list of \code{\link{array}}s, each with the same dimensions, into a new array having one more dimension whose size is equal to the number of initial arrays.
 
   \code{slice} extracts or assigns values from/to the \code{i}th slice(s) in the \code{d}th dimension of an array. Values are assigned to an array if \code{value} is not NULL. This function works by building an expression containing the extraction operator (\code{\link{[}}).
+
+  \code{slice.affinity} performs a slice operation on the \samp{values} element of the \samp{affinity} variable (which should be the output of \code{\link{affinity}}). This function is used e.g. by \code{\link{anim.TCA}} to extract slices that are the basis for frames of an animated stability diagram.
 
   \code{dimSums} sums an array along the \code{d}th dimension using only the \code{i}th slices in that dimension. If \code{i} is NULL, all slices in that dimension are summed together. For matrices, \code{dimSums(x,1)} has the same result as \code{\link{colSums}(x)} and \code{dimSums(x,2)} has the same result as \code{\link{rowSums}(x)}.
 
@@ -71,6 +76,16 @@
   dim(dimSums(d,1))  # 3 2
   dim(dimSums(d,2))  # 4 2
   dim(dimSums(d,3))  # 4 3
+
+  # working with an 'affinity' object
+  \dontshow{data(thermo)}
+  basis("CHNOS+")
+  species("alanine")
+  a1 <- affinity(O2=c(-80,-60))   # at pH=7
+  a2 <- affinity(O2=c(-80,-60),pH=c(0,14,7))
+  # in the 2nd dimension (pH) get the 4th slice (pH=7)
+  a3 <- slice.affinity(a2,2,4)
+  stopifnot(all.equal(a1$values,a3$values))
 }
 
 \keyword{misc}

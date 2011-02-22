@@ -27,7 +27,7 @@
 \newenvironment{wrapsweave}{\par}{\par}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-%\VignetteIndexEntry{3 - Growth temperature and relative stabilities of proteins}
+%\VignetteIndexEntry{3. Growth temperature and relative stabilities of proteins}
 
 % note: this is not compatible with multicore; with multicore
 % loaded the PDF files of the images are damaged

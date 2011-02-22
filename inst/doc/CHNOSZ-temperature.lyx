@@ -4,7 +4,7 @@
 \begin_header
 \textclass literate-article
 \begin_preamble
-%\VignetteIndexEntry{3 - Growth temperature and relative stabilities of proteins}
+%\VignetteIndexEntry{3. Growth temperature and relative stabilities of proteins}
 
 % note: this is not compatible with multicore; with multicore
 % loaded the PDF files of the images are damaged
@@ -129,7 +129,7 @@ This vignette demonstrates an analysis of the relative stabilities of 24
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<options,echo=FALSE>>=
@@ -2596,7 +2596,7 @@ Load CHNOSZ.
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<libraryCHNOSZ>>=
@@ -2629,7 +2629,7 @@ accoaco
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<proteins>>=
@@ -2729,7 +2729,7 @@ Set up the basis species.
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<basis>>=
@@ -2771,7 +2771,7 @@ key "DS11"
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<getlogaH2>>=
@@ -2822,7 +2822,7 @@ diagram
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<plot.it,echo=FALSE>>=
@@ -3116,7 +3116,7 @@ A)
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<plot.it.args>>=
@@ -3145,7 +3145,7 @@ Define the limits of temperature and
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<limits>>=
@@ -3182,7 +3182,7 @@ Identify the low- and high-temperature model organisms.
 
 \begin_layout Standard
 \begin_inset Branch 0D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<itemp>>=
@@ -3309,7 +3309,7 @@ textwidth}
 
 \begin_layout Standard
 \begin_inset Branch 1D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<carboxylase1,fig=T,results=hide>>=
@@ -3446,7 +3446,7 @@ revisit
 
 \begin_layout Standard
 \begin_inset Branch 2D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<carboxylase2,fig=T,results=hide>>=
@@ -3578,7 +3578,7 @@ textwidth}
 
 \begin_layout Standard
 \begin_inset Branch 3D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<carboxylase3,fig=T,results=hide>>=
@@ -3775,7 +3775,7 @@ textwidth}
 
 \begin_layout Standard
 \begin_inset Branch 4D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<carboxylase4,fig=T,results=hide>>=
@@ -3897,7 +3897,7 @@ reference "sub:4"
 
 \begin_layout Standard
 \begin_inset Branch 5D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<plot.rank,echo=FALSE>>=
@@ -4213,7 +4213,7 @@ textwidth}
 
 \begin_layout Standard
 \begin_inset Branch 5D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<carboxylase5,fig=T,results=hide>>=
@@ -4261,7 +4261,7 @@ C results.
 
 \begin_layout Standard
 \begin_inset Branch 5D
-status collapsed
+status open
 
 \begin_layout Scrap
 <<carboxylase6,fig=T,results=hide>>=

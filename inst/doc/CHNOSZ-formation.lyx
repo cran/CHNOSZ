@@ -4,7 +4,7 @@
 \begin_header
 \textclass literate-beamer-r
 \begin_preamble
-%\VignetteIndexEntry{1 - A different kind of stability: Energy of protein formation}
+%\VignetteIndexEntry{2. A different kind of stability: Energy of protein formation}
 % beamer stuff
 %\usepackage{beamerthemeshadow}
 \usetheme{Frankfurt}
@@ -1073,7 +1073,7 @@ status open
 \end_layout
 
 \begin_layout Scrap
-f <- system.file("data/EF-Tu.aln",package="CHNOSZ")
+f <- system.file("extdata/EF-Tu.aln",package="CHNOSZ")
 \end_layout
 
 \begin_layout Scrap
