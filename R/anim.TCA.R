@@ -57,7 +57,7 @@ anim.TCA <- function(redox=list(O2=c(-95,-60)),high.T=FALSE,
       lcol <- c(lcol,"red")
       diagram(slice.affinity(a.hot,3,iframes[i]),add=TRUE,col="red",cex=1.5)
     }
-    legend("topleft",legend=as.expression(ltext),lty=1,col=lcol)
+    if(high.T) legend("topleft",legend=as.expression(ltext),lty=1,col=lcol)
     title(main=paste("TCA cycle reactants; pH =",
       format(round(pH[iframes[i]],2))))
   }

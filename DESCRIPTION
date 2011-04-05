@@ -1,7 +1,7 @@
 Package: CHNOSZ
 Title: Chemical Thermodynamics and Activity Diagrams
-Version: 0.9-4
-Date: 2011-02-22
+Version: 0.9-5
+Date: 2011-04-05
 Author: Jeffrey M. Dick <jmdick@asu.edu>
 Maintainer: Jeffrey M. Dick <jmdick@asu.edu>
 Depends: R (>= 2.7.0), utils
@@ -20,6 +20,6 @@ Description: This package includes functions and data sets to support
 License: GPL (>= 2)
 ZipData: no
 URL: http://www.chnosz.net/
-Packaged: 2011-02-22 19:22:52 UTC; jedick
+Packaged: 2011-04-05 07:55:19 UTC; jedick
 Repository: CRAN
-Date/Publication: 2011-02-23 09:32:47
+Date/Publication: 2011-04-05 14:46:24

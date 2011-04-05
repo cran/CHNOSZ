@@ -40,7 +40,7 @@
    tfile <- system.file("extdata/gi.taxid.txt",package="CHNOSZ")
    gi.taxid <- scan(tfile,what=as.list(character(2)),flush=TRUE)
    # read the file that connects names with the taxids
-   nfile <- system.file("data/taxid.phylum.csv",package="CHNOSZ")
+   nfile <- system.file("extdata/taxid.phylum.csv",package="CHNOSZ")
    taxid.phylum <- read.csv(nfile)
    # the BLAST files
    bfile <- paste("extdata/bison",c("N","R","P"),"_vs_refseq39.blastp",sep="")

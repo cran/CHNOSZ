@@ -96,7 +96,7 @@
 
   ## plot ZC of reference protein sequence
   ## for different organisms
-  file <- system.file("data/protein_refseq.csv",package="CHNOSZ")
+  file <- system.file("extdata/protein_refseq.csv",package="CHNOSZ")
   ip <- add.protein(file)
   # only use those organisms with a certain
   # number of sequenced bases

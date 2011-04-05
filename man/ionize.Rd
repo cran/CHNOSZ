@@ -58,7 +58,7 @@
   lines(z[[1]],x=seq(0,14,length.out=50),lty=2)
   text(x=12,y=-7,"T=25, oxidized")
   # add experimental points
-  RT71 <- read.csv(system.file("data/RT71.csv",package="CHNOSZ"))
+  RT71 <- read.csv(system.file("extdata/RT71.csv",package="CHNOSZ"))
   points(RT71$pH,RT71$Z)
   title(main=paste("Ionization of unfolded LYSC_CHICK\n",
     "Experimental points at 25 degC from Roxby and Tanford, 1971"),
@@ -89,7 +89,7 @@
   T.MP <- c(5,25,50,75,100,125)
   points(T.MP,convert(MP90.cp(T.MP,"LYSC_CHICK"),"cal"))
   # Privalov and Makhatadze's experimental values
-  e <- read.csv(system.file("data/PM90.csv",package="CHNOSZ"))
+  e <- read.csv(system.file("extdata/PM90.csv",package="CHNOSZ"))
   e <- e[e$protein=="LYSC_CHICK",]
   points(e$T,convert(e$Cp,"cal"),pch=16)
   title(main=paste("Calc'd heat capacity of LYSC_CHICK:",

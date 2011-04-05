@@ -10,23 +10,18 @@
 \alias{ECO}
 \alias{HUM}
 \alias{groups}
-\alias{PM90}
-\alias{RH95}
-\alias{RT71}
-\alias{SOJSH}
-\alias{gi.taxid}
-\alias{taxid.phylum}
-\alias{AA03}
-\alias{ISR+08}
-\alias{protein_refseq}
 \title{Thermodynamic Database and System Definition}
 \description{
  
-  This data object holds the thermodynamic database of properties of species, along with operational parameters for \pkg{CHNOSZ}, the properties of elements, references to sources of thermodynamic and compositional data, compositions of chemical activity buffers, amino acid compositions of proteins, and miscellaneous other data taken from the literature. The \code{thermo} object also holds intermediate data used in calculations, in particular the definitions of basis species and species of interest input by the user, and the properties of \code{\link{water}} so that subsequent calculations at the same temperature-pressure conditions can be accelerated.
+  The data files provided with CHNOSZ are divided among the \code{data} and \code{inst/extdata} directories of the packages; the former contains the data files used to build the \code{thermo} data object, while the latter contains other data files, mostly for used by the examples.
+
+  The \code{thermo} object holds the thermodynamic database of properties of species, along with operational parameters for \pkg{CHNOSZ}, the properties of elements, references to sources of thermodynamic and compositional data, compositions of chemical activity buffers, amino acid compositions of proteins, and miscellaneous other data taken from the literature. The \code{thermo} object also holds intermediate data used in calculations, in particular the definitions of basis species and species of interest input by the user, and the properties of \code{\link{water}} so that subsequent calculations at the same temperature-pressure conditions can be accelerated.
 
   The \code{thermo} object is a \code{\link{list}} composed of \code{\link{data.frame}}s or lists each representing a class of data. The object is created upon loading the package (by calling \code{\link{data}(thermo)} from within the \code{\link{.First.lib}} function) from \code{*.csv} files in the \code{data} directory of the package. \code{thermo} is globally accessible; i.e., it is present in the user's environment. After loading \pkg{CHNOSZ} you may run \code{ls()} to verify that \code{thermo} is present, or type \code{thermo} to print the entire contents of the object on the screen. The various elements of the \code{thermo} object can be accessed using \R's subsetting operators; for example, typing \code{thermo$opt} at the command line displays the current list of operational parameters (some of which can be altered using functions dedicated to this purpose; see e.g. \code{\link{nuts}}).
 
   To make persistent additions or changes to the thermodynamic database of your installation, including compositions of proteins, first locate the installation directory of the package. This will be different depending on your operating system and type of \R installation, but is something like /usr/lib/R/library/CHNOSZ, /Volumes/Macintosh HD/Library/Frameworks/R.framework/resources/ library/CHNOSZ, C:\\Program Files\\R\\R-2.10.0\\library\\CHNOSZ, or C:\\Users\\[User Name]\\Documents\\R \\win-library\\2.10\\CHNOSZ on Linux, Mac and Windows (XP and Vista) systems, respectively. To find the exact location of this directory on your system, use the command \code{\link{system.file}(package="CHNOSZ")}. Inside the \code{data} directory of the installation directory of the package are the \code{.csv} files that can be edited with a spreadsheet program. Edit and save the \code{OBIGT.csv} and/or \code{protein.csv} files as desired. The next time you start an R session, the new data will be available.
+
+  NOTE: As of \R-2.13.0 and CHNOSZ version 0.9-5, the instructions in the above paragraph no longer apply, partly because of the \dQuote{resave data} feature of \code{R CMD build}, which compresses (using gzip) the files in the \code{data} directory. If custom thermodynamic data are to be used, one can load a custom thermodynamic data file using \code{\link{add.obigt}}.
 
   Functions are available to interactively update the thermodynamic database or definitions of buffers (\code{\link{mod.obigt}} and \code{\link{mod.buffer}}, respectively; a function named \code{\link{change}} serves as a wrapper to both of these). Changes made using these functions, as well as any interactive definitions of basis species and species of interest, are lost when the current session is closed without saving or if the \code{thermo} object is reinitialized by the command \code{\link{data}(thermo)}.
 
@@ -36,7 +31,7 @@
 
 \format{
 
-  The primary data files, on which CHNOSZ depends for its basic features and operation, are documented below.
+  The items in the \code{thermo} object are documented below.
 
   \itemize{
      
@@ -75,9 +70,7 @@
 
   This dataframe is a thermodynamic database of standard molal thermodynamic properties and equations of state parameters of species. \acronym{OBIGT} is an acronym for \samp{OrganoBioGeoTherm}, which refers to a software package produced by Harold C. Helgeson and coworkers at the Laboratory of Theoretical Geochemistry and Biogeochemistry at the University of California, Berkeley. (There may be an additional meaning for the acronym: \dQuote{One BIG Table} of thermodynamic data.)
 
-  As of \pkg{CHNOSZ} version 0.7, the data in \code{OBIGT.csv} represent 179 minerals, 16 gases, and 294 aqueous (largely inorganic) species taken from the data file included in the \acronym{SUPCRT92} distribution (Johnson et al., 1992), an additional 14 minerals, 6 gases, and 1049 aqueous organic and inorganic species from the \acronym{slop98.dat} file (Shock et al., 1998), and approximately 50 other minerals, 175 crystalline organic and biochemical species, 220 organic gases, 300 organic liquids, 650 aqueous inorganic, organic, and biochemical species, and 40 organic groups taken from the recent literature. Each entry is referenced to one or two literature sources listed in \code{thermo$source}. Some entries taken from the \acronym{SUPCRT92} or \acronym{slop98.dat} databases have been superseded, or duplicated, by later data that may be present in a separate file (\code{data/OBIGT-2.csv}; for more information see the help for \code{\link{add.obigt}}). 
-
-  Note the following modifications:
+  As of \pkg{CHNOSZ} version 0.7, the data in \code{OBIGT.csv} represent 179 minerals, 16 gases, and 294 aqueous (largely inorganic) species taken from the data file included in the \acronym{SUPCRT92} distribution (Johnson et al., 1992), an additional 14 minerals, 6 gases, and 1049 aqueous organic and inorganic species from the \acronym{slop98.dat} file (Shock et al., 1998), and approximately 50 other minerals, 175 crystalline organic and biochemical species, 220 organic gases, 300 organic liquids, 650 aqueous inorganic, organic, and biochemical species, and 40 organic groups taken from the recent literature. Each entry is referenced to one or two literature sources listed in \code{thermo$source}. Note the following additional modifications:
 
   \itemize{
      \item Use corrected values of \eqn{a_2}{a2} and \eqn{a_4}{a4} for [-CH2NH2] (were inadverdently set to zero in Table 6 of Dick et al., 2006).
@@ -238,7 +231,14 @@
 
   }  % end of itemize with long descriptions
      
-  The following are additional data files that support the examples in the package documentation and vignettes. Some list measurements of thermodynamic properties:
+
+} % end of format
+
+\section{extdata}{
+
+  The files in the \code{inst/extdata} directory are additional data files that support the examples in the package documentation and vignettes. One of the files (\code{inst/extdata/OBIGT-2.csv}) contains supplementary thermodynamic data in the same format as \code{data/OBIGT.csv}. Some entries taken from the \acronym{SUPCRT92} or \acronym{slop98.dat} databases have been superseded, or duplicated, by more recent data that may be present in this file; see also the help for \code{\link{add.obigt}}. 
+
+  Other files in this directory list measurements of thermodynamic properties:
 
     \itemize{
       \item \code{PM90.csv} Heat capacities of four unfolded aqueous proteins taken from Privalov and Makhatadze, 1990. Names of proteins are in the first column, temperature in \eqn{^{\circ}}{degrees }C in the second, and heat capacities in J mol\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} in the third.
@@ -247,7 +247,7 @@
       \item \code{SOJSH.csv} Experimental equilibrium constants for the reaction NaCl(aq) = Na+ + Cl- as a function of temperature and pressure taken from Fig. 1 of Shock et al., 1992. Data were extracted from the figure using g3data (\url{http://www.frantz.fi/software/g3data.php}).
     }
 
-  Some of the additional files relate to processing metagenomic data and taxonimic classification:
+  Some of the additional files relate to processing metagenomic data and taxonomic classification:
     \itemize{
       \item \code{bisonN_vs_refseq39.blast}, \code{bisonR_vs_refseq39.blast}, \code{bisonP_vs_refseq39.blast} are tabular BLAST results for proteins in the Bison Pool Environmental Genome. The BLAST files contain the first hit for each of 2500 query sequences. The target database for the searches was constructed from microbial protein sequences in National Center for Biotechnology Information (NCBI) RefSeq database version 39. 
 
@@ -268,7 +268,7 @@
       \item \code{protein_refseq.csv} contains the average amino acid compositions of all protein sequences for each organism identified by taxonomic ID in the NCBI Reference Sequence (RefSeq) database, version 45. The file was generated using code provided in the \code{refseq} directory of the CHNOSZ installation directory. 
   }
 
-} % end of format
+}
 
 \seealso{ \code{\link{add.protein}} and \code{\link{add.obigt}} for adding amino acid compositions of proteins and thermodynamic data from local .csv files.
 }

@@ -127,7 +127,7 @@
     # start a new plot with the experimental data
     thermo.plot.new(xlim=c(0,1000),ylim=c(-5.5,1),
       xlab=axis.label("T"),ylab=axis.label("logK"))
-    expt <- read.csv(system.file("data/SOJSH.csv",package="CHNOSZ"))
+    expt <- read.csv(system.file("extdata/SOJSH.csv",package="CHNOSZ"))
     points(expt$T,expt$logK,pch=expt$pch)
     T <- list(seq(0,370,25),seq(265,465,25),
       seq(285,760,25),seq(395,920,25))

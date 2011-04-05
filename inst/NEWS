@@ -1,3 +1,8 @@
+CHNOSZ_0.9-5 (2011-04-05) Minor updates in consideration of upcoming R-2.13.0:
+change Makefile in inst/doc to be compatible with a parallel make; move *.csv
+files not used in construction of 'thermo' object to 'inst/extdata' (and adjust
+paths in examples and in argument defaults of 'add.obigt' accordingly).
+
 CHNOSZ_0.9-4 (2011-02-22) Add 'cex.names' argument to strip(). Rewrite s2c() to
 use strsplit(). diagram() now accepts a 'group' argument without names. Update
 read.supcrt() to be able to import SLOP07.dat (fixes some problems with

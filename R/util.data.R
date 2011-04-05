@@ -106,7 +106,7 @@ change <- function(name,...) {
   }
 }
 
-add.obigt <- function(file=system.file("data/OBIGT-2.csv",package="CHNOSZ"),force=FALSE) {
+add.obigt <- function(file=system.file("extdata/OBIGT-2.csv",package="CHNOSZ"),force=FALSE) {
   # add/replace entries in thermo$obigt from values saved in a file
   # only replace if force==TRUE
   if(missing(file)) {

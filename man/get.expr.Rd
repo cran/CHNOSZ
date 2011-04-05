@@ -42,7 +42,7 @@ Get abundance data from a protein expression experiment and add the proteins to 
 \examples{
   \dontshow{data(thermo)}
   # let's use a sample data file
-  file <- system.file("data/ISR+08.csv",package="CHNOSZ")
+  file <- system.file("extdata/ISR+08.csv",package="CHNOSZ")
   # read the abundances and get the proteins from thermo$ECO.csv
   expr <- get.expr(file,"ID","emPAI","ECO")
   # what if we just wanted kinases?
