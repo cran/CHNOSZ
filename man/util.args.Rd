@@ -46,6 +46,6 @@ A list is return by \code{eos.args} and \code{TP.args}, and character is returne
   state.args(c("a","l","liq"))
 }
 
-\keyword{misc}
+\keyword{util}
 
 

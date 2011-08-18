@@ -1,0 +1,822 @@
+%% LyX 1.6.9 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[10pt,english,slidestop,compress,mathsans]{beamer}
+\usepackage{mathpazo}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\setcounter{tocdepth}{1}
+\usepackage{babel}
+
+\usepackage{array}
+\usepackage{textcomp}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage[authoryear]{natbib}
+\hypersetup{unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false,}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+ % fix for LyX layout using \DeclareLaTeXClass[beamer, Sweave.sty]
+ % (fails with Undefined control sequence \makebeamertitle)
+ \newcommand\makebeamertitle{\frame{\maketitle}}%
+ \AtBeginDocument{
+   \let\origtableofcontents=\tableofcontents
+   \def\tableofcontents{\@ifnextchar[{\origtableofcontents}
+ {\gobbletableofcontents}}
+   \def\gobbletableofcontents#1{\origtableofcontents}
+ }
+ \makeatletter
+ \long\def\lyxframe#1{\@lyxframe#1\@lyxframestop}%
+ \def\@lyxframe{\@ifnextchar<{\@@lyxframe}{\@@lyxframe<*>}}%
+ \def\@@lyxframe<#1>{\@ifnextchar[{\@@@lyxframe<#1>}{\@@@lyxframe<#1>[]}}
+ \def\@@@lyxframe<#1>[{\@ifnextchar<{\@@@@@lyxframe<#1>[}{\@@@@lyxframe<#1>[<*>][}}
+ \def\@@@@@lyxframe<#1>[#2]{\@ifnextchar[{\@@@@lyxframe<#1>[#2]}{\@@@@lyxframe<#1>[#2][]}}
+ \long\def\@@@@lyxframe<#1>[#2][#3]#4\@lyxframestop#5\lyxframeend{%
+   \frame<#1>[#2][#3]{\frametitle{#4}#5}}
+ \makeatother
+ \def\lyxframeend{} % In case there is a superfluous frame end
+ \makeatletter
+ \long\def\lyxagainframe#1{\@lyxagainframe#1\@lyxframestop}%
+ \def\@lyxagainframe{\@ifnextchar<{\@@lyxagainframe}{\@@lyxagainframe<*>}}%
+ \def\@@lyxagainframe<#1>{\@ifnextchar[{\@@@lyxagainframe<#1>}{\@@@lyxagainframe<#1>[]}}
+ \long\def\@@@lyxagainframe<#1>[#2]#3\@lyxframestop{%
+   \againframe<#1>[#2]{#3}}
+ \makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%\VignetteIndexEntry{small group group additivity}
+% beamer stuff
+%\usepackage{beamerthemeshadow}
+\usetheme{Frankfurt}
+%removes bottom navigation bars
+\setbeamertemplate{footline}[page number]{}
+%removes navigation symbols
+\setbeamertemplate{navigation symbols}{}
+% for some reason doesn't work even with
+% beamer option mathserif
+%\usepackage{eulervm}
+
+% removes header
+\setbeamertemplate{headline}[default]
+
+% for scrap sweave environment in LyX
+\newenvironment{wrapsweave}{\par}{\par}
+
+% command for caret character in math mode
+\newcommand\caret{\mathbin{\char`\^}}
+
+% alternate color scheme 
+\newcommand\colorthemeflu{
+\setbeamercolor{normal text}{bg=black!30}
+\setbeamercolor{item projected}{use=item,fg=black,bg=green}
+}
+
+% reset to original colors
+\newcommand\colorthemereset{
+\setbeamercolor{normal text}{bg=white}
+\setbeamercolor{item projected}{parent=item,use=item,fg=white,bg=item.fg}
+}
+
+% change the dimensions of figures
+%\SweaveOpts{width=3.5,height=3}
+
+% so DOIs in bibliography show up as hyperlinks
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+
+\makeatother
+
+\begin{document}
+
+\title{small group group additivity}
+
+
+\subtitle{based on a presentation at GEOPIG meeting 2011-05-10}
+
+
+\author{Jeffrey M. Dick}
+
+
+\institute{School of Earth and Space Exploration\\
+Arizona State University}
+
+\makebeamertitle
+\begin{wrapsweave}
+<<setup,echo=F,results=hide>>=
+
+require(CHNOSZ)
+
+options(width=65,continue=" ")
+
+@
+\end{wrapsweave}
+
+
+
+\lyxframeend{}\section{Big Groups (added)}
+
+\colorthemeflu
+
+
+\lyxframeend{}\lyxframe{<1>[label=outline]small group group additivity}
+\begin{columns}%{}
+
+
+\column{9cm}
+
+\begin{itemize}
+  \item<1-> Additivity is useful for some tasks
+  \only<1>{
+    \begin{itemize}
+     \item Group contributions come from known properties of model compounds
+     \item Use them to estimate thermodynamic properties of compounds lacking experimental data
+     \item Can it be used for properties of interesting molecules, e.g. metabolites?
+     \item Challenge: Apply group additivity to highly substituted molecules
+    \end{itemize}
+  }
+  \item<2-> Big groups have their place
+  \only<2-3>{
+    \begin{itemize}
+      \item<2-3> Large structural groups; no nearest-neighbor effects
+      \item<2-3> Can we apply them to a wider variety of compounds?
+      \item<3> Have negative group contributions for some compounds of interest (e.g. citric acid)
+      \item<3> Large error for this type of calculation. Keep experimental error in mind too!
+    \end{itemize}
+  }
+  \item<4-> small groups aren't perfect either
+  \only<4>{
+    \begin{itemize}
+     \item More detail about molecular structures -- bond information
+     \item Improved overall fit compared to large groups
+     \item Does it help us get closer to lactic and citric acids, or others?
+    \end{itemize}
+  }
+  \item<5-> Extend to other properties ... find more model compounds ...
+\end{itemize}
+
+\end{columns}%{}
+
+\lyxframeend{}
+
+\colorthemereset
+
+
+\lyxframeend{}\lyxframe{[label=BigGroups]Scheme 1: Big Groups}
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\textbf{\large ethane} & {\large 2{[}-CH3{]}} &  &  & \tabularnewline
+ &  &  &  & \tabularnewline
+\textbf{\large propane} & {\large 2{[}-CH3{]}} & {\large +{[}-CH2-{]}} &  & \tabularnewline
+ &  &  &  & \tabularnewline
+\textbf{\large ethanol} & {\large {[}-CH3{]}} &  & {\large +{[}-CH2OH{]}} & \tabularnewline
+ &  &  &  & \tabularnewline
+\textbf{\large acetic acid} & {\large {[}-CH3{]}} &  &  & {\large +{[}COOH{]}}\tabularnewline
+\end{tabular}
+\par\end{center}
+\begin{itemize}
+\item These structural groups were used by \citet{AH97a} for predictions
+of properties of homologous series with carbon number $\ge$ 2.
+\end{itemize}
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{[label=Determined]Equations = Unknowns (Determined System)}
+
+\begin{center}
+\begin{tabular}{l|>{\centering}p{0.2in}>{\centering}p{0.2in}>{\centering}p{0.2in}>{\centering}p{0.2in}llcr}
+$A$ & \rotatebox{60}{$\mathrm{[-CH3]}$} & \rotatebox{60}{$\mathrm{[-CH2-]}$} & \rotatebox{60}{$\mathrm{[-CH2OH]}$} & \rotatebox{60}{$\mathrm{[-COOH]}$} & \multicolumn{1}{c}{} & $X$ & \multicolumn{1}{c}{} & $B$\tabularnewline
+\cline{1-5} \cline{7-7} \cline{9-9} 
+ethane & 2 &  &  &  &  & $X_{\mathrm{[-CH3]}}$ &  & $88.3$\tabularnewline
+propane & 2 & 1 &  &  & $\times$ & $X_{\mathrm{[-CH2-]}}$ & $=$ & $110.6$\tabularnewline
+ethanol & 1 &  & 1 &  &  & $X_{\mathrm{[-CH2OH]}}$ &  & $62.2$\tabularnewline
+acetic acid & 1 &  &  & 1 &  & $X_{\mathrm{[-COOH]}}$ &  & $40.56$\tabularnewline
+\end{tabular}
+\par\end{center}
+
+~
+
+~
+
+~
+\begin{itemize}
+\item Matrix ($A$) represents a group contribution model.
+\item Vector of knowns ($B$) here contains values of $C_{P}^{\circ}$ (standard
+molal heat capacity in cal K$^{-1}$ mol$^{-1}$) for aqueous species.
+\item Known values are based on experiments (those here are available in
+thermodynamic database of CHNOSZ).
+\item Solve for $X$ (in $A\times X=B$) to get group contribution values.
+\end{itemize}
+~
+
+~
+
+~
+
+~
+
+~
+
+~
+
+~
+
+~
+
+~
+
+
+\lyxframeend{}
+
+\defverbatim\SolveFour{
+<<SolveFour,echo=TRUE>>=
+A <- matrix(c(2,2,1,1, 0,1,0,0, 0,0,1,0, 0,0,0,1), 4)
+b <- c(88.3,110.6,62.2,40.56)
+x <- solve(A,b)
+names(x) <- c("CH3","CH2","CH2OH","COOH")
+x
+@
+}
+
+\defverbatim\CpAmendHelgeson{
+<<CpAmendHelgeson,echo=TRUE>>=
+Cp.AH97 <- c(CH3=47.00,CH2=20.70,CH2OH=17.28,COOH=-5.94,CHCH3=39.92)
+Cp.AH97
+@
+}
+
+
+\lyxframeend{}\lyxframe{[label=Determined2,shrink]Equations = Unknowns (Determined System)}
+\begin{itemize}
+\item Solve the system in R:
+\end{itemize}
+\SolveFour
+\begin{itemize}
+\item Compare with literature values \citep{AH97a} obtained from consideration
+of many more model compounds in homologous series.
+\end{itemize}
+\CpAmendHelgeson
+
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{[shrink]Equations > Unknowns (Overdetermined System)}
+\begin{itemize}
+\item Consider more species, as well as an additional group: ketone group,
+{[}-CO-{]}.
+\item Heat capacities are reported values (mostly from experiments) in cal
+K$^{-1}$ mol$^{-1}$.
+\end{itemize}
+<<BigMatrixAdd,echo=FALSE,results=tex>>=
+# xtable for making nice LaTeX tables
+require(xtable)
+# read the "big group" specification
+f <- system.file("extdata/thermo/groups_big.csv",package="CHNOSZ")
+A.big <- read.csv(f,check.names=FALSE,row.names=1)
+# only take selected rows
+imod <- c("ethane","propane","butane","ethanol","1-propanol","1-butanol","1-pentanol",
+  "acetone","butanone","3-pentanone","2-heptanone",
+  "acetic acid","propanoic acid","butanoic acid")
+A.big <- A.big[imod,]
+# get the heat capacities
+is1 <- info(rownames(A.big),quiet=TRUE)
+mydf <- data.frame(Cp=info(is1,quiet=TRUE)$Cp,A.big,check.names=FALSE)
+print(xtable(mydf,align=c("l","r","r","r","r","r","r")))
+@
+
+
+\lyxframeend{}
+
+\defverbatim\QRexample{
+<<QRexample,echo=TRUE>>=
+set.seed(24)
+print(A <- matrix(runif(12), 4))
+b <- 1:4
+x <- qr.solve(A,b)
+as.numeric(A %*% x)
+@
+}
+
+
+\lyxframeend{}\lyxframe{[shrink]Approximate Solutions for Overdetermined Systems}
+\begin{itemize}
+\item Least-squares solution is possible with QR decomposition.
+\item Example below takes after help page for \texttt{qr.solve} in base
+R.
+\item Four equations, three unknowns
+\end{itemize}
+\QRexample
+\begin{itemize}
+\item $A\times X$ gives us an approximation of $B$.
+\end{itemize}
+
+\lyxframeend{}
+
+\defverbatim\ReadBigAdd{
+<<ReadBigAdd,echo=TRUE>>=
+file.big <- system.file("extdata/thermo/groups_big.csv",package="CHNOSZ")
+A.big <- read.csv(file.big,check.names=FALSE,row.names=1)
+iuse <- c("ethane","propane","butane","ethanol","1-propanol","1-butanol","1-pentanol",
+  "acetone","butanone","3-pentanone","2-heptanone",
+  "acetic acid","propanoic acid","butanoic acid")
+A.big <- A.big[iuse,]
+A.big[is.na(A.big)] <- 0
+@
+}
+
+\defverbatim\CpSpeciesAdd{
+<<CpSpeciesAdd,echo=TRUE>>=
+ispecies <- info(rownames(A.big),quiet=TRUE)
+cp.species <- info(ispecies)$Cp
+@
+}
+
+
+\lyxframeend{}\lyxframe{[shrink]Fitting \Sexpr{nrow(A.big)} Species Using \Sexpr{ncol(A.big)}
+Big Groups}
+\begin{itemize}
+\item Read the group contribution matrix. Only take selected groups (\texttt{iuse})
+at this time.
+\end{itemize}
+\ReadBigAdd
+\begin{itemize}
+\item Get the values of heat capacity of the aqueous model species. CHNOSZ
+warns about some inconsistencies between heat capacities listed in
+the database and values calculated using equations-of-state parameters.
+\end{itemize}
+\CpSpeciesAdd
+
+
+\lyxframeend{}
+
+\defverbatim\SolveBigAdd{
+<<SolveBigAdd,echo=TRUE>>=
+cp.big <- qr.solve(A.big,cp.species)
+cp.big
+@
+}
+
+\defverbatim\RMSDBigAdd{
+<<RMSDBigAdd,echo=TRUE>>=
+pred.big <- as.matrix(A.big) %*% cp.big
+rmsd <- rmsd(pred.big,cp.species)
+rmsd
+@
+}
+
+\defverbatim\ResidualsBigAdd{
+<<ResidualsBigAdd,echo=TRUE,eval=FALSE>>=
+residuals <- pred.big - cp.species
+names(residuals) <- rownames(A.big)
+residuals <- residuals
+residualsplot(residuals,"Cp","big groups (added)")
+@
+}
+
+
+\lyxframeend{}\lyxframe{[label=rmsdbig,shrink]Performance of {}``Big Groups'' Model}
+\begin{itemize}
+\item Calculate least-squares solution.
+\end{itemize}
+\SolveBigAdd
+\begin{itemize}
+\item What is the root mean square deviation (RMSD) between predicted and
+known values? (Note: \texttt{rmsd} used here is a simple function
+in CHNOSZ, not base R.)
+\end{itemize}
+\RMSDBigAdd
+\begin{itemize}
+\item We can also calculate and plot the residuals. \texttt{residualsplot}
+in CHNOSZ uses R's \texttt{barchart} function and adds labels and
+a title.
+\end{itemize}
+\ResidualsBigAdd
+
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{Big Groups ... when added}
+
+<<ResidualsPlotBigAdd,echo=F,fig=T>>=
+residuals <- pred.big - cp.species
+names(residuals) <- rownames(A.big)
+residuals <- residuals
+residualsplot(residuals,"Cp","big groups")
+@
+
+
+\lyxframeend{}
+
+\colorthemeflu
+
+
+\lyxframeend{}\lyxagainframe{<2>{outline}}
+
+
+\lyxframeend{}
+
+\colorthemereset
+
+
+\lyxframeend{}\section{Big Groups (added and subtracted)}
+
+
+\lyxframeend{}\lyxframe{[shrink]Equations > Unknowns (Overdetermined System)}
+\begin{itemize}
+\item Now more species. For some of them we have to use negative group contributions.
+\end{itemize}
+<<BigMatrixSub,echo=FALSE,results=tex>>=
+# xtable for making nice LaTeX tables
+require(xtable)
+# read the "big group" specification
+f <- system.file("extdata/thermo/groups_big.csv",package="CHNOSZ")
+A.big <- read.csv(f,check.names=FALSE,row.names=1)
+# get the heat capacities
+is1 <- info(rownames(A.big),quiet=TRUE)
+mydf <- data.frame(Cp=info(is1,quiet=TRUE)$Cp,A.big,check.names=FALSE)
+rownames(mydf) <- paste(paste("(",1:nrow(mydf),")",sep=""),rownames(mydf))
+print(xtable(mydf,align=c("l","r","r","r","r","r","r")))
+@
+
+
+\lyxframeend{}
+
+\defverbatim\ReadBigSub{
+<<ReadBigSub,echo=TRUE>>=
+file.big <- system.file("extdata/thermo/groups_big.csv",package="CHNOSZ")
+A.big <- read.csv(file.big,check.names=FALSE,row.names=1)
+A.big[is.na(A.big)] <- 0
+@
+}
+
+\defverbatim\CpBigSub{
+<<CpBigSub,echo=TRUE>>=
+ispecies <- info(rownames(A.big),quiet=TRUE)
+cp.species <- info(ispecies,quiet=TRUE)$Cp
+@
+}
+
+\defverbatim\SolveBigSub{
+<<SolveBigSub,echo=TRUE>>=
+i.big <- 1:24
+cp.big <- qr.solve(A.big[i.big,],cp.species[i.big])
+cp.big
+@
+}
+
+\defverbatim\RMSDBigSub{
+<<RMSDBigSub,echo=TRUE>>=
+pred.big <- as.matrix(A.big) %*% cp.big
+rmsd <- rmsd(pred.big[i.big],cp.species[i.big])
+rmsd
+@
+}
+
+\defverbatim\ResidualsBigSub{
+<<ResidualsBigSub,echo=TRUE,eval=FALSE>>=
+residuals <- pred.big - cp.species
+names(residuals) <- rownames(A.big)
+residuals <- residuals[i.big]
+residualsplot(residuals,"Cp","big groups")
+@
+}
+
+
+\lyxframeend{}\lyxframe{[shrink]Fitting \Sexpr{length(i.big)} Species Using \Sexpr{ncol(A.big)}
+Big Groups}
+\begin{itemize}
+\item Read the group contribution matrix.
+\end{itemize}
+\ReadBigSub
+\begin{itemize}
+\item Get the values of heat capacity of the aqueous model species.
+\end{itemize}
+\CpBigSub
+\begin{itemize}
+\item Calculate least-squares solution.
+\end{itemize}
+\SolveBigSub
+\begin{itemize}
+\item Calculate the RMSD
+\end{itemize}
+\RMSDBigSub
+\begin{itemize}
+\item Plot the residuals.
+\end{itemize}
+%\ResidualsBigSub
+
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{Big Groups ... when added and subtracted}
+
+<<ResidualsPlotBigSub,echo=F,fig=T>>=
+residuals <- pred.big - cp.species
+names(residuals) <- rownames(A.big)
+residuals <- residuals[i.big]
+residualsplot(residuals,"Cp","big groups")
+@
+
+
+\lyxframeend{}
+
+\colorthemeflu
+
+
+\lyxframeend{}\lyxagainframe{<3>{outline}}
+
+
+\lyxframeend{}
+
+\colorthemereset
+
+
+\lyxframeend{}\section{Small Groups}
+
+
+\lyxframeend{}\lyxframe{scheme 2: small groups}
+
+\begin{center}
+\begin{tabular}{ll}
+ethane & 2 x C-(H)3(C)\tabularnewline
+propane & 2 x C-(H)3(C) + C-(H)2(C)2\tabularnewline
+ethanol & C-(H)3(C) + C-(H)2(O)(C) + O-(H)(C)\tabularnewline
+acetic acid & C-(H)3(C) + CO-(O)(C) + O-(H)(CO)\tabularnewline
+\end{tabular}
+\par\end{center}
+\begin{itemize}
+\item 4 equations (model compounds), 6 unknowns (groups)
+\item The system above is underdetermined.
+\end{itemize}
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{[shrink]small groups definitions}
+
+\begin{center}
+\begin{tabular}{llll}
+\hline 
+{\footnotesize group} & {\footnotesize class} & {\footnotesize group} & {\footnotesize class}\tabularnewline
+\hline
+{\footnotesize C-(H)3C} & {\footnotesize methyl} & {\footnotesize CO-(HorO)(C)} & {\footnotesize acid, ester, }\textbf{\footnotesize aldehyde}\tabularnewline
+{\footnotesize C-(H)2(C)2} & {\footnotesize methylene} & {\footnotesize C-(H)3(CO)} & {\footnotesize ketone}\tabularnewline
+{\footnotesize CH3corr(tert)} & {\footnotesize tertiary} & {\footnotesize CO-(C)2} & {\footnotesize ketone}\tabularnewline
+{\footnotesize O-(H)(C)} & {\footnotesize alcohol} & {\footnotesize C-(HorO)(H)(CO)(C)} & {\footnotesize ketone, acid, }\textbf{\footnotesize alcohol}\tabularnewline
+{\footnotesize C-(H)2(O)(C)} & {\footnotesize alcohol, ester} & {\footnotesize O-(H)(CO)} & {\footnotesize acid}\tabularnewline
+{\footnotesize C-(H)(O)(C)2} & {\footnotesize alcohol, peroxide} & {\footnotesize C-(H)(CO)(C)2} & {\footnotesize acid}\tabularnewline
+\hline
+\end{tabular}
+\par\end{center}
+\begin{itemize}
+\item Additivity scheme is adapted from \citet{BB58} and \citet{DH93}
+
+\begin{itemize}
+\item CO-(HorO)(C) is merged from CO-(O)(C) {[}acids, esters{]} and CO-(H)(C)
+{[}aldehydes{]} (e.g., acetaldehyde).
+\item C-(HorO)(H)(CO)(C) is merged from C-(H)2(CO)(C) {[}ketones, acids{]}
+and C-(H)(O)(CO)(C) {[}alcohols{]} (e.g., citric acid).
+\end{itemize}
+\item These adaptations are necessary because for this example we are using
+a limited set of model compounds.
+\item Asterisks on next page indicate species added to database in CHNOSZ
+for this example, needed to make a non-singular matrix of group contributions.
+\end{itemize}
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{[shrink]small groups matrix (partially overdetermined)}
+
+<<SmallMatrix,echo=FALSE,results=tex>>=
+# read the "small group" specification
+file.small <- system.file("extdata/thermo/groups_small.csv",package="CHNOSZ")
+A.small <- read.csv(file.small,check.names=FALSE,row.names=1)
+# add stars to indicate species from Aug.11
+ispecies <- info(head(rownames(A.small),-1),quiet=TRUE)
+inew <- grep("Aug.11",info(ispecies,quiet=TRUE)$date)
+row.names(A.small)[inew] <- paste(row.names(A.small)[inew],"*")
+xt <- xtable(A.small,align=c("p{4.5cm}",rep("p{0.6cm}",12)))
+# now perform some work on the LaTeX code to rotate the column names
+xp <- capture.output(print(xt))
+# column names are in line 7
+stuff <- xp[[7]]
+# remove the \\\\ at end
+stuff <- strsplit(stuff,"\\\\\\\\ ")[[1]]
+# split the text at the latex separator
+stuff <- strsplit(stuff,"& ")[[1]]
+# remove the separating spaces
+stuff <- gsub("\ $","",stuff)
+# remember which ones are blank
+iblank <- stuff==""
+# add the latex rotation instructions
+# have to escape the backslash
+stuff <- paste("\\rotatebox{60}{",stuff,"}",sep="")
+# restore the blanks
+stuff[iblank] <- ""
+# restore the separating latex separator character
+stuff <- list(paste(stuff,"& "))
+# unsplit it
+stuff <- sapply(stuff,paste,collapse="")
+# restore the \\\\ at end
+stuff <- gsub("& $","\\\\\\\\ ",stuff)
+# put in our modified code for column names
+xp[[7]] <- stuff
+cat(xp,sep="\n")
+@
+
+
+\lyxframeend{}
+
+\defverbatim\ReadSmall{
+<<ReadSmall,echo=TRUE>>=
+file.small <- system.file("extdata/thermo/groups_small.csv",package="CHNOSZ")
+A.small <- read.csv(file.small,check.names=FALSE,row.names=1)
+A.small[is.na(A.small)] <- 0
+@
+}
+
+\defverbatim\CpSpeciesSmall{
+<<CpSpeciesSmall,echo=TRUE>>=
+ispecies <- info(head(rownames(A.small),-1),quiet=TRUE)
+cp.species <- info(ispecies,quiet=TRUE)$Cp
+cp.species <- c(cp.species,NA)
+@
+}
+
+\defverbatim\SolveSmall{
+<<SolveSmall,echo=TRUE>>=
+i.small <- 1:24
+cp.small <- qr.solve(A.small[i.small,],cp.species[i.small])
+cp.small
+@
+}
+
+
+\lyxframeend{}\lyxframe{[shrink]fitting \Sexpr{length(i.small)} species using \Sexpr{ncol(A.small)}
+small groups}
+\begin{itemize}
+\item Read the group contribution matrix.
+\end{itemize}
+\ReadSmall
+\begin{itemize}
+\item The small groups matrix has an additional row for isocitrate, but
+its heat capacity is not available in the database.
+\end{itemize}
+\CpSpeciesSmall
+\begin{itemize}
+\item Calculate least-squares solution.
+\end{itemize}
+\SolveSmall
+
+
+\lyxframeend{}
+
+\defverbatim\RMSDSmall{
+<<RMSDSmall,echo=TRUE>>=
+pred.small <- as.matrix(A.small) %*% cp.small
+rmsd <- rmsd(pred.small[i.small],cp.species[i.small])
+rmsd
+@
+}
+
+\defverbatim\ResidualsSmall{
+<<ResidualsSmall,echo=TRUE,eval=FALSE>>=
+residuals <- pred.small - cp.species
+names(residuals) <- rownames(A.small)
+residuals <- residuals[i.small]
+residualsplot(residuals,"Cp","small groups")
+@
+}
+
+
+\lyxframeend{}\lyxframe{[shrink]performance of {}``small groups'' model}
+\begin{itemize}
+\item Calculate predicted values and RMSD.
+\end{itemize}
+\RMSDSmall
+\begin{itemize}
+\item It's smaller than what we got using the big groups!
+\item Plot the residuals.
+\end{itemize}
+\ResidualsSmall
+\begin{itemize}
+\item Residuals of 0 are where the system is not overdetermined (acetaldehyde
+in this model has its {}``own'' group).
+\end{itemize}
+
+\lyxframeend{}
+
+
+\lyxframeend{}\lyxframe{[label=residualsplotsmall]small groups ...}
+
+<<ResidualsPlotSmall,echo=F,fig=T>>=
+residuals <- pred.small - cp.species
+names(residuals) <- rownames(A.small)
+residuals <- residuals[i.small]
+residualsplot(residuals,"Cp","small groups")
+@
+
+
+\lyxframeend{}
+
+\colorthemeflu
+
+
+\lyxframeend{}\lyxagainframe{<4>{outline}}
+
+
+\lyxframeend{}
+
+\colorthemereset
+
+
+\lyxframeend{}\section{Lactic and (Iso)Citric}
+
+
+\lyxframeend{}\lyxframe{Lactic and Citric and Isocitric}
+
+<<LacCit,echo=F>>=
+ilac <- match("lactic acid",rownames(A.small))
+icit <- match("citric acid",rownames(A.small))
+iiso <- match("isocitric acid",rownames(A.small))
+pb <- round(pred.big,2)
+ps <- round(pred.small,2)
+@
+\begin{itemize}
+\item Heat capacities of the aqueous species (cal K$^{-1}$ mol$^{-1}$)
+\end{itemize}
+\begin{center}
+\begin{tabular}{cccc}
+ & database & big groups & small groups\tabularnewline
+lactic acid & \Sexpr{cp.species[ilac]} & \Sexpr{pb[ilac]} & \Sexpr{ps[ilac]}\tabularnewline
+citric acid & \Sexpr{cp.species[icit]} & \Sexpr{pb[icit]} & \Sexpr{ps[icit]}\tabularnewline
+isocitric acid & NA & NA & \Sexpr{ps[iiso]}\tabularnewline
+\end{tabular}
+\par\end{center}
+\begin{itemize}
+\item Big groups actually get pretty close to citric acid, but they give
+no hint about the properties of isomerization.
+\item We are modeling isomerization as disproportionation. In the pictures,
+the second carbon gains a hydrogen and the third carbon loses one.
+\end{itemize}
+\begin{center}
+\begin{tabular}{>{\centering}p{2.3in}}
+\centering{}Isocitric~Acid~\textrightarrow{}~Citric~Acid \tabularnewline
+\end{tabular}
+\par\end{center}
+
+\begin{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.25\columnwidth]{isocitricacid} & \includegraphics[width=0.25\columnwidth]{citricacid}\tabularnewline
+\end{tabular}
+\par\end{center}
+
+\begin{center}
+\begin{tabular}{>{\centering}p{2.3in}}
+\begin{centering}
+C-(H)2(CO)(C)~\textrightarrow{}~C-(H)3(CO)
+\par\end{centering}
+
+\centering{}C-(H)2(CO)(C)~\textrightarrow{}~C-(H)(CO)(C)2\tabularnewline
+\end{tabular}
+\par\end{center}
+
+
+\lyxframeend{}
+
+\colorthemeflu
+
+
+\lyxframeend{}\lyxagainframe{<5>{outline}}
+
+
+\lyxframeend{}
+
+\colorthemereset
+
+
+\lyxframeend{}\lyxframe{references}
+
+\def\newblock{\hskip .11em plus .33em minus .07em}
+
+%\renewcommand\refname{References}
+
+\bibliographystyle{plainnat}
+\bibliography{vig}
+
+
+
+\lyxframeend{}
+\end{document}

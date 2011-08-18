@@ -28,13 +28,11 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
 
   If the abundances of the proteins are given in \code{abundance}, the individual protein compositions are multiplied by these values then summed into an overall composition; the average is taken if \code{average} is \code{TRUE}; then the amino acid frequencies are rounded to the number of decimal places specified in \code{digits}. Unless names for the new proteins are given in \code{pname}, they are generated using the values in \code{protein}.
 
-  (NOTE: \code{get.protein} replaces the \code{proteome} function that was present in \pkg{CHNOSZ} up to version 0.7-2. \code{proteome} had a coding error that led to incorrect calculations of the average composition of proteins when \code{abundance} was not equal to 1.)
-
-  The \code{yeastgfp} function returns the identities and abundances of proteins with the requested subcellular localization (specified in \code{location}) using data from the YeastGFP project that is stored in \code{\link{thermo}$yeastgfp}. The default value of \code{exclusive} (\code{FALSE}) tells the function to grab all proteins that are localized to a compartment even if they are also localized to other compartments. If \code{exclusive} is \code{TRUE}, only those proteins that are localized exclusively to the requested compartments are identified, unless there are no such proteins, then the non-exclusive localizations are used (applies to the \samp{bud} localization). The values returns by \code{yeastgfp} can be fed to \code{get.protein} in order to get the amino acid compositions of the proteins.
+  The \code{yeastgfp} function returns the identities and abundances of proteins with the requested subcellular localization (specified in \code{location}) using data from the YeastGFP project that is stored in \code{\link{extdata}/abundance/yeastgfp.csv.xz}. The default value of \code{exclusive} (\code{FALSE}) tells the function to grab all proteins that are localized to a compartment even if they are also localized to other compartments. If \code{exclusive} is \code{TRUE}, only those proteins that are localized exclusively to the requested compartments are identified, unless there are no such proteins, then the non-exclusive localizations are used (applies to the \samp{bud} localization). The values returns by \code{yeastgfp} can be fed to \code{get.protein} in order to get the amino acid compositions of the proteins.
 }
 
 \value{
-  For \code{get.protein}, returns the amino acid composition(s) of the specified protein(s), or a single overall composition if \code{abundance} is not NULL. \code{yeastgfp} returns a list with elements \code{yORF} and \code{abundance}.
+  For \code{get.protein}, returns the amino acid composition(s) of the specified protein(s), or a single overall composition if \code{abundance} is not NULL. \code{yeastgfp} returns a list with elements \code{yORF} and \code{abundance}, unless \code{location} is NULL, when the function returns (\code{\link{invisible}-y}) the names of all locations.
 }
 
 \seealso{
@@ -101,7 +99,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     # (one-dimensional speciation diagram as a function of logfO2)
     # After Dick, 2009
     basis("CHNOS+")
-    names <- colnames(thermo$yeastgfp)[6:28]
+    names <- yeastgfp()
     # calculate amino acid compositions using "get.protein" function 
     for(i in 1:length(names)) {
       y <- yeastgfp(names[i])
@@ -113,11 +111,11 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
     pl <- protein.length(thermo$species$name)
     species(NULL,unitize(thermo$species$logact,pl))
     res <- 200
-    t <- affinity(O2=c(-82,-65,res))
+    a <- affinity(O2=c(-82,-65,res))
     mycolor <- topo.colors(6)[1:4]
     mycolor <- rep(mycolor,times=rep(6,4))
     oldpar <- par(bg="black",fg="white")
-    logact <- diagram(t,balance="PBB",names=names,ylim=c(-5,-3),legend.x=NULL,
+    logact <- diagram(a,balance="PBB",names=names,ylim=c(-5,-3),legend.x=NULL,
       col=mycolor,lwd=2)$logact
     # so far good, but how about labels on the plot?
     for(i in 1:length(logact)) {
@@ -157,7 +155,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
       add.protein(p)
     }
     species(names,"SGD")
-    t <- affinity(H2O=c(-5,0,256),O2=c(-80,-66,256))
+    a <- affinity(H2O=c(-5,0,256),O2=c(-80,-66,256))
     # setup the plot
     layout(matrix(c(1,1,2:7),byrow=TRUE,nrow=4),heights=c(0.7,3,3,3))
     par(mar=c(0,0,0,0))
@@ -169,7 +167,7 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
       cex.axis <- 0.75
       # uncomment the following and dev.off() below to generate png files
       #png(paste(i,"png",sep="."),width=300,height=250); cex.axis <- 1
-      diagram(t,balance="PBB",names=names[inames],
+      diagram(a,balance="PBB",names=names[inames],
         ispecies=inames,cex.axis=cex.axis)
       label.plot(letters[i])
       title(main=paste(length(inames),"locations"))
@@ -273,14 +271,14 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
 
 \references{
 
-  Boer, V. M., de Winde, J. H., Pronk, J. T. and Piper, M. D. W., 2003. The genome-wide transcriptional responses of \emph{Saccharomyces cerevisiae} grown on glucose in aerobic chemostat cultures limited for carbon, nitrogen, phosphorus, or sulfur. \emph{J. Biol. Chem.}, 278, 3265-3274. \url{http://dx.doi.org/10.1074/jbc.M209759200}
+  Boer, V. M., de Winde, J. H., Pronk, J. T. and Piper, M. D. W. (2003) The genome-wide transcriptional responses of \emph{Saccharomyces cerevisiae} grown on glucose in aerobic chemostat cultures limited for carbon, nitrogen, phosphorus, or sulfur. \emph{J. Biol. Chem.} \bold{278}, 3265--3274. \url{http://dx.doi.org/10.1074/jbc.M209759200}
 
-  Dick, J. M., 2009. Calculation of the relative metastabilities of proteins in subcellular compartments of \emph{Saccharomyces cerevisiae}. \emph{BMC Syst. Biol.}, 3, 75. \url{http://dx.doi.org/10.1186/1752-0509-3-75}
+  Dick, J. M. (2009) Calculation of the relative metastabilities of proteins in subcellular compartments of \emph{Saccharomyces cerevisiae}. \emph{BMC Syst. Biol.} \bold{3}:75. \url{http://dx.doi.org/10.1186/1752-0509-3-75}
 
-  Richmond, C. S., Glasner, J. D., Mau, R., Jin, H. F. and Blattner, F. R., 1999. Genome-wide expression profiling in \emph{Escherichia coli} K-12. \emph{Nucleic Acids Res.}, 27, 3821-3835. \url{http://nar.oxfordjournals.org/cgi/content/abstract/27/19/3821}
+  Richmond, C. S., Glasner, J. D., Mau, R., Jin, H. F. and Blattner, F. R. (1999) Genome-wide expression profiling in \emph{Escherichia coli} K-12. \emph{Nucleic Acids Res.} \bold{27}, 3821--3835. \url{http://nar.oxfordjournals.org/cgi/content/abstract/27/19/3821}
 
-  Tai, S. L., Boer, V. M., Daran-Lapujade, P., Walsh, M. C., de Winde, J. H., Daran, J.-M. and Pronk, J. T., 2005. Two-dimensional transcriptome analysis in chemostat cultures: Combinatorial effects of oxygen availability and macronutrient limitation in \emph{Saccharomyces cerevisiae}. \emph{J. Biol. Chem.}, 280, 437-447. \url{http://dx.doi.org/10.1074/jbc.M410573200}
+  Tai, S. L., Boer, V. M., Daran-Lapujade, P., Walsh, M. C., de Winde, J. H., Daran, J.-M. and Pronk, J. T. (2005) Two-dimensional transcriptome analysis in chemostat cultures: Combinatorial effects of oxygen availability and macronutrient limitation in \emph{Saccharomyces cerevisiae}. \emph{J. Biol. Chem.} \bold{280}, 437--447. \url{http://dx.doi.org/10.1074/jbc.M410573200}
 
 }
 
-\keyword{misc}
+\keyword{primary}

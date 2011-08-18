@@ -76,9 +76,9 @@
   element("Z-1") # i.e., electron
  
   ## count selected elements in a formula
-  t <- makeup("H2O")
-  expand.formula(c("H","O"),t)
-  expand.formula(c("C","H","S"),t)
+  m <- makeup("H2O")
+  expand.formula(c("H","O"),m)
+  expand.formula(c("C","H","S"),m)
 
   ## calculate the average chemical formula of all of 
   ## the proteins in CHNOSZ' database
@@ -90,13 +90,12 @@
   ZC("CO2")  # 4
   ZC("CH4")  # -4
   ZC("CHNOSZ") # 7
-  t <- info(info("LYSC_CHICK"))
-  ZC(t$formula)  # 0.01631
-
+  si <- info(info("LYSC_CHICK"))
+  ZC(si$formula)  # 0.01631
 
   ## plot ZC of reference protein sequence
   ## for different organisms
-  file <- system.file("extdata/protein_refseq.csv",package="CHNOSZ")
+  file <- system.file("extdata/refseq/protein_refseq.csv.xz",package="CHNOSZ")
   ip <- add.protein(file)
   # only use those organisms with a certain
   # number of sequenced bases
@@ -108,7 +107,7 @@
   terms <- c("Streptomyces","Pseudomonas","Salmonella",
     "Escherichia","Vibrio","Bacteroides","Lactobacillus",
     "Staphylococcus","Streptococcus","Methano","Bacillus","Thermo","")
-  tps <- thermo$protein$source[ip]
+  tps <- thermo$protein$ref[ip]
   plot(0,0,xlim=c(1,13),ylim=c(-0.3,-0.05),pch="",
     ylab="average oxidation state of carbon in proteins",
     xlab="",xaxt="n",mar=c(6,3,1,1))
@@ -126,10 +125,10 @@
 
 \references{
 
-  Buvet, R., 1983. General criteria for the fulfillment of redox reactions, in \emph{Bioelectrochemistry I: Biological Redox Reactions}, Milazzo, G. and Blank, M., eds., Plenum Press, New York, p. 15-50. \url{http://www.worldcat.org/oclc/9282370}
+  Buvet, R. (1983) General criteria for the fulfillment of redox reactions, in \emph{Bioelectrochemistry I: Biological Redox Reactions}, Milazzo, G. and Blank, M., eds., Plenum Press, New York, p. 15--50. \url{http://www.worldcat.org/oclc/9282370}
  
-  Hendrickson, J. B., Cram, D. J., and Hammond, G. S., 1970. \emph{Organic Chemistry}, 3rd ed., McGraw-Hill, New York, 1279 p. \url{http://www.worldcat.org/oclc/78308}
+  Hendrickson, J. B., Cram, D. J., and Hammond, G. S. (1970) \emph{Organic Chemistry}, 3rd ed., McGraw-Hill, New York, 1279 p. \url{http://www.worldcat.org/oclc/78308}
 
 }
 
-\keyword{misc}
+\keyword{util}

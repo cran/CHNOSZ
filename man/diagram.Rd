@@ -70,7 +70,7 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
 
   To generate the stability relations from affinities of formation reactions, a reaction conservation rule is either automatically determined or specified by the user. For example, 3Fe2O3 = 2Fe3O4 + 1/2O2 is balanced on Fe (or a basis species containing Fe) and 4Fe2O3 + Fe = 3Fe3O4 is balanced on O (or a basis species containing O). The default action, if \code{balance} is \code{NULL}, is to balance on a basis species that appears in the formation reactions of all of the species of interest. The first such basis species (in order of their appearance in \code{thermo$basis}) will be used; this basis species is determined using \code{\link{which.balance}}. If a common basis species is not available, or if \code{balance} is \eqn{1}, the balance is set to unity. For proteins, an additional conservation rule is available; if \code{balance} is \code{PBB}, or if it is missing and all the species appear to be proteins (their names contain underscores) the metastability calculations will be balanced on protein length (number of protein backbone groups). 
 
-  Predominance (2-D) diagrams are usually produced using the maximum affinity method, which is based on the notion that the predominant species at any point in the diagram is that one that has the greatest affinity of formation divided by the balanced quantity. This behavior can be altered by specifiying \code{mam} as \code{FALSE}, in which case the relative abundances of all species are calculated in the manner described below and the most abundant one at each grid point identified as the predominant species. However, this procedure can be very slow unless the reactions are cast in terms of residues (i.e., to use \code{\link{logact.mb}} instead of \code{\link{logact.react}}).
+  Predominance (2-D) diagrams are usually produced using the maximum affinity method, which is based on the notion that the predominant species at any point in the diagram is that one that has the greatest affinity of formation divided by the balanced quantity. This behavior can be altered by specifiying \code{mam} as \code{FALSE}, in which case the relative abundances of all species are calculated in the manner described below and the most abundant one at each grid point identified as the predominant species. However, this procedure can be very slow unless the reactions are cast in terms of residues (i.e., to use \code{\link{equil.boltz}} instead of \code{\link{equil.react}}).
 
   When the coefficients of the balanced quantity are all equal, the location of the predominance field boundaries does not depend on the actual value of the activities of the species of interest, as long as they are all equal (these are "equal-activity" lines). Generally in the case in reactions among proteins, the coefficients of the balanced quantity are unequal in the different species, so the location of the predominance field boundaries does depend on the actual value chosen to represent equal activities of the species of interest. In this case the predominance field boundaries are "activity equal to X" lines. This is true for \code{mam} equal to TRUE; if \code{mam} is FALSE, the predominance fields really denote the most abundant species in a system, and the boundaries can represent different "equal-activity" values across the diagram.
 
@@ -117,9 +117,9 @@ d <- diagram(a,what="A",balance=1,ylim=c(-80,30),
   cex.names=0.7,col=mycol,lwd=2)
 title(main="Amino acid formation")
 ## logarithms of activities of amino acids
-# balanced on amino acid backbone, using logact.react
+# balanced on amino acid backbone, using equil.react
 d1 <- diagram(a,balance=1,legend.x=NULL,col=mycol,lwd=2)
-# balanced on amino acid backbone, using logact.mb
+# balanced on amino acid backbone, using equil.boltz
 d2 <- diagram(a,balance=1,residue=TRUE,do.plot=FALSE)
 # the last two give the same results
 stopifnot(all.equal(unlist(d2$logact),
@@ -164,8 +164,8 @@ title(main=paste("Aqueous sulfur speciation, 325 degC, 350 bar\n",
 ## After Fig. 1 of Aksu and Doyle, 2001 
 basis("CHNOS+")
 species(ispecies <- info(c("glycinium","glycine","glycinate")))
-t <- affinity(pH=c(0,14))
-diagram(t,alpha=TRUE,lwd=1)
+a <- affinity(pH=c(0,14))
+diagram(a,alpha=TRUE,lwd=1)
 title(main=paste("Degrees of formation of aqueous glycine species\n",
   "after Aksu and Doyle, 2001"))
 
@@ -213,13 +213,13 @@ basis(c("quartz","O2"))  # cr, gas
 # browse the species of interest
 info("SiO2 ")
 # we'll take the crystalline ones
-t <- info("SiO2","cr")
-species(t)
+si <- info("SiO2","cr")
+species(si)
 # calculate chemical affinities
 # the do.phases argument is necessary for 
 # dealing with the phase transitions of minerals
-t <- affinity(T=c(0,2000),P=c(0,30000),do.phases=TRUE)
-diagram(t)
+a <- affinity(T=c(0,2000),P=c(0,30000),do.phases=TRUE)
+diagram(a)
 title(main="Phases of SiO2\nafter Ernst, 1976")
 
 ## Distribution of copper on Eh-pH diagram
@@ -231,14 +231,14 @@ basis("Cl-",-2)
 species(c("CuCl","Cu+2","copper","cuprite","tenorite"))
 # (which is equivalent to ...)
 # species(c("CuCl","Cu+2","Cu","Cu2O","CuO"),c("","","","","","cr"))
-t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
+a <- affinity(pH=c(0,7),Eh=c(-0.1,1))
 # this one corresponds to activity contours of 
 # aqueous species at 10^-3 (the default aq activity in CHNOSZ)
-diagram(t,color=NULL)
+diagram(a,color=NULL)
 # here we set activities to unity; aq-cr boundaries change
 species(c("CuCl","Cu+2"),c(0,0))
-t <- affinity(pH=c(0,7),Eh=c(-0.1,1))
-diagram(t,add=TRUE,names=NULL,col="blue",color=NULL)
+a <- affinity(pH=c(0,7),Eh=c(-0.1,1))
+diagram(a,add=TRUE,names=NULL,col="blue",color=NULL)
 water.lines()
 title(main=paste("H2O-Cl-(Cu); activities of 10^-3 (black)\n",
   "or 0 (blue); after Pourbaix, 1949"))
@@ -338,28 +338,28 @@ title(main="Al2SiO5")
 
 \references{
 
-  Bowers, T. S., Jackson, K. J. and Helgeson, H. C., 1984. \emph{Equilibrium Activity Diagrams for Coexisting Minerals and Aqueous Solutions at Pressures and Temperatures to 5 kb and 600} \eqn{^{\circ}}{degrees }\emph{C}. Springer-Verlag, Heidelberg, 397 p. \url{http://www.worldcat.org/oclc/224591948}
+  Bowers, T. S., Jackson, K. J. and Helgeson, H. C. (1984) \emph{Equilibrium Activity Diagrams for Coexisting Minerals and Aqueous Solutions at Pressures and Temperatures to 5 kb and 600} \eqn{^{\circ}}{degrees }\emph{C}. Springer-Verlag, Heidelberg, 397 p. \url{http://www.worldcat.org/oclc/224591948}
 
-  Dick, J. M., 2008. Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.}, 9:10. \url{http://dx.doi.org/10.1186/1467-4866-9-10}
+  Dick, J. M. (2008) Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.} \bold{9}:10. \url{http://dx.doi.org/10.1186/1467-4866-9-10}
 
-  Ernst, W. G., 1976. \emph{Petrologic Phase Equilibria}. W. H. Freeman, San Francisco, 333 p. \url{http://www.worldcat.org/oclc/2072721}
+  Ernst, W. G. (1976) \emph{Petrologic Phase Equilibria}. W. H. Freeman, San Francisco, 333 p. \url{http://www.worldcat.org/oclc/2072721}
  
-  Helgeson, H. C., 1970. A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.}, 3, 155-186. \url{http://www.worldcat.org/oclc/583263}
+  Helgeson, H. C. (1970) A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.} \bold{3}, 155--186. \url{http://www.worldcat.org/oclc/583263}
 
-  Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K., 1978. Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.}, 278-A, 1-229. \url{http://www.worldcat.org/oclc/13594862}
+  Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{http://www.worldcat.org/oclc/13594862}
 
-  LaRowe, D. E. and Helgeson, H. C., 2007. Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology}, 5, 153-168. \url{http://dx.doi.org/10.1111/j.1472-4669.2007.00099.x}
+  LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \url{http://dx.doi.org/10.1111/j.1472-4669.2007.00099.x}
 
-  Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N., 2006. Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe2(SO4)3(H2O)5. \emph{Eur. J. Mineral.}, 18, 175-186. \url{http://dx.doi.org/10.1127/0935-1221/2006/0018-0175}
+  Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N. (2006) Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe2(SO4)3(H2O)5. \emph{Eur. J. Mineral.} \bold{18}, 175--186. \url{http://dx.doi.org/10.1127/0935-1221/2006/0018-0175}
 
-  Pourbaix, M. J. N., 1949. \emph{Thermodynamics of dilute aqueous solutions}. Edward Arnold & Co., London, 136 p. \url{http://www.worldcat.org/oclc/1356445}
+  Pourbaix, M. J. N. (1949) \emph{Thermodynamics of dilute aqueous solutions}. Edward Arnold & Co., London, 136 p. \url{http://www.worldcat.org/oclc/1356445}
 
-  Seewald, J. S., 1997. Mineral redox buffers and the stability of organic compounds under hydrothermal conditions. \emph{Mat. Res. Soc. Symp. Proc.}, 432, 317-331. \url{http://lucy.mrs.org/meetings/spring96/Program/S.S96.html}
+  Seewald, J. S. (1997) Mineral redox buffers and the stability of organic compounds under hydrothermal conditions. \emph{Mat. Res. Soc. Symp. Proc.} \bold{432}, 317--331. \url{http://lucy.mrs.org/meetings/spring96/Program/S.S96.html}
 
-  Tagirov, B. and Schott, J., 2001. Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta}, 65, 3965-3992. \url{http://dx.doi.org/10.1016/S0016-7037(01)00705-0}
+  Tagirov, B. and Schott, J. (2001) Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta} \bold{65}, 3965--3992. \url{http://dx.doi.org/10.1016/S0016-7037(01)00705-0}
 
-  Tardy, Y., Schaul, R. and Duplay, J., 1997. Thermodynamic stability fields of humus, microflora and plants. \emph{C. R. Acad. Sci. Paris}, 324, 969-976. \url{http://dx.doi.org/10.1016/S1251-8050(97)83981-X}
+  Tardy, Y., Schaul, R. and Duplay, J. (1997) Thermodynamic stability fields of humus, microflora and plants. \emph{C. R. Acad. Sci. Paris} \bold{324}, 969--976. \url{http://dx.doi.org/10.1016/S1251-8050(97)83981-X}
 
 }
 
-\keyword{misc}
+\keyword{primary}

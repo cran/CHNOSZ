@@ -362,13 +362,14 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
     # Astar: the affinities/2.303RT of formation of species
     # in their standard-state activities
     Astar <- aval
+    # now get the equilibrium activities
     if(residue) {
       for(j in 1:length(Astar)) Astar[[j]] <- Astar[[j]] + oldlogact[j]/oldbalance[j]
-      A <- logact.mb(Astar,nbalance,logatotal)
+      A <- equil.boltz(Astar,nbalance,logatotal)
     }
     else {
       for(j in 1:length(Astar)) Astar[[j]] <- Astar[[j]] + affinity$species$logact[j]
-      A <- logact.react(Astar,aval,nbalance,logatotal)
+      A <- equil.react(Astar,aval,nbalance,logatotal)
     }
     # if we rewrote the formation reactions per residue,
     # get back to activities of species
@@ -414,26 +415,26 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
 
   ### 0-D properties of species or reactions for single set of conditions
   if(nd==0) {
+    # alpha: plot degree of formation instead of logact
+    # scale the activities to sum=1  ... 20091017
+    if(alpha) {
+      a <- numeric()
+      for(j in 1:length(A)) a <- c(a,A[[j]])
+      loga.sum <- log10(sum(10^a))
+      loga <- 0; a <- loga - loga.sum
+      for(j in 1:length(A)) A[[j]] <- 10^(A[[j]] + a)
+      ylab <- "alpha"
+      if(missing(main)) main <- "alpha"
+    } else {
+      ylab <- axis.title(what)
+      if(missing(main)) main <- "logarithm of activity"
+    }
     if(do.plot) {
       mgp <- par("mgp")
       mgp[1] <- yline
       if(what=="logact") {
         # the logarithms of activities
         v <- numeric()
-        # alpha: plot degree of formation instead of logact
-        # scale the activities to sum=1  ... 20091017
-        if(alpha) {
-          a <- numeric()
-          for(j in 1:length(A)) a <- c(a,A[[j]])
-          loga.sum <- log10(sum(10^a))
-          loga <- 0; a <- loga - loga.sum
-          for(j in 1:length(A)) A[[j]] <- 10^(A[[j]] + a)
-          ylab <- "alpha"
-          if(missing(main)) main <- "alpha"
-        } else {
-          ylab <- axis.title(what)
-          if(missing(main)) main <- "logarithm of activity"
-        }
         for(i in 1:length(A)) v <- c(v,A[[i]])
         barplot(v,names.arg=names,ylab=ylab,mgp=mgp,cex.names=cex.names,col=col)
         if(missing(main)) main <- main

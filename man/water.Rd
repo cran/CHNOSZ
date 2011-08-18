@@ -41,8 +41,10 @@
      \code{Cv} \tab Isochoric heat capacity \tab cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} \tab * \tab * \cr
      \code{Cp} \tab Isobaric heat capacity \tab cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} \tab * \tab * \cr
      \code{w} (\code{Speed}) \tab Speed of sound \tab cm s\eqn{^{-1}}{^-1} \tab NA \tab * \cr
-     \code{E} (\code{alpha}) \tab Isobaric expansivity \tab K\eqn{^{-1}}{^-1} \tab * \tab * \cr
-     \code{kT} (\code{beta}) \tab Isothermal compressibility \tab bar\eqn{^{-1}}{^-1} \tab * \tab * \cr
+     \code{E} \tab Isobaric expansivity \tab cm\eqn{^3} K\eqn{^{-1}}{^-1} \tab NA \tab * \cr
+     \code{kT} \tab Isothermal compressibility \tab cm\eqn{^3} bar\eqn{^{-1}}{^-1} \tab NA \tab * \cr
+     \code{alpha} \tab Coefficient of isobaric expansivity \tab K\eqn{^{-1}}{^-1} \tab NA \tab * \cr
+     \code{beta} \tab Coefficient of isothermal compressibility \tab bar\eqn{^{-1}}{^-1} \tab NA \tab * \cr
      \code{epsilon} (\code{diel}) \tab Dielectric constant \tab dimensionless \tab NA \tab * \cr
      \code{visc} \tab Dynamic viscosity \tab g cm\eqn{^{-1}}{^-1} s\eqn{^{-1}}{^-1} \tab NA \tab * \cr
      \code{tcond} \tab Thermal conductivity \tab cal cm\eqn{^{-1}}{^-1} s\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} \tab NA \tab * \cr
@@ -69,11 +71,11 @@
      \tab of dielectric constant \tab \tab \tab \cr
   }
 
-  \code{UBorn} refers to the \eqn{U}{U} Born function, \samp{U} to internal energy. All of the properties are calculated as a function of temperature and pressure except \samp{Psat} f(T) (values supplied in the argument \code{P} are ignored) and \samp{P} f(T,rho). Except for those of \code{rho}, the units used are as in Johnson and Norton, 1991. Names of properties that are used in \code{water.SUPCRT92} (but not in \code{water}) are shown in parentheses. \code{de.dT} and \code{de.dP} are calculated in computational mode \samp{IAPWS} using equations of Archer and Wang, 1990.
+  \code{UBorn} refers to the \eqn{U}{U} Born function, \samp{U} to internal energy. The coefficients of isobaric expansivity and of isothermal compressibility are defined as \eqn{(1/V)(dV/dT)_P}{(1/V)(dV/dT)P} and \eqn{-(1/V)(dV/dP)_T}{-(1/V)(dV/dP)T} respectively. All of the properties are calculated as a function of temperature and pressure except \samp{Psat} f(T) (values supplied in the argument \code{P} are ignored) and \samp{P} f(T,rho). Except for those of \code{rho}, the units used are as in Johnson and Norton, 1991. Names of properties that are used in \code{water.SUPCRT92} (but not in \code{water}) are shown in parentheses. 
 
-  \code{water.SUPCRT92} interfaces to the FORTRAN subroutine taken from the \acronym{SUPCRT92} package (H2O92D.F) for calculating properties of water. These calculations are based on data and equations of Levelt-Sengers et al., 1983, Haar et al., 1984, and Johnson and Norton, 1991, among others (see Johnson et al., 1992). If \code{isat} is equal to \eqn{1} (or \code{TRUE}), the values of \code{P} are ignored and values of \samp{Psat} are returned. \samp{Psat} refers to one bar below 100 \eqn{^{\circ}}{degrees }C, otherwise to the vapor-liquid saturation pressure at temperatures below the critical point (\samp{Psat} is not available at temperatures above the critical point). \code{water.SUPCRT92} function provides a limited interface to the FORTRAN subroutine; some functions provided there are not made available here (e.g., using variable density instead of pressure, or calculating the properties of steam). The properties of steam in \pkg{CHNOSZ}, as in \acronym{SUPCRT92}, are calculated using general equations of state for crystalline, gaseous and liquid species (\code{\link{cgl}}). The IAPWS-95 formulation also has provisions for computing the properties of steam, but these are currently not used by \pkg{CHNOSZ}.
+  \code{water.SUPCRT92} interfaces to the FORTRAN subroutine taken from the \acronym{SUPCRT92} package (H2O92D.F) for calculating properties of water. These calculations are based on data and equations of Levelt-Sengers et al., 1983, Haar et al., 1984, and Johnson and Norton, 1991, among others (see Johnson et al., 1992). If \code{isat} is equal to \eqn{1} (or \code{TRUE}), the values of \code{P} are ignored and values of \samp{Psat} are returned. \samp{Psat} refers to one bar below 100 \eqn{^{\circ}}{degrees }C, otherwise to the vapor-liquid saturation pressure at temperatures below the critical point (\samp{Psat} is not available at temperatures above the critical point). \code{water.SUPCRT92} function provides a limited interface to the FORTRAN subroutine; some functions provided there are not made available here (e.g., using variable density instead of pressure, or calculating the properties of steam). The properties of steam in CHNOSZ, as in \acronym{SUPCRT92}, are calculated using general equations for crystalline, gaseous and liquid species (\code{\link{cgl}}). The IAPWS-95 formulation also has provisions for computing the properties of steam, but these are currently not used by CHNOSZ.
 
-  \code{water.IAPWS95} provides an implementation of the IAPWS-95 formulation for properties (including pressure) calculated as a function of temperature and density. To compute the thermodynamic and electrostatic properties of water as a function of temperature and pressure using \code{water.IAPWS95}, \code{water} applies a root-finding function (\code{\link{uniroot}}) to determine the corresponding values of density. Electrostatic properties in this case are derived from values of the static dielectric constant (\code{epsilon}) calculated using \code{water.AW90}. Note that the \code{water.AW90} computes the static dielectric constant at given temperatures and pressures, so \code{water} contains routines for calculating its derivatives with respect to temperature and pressure. A keyword, \samp{test}, may be given as \code{property} to \code{water.IAPWS95}, which causes the printing of two tables, one representing the ideal-gas and residual contributions to the Helmholtz free energy (Table 6.6 of Wagner and Pruss, 2002), and a second with a selection of calculated properties for the liquid and vapor at the triple and boiling points.
+  \code{water.IAPWS95} provides an implementation of the IAPWS-95 formulation for properties (including pressure) calculated as a function of temperature and density. To compute the thermodynamic and electrostatic properties of water as a function of temperature and pressure using \code{water.IAPWS95}, \code{water} applies a root-finding function (\code{\link{uniroot}}) to determine the corresponding values of density. Electrostatic properties in this case are derived from values of the static dielectric constant (\code{epsilon}) calculated using equations given by Archer and Wang, 1990 and coded in \code{water.AW90}. Note that the \code{water.AW90} computes the static dielectric constant at given temperatures and pressures, so \code{water} contains routines for calculating its derivatives with respect to temperature and pressure. A keyword, \samp{test}, may be given as \code{property} to \code{water.IAPWS95}, which causes the printing of two tables, one representing the ideal-gas and residual contributions to the Helmholtz free energy (Table 6.6 of Wagner and Pruss, 2002), and a second with a selection of calculated properties for the liquid and vapor at the triple and boiling points.
 
   The \code{water.IAPWS95} function returns values of thermodynamic properties in specific units (per gram) which are converted to molar properties by \code{water}. The IAPWS-95 formulation follows the triple point convention used in engineering (values of internal energy and entropy are taken to be zero at the triple point). For compatibility with geochemical modeling conventions, the values of Gibbs energy, enthalpy and entropy output by \code{water.IAPWS95} are converted by \code{water} to the triple point reference state adopted in \code{SUPCRT92} (Johnson and Norton, 1991; Helgeson and Kirkham, 1974). Auxiliary equations to the IAPWS-95 formulation (Wagner and Pruss, 2002) are provided in \code{water.WP02}; the \code{property} for this function can be one of \samp{P.sigma} (saturation vapor pressure in MPa), \samp{dP.sigma.dT} (derivative of saturation vapor pressure with respect to temperature), or \samp{rho.liquid} or \samp{rho.vapor} (density of liquid or vapor in kg m\eqn{^{-3}}{^-3}).
 
@@ -127,7 +129,7 @@
     # start a new plot with the experimental data
     thermo.plot.new(xlim=c(0,1000),ylim=c(-5.5,1),
       xlab=axis.label("T"),ylab=axis.label("logK"))
-    expt <- read.csv(system.file("extdata/SOJSH.csv",package="CHNOSZ"))
+    expt <- read.csv(system.file("extdata/cpetc/SOJSH.csv",package="CHNOSZ"))
     points(expt$T,expt$logK,pch=expt$pch)
     T <- list(seq(0,370,25),seq(265,465,25),
       seq(285,760,25),seq(395,920,25))
@@ -157,32 +159,32 @@
     thermo$opt$water <- 'SUPCRT'
     T <- rep(c(375,400,425,450,475),each=5)
     P <- rep(c(250,300,350,400,450),5)
-    t <- water('Q',T=convert(T,'K'),P=P)
+    w <- water('Q',T=convert(T,'K'),P=P)
     # the rest is to make a readable table
-    t <- as.data.frame(matrix(t[[1]],nrow=5))
-    colnames(t) <- T[1:5*5]
-    rownames(t) <- P[1:5]
-    print(t)
+    w <- as.data.frame(matrix(w[[1]],nrow=5))
+    colnames(w) <- T[1:5*5]
+    rownames(w) <- P[1:5]
+    print(w)
   }
 }
 
 \references{
 
-   Archer, D. G. and Wang, P. M., 1990. The dielectric constant of water and Debye-Huckel limiting law slopes. \emph{J. Phys. Chem. Ref. Data}, 19, 371-411. \url{http://www.nist.gov/srd/PDFfiles/jpcrd383.pdf}
+   Archer, D. G. and Wang, P. M. (1990) The dielectric constant of water and Debye-Huckel limiting law slopes. \emph{J. Phys. Chem. Ref. Data} \bold{19}, 371--411. \url{http://www.nist.gov/srd/PDFfiles/jpcrd383.pdf}
 
-  Haar, L., Gallagher, J. S. and Kell, G. S., 1984. \emph{NBS/NRC Steam Tables}. Hemisphere, Washington, D. C., 320 p. \url{http://www.worldcat.org/oclc/301304139}
+  Haar, L., Gallagher, J. S. and Kell, G. S. (1984) \emph{NBS/NRC Steam Tables}. Hemisphere, Washington, D. C., 320 p. \url{http://www.worldcat.org/oclc/301304139}
 
- Helgeson, H. C. and Kirkham, D. H., 1974. Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. I. Summary of the thermodynamic/electrostatic properties of the solvent. \emph{Am. J. Sci.}, 274, 1089-1098. \url{http://www.ajsonline.org/cgi/content/abstract/274/10/1089}
+ Helgeson, H. C. and Kirkham, D. H. (1974) Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. I. Summary of the thermodynamic/electrostatic properties of the solvent. \emph{Am. J. Sci.} \bold{274}, 1089--1098. \url{http://www.ajsonline.org/cgi/content/abstract/274/10/1089}
 
-  Johnson, J. W. and Norton, D., 1991. Critical phenomena in hydrothermal systems: state, thermodynamic, electrostatic, and transport properties of H\eqn{_2}{2}O in the critical region. \emph{Am. J. Sci.}, 291, 541-648. \url{http://www.ajsonline.org/cgi/content/abstract/291/6/541}
+  Johnson, J. W. and Norton, D. (1991) Critical phenomena in hydrothermal systems: state, thermodynamic, electrostatic, and transport properties of H\eqn{_2}{2}O in the critical region. \emph{Am. J. Sci.} \bold{291}, 541--648. \url{http://www.ajsonline.org/cgi/content/abstract/291/6/541}
 
-  Johnson, J. W., Oelkers, E. H. and Helgeson, H. C., 1992. SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\eqn{^{\circ}}{degrees }C. \emph{Comp. Geosci.}, 18, 899-947. \url{http://dx.doi.org/10.1016/0098-3004(92)90029-Q}
+  Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\eqn{^{\circ}}{degrees }C. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{http://dx.doi.org/10.1016/0098-3004(92)90029-Q}
 
-  Levelt-Sengers, J. M. H., Kamgarparsi, B., Balfour, F. W. and Sengers, J. V., 1983. Thermodynamic properties of steam in the critical region. \emph{J. Phys. Chem. Ref. Data}, 12, 1-28. \url{http://www.nist.gov/srd/PDFfiles/jpcrd214.pdf}
+  Levelt-Sengers, J. M. H., Kamgarparsi, B., Balfour, F. W. and Sengers, J. V. (1983) Thermodynamic properties of steam in the critical region. \emph{J. Phys. Chem. Ref. Data} \bold{12}, 1--28. \url{http://www.nist.gov/srd/PDFfiles/jpcrd214.pdf}
 
-  Wagner, W. and Pruss, A., 2002. The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. \emph{J. Phys. Chem. Ref. Data}, 31, 387-535. \url{http://dx.doi.org/10.1063/1.1461829}
+  Wagner, W. and Pruss, A. (2002) The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. \emph{J. Phys. Chem. Ref. Data} \bold{31}, 387--535. \url{http://dx.doi.org/10.1063/1.1461829}
 
 }
 
 
-\keyword{misc}
+\keyword{secondary}

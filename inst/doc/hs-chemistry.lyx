@@ -1,0 +1,1920 @@
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass literate-article
+\begin_preamble
+%\VignetteIndexEntry{Hot-spring chemistry and model proteins from a metagenome}
+
+%\SweaveOpts{width=3,height=3}
+
+% so DOIs in bibliography show up as hyperlinks
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\end_preamble
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman lmodern
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize letterpaper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine natbib_numerical
+\use_bibtopic false
+\paperorientation portrait
+\branch general
+\selected 1
+\color #000000
+\end_branch
+\branch ZC
+\selected 1
+\color #000000
+\end_branch
+\branch stability
+\selected 1
+\color #000000
+\end_branch
+\branch stability-ext
+\selected 1
+\color #000000
+\end_branch
+\branch redox
+\selected 1
+\color #000000
+\end_branch
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Hot-spring chemistry and model proteins from a metagenome
+\end_layout
+
+\begin_layout Author
+Jeffrey M.
+ Dick and Everett L.
+ Shock
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<options,echo=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+options(width=85,continue=" ")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+This vignette for the CHNOSZ package demonstrates calculations of the relative
+ stabilities of proteins with amino acid compositions derived from metagenomic
+ data in a hot spring.
+ The calculations are described in more detail in a recent paper 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+ The purpose of this document is to present a minimal amount of code to
+ show how most of the figures in the paper can be generated.
+ The code actually used to make the figures in the paper is available online
+ as supporting information for the paper.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+Bison Pool
+\begin_inset Quotes erd
+\end_inset
+
+ is a hot spring in Sentinel Meadows, in the Lower Geyser Basin of Yellowstone
+ National Park.
+ Environmental DNA sequences from biofilm samples at five sites along the
+ outflow are available from the Joint Genome Institute's IMG/M system 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "MIS+08"
+
+\end_inset
+
+.
+ IMG/M also provides the sequences of proteins inferred from the metagenome,
+ with predicted functional annotations.
+ The sample IDs used in the field, and also in IMG/M, have the letters N,
+ S, R, Q, P, which refer to sites 1, 2, 3, 4, 5, in that order; site 1 is
+ the boiling source of the hot spring and site 5 is 
+\begin_inset Formula $\sim$
+\end_inset
+
+22 meters downstream where the water on some days was in the range of 
+\begin_inset Formula $\sim$
+\end_inset
+
+55-60 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "HRM+11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The amino acid compositions of the model proteins are derived from the metagenom
+e.
+ The 
+\begin_inset Quotes eld
+\end_inset
+
+overall
+\begin_inset Quotes erd
+\end_inset
+
+ model proteins have amino acid compositions that are the average of all
+ protein sequences at any sampling site.
+ There are also 20 different 
+\begin_inset Quotes eld
+\end_inset
+
+classified
+\begin_inset Quotes erd
+\end_inset
+
+ model proteins for subsets of the metagenome that share keywords in the
+ annotations.
+\end_layout
+
+\begin_layout Section
+General Setup
+\end_layout
+
+\begin_layout Standard
+Load CHNOSZ.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<libraryCHNOSZ>>=
+\end_layout
+
+\begin_layout Scrap
+library(CHNOSZ)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<datathermo,echo=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+# there might be a stale version of thermo from running
+\end_layout
+
+\begin_layout Scrap
+# previous vignettes during package build.
+ reset it to be safe.
+\end_layout
+
+\begin_layout Scrap
+data(thermo)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+After loading the package, the amino acid compositions of the model proteins
+ are present in 
+\family typewriter
+thermo$protein
+\family default
+.
+ Assemble the classification terms using one of the site names.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<classes>>=
+\end_layout
+
+\begin_layout Scrap
+tp <- thermo$protein
+\end_layout
+
+\begin_layout Scrap
+classes <- tp$protein[tp$organism=="bisonN"]
+\end_layout
+
+\begin_layout Scrap
+classes
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Associate the sites with their letter codes.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<sites>>=
+\end_layout
+
+\begin_layout Scrap
+sites <- c("N","S","R","Q","P")
+\end_layout
+
+\begin_layout Scrap
+sitenames <- paste("bison",sites,sep="")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Average Oxidation State of Carbon in Model Proteins
+\end_layout
+
+\begin_layout Standard
+Plot the average oxidation state of carbon (
+\begin_inset Formula $\overline{Z}_{\mathrm{C}}$
+\end_inset
+
+) of each of the classes of model proteins.
+ Initialize the plot, labeling the 
+\emph on
+
+\begin_inset Formula $x$
+\end_inset
+
+
+\emph default
+-axis at sites 1 to 5.
+ Then set up colors for the lines (the 
+\begin_inset Quotes eld
+\end_inset
+
+overall
+\begin_inset Quotes erd
+\end_inset
+
+ model proteins in green) and identify the classes of proteins to label
+ on the plot.
+ For model proteins of all classes and sites, get the rownumbers of the
+ proteins (
+\family typewriter
+ip
+\family default
+), then extract the rows from the 
+\family typewriter
+thermo$protein
+\family default
+ data frame (
+\family typewriter
+p
+\family default
+), then calculate the chemical formulas of the proteins (
+\family typewriter
+pf
+\family default
+), and finally calculate values of 
+\begin_inset Formula $\overline{Z}_{\mathrm{C}}$
+\end_inset
+
+.
+ Loop over the classes, plotting the lines and labels.
+ After Fig.
+ 4 in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch ZC
+status open
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.7
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<ZCplot,fig=TRUE,width=6,height=6>>=
+\end_layout
+
+\begin_layout Scrap
+plot(0,0,xlim=c(-1,6),ylim=c(-0.33,-0.11),xlab="site",ylab=expression(bar(italic(Z
+))[C]),axes=FALSE)
+\end_layout
+
+\begin_layout Scrap
+axis(1,at=1:5)
+\end_layout
+
+\begin_layout Scrap
+axis(2)
+\end_layout
+
+\begin_layout Scrap
+box()
+\end_layout
+
+\begin_layout Scrap
+col <- c("green",rep("black",20))
+\end_layout
+
+\begin_layout Scrap
+lwd <- c(3,rep(1,20))
+\end_layout
+
+\begin_layout Scrap
+clab <- c("hydrolase","overall","protease","oxidoreductase","transport","membran
+e","permease")
+\end_layout
+
+\begin_layout Scrap
+ip <- protein(rep(classes,each=5),rep(sitenames,20))
+\end_layout
+
+\begin_layout Scrap
+p <- thermo$protein[ip,]
+\end_layout
+
+\begin_layout Scrap
+pf <- protein.formula(p)
+\end_layout
+
+\begin_layout Scrap
+ZC.p <- ZC(pf)
+\end_layout
+
+\begin_layout Scrap
+for(i in 1:length(classes)) {
+\end_layout
+
+\begin_layout Scrap
+  lines(1:5,ZC.p[(1:5)+5*(i-1)],col=col[i],lwd=lwd[i])
+\end_layout
+
+\begin_layout Scrap
+  if(classes[i] %in% clab) text(0.8,ZC.p[1+5*(i-1)],classes[i],adj=1)
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Chemical Setting
+\end_layout
+
+\begin_layout Subsection
+Basis Species
+\end_layout
+
+\begin_layout Standard
+Use CHNOSZ's 
+\family typewriter
+basis
+\family default
+ function to define the basis species.
+ The basis species consist of 
+\begin_inset Formula $\mathrm{HCO_{3}^{-}}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{NH_{3}}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{HS^{-}}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{H_{2}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{H^{+}}$
+\end_inset
+
+ (all aqueous species except for 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+ liquid).
+ Note: the functions 
+\family typewriter
+basis
+\family default
+ and 
+\family typewriter
+species
+\family default
+ are important for their side effect of setting up the thermodynamic system
+ used by other functions in CHNOSZ.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<basis>>=
+\end_layout
+
+\begin_layout Scrap
+basis(c("HCO3-","H2O","NH3","HS-","H2","H+"))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Hot-Spring Chemistry
+\end_layout
+
+\begin_layout Standard
+To assess the relative stabilities of the proteins, parameters related to
+ the chemistry of their environment are needed.
+ The temperature (in 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C) and pH measured in the field at the time the biofilm samples were collected
+ for sequence analysis are defined below as a function of distance (in meters)
+ from the source of the hot spring.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<TpH>>=
+\end_layout
+
+\begin_layout Scrap
+distance <- c(0,6,11,14,22)
+\end_layout
+
+\begin_layout Scrap
+T.bison <- c(93.3,79.4,67.5,65.3,57.1)
+\end_layout
+
+\begin_layout Scrap
+pH.bison <- c(7.350,7.678,7.933,7.995,8.257)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The plot shows the temperature and pH as a function of distance.
+ Use 
+\family typewriter
+splinefun
+\family default
+ctions to draw smooth lines between the points (a line formed by segments
+ ending at the intervals in 
+\family typewriter
+xpoints
+\family default
+).
+ Use the 
+\family typewriter
+mfrow
+\family default
+ option to 
+\family typewriter
+par
+\family default
+ to put two plots next to each other, and CHNOSZ's 
+\family typewriter
+axis.label
+\family default
+ function to make a formatted label for temperature.
+ After Fig.
+ 5a,c in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<TpHplot,fig=T,height=3.5>>=
+\end_layout
+
+\begin_layout Scrap
+Tfun <- splinefun(distance,T.bison,method="mono")
+\end_layout
+
+\begin_layout Scrap
+pHfun <- splinefun(distance,pH.bison,method="mono")
+\end_layout
+
+\begin_layout Scrap
+xpoints <- seq(0,22,0.25)
+\end_layout
+
+\begin_layout Scrap
+par(mfrow=c(1,2))
+\end_layout
+
+\begin_layout Scrap
+plot(distance,T.bison,xlab="distance, m",ylab=axis.label("T"))
+\end_layout
+
+\begin_layout Scrap
+lines(xpoints,Tfun(xpoints))
+\end_layout
+
+\begin_layout Scrap
+plot(distance,pH.bison,xlab="distance, m",ylab="pH")
+\end_layout
+
+\begin_layout Scrap
+lines(xpoints,pHfun(xpoints))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Besides temperature and pH, other chemical properties of the hot spring
+ water change as it cools.
+ Oxidation-reduction (redox) state of the water is left for exploration
+ (see below), but the activities of the other basis species are set to values
+ that approximate analytical observations.
+ Set pH to the value for site 3; the pH gradient will be considered later.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<basis>>=
+\end_layout
+
+\begin_layout Scrap
+basis(c("HCO3-","NH3","HS-","H+"),c(-3,-4,-7,-7.933))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Relative Stabilities of Proteins
+\end_layout
+
+\begin_layout Subsection
+Formation Reactions of the Proteins
+\end_layout
+
+\begin_layout Standard
+Use 
+\family typewriter
+species
+\family default
+ to display the coefficients in formation reactions of the overall model
+ proteins and set the species definition for CHNOSZ.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+%
+\backslash
+begin{small}
+\end_layout
+
+\begin_layout Scrap
+<<formation_protein>>=
+\end_layout
+
+\begin_layout Scrap
+species("overall",sitenames)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+%
+\backslash
+end{small}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+After sequencing and assembly, many gene fragments remain, so the number
+ of amino acid residues in the model proteins is the average length of mostly
+ partial protein sequences and does not necessarily reflect the genetic
+ sequence lengths.
+ The first six columns of the output indicate the stoichiometries of the
+ formation reactions.
+ Although the reactions are written for non-ionized proteins, 
+\begin_inset Formula $\mathrm{H^{+}}$
+\end_inset
+
+ has a non-zero coefficient because of the presence of other charged basis
+ species.
+\end_layout
+
+\begin_layout Standard
+The reactions can be divided by the lengths (number of amino acid residues)
+ of the proteins to write per-residue formation reactions.
+ First get the rownumbers of the overall model proteins in 
+\family typewriter
+thermo$protein
+\family default
+ (
+\family typewriter
+ip
+\family default
+), then calculate the protein 
+\begin_inset Quotes eld
+\end_inset
+
+length
+\begin_inset Quotes erd
+\end_inset
+
+ (number of amino acid residues, not integers for the model proteins), then
+ divide the protein formation reactions by the respective protein lengths.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+<<formation_residue>>=
+\end_layout
+
+\begin_layout Scrap
+ip <- protein("overall",sitenames)
+\end_layout
+
+\begin_layout Scrap
+pl <- protein.length(-ip)
+\end_layout
+
+\begin_layout Scrap
+mys <- species()
+\end_layout
+
+\begin_layout Scrap
+mys[,1:6]/pl
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The above can be used to deduce for example that the mass-action effect
+ of increasing the activity of 
+\begin_inset Formula $\mathrm{H_{2}}$
+\end_inset
+
+ is to drive formation of the model protein for site 1 more than the others.
+\end_layout
+
+\begin_layout Subsection
+Predominances as a Function of Temperature and Hydrogen Activity
+\end_layout
+
+\begin_layout Standard
+First set the temperature limits (
+\family typewriter
+Tlim
+\family default
+) over which to perform the calculations.
+ Then define a function 
+\family typewriter
+H2prot
+\family default
+, which gives the logarithm of activity of hydrogen (
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+) as a linear function of temperature.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<T_H2>>=
+\end_layout
+
+\begin_layout Scrap
+Tlim <- c(50,100)
+\end_layout
+
+\begin_layout Scrap
+H2prot <- function(T) -11 + T * 3/40
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The metastable equilibrium activity diagram shows predominance fields of
+ the overall model proteins as a function of temperature and logarithm of
+ activity of aqueous hydrogen.
+ After Fig.
+ 5b in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.5
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<TlogaH2plot,fig=T,width=3,height=3>>=
+\end_layout
+
+\begin_layout Scrap
+a <- affinity(T=Tlim,H2=c(-7,-4))
+\end_layout
+
+\begin_layout Scrap
+diagram(a,color=NULL,names=1:5)
+\end_layout
+
+\begin_layout Scrap
+lines(Tlim,H2prot(Tlim),lty=2)
+\end_layout
+
+\begin_layout Scrap
+title(main="overall")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The stability fields for the proteins from the higher temperatures are at
+ higher activities of hydrogen in the diagram.
+ The dashed line enters the stability fields the model proteins at approximately
+ the actual environmental temperatures.
+\end_layout
+
+\begin_layout Standard
+Write a function to load one or more of the classes of model proteins.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch general
+status open
+
+\begin_layout Scrap
+<<loadclass>>=
+\end_layout
+
+\begin_layout Scrap
+loadclass <- function(class) {
+\end_layout
+
+\begin_layout Scrap
+  species(delete=TRUE)
+\end_layout
+
+\begin_layout Scrap
+  species(rep(class,each=5),rep(sitenames,length(class)))
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then use this function to make equilibrium activity diagrams for a few different
+ classes, afterwards restoring the species definition to the overall model
+ proteins.
+ To save space, the messages printed by CHNOSZ during the calculations are
+ hidden.
+ After Fig.
+ 6 in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability-ext
+status open
+
+\begin_layout Scrap
+<<TlogaH2plots,fig=T,results=hide,width=5,height=5>>=
+\end_layout
+
+\begin_layout Scrap
+forclasses <- c("transferase","transport","dehydrogenase","synthase")
+\end_layout
+
+\begin_layout Scrap
+par(mfrow=c(2,2))
+\end_layout
+
+\begin_layout Scrap
+for(i in 1:4) {
+\end_layout
+
+\begin_layout Scrap
+  loadclass(forclasses[i])
+\end_layout
+
+\begin_layout Scrap
+  a <- affinity(T=Tlim,H2=c(-7,-4))
+\end_layout
+
+\begin_layout Scrap
+  diagram(a,color=NULL,names=1:5)
+\end_layout
+
+\begin_layout Scrap
+  title(main=forclasses[i])
+\end_layout
+
+\begin_layout Scrap
+  lines(Tlim,H2prot(Tlim),lty=2)
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+loadclass("overall")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Chemical Affinities
+\end_layout
+
+\begin_layout Standard
+Calculate the residue-normalized chemical affinities of the formation reactions
+ of the overall model proteins.
+ First set activities of the proteins equal to unity (logarithm of activity
+ equal to zero).
+ Then calculate affinities per mole of protein for the temperature, pH and
+ 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+ of each site.
+ Use the lengths of the model proteins, defined above in 
+\family typewriter
+pl
+\family default
+, to calculate the affinities per residue.
+ After Table 5 in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+<<affinity>>=
+\end_layout
+
+\begin_layout Scrap
+species(1:5,0)
+\end_layout
+
+\begin_layout Scrap
+a <- affinity(T=T.bison,pH=pH.bison,H2=H2prot(T.bison))
+\end_layout
+
+\begin_layout Scrap
+a.res <- t(as.data.frame(a$values))/pl
+\end_layout
+
+\begin_layout Scrap
+a.res
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The affinities are expressed as dimensionless values, i.e.
+ 
+\begin_inset Formula $\boldsymbol{A}/2.303RT$
+\end_inset
+
+ where 
+\begin_inset Formula $\boldsymbol{A}$
+\end_inset
+
+, 
+\begin_inset Formula $R$
+\end_inset
+
+ and 
+\begin_inset Formula $T$
+\end_inset
+
+ stand for chemical affinity, gas constant, and temperature in Kelvin.
+ The affinities are all negative, but highest at the conditions of sites
+ 1 and 2 (columns 1 and 2) for the model proteins from site 1 (row 1), and
+ highest at the conditions of sites 3 to 5 (columns 3 to 5) for the model
+ protein from site 4 (row 4).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+<<affinitymax>>=
+\end_layout
+
+\begin_layout Scrap
+sapply(1:5,function(x) which.max(a.res[,x]))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This observation is mostly consistent with the predominance diagram shown
+ before.
+ However, the model protein for site 2 appears in the diagram but, per-residue,
+ is not more stable than the others at the conditions of site 2.
+ The disconnect is caused by the different numbers of residues in the model
+ proteins, and the fact that the predominance diagram shows the relative
+ stabilities of the proteins (based on per-residue formation reactions).
+ Calculate size-adjusted per-residue affinities by subtracting the logarithm
+ of the protein length from the per-residue affinities.
+ (A related operation, for calculating activities of proteins, is described
+ following Eq.
+ 19 in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+<<affinityadj>>=
+\end_layout
+
+\begin_layout Scrap
+a.res <- a.res - log10(pl)
+\end_layout
+
+\begin_layout Scrap
+a.res
+\end_layout
+
+\begin_layout Scrap
+sapply(1:5,function(x) which.max(a.res[,x]))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now there is a 1--2--4 progression in relative stabilities, which matches
+ the stability fields in the equilibrium predominance diagram shown above.
+\end_layout
+
+\begin_layout Subsection
+Activities Along a Combined Chemical Gradient
+\end_layout
+
+\begin_layout Standard
+The predominance diagrams above only shows the most stable protein at any
+ temperature-
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+ combination.
+ Combine the gradients of temperature, pH and hydrogen activity to plot
+ the metastable equilibrium activities of the proteins.
+ The total activity of residues is set by reference activities of the proteins
+ equal to 
+\begin_inset Formula $10^{-3}$
+\end_inset
+
+.
+ Run the calculation for the distance intervals in 
+\family typewriter
+xpoints
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+<<logaplot>>=
+\end_layout
+
+\begin_layout Scrap
+species(1:5,-3)
+\end_layout
+
+\begin_layout Scrap
+xT <- Tfun(xpoints)
+\end_layout
+
+\begin_layout Scrap
+xpH <- pHfun(xpoints)
+\end_layout
+
+\begin_layout Scrap
+xH2 <- H2prot(xT)
+\end_layout
+
+\begin_layout Scrap
+a <- affinity(T=xT,pH=xpH,H2=xH2)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Label the 
+\begin_inset Formula $x$
+\end_inset
+
+-axis 
+\begin_inset Quotes eld
+\end_inset
+
+distance
+\begin_inset Quotes erd
+\end_inset
+
+.
+ To do so modify a few entries in the list returned by 
+\family typewriter
+affinity
+\family default
+ (
+\family typewriter
+xname
+\family default
+, 
+\family typewriter
+xlim
+\family default
+, 
+\family typewriter
+xvals
+\family default
+); otherwise the 
+\begin_inset Formula $x$
+\end_inset
+
+-axis would represent temperature (the first variable in the argument list
+ to 
+\family typewriter
+affinity
+\family default
+).
+ After Fig.
+ 5f in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.5
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<logaplot,fig=T,width=4,height=4>>=
+\end_layout
+
+\begin_layout Scrap
+a$xname <- "distance, m"
+\end_layout
+
+\begin_layout Scrap
+a$xlim <- c(range(xpoints),length(xpoints))
+\end_layout
+
+\begin_layout Scrap
+a$xvals <- xpoints
+\end_layout
+
+\begin_layout Scrap
+diagram(a,legend.x=NULL)
+\end_layout
+
+\begin_layout Scrap
+legend("bottom",lty=1:5,legend=paste(1:5,"       "),bty="n")
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Plot the equilibrium degrees of formation as a function of distance for
+ six different classes of proteins.
+ Calculate the affinities for all of the proteins.
+ For each group of three, make strip charts using the 
+\family typewriter
+strip
+\family default
+ function in CHNOSZ.
+ The heights of the bars represent the relative abundances of the model
+ proteins.
+ The five steps of the color code go from site 1 (red) to site 5 (blue).
+ The messages printed by CHNOSZ during the calculations are not shown here.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stability
+status open
+
+\begin_layout Scrap
+<<stripplot,fig=T,results=hide,width=6,height=4>>=
+\end_layout
+
+\begin_layout Scrap
+xclasses <- c("overall","transferase","transport","synthetase","membrane","perme
+ase")
+\end_layout
+
+\begin_layout Scrap
+loadclass(xclasses)
+\end_layout
+
+\begin_layout Scrap
+a <- affinity(T=xT,pH=xpH,H2=xH2)
+\end_layout
+
+\begin_layout Scrap
+a$xname <- "distance, m"
+\end_layout
+
+\begin_layout Scrap
+a$xlim <- c(range(xpoints),length(xpoints))
+\end_layout
+
+\begin_layout Scrap
+a$xvals <- xpoints
+\end_layout
+
+\begin_layout Scrap
+col <- c("red","orange","yellow","green","blue")
+\end_layout
+
+\begin_layout Scrap
+par(mfrow=c(1,2))
+\end_layout
+
+\begin_layout Scrap
+for(i in 1:2) {
+\end_layout
+
+\begin_layout Scrap
+  ispecies <- lapply((1:3)+(i-1)*3,function(x) {1:5+(x-1)*5} )
+\end_layout
+
+\begin_layout Scrap
+  names(ispecies) <- xclasses[(1:3)+(i-1)*3]
+\end_layout
+
+\begin_layout Scrap
+  strip(a = a, ispecies = ispecies, col = col, xticks = distance, cex.names
+ = 1)
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+From Protein Stability to Redox Measurements
+\end_layout
+
+\begin_layout Standard
+The temperature-hydrogen activity relationship depicted by the dashed line
+ in the figures above was derived by considering the relative stabilities
+ of the model proteins.
+ How does it compare with measurements of redox chemistry in the hot spring?
+ At least three types of field and analytical measurements are available
+ for comparison: oxidation-reduction potential (ORP), dissolved oxygen,
+ and sulfide/sulfate concentrations.
+\end_layout
+
+\begin_layout Subsection
+Oxidation-Reduction Potential
+\end_layout
+
+\begin_layout Standard
+ORP, measured in the field using a portable probe and pH/voltmeter, can
+ be converted to Eh by adding the potential of the reference electrode,
+ in this case silver-silver chloride (Ag/AgCl) in saturated KCl.
+ Lacking the high-temperature potentials of this electrode, the following
+ equation from Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "BPJ85"
+
+\end_inset
+
+ for Ag/AgCl (1M KCl) is used, with temperature in degrees Celsius and potential
+ in volts.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch redox
+status open
+
+\begin_layout Scrap
+<<E.AgAgCl>>=
+\end_layout
+
+\begin_layout Scrap
+E.AgAgCl <- function(T) {
+\end_layout
+
+\begin_layout Scrap
+  0.23737 - 5.3783e-4 * T - 2.3728e-6 * T^2 - 2.2671e-9 * (T+273)
+\end_layout
+
+\begin_layout Scrap
+}
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Together with ORP, temperature and pH will all be needed.
+ Data from Bison Pool and another hot spring shown in Fig.
+ 9 of Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+ are both included, but for simplicity here they are lumped together.
+ The ORP values have units of mV.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch redox
+status open
+
+\begin_layout Scrap
+<<meters>>=
+\end_layout
+
+\begin_layout Scrap
+T.ORP <- c(93.9,87.7,75.7,70.1,66.4,66.2)
+\end_layout
+
+\begin_layout Scrap
+pH.ORP <- c(8.28,8.31,7.82,7.96,8.76,8.06)
+\end_layout
+
+\begin_layout Scrap
+ORP <- c(-258,-227,-55,-58,-98,-41)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Convert ORP to effective values of 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+.
+ First convert to Eh (in volts).
+ Then convert Eh to pe.
+ Then combine Eh and pH with the law of mass action for
+\begin_inset Formula \[
+2e^{-}+2\mathrm{H^{+}}\rightleftharpoons\mathrm{H_{2}}_{\left(aq\right)}\]
+
+\end_inset
+
+to calculate 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+.
+ The law of mass action is the condition where the activity quotient (
+\begin_inset Formula $Q$
+\end_inset
+
+) of the reaction is equal to the equilibrium constant (
+\begin_inset Formula $K$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch redox
+status open
+
+\begin_layout Scrap
+<<ORP2Eh>>=
+\end_layout
+
+\begin_layout Scrap
+Eh <- ORP/1000 + E.AgAgCl(T.ORP)
+\end_layout
+
+\begin_layout Scrap
+pe <- convert(Eh,"pe",T=convert(T.ORP,"K"))
+\end_layout
+
+\begin_layout Scrap
+logK.ORP <- subcrt(c("e-","H+","H2"),c(-2,-2,1),c("aq","aq","aq"),T=T.ORP)$out$log
+K
+\end_layout
+
+\begin_layout Scrap
+logaH2.ORP <- logK.ORP - 2*pe - 2*pH.ORP
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Sulfide/Sulfate
+\end_layout
+
+\begin_layout Standard
+For sulfide/sulfate, assign activities that are equal to concentrations
+ (in molal units) measured in the field season of 2005, when the biofilm
+ samples were collected for metagenomic sequencing, and use the law of mass
+ action for
+\begin_inset Formula \[
+\mathrm{HS^{-}}+4\mathrm{H_{2}O}\rightleftharpoons\mathrm{SO_{4}}^{-2}+\mathrm{H^{+}}+4\mathrm{H_{2}}_{\left(aq\right)}\]
+
+\end_inset
+
+to calculate an effective activity of hydrogen.
+ Sulfide was determined spectrophotometrically at the hot spring, and sulfate
+ was determined using ion chromatography on water samples returned from
+ the field.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch redox
+status open
+
+\begin_layout Scrap
+<<sulfur>>=
+\end_layout
+
+\begin_layout Scrap
+loga.HS <- log10(c(4.77e-6,2.03e-6,3.12e-7,4.68e-7,2.18e-7))
+\end_layout
+
+\begin_layout Scrap
+loga.SO4 <- log10(c(2.10e-4,2.03e-4,1.98e-4,2.01e-4,1.89e-4))
+\end_layout
+
+\begin_layout Scrap
+logK.S <- subcrt(c("HS-","H2O","SO4-2","H+","H2"),c(-1,-4,1,1,4),state=c("aq","li
+q","aq","aq","aq"),T=T.bison)$out$logK
+\end_layout
+
+\begin_layout Scrap
+logaH2.S <- (logK.S + pH.bison - loga.SO4 + loga.HS) / 4
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Dissolved Oxygen
+\end_layout
+
+\begin_layout Standard
+Calculate the effective activity of hydrogen corresponding to the dissolved
+ oxygen concentration using the law of mass action for
+\begin_inset Formula \[
+0.5\mathrm{O_{2}}_{\left(aq\right)}+\mathrm{H_{2}}_{\left(aq\right)}\rightleftharpoons\mathrm{H_{2}O}\,.\]
+
+\end_inset
+
+Convert the dissolved oxygen concentrations, in mg/L, to molarities (mol/L)
+ and use these values to set the activity of 
+\begin_inset Formula $\mathrm{O_{2}}_{\left(aq\right)}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch redox
+status open
+
+\begin_layout Scrap
+<<oxygen>>=
+\end_layout
+
+\begin_layout Scrap
+DO <- c(0.173,0.776,0.9,1.6,2.8)
+\end_layout
+
+\begin_layout Scrap
+logaO2 <- log10(DO/1000/32)
+\end_layout
+
+\begin_layout Scrap
+logK <- subcrt(c("O2","H2","H2O"),c(-0.5,-1,1),c("aq","aq","liq"),T=T.bison)$out$l
+ogK
+\end_layout
+
+\begin_layout Scrap
+logaH2.O <- 0 - 0.5*logaO2 - logK
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Comparison of Effective Hydrogen Activities
+\end_layout
+
+\begin_layout Standard
+Make a plot showing the activities of hydrogen as a function of temperature
+ derived from the relative stabilities of the proteins, and the ORP, sulfur
+ and oxygen measurements.
+ Connect the data points with dashed lines and add labels for the lines
+ using specified coordinates.
+ After Fig.
+ 9 of Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DS11"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch redox
+status open
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.5
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<logaH2plot,fig=T,width=4,height=4.5>>=
+\end_layout
+
+\begin_layout Scrap
+plot(Tlim,H2prot(Tlim),xlim=Tlim,ylim=c(-45,0),xlab=axis.label("T"),ylab=axis.labe
+l("H2"),type="l")
+\end_layout
+
+\begin_layout Scrap
+points(T.ORP,logaH2.ORP,pch=15)
+\end_layout
+
+\begin_layout Scrap
+lines(T.ORP,logaH2.ORP,lty=2)
+\end_layout
+
+\begin_layout Scrap
+points(T.bison,logaH2.O,pch=16)
+\end_layout
+
+\begin_layout Scrap
+lines(T.bison,logaH2.O,lty=2)
+\end_layout
+
+\begin_layout Scrap
+points(T.bison,logaH2.S,pch=17)
+\end_layout
+
+\begin_layout Scrap
+lines(T.bison,logaH2.S,lty=2)
+\end_layout
+
+\begin_layout Scrap
+llab <- c("H2prot","ORP","oxygen","sulfur")
+\end_layout
+
+\begin_layout Scrap
+text(c(72,80,72,74),c(-4,-25,-34,-10.5),llab)
+\end_layout
+
+\begin_layout Scrap
+# legend("bottomright",lty=c(1,NA,NA,NA),pch=c(NA,15,16,17),legend=llab)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\begin_layout Standard
+The calculations and figures presented here involve the average oxidation
+ state of carbon in proteins, temperature and pH of the hot spring, relative
+ stabilities of model proteins as a function of temperature, 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+ and pH, and comparison of effective values of 
+\begin_inset Formula $\log a_{\mathrm{H_{2}}_{\left(aq\right)}}$
+\end_inset
+
+ from different redox reactions.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "vig"
+options "unsrtnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

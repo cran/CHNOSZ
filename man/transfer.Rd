@@ -75,9 +75,9 @@ Simulate a mass transfer process such as mineral weathering or sequential format
     diagram(a)
     basis("pH",4)
     species(1:5,c(-4,rep(-999,4)))
-    t <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
+    tr <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
     # plot the output from transfer
-    draw.transfer(t)
+    draw.transfer(tr)
     # reset the plot layout
     layout(matrix(1))
     # note, the same calculation can be performed using
@@ -91,7 +91,7 @@ Simulate a mass transfer process such as mineral weathering or sequential format
     diagram(a,as.residue=TRUE)
     species(1:nrow(species()),-999)
     species("APC2_YEAST",0)
-    t <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
+    tr <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
     # this calculation is also available with
     # apc("closed")
   }
@@ -99,10 +99,10 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
 \references{
 
-  Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T., 1969. Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta}, 33, 455-481. \url{http://dx.doi.org/10.1016/0016-7037(69)90127-6}
+  Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T. (1969) Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta} \bold{33}, 455--481. \url{http://dx.doi.org/10.1016/0016-7037(69)90127-6}
 
-  Steinmann, P., Lichtner, P. C. and Shotyk, W., 1994. Reaction path approach to mineral weathering reactions. \emph{Clay Clay Min.}, 42, 197-206. \url{http://ccm.geoscienceworld.org/cgi/content/abstract/42/2/197}
+  Steinmann, P., Lichtner, P. C. and Shotyk, W. (1994) Reaction path approach to mineral weathering reactions. \emph{Clay Clay Min.} \bold{42}, 197--206. \url{http://ccm.geoscienceworld.org/cgi/content/abstract/42/2/197}
 
 }
 
-\keyword{misc}
+\keyword{primary}

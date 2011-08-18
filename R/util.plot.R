@@ -310,3 +310,23 @@ mtitle <- function(main,...) {
   for(i in 1:l) mtext(main[i],line=l-i,...)
 }
 
+
+residualsplot <- function(residuals,property="Cp",model="big") {
+  # a barchart useful for plotting residuals 
+  # (see 'xadditivy' vignette)
+  # plot horizontal bars stacked with largest on top
+  # put them in order of increasing size
+  residuals <- residuals[order(abs(residuals))]
+  bp <- barplot(residuals,horiz=TRUE,axisnames=FALSE)
+  # to plot names, first find the sign of the residual
+  ispos <- residuals > 0
+  # put some padding around the names
+  nr <- paste("",names(residuals),"")
+  # align left or right depending on sign of residual
+  text(0,bp[ispos],nr[ispos],adj=1)
+  text(0,bp[!ispos],nr[!ispos],adj=0)
+  # assemble stuff for the title
+  title(main=paste("residuals in",property,"using",model,"model"))
+  # add axis label
+  mtext(axis.label(property),1,3)
+}

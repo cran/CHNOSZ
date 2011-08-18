@@ -8,6 +8,7 @@
 \alias{species.label}
 \alias{water.lines}
 \alias{mtitle}
+\alias{residualsplot}
 \title{Functions to Create and Modify Plots}
 
 \description{
@@ -34,6 +35,7 @@
     which = c("oxidation","reduction"), logaH2O = 0, lty = 2, 
     col = par("fg"), xpoints = NULL)
   mtitle(main, ...)
+  residualsplot(residuals, property = "Cp", model = "big")
 }
 
 \arguments{
@@ -85,6 +87,9 @@
   \item{xpoints}{numeric, points to plot on \eqn{x}{x} axis.}
   \item{main}{character, text for plot title.}
   \item{...}{further arguments passed to \code{mtext}.}
+  \item{residuals}{numeric, named vector of residuals to plot.}
+  \item{property}{character, name of property.}
+  \item{model}{character, name of model to use in plot title.}
 }
 
 \details{
@@ -105,10 +110,12 @@
 
   \code{mtitle} can be used to add a multi-line title to a plot. It loops over each element of \code{main} and places it on a separate margin line using \code{\link{mtext}}. This function exists to facilitate using \code{\link{expression}}s in multiline titles (see \code{\link{revisit}} for an example.) 
 
+  \code{residualsplot} produces a \code{\link{barchart}} with options useful for plotting residuals of group contribution models for thermodynamic properties. It plots horizontal bars stacked with largest on top. The names of the \code{residuals} argument (i.e., the names of model species) are plotted across from each respective bar. The axis title is taken from the \code{property} (probably \samp{Cp} or \samp{V}), and the plot title includes the \code{model} name. See the \sQuote{xadditivity} vignette for examples of these plots.
+
 }
 
 \section{Side Effects}{
   These functions create or modify a plot.
 }
 
-\keyword{misc}
+\keyword{util}

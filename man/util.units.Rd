@@ -86,4 +86,4 @@
   nuts("K"); nuts("bar"); nuts("cal")	
 }
 
-\keyword{misc}
+\keyword{util}

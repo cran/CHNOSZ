@@ -1,0 +1,2 @@
+Tr,Pr,Theta,Psi,R,cutoff,E.units,T.units,P.units,state,ionize,water,online,verbose
+298.15,1,228,2600,1.9872,1e-10,cal,C,bar,aq,TRUE,SUPCRT,NA,FALSE

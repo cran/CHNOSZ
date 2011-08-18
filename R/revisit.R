@@ -246,17 +246,17 @@ revisit <- function(d,target="cv",loga.ref=NULL,
         plotted <- TRUE
       } else if(target %in% c("rmsd","cvrmsd","spearman","pearson")) {
         # plot the points
-        xlab <- "loga.calc"
-        ylab <- "loga.ref"
+        ylab <- "loga.calc"
+        xlab <- "loga.ref"
         if(!is.null(lograt.ref)) {
-          xlab <- "lograt.calc"
-          ylab <- "lograt.ref"
+          ylab <- "lograt.calc"
+          xlab <- "lograt.ref"
         }
-        plot(actarr,loga.ref,xlab=xlab,ylab=ylab,pch=pch)
+        plot(loga.ref,actarr,xlab=xlab,ylab=ylab,pch=pch,col=col)
         # add a 1:1 line
         lines(range(loga.ref),range(loga.ref),col="grey")
         # add a lowess line
-        ls <- loess.smooth(actarr,loga.ref)
+        ls <- loess.smooth(loga.ref,actarr)
         lines(ls$x,ls$y,col="red")
         plotted <- TRUE
       }

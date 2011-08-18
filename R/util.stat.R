@@ -41,8 +41,8 @@ spearman <- function(a,b) {
 lograt <- function(a,b) {
   # calculate the difference between a and b
   # (i.e. log10 of the ratio of activities b/a)
-  # a list of single values
-  # b list of values, any dimension
+  # a - list of single values
+  # b - list of values, any dimension
   mydim <- dim(b[[1]])
   out <- b
   for(i in 1:length(b)) {

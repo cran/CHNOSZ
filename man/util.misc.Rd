@@ -10,7 +10,7 @@
 \alias{which.balance}
 \alias{unitize}
 \alias{caller.name}
-\title{Miscellaneous Utility Functions}
+\title{Functions for Miscellaneous Tasks}
 \description{
   Calculate \eqn{dP/dT}{dP/dT} and temperature of phase transitions, calculate heat capacities of unfolded proteins using an equation from the literature, calculate non-ideal contributions to apparent standard molal properties, identify a conserved basis species, execute multicore calculations, scale logarithms of activity to a desired total activity, get name of calling function.
 }
@@ -99,13 +99,13 @@
   MP90.cp(c(5,25,50,75,100,125),"LYSC_CHICK")
 
   ## properties of phase transitions
-  t <- info("enstatite")
+  si <- info("enstatite")
   # (dP/dT) of transitions
-  dPdTtr(t)  # first transition
-  dPdTtr(t+1) # second transition
+  dPdTtr(si)  # first transition
+  dPdTtr(si+1) # second transition
   # temperature of transitions (Ttr) as a function of P
-  Ttr(t,P=c(1,10,100,1000))
-  Ttr(t,P=c(1,10,100,1000))
+  Ttr(si,P=c(1,10,100,1000))
+  Ttr(si,P=c(1,10,100,1000))
   
   ## the basis stoichiometry of a made-up species
   # warns because P isn't in our basis
@@ -144,11 +144,11 @@
 
 \references{
 
-  Alberty, R. A., 2003. \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
+  Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
 
-  Makhatadze, G. I. and Privalov, P. L., 1990. Heat capacity of proteins. 1. Partial molar heat capacity of individual amino acid residues in aqueous solution: Hydration effect \emph{J. Mol. Biol.}, 213, 375-384. \url{http://dx.doi.org/10.1016/S0022-2836(05)80197-4}
+  Makhatadze, G. I. and Privalov, P. L. (1990) Heat capacity of proteins. 1. Partial molar heat capacity of individual amino acid residues in aqueous solution: Hydration effect \emph{J. Mol. Biol.} \bold{213}, 375--384. \url{http://dx.doi.org/10.1016/S0022-2836(05)80197-4}
 
  
 }
 
-\keyword{misc}
+\keyword{util}

@@ -42,6 +42,6 @@ Convert between strings and character objects. Test for ability to become numeri
   c2s(aminoacids(),sep=".")
 }
 
-\keyword{misc}
+\keyword{util}
 
 

@@ -73,59 +73,43 @@
     target <- "sd"
     # this one gives logfO2=-27.8
     f1 <- findit(list(O2=c(-50,-15)),target,T=325,P=350,n=3)
+    title("SD of equilibrium log activities of sulfur species")
     # this one gives logfO2=-30.0 pH=9.38
     f2 <- findit(list(O2=c(-50,-15),pH=c(0,14)),target,T=325,P=350,res=16,n=4)
+    title("SD of equilibrium log activities of sulfur species")
 
-    # an organic example: 
-    # find chemical activities where metastable activities of
-    # selected proteins in P. ubique have high correlation
-    # with a lognormal distribution (i.e., maximize r of q-q plot)
-    f <- system.file("extdata/HTCC1062.faa",package="CHNOSZ")
-    # search for three groups of proteins
-    myg <- c("ribosomal","nucle","membrane")
-    g <- lapply(myg,function(x) grep.file(f,x))
-    # note that some proteins match more than one search term
-    uug <- unique(unlist(g))
-    # read their amino acid compositions from the file
-    p <- read.fasta(f,uug)
-    # add these proteins to thermo$protein
-    ip <- add.protein(p)
-    # load a predefined set of uncharged basis species
-    # (speeds things up as we won't model protein ionization)
-    basis("CHNOS")
-    # make colors for the diagram
-    rgbargs <- lapply(1:3,function(x) as.numeric(uug \%in\% g[[x]]))
-    col <- do.call(rgb,c(rgbargs,list(alpha=0.5)))
-    # get point symbols (use 1,2,4 and their sums)
-    pch <- colSums(t(list2array(rgbargs)) * c(1,2,4))
-    # plot 1: calculated logarithms of chemical activity
-    # as a function of logfO2 ... a bundle of curves near logfO2 = -77
-    a <- affinity(O2=c(-90,-50),iprotein=ip)
-    d <- diagram(a,logact=0,col=col)
-    # plot 2: q-q correlation coefficient
-    # it shows lognormal distribution favored near logfO2 = -73.6
-    r <- revisit(d,"qqr")
-    # plot 3: q-q at a single value of logfO2
-    basis("O2",-73.6)
+    # test the findit function in three dimensions
+    # first calculate equilibrium activities of some proteins
+    # using specified activities of basis species
+    ip <- 1:20
+    basis("CHNOS+")
+    basis("CO2",-pi)        # -3.141593
+    basis("H2O",-exp(1))    # -2.718282
+    basis("NH3",-sqrt(2))   # -1.414214
     a <- affinity(iprotein=ip)
-    d <- diagram(a,logact=0,do.plot=FALSE)
-    qqr3 <- revisit(d,"qqr",pch=pch)$H
-    legend("topleft",pch=c(1,2,4),legend=myg)
-    # plot 4: findit... maximize qqr as a function of O2-H2O-NH3-CO2
-    # it shows an optimum at low logaH2O, logaNH3
-    f1 <- findit(list(O2=c(-90,-70),H2O=c(-30,0),CO2=c(-20,10),NH3=c(-15,0)),
-      "qqr",iprotein=ip,n=8)
-    # plot 5: q-q plot at the final loga O2, H2O, CO2, NH3
-    # higher correlation coefficient than plot 3
+    # scale relative abundances such that total activity of residues 
+    # is unity (since loga.tot=0 is default for findit)
+    d <- diagram(a,do.plot=FALSE,logact=0)
+    loga.ref <- as.numeric(d$logact)
+    # return to default values for activities of basis species,
+    basis("CHNOS+")
     a <- affinity(iprotein=ip)
-    d <- diagram(a,logact=0,do.plot=FALSE)
-    qqr5 <- revisit(d,"qqr",pch=pch)$H
-    legend("topleft",pch=c(1,2,4),legend=myg)
-    # plot 6: trajectory of O2, H2O, CO2, NH3, and the
-    # q-q correlation coefficient in the search
-    plot(f1,mar=c(2,5,1,1),mgp=c(4,1,0))
+    d <- diagram(a,do.plot=FALSE,logact=0)
+    # we have diverged from the reference activities of proteins
+    r0 <- revisit(d,"rmsd",loga.ref,main="")
+    title(main=paste("log activities of 20 proteins for basis activities",
+      "from numerical constants (ref) and CHNOSZ default (calc)",sep="\n"))
+    # now find the activities of the basis species, within search 
+    # intervals, that get us close to reference activities of proteins
+    f <- findit(lims=list(CO2=c(-5,0),H2O=c(-5,0),NH3=c(-5,0)),
+      "rmsd",10,iprotein=ip,loga.ref=loga.ref,res=16)
+    title(main="RMSD of log activities from reference values")
+    # -pi, -e and -sqrt(2) were approximately retrieved!
+    -sapply(f$value,tail,1)[1:3]
+    # we can plot the trajectories
+    plot(f,mar=c(4,5,2,2))
   }
 }
 
 
-\keyword{misc}
+\keyword{primary}

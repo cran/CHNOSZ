@@ -3,7 +3,7 @@
 \docType{package}
 \title{Chemical Thermodynamics and Activity Diagrams}
 \description{
-  CHNOSZ is a package for thermodynamic calculations, primarily with applications in geochemistry and biochemistry. It can be used to calculate the standard molal thermodynamic properties and chemical affinities of reactions relevant to geobiochemical processes, and to visualize the equilibrium activities of species on chemical speciation and predominance diagrams. The package can be used interactively -- variations on a single command line can be used to calculate the standard thermodynamic properties of any number of reactions involving proteins and/or inorganic species such as minerals -- and in batch mode, through the use of R source files containing a sequence of commands. The major features of the package are outlined below, with links to specific help topics in this document, which constitutes the primary technical description of the package. If you are a new user (and especially if you are new to R), the \dQuote{Getting started with CHNOSZ} vignette (\url{../doc/index.html}) offers a friendlier introduction to using the package.
+  CHNOSZ is a package for thermodynamic calculations, primarily with applications in geochemistry and biochemistry. It can be used to calculate the standard molal thermodynamic properties and chemical affinities of reactions relevant to geobiochemical processes, and to visualize the equilibrium activities of species on chemical speciation and predominance diagrams. The package can be used interactively -- variations on a single command line can be used to calculate the standard thermodynamic properties of any number of reactions involving proteins and/or inorganic species such as minerals -- and in batch mode, through the use of R source files containing a sequence of commands. The major features of the package are outlined below, with links to specific help topics in this document, which constitutes the primary technical description of the package. If you are a new user, the \sQuote{anintro} vignette (An Introduction to CHNOSZ) may offer a more comfortable way to get started with using the package.
 }
 
 \details{
@@ -26,7 +26,7 @@
 
   \item Chemical affinity - calculate the chemical affinities of the formation reactions of the species of interest at a single point, or as a function of one or more of chemical activities of the basis species, temperature and/or pressure (\code{\link{affinity}}).
 
-  \item Chemical activity - calculate the equilibrium activities of the species of interest as a function of the same variables used in the affinity calculation, using a reference state transformation (either the Maxwell-Boltzmann distribution or a reaction matrix approach). These are often (in organic systems particularly) metastable equilibrium activities (i.e., the species of interest are less stable than the basis species). (\code{\link{diagram}}, \code{\link{logact.react}}, \code{\link{logact.mb}}).
+  \item Chemical activity - calculate the equilibrium activities of the species of interest as a function of the same variables used in the affinity calculation, using a reference state transformation (either the Boltzmann distribution or a reaction matrix approach). These are often (in organic systems particularly) metastable equilibrium activities (i.e., the species of interest are less stable than the basis species). (\code{\link{diagram}}, \code{\link{equil.react}}, \code{\link{equil.boltz}}).
 
   \item Buffer calculations - compute the values of the activities of basis species that are determined by a buffer of one or more species (e.g., pyrite-pyrrhotite-magnetite; acetic acid-CO2) (\code{\link{buffer}}).
 
@@ -44,7 +44,7 @@
 
   \itemize{
 
-    \item Install the package from the command line with \samp{R CMD INSTALL CHNOSZ_0.9.tar.gz}. You need the proper build environment on your machine because there is a FORTRAN source file in the package. Or, if you have gotten the binary distribution (e.g., for Windows or Mac), use the \samp{Install packages from local zip files} option from the GUI.
+    \item Install the package from the command line with \samp{R CMD INSTALL CHNOSZ_0.9-6.tar.gz}. You need the proper build environment on your machine because there is a FORTRAN source file in the package. Or, if you have gotten the binary distribution (e.g., for Windows or Mac), use the \samp{Install packages from local zip files} option from the GUI.
     \item To begin working with the package after installation, type \code{\link{library}(CHNOSZ)} at the command line (or select the name of the package from the GUI menu).
     \item Running the examples shown in the various help topics is a great way to become more familiar with the usage of the functions. Type the command \code{\link{examples}()} to run all the examples provided in \code{CHNOSZ}. This takes about ten minutes depending on your system. You should receive some warning messages when the examples are finished; don't worry, they mean the functions are functioning as intended.
     \item To view the documentation, use \code{help.start()} (or choose \R help in the GUI) to launch a browser, and select \samp{Packages} then \samp{CHNOSZ}. You can copy the text of individual examples from the browser window into the command line interface. The documentation topics are arranged alphabetically; to read them in a more logical order, use this sequence (identical to the order of the \code{\link{examples}}): \code{\link{CHNOSZ-package}}, \code{\link{thermo}}, \code{util.*}, \code{\link{info}}, \code{eos}, \code{\link{water}}, \code{\link{subcrt}}, \code{\link{nuts}}, \code{\link{makeup}}, \code{\link{basis}}, \code{\link{species}}, \code{\link{affinity}}, \code{\link{diagram}}, \code{\link{buffer}}, \code{\link{protein}}, \code{\link{ionize}}, \code{\link{get.protein}}, \code{\link{revisit}}, \code{\link{transfer}}, \code{\link{eqdata}}.
@@ -58,12 +58,12 @@
 
 
 \section{Compatibility}{
-The package dependency is given as \R version 2.7.0 or greater (major update of the X11 device in 2.7.0). However, it should be possible to run CHNOSZ under \R versions 2.4.0 or greater (availability of the \samp{stringsAsFactors} argument to \code{\link{data.frame}}). 
+The package dependency is \R version 2.10.0 or greater (to read compressed data files). Before this, the package dependency was given as \R version 2.7.0 or greater (major update of the X11 device in 2.7.0). However, without accessing the compressed data files in \code{extdata} it should be possible to run CHNOSZ under \R versions 2.4.0 or greater (availability of the \samp{stringsAsFactors} argument to \code{\link{data.frame}}). 
 }
 
 \section{Acknowledgements}{
   This package was made possible by the fearless leadership of the late Professor Harold C. Helgeson. He took no heed of disciplinary boundaries, and encouraged the author to pursue unconventional problems. Hal, and those in his research group, are in some way responsible for many parts of this package, such as the aqueous equations of state used here, the thermodynamic parameters for many species, and actual computer code (H2O92D.f, borrowed from the SUPCRT92 program).
-  Work on this project at U.C. Berkeley (through 2008) was supported by research grants from the U.S. National Science Foundation and Department of Energy. Effective starting in 2009: This material is based upon work supported by the National Science Foundation under grant EAR-0847616 (\url{http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=0847616}). Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
+  Work on this project at U.C. Berkeley (through 2008) was supported by research grants from the U.S. National Science Foundation and Department of Energy. Effective starting in 2009: This material is based upon work supported by the National Science Foundation under grant EAR-0847616 (\url{http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=0847616}). 
 }
 
 \examples{
@@ -89,9 +89,9 @@ The package dependency is given as \R version 2.7.0 or greater (major update of 
   info("SiO2")
   # query using names
   info("quartz")
-  t <- info(c("glucose","mannose"))
+  si <- info(c("glucose","mannose"))
   # show the equations of state parameters
-  info(t)
+  info(si)
   # approximate matches for names or formulas
   info("acid ")
   info("SiO2 ")

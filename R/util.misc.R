@@ -341,7 +341,7 @@ caller.name <- function(n=2) {
   return(name)
 }
 
-.First.lib <- function(lib,pkg) {
+.onAttach <- function(libname,pkgname) {
   # version figuring adapted from package mgcv
   pkghelp <- library(help=CHNOSZ)$info[[1]]
   # things are different for older versions of R
@@ -353,7 +353,7 @@ caller.name <- function(n=2) {
   um <- strsplit(date," ")[[1]]
   date <- um[nchar(um)>0][2]
   # identify the program and version
-  cat(paste('CHNOSZ version ',version,' (',date,')\n',sep=''))
+  packageStartupMessage(paste('CHNOSZ version ',version,' (',date,')',sep=''))
   # load the data object
   data(thermo)
   ## load data files in user's directory
@@ -367,5 +367,26 @@ caller.name <- function(n=2) {
   #  if(identical(class(tr),'try-error')) cat("thermo: obigt.csv in current directory is not compatible with thermo$obigt data table.\n")
   #  else add.obigt("obigt.csv")
   #}
+
+  # check that the shared object (or dll?) is or can be loaded.
+  # if not, and if we were called by 'water' to start with,
+  # produce a warning, set option thermo$water to IAPWS
+  # and reinitiate the calculations, otherwise stop with an error.
+#  t <- try(library.dynam('CHNOSZ'),silent=TRUE,package="CHNOSZ")
+#  if(length(t)==1) {
+#    # looks like we can't load the dynamic object
+#    # name of calling function
+#    # (see http://tolstoy.newcastle.edu.au/R/e2/help/07/06/17957.html)
+#    parent.name <- as.character(sys.call(-1)[[1]])
+#    if(parent.name=='water') {
+#      warning('\nwater.SUPCRT92: unable to find library for SUPCRT92 water calculations; reverting to IAPWS-95 and trying again.\n')
+#      thermo$opt$water <<- 'IAPWS'
+#      return(water(property,T,P))
+#    } else {
+#      stop('can\'t load dynamic object (.so or .dll) required for SUPCRT92 water calculations')
+#   }
+#  }
+  # we got here, so the h2o92 is ready to go!
+
 }
 

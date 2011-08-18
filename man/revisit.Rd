@@ -24,7 +24,7 @@
   \item{target}{character, what statistic to calculate.}
   \item{loga.ref}{numeric, logarithm of activities for comparison statistics}
   \item{do.plot}{logical, make a plot?}
-  \item{col}{character, color to use for line plots.}
+  \item{col}{character, color to use for points or liness.}
   \item{yline}{numeric, margin line for y-axis label.}
   \item{ylim}{numeric, limits of y axis.}
   \item{ispecies}{numeric, which species to consider.}
@@ -72,7 +72,7 @@
 
   If \code{lograt.ref} is provided, these values are the reference values for logarithm of abundance ratio.
  
-  The function name was changed from \code{diversity} to \code{revisit} in \pkg{CHNOSZ}-0.9 because there is a function named \code{\link[vegan]{diversity}} in the \pkg{vegan} package. If you are a \pkg{vegan} user experimenting with \pkg{CHNOSZ}, note that while \code{diversity} takes a matrix with species on the columns, \code{revisit} takes a list with species as the elements of the list. See the examples for a calculation that uses both \code{revisit} and \code{\link[vegan]{radfit}} from \pkg{vegan}.
+  The function name was changed from \code{diversity} to \code{revisit} in CHNOSZ-0.9 because there is a function named \code{\link[vegan]{diversity}} in the \pkg{vegan} package. Note that while \code{diversity} takes a matrix with species on the columns, \code{revisit} takes a list with species as the elements of the list. 
 
 }
 
@@ -87,7 +87,7 @@
   \donttest{
     ### using grep.file, read.fasta, add.protein
     # calculations for Pelagibacter ubique
-    f <- system.file("extdata/HTCC1062.faa",package="CHNOSZ")
+    f <- system.file("extdata/fasta/HTCC1062.faa.xz",package="CHNOSZ")
     # what proteins to select (set to "" for all proteins)
     w <- "ribosomal"
     # locate entries whose names contain w
@@ -119,4 +119,4 @@
   }
 }
 
-\keyword{misc}
+\keyword{primary}

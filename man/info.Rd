@@ -1,23 +1,19 @@
 \name{info}
 \alias{info}
-\alias{check}
 \title{Search the Thermodynamic Database}
 \description{
   Search for species by name or formula, and retrieve their thermodynamic properties and parameters.
 }
 
 \usage{
-  info(species = NULL, states = NULL, quiet = FALSE, file = "", 
-    return.approx = TRUE, check=FALSE)
+  info(species = NULL, states = NULL, quiet = FALSE, return.approx = TRUE)
 }
 
 \arguments{
   \item{species}{character, names or formulas of species, or numeric, indices of species in the thermodynamic database.}
   \item{states}{numeric, physical states of the species.}
   \item{quiet}{logical, produce fewer messages and make fewer tests?}
-  \item{file}{character, name of file to which to write test output.}
   \item{return.approx}{logical, return the indices of approximately matching species?}
-  \item{check}{logical, check the self-consistency of entries for all species in database?}
 }
 
 \details{
@@ -32,19 +28,17 @@
 
   If \code{quiet} is \code{FALSE}, several checks of self consistency among the thermodynamic properties and parameters are performed. A missing value of one of the standard molal Gibbs energy (\code{G}) or enthalpy (\code{H}) of formation from the elements or entropy (\code{S}) is calculated from the other two, if available. In addition, the value of \code{G} calculated from those of \code{H} and \code{S} is compared with the tabulated value and a message printed if the difference exceeds 1000 cal mol\eqn{^{-1}}{^-1}. Likewise, if the values of standard molal heat capacity or volume calculated from the equations-of-state parameters differ (by greater than 1 cal mol K\eqn{^{-1}}{^-1} or 1 cm\eqn{^3} mol\eqn{^{-1}}{^-1}) from the tabulated values, messages to this effect are printed. 
 
-  If \code{info} is called with \code{species} = NULL and \code{check} = FALSE, a summary of available data in \code{thermo} is printed. Otherwise, if \code{check} is TRUE, the function performs self-consistency check on all the species in the thermodynamic database in sequence and writes any messages to the screen or to a file named in \code{file}, and returns a table summarizing those species for which the parameters are not self-consistent within the limits described above.
-
 }
 
 
 \value{
 
-  If \code{species} is character of length \eqn{n} and no approximate matches are found, the \code{\link{invisible}} return is a numeric vector of length \eqn{n} containing for each species its index in the thermodynamic database or \code{NA}. If two or more approximate matches are located for any of the species, the return value is instead a list of length \eqn{n}, each element of which contains the matching index or indices of the species or \code{NA}. If \code{species} is numeric, the corresponding rows of the thermodynamic database are visibly returned, after removing order-of-magnitude multipliers. If \code{check} is TRUE, the return value is a table of species that did not pass the self-consistency check within the limits coded in the function.
+  If \code{species} is character of length \eqn{n} and no approximate matches are found, the \code{\link{invisible}} return is a numeric vector of length \eqn{n} containing for each species its index in the thermodynamic database or \code{NA}. If two or more approximate matches are located for any of the species, the return value is instead a list of length \eqn{n}, each element of which contains the matching index or indices of the species or \code{NA}. If \code{species} is numeric, the corresponding rows of the thermodynamic database are visibly returned, after removing order-of-magnitude multipliers. 
   
 }
 
 \seealso{
-  \code{\link{thermo}} for the thermodynamic database (specifically, \code{thermo$obigt}); \code{\link{GHS}} for checking self-consistency among Gibbs energy, enthalpy and entropy; \code{\link{protein}} for gathering compositions and thermodynamic properties of proteins. The output of the self-consistency check for the entire database is available at \url{../doc/check.csv}.
+  \code{\link{thermo}} for the thermodynamic database (specifically, \code{thermo$obigt}). \code{\link{check.obigt}} for checking self-consistency of individual entries in the database. \code{\link{protein}} for gathering compositions and thermodynamic properties of proteins. 
 }
 
 
@@ -52,11 +46,6 @@
   \dontshow{data(thermo)}
   ## basic operation
   \dontrun{
-  # view the license and news file
-  # marked dontrun because they open pagers 
-  # that wait for the user to close them
-  info("licence")
-  info("CHNOSZ")
   # run a consistency check on each species in the database
   # (marked dontrun because it takes a while)
   info(check=TRUE)
@@ -64,11 +53,11 @@
 
   ## species information
   # search for something named (or whose formula is) "Fe"
-  t <- info("Fe")
+  si <- info("Fe")
   # use the number to get the full record
-  info(t)
+  info(si)
   # it is possible to get a range of records
-  info(t:(t+3))
+  info(si:(si+3))
 
   ## dealing with states
   # default order of preference for names: aq > gas > cr,liq
@@ -94,4 +83,4 @@
   info(" H2O")
 }
 
-\keyword{misc}
+\keyword{primary}

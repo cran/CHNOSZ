@@ -88,4 +88,4 @@
   stopifnot(all.equal(a1$values,a3$values))
 }
 
-\keyword{misc}
+\keyword{util}

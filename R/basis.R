@@ -121,14 +121,16 @@ basis <- function(basis=NULL,values=NULL,values2=NULL,delete=FALSE,quiet=FALSE) 
             #cat(paste('basis: changed state of',rownames(thermo$basis)[i],'to',values[j],'\n'))
           } else {
             # test if this is the name of a buffer
-            if(values[j] %in% as.character(thermo$buffer$name)) {
-              ibuff <- which(as.character(thermo$buffer$name)==values[j])
+            if(values[j] %in% as.character(thermo$buffers$name)) {
+              ibuff <- which(as.character(thermo$buffers$name)==values[j])
               for(k in 1:length(ibuff)) {
-                ispecies <- info(as.character(thermo$buffer$species)[ibuff[k]],as.character(thermo$buffer$state)[ibuff[k]],quiet=TRUE)
+                ispecies <- info(as.character(thermo$buffers$species)[ibuff[k]],as.character(thermo$buffers$state)[ibuff[k]],quiet=TRUE)
                 bufmakeup <- makeup(ispecies)
                 inbasis <- rownames(bufmakeup) %in% colnames(basis(quiet=TRUE)) 
                 if(FALSE %in% inbasis) {
-                  cat(paste('basis: the elements',c2s(rownames(bufmakeup)[!inbasis]),'of',thermo$buffer$species[ibuff[k]],'in buffer',values[j],'are not in the basis. skipping.\n'))
+                  cat(paste('basis: the elements',c2s(rownames(bufmakeup)[!inbasis]),
+                    'of',thermo$buffers$species[ibuff[k]],'in buffer',values[j],
+                    'are not in the basis. skipping.\n'))
                   next
                 }
                 stemp <- as.character(thermo$basis$logact); stemp[i] <- values[j]
@@ -186,7 +188,7 @@ basis <- function(basis=NULL,values=NULL,values2=NULL,delete=FALSE,quiet=FALSE) 
         'species (',c2s(thermo$obigt$formula[ispecies]),')'),call.=FALSE)
       warning(paste('basis:',ncol(comp),
         'elements (',c2s(colnames(comp)),')'),call.=FALSE)
-      stop('the stoichiometric matrix must be square (same number of species as elements) and be invertible')
+      stop('the stoichiometric matrix must be square and invertible')
     }
     comp <- cbind(comp,ispecies,logact,state)
     # assign to the global thermo object

@@ -1,5 +1,4 @@
 # CHNOSZ/util.args.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # functions to create argument lists
 
 eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {

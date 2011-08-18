@@ -1,5 +1,4 @@
 # CHNOSZ/water.R
-# Copyright (C) 2006-2008 Jeffrey M. Dick
 # calculate thermodynamic and electrostatic properties of H2O
 # 20061016 jmd
 
@@ -53,7 +52,7 @@ water.AW90 <- function(T=298.15,rho=1000,P=0.1) {
 }
 
 water.IAPWS95 <- function(property,T=298.15,rho=1000) {
-    # the IAPWS-95 formalism for pure H2O from 
+    # the IAPWS-95 formulation for pure H2O from 
     # Wagner and Pruss, 2002
     property <- tolower(property)
     # triple point
@@ -426,8 +425,8 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
   if(length(property)==1 & property[1]=='psat') return(data.frame(Psat=psat()))
   ### maybe we are using the SUPCRT calculations ###
   if(do.supcrt) {
-    names.SUPCRT <- c('Speed','alpha','beta','diel','ZBorn','YBorn','QBorn','XBorn')
-    names.CHNOSZ <- c('w','E','kT','epsilon','Z','Y','Q','X')
+    names.SUPCRT <- c('Speed','alpha','beta','alpha','beta','diel','ZBorn','YBorn','QBorn','XBorn')
+    names.CHNOSZ <- c('w','alpha','beta','E','kT','epsilon','Z','Y','Q','X')
     Property.new <- character()
     # convert names to SUPCRT
     for(i in 1:length(Property)) if(Property[i] %in% names.CHNOSZ) 
@@ -438,10 +437,11 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
     ikT <- which(Property=="kT")
     iV <- numeric()
     if("kT" %in% Property | "E" %in% Property) iV <- length(Property.new <- c(Property.new,"V"))
+    # get the value of the property
     w.out <- water.SUPCRT92(Property.new,T=T,P=P)
     # finish dealing with compressibility and expansivity
     if("E" %in% Property) w.out[,iE] <- w.out$V*w.out$alpha
-    if("kT" %in% Property) w.out[,ikT] <- -w.out$V*w.out$beta
+    if("kT" %in% Property) w.out[,ikT] <- w.out$V*w.out$beta
     if(length(iV) > 0) w.out <- w.out[,-iV,drop=FALSE]
     colnames(w.out) <- Property
     return(w.out)
@@ -659,27 +659,7 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
   # H2O92 doesn't output Born functions N or U
   if('n' %in% tolower(property) | 'uborn' %in% tolower(property))
     stop('I can\'t tell you the Born functions N or U (used in calculating compressibilities and expansibilities of aqueous species).')
-  # check that the shared object (or dll?) is or can be loaded.
-  # if not, and if we were called by 'water' to start with,
-  # produce a warning, set option thermo$water to IAPWS
-  # and reinitiate the calculations, otherwise stop with an error.
-  if(!is.loaded('h2o92')) {
-    t <- try(library.dynam('CHNOSZ'),silent=TRUE)
-    if(length(t)==1) {
-      # looks like we can't load the dynamic object
-      # name of calling function
-      # (see http://tolstoy.newcastle.edu.au/R/e2/help/07/06/17957.html)
-      parent.name <- as.character(sys.call(-1)[[1]])
-      if(parent.name=='water') {
-        warning('\nwater.SUPCRT92: unable to find library for SUPCRT92 water calculations; reverting to IAPWS-95 and trying again.\n')
-        thermo$opt$water <<- 'IAPWS'
-        return(water(property,T,P))
-      } else {
-        stop('can\'t load dynamic object (.so or .dll) required for SUPCRT92 water calculations')
-      }
-    }
-  }
-  # we got here, so the h2o92 is ready to go!
+  # pressure setting
   if(is.null(P)) P <- rep(0,length(T))
   # values to use here gleaned from H2O92D.f and SUP92D.f
   # it, id, ip, ih, itripl, isat, iopt, useLVS, epseqn, icrit

@@ -1,5 +1,4 @@
 # CHNOSZ/util.fasta.R
-# Copyright (C) 2009-2010 Jeffrey M. Dick
 # read and manipulate FASTA sequence files
 
 is.fasta <- function(file) {
@@ -14,7 +13,7 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
   # the search term x and optionally don't contain y
   sysgrep <- function(i) {
     # 20091021 changed grep to egrep
-    sysexp <- paste(grep,' -n ',ic,' "',startswith,pattern[i],'" "',file,'" | cut -f 1 -d ":"',sep="")
+    sysexp <- paste(mycat,' "',file,'" | ',grep,' -n ',ic,' "',startswith,pattern[i],'"  | cut -f 1 -d ":"',sep="")
     ix <- as.integer(system(sysexp,intern=TRUE))
     return(ix)
   }
@@ -33,6 +32,11 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
   # use the system's grep if available and y is NULL
   # TODO: include other *nix
   if(is.null(y) & Sys.info()[[1]]=="Linux" & is.null(lines)) {
+    # figure out whether to use 'cat', 'zcat' or 'xzcat'
+    suffix <- substr(file,nchar(file)-2,nchar(file))
+    if(suffix==".gz") mycat <- "zcat"
+    else if(suffix==".xz") mycat <- "xzcat"
+    else mycat <- "cat"
     # use the system grep
     if(is.null(startswith)) startswith <- "" else startswith <- paste("^",startswith,".*",sep="")
     if(ignore.case) ic <- "-i" else ic <- ""
@@ -62,10 +66,15 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
   # pnff: take the protein name from filename (TRUE) or entry name (FALSE)
   is.nix <- Sys.info()[[1]]=="Linux"
   if(is.nix & is.null(lines)) {
-    nlines <- as.integer(system(paste('grep -c "**" "',file,'"',sep=""),intern=TRUE))
-    ihead <- as.integer(system(paste('grep -n "^>" "',file,'" | cut -f 1 -d ":"',sep=""),intern=TRUE))
+    # figure out whether to use 'cat', 'zcat' or 'xzcat'
+    suffix <- substr(file,nchar(file)-2,nchar(file))
+    if(suffix==".gz") mycat <- "zcat"
+    else if(suffix==".xz") mycat <- "xzcat"
+    else mycat <- "cat"
+    nlines <- as.integer(system(paste(mycat,' "',file,'" | wc -l',sep=""),intern=TRUE))
+    ihead <- as.integer(system(paste(mycat,' "',file,'" | grep -n "^>" | cut -f 1 -d ":"',sep=""),intern=TRUE))
     #linefun <- function(i1,i2) as.character(system(paste('sed -n ',i1,',',i2,'p ',file,sep=""),intern=TRUE))
-    lines <- system(paste('cat "',file,'"',sep=""),intern=TRUE)
+    lines <- system(paste(mycat,' "',file,'"',sep=""),intern=TRUE)
     linefun <- function(i1,i2) lines[i1:i2]
   } else {
     if(is.null(lines)) lines <- readLines(file)
@@ -132,11 +141,11 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
   if(ret=="count") {
     aa <- aminoacids(sequences)
     colnames(aa) <- aminoacids(nchar=3)
-    source <- abbrv <- NA
+    ref <- abbrv <- NA
     chains <- 1
     # 20090507 made stringsAsFactors FALSE
     return(cbind(data.frame(protein=protein,organism=organism,
-      source=source,abbrv=abbrv,chains=chains,stringsAsFactors=FALSE),aa))
+      ref=ref,abbrv=abbrv,chains=chains,stringsAsFactors=FALSE),aa))
   } else return(sequences)
 }
 

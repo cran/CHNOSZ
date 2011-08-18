@@ -25,8 +25,8 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
   if(is.null(res)) res <- c(128,64,16,8,6,4,4)[nd]
   if(is.null(n)) n <- c(4,6,6,8,12,12,12)[nd]
   # the size fraction of the new intervals after each iteration
-  rat <- 0.85
   # we can zoom in more quickly if the gradations are smaller
+  rat <- 0.85
   if(res > 4) rat <- 0.8
   if(res > 8) rat <- 0.75
   if(res > 16) rat <- 2/(1+sqrt(5))

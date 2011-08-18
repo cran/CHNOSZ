@@ -58,7 +58,7 @@
   lines(z[[1]],x=seq(0,14,length.out=50),lty=2)
   text(x=12,y=-7,"T=25, oxidized")
   # add experimental points
-  RT71 <- read.csv(system.file("extdata/RT71.csv",package="CHNOSZ"))
+  RT71 <- read.csv(system.file("extdata/cpetc/RT71.csv",package="CHNOSZ"))
   points(RT71$pH,RT71$Z)
   title(main=paste("Ionization of unfolded LYSC_CHICK\n",
     "Experimental points at 25 degC from Roxby and Tanford, 1971"),
@@ -89,7 +89,7 @@
   T.MP <- c(5,25,50,75,100,125)
   points(T.MP,convert(MP90.cp(T.MP,"LYSC_CHICK"),"cal"))
   # Privalov and Makhatadze's experimental values
-  e <- read.csv(system.file("extdata/PM90.csv",package="CHNOSZ"))
+  e <- read.csv(system.file("extdata/cpetc/PM90.csv",package="CHNOSZ"))
   e <- e[e$protein=="LYSC_CHICK",]
   points(e$T,convert(e$Cp,"cal"),pch=16)
   title(main=paste("Calc'd heat capacity of LYSC_CHICK:",
@@ -109,8 +109,8 @@
     species(delete=TRUE)
     species(c(intracellular[i],extracellular[i]),organism[i])
     if(i == 1) add <- FALSE else add <- TRUE
-    t <- affinity(pH=c(0,14),Eh=c(-1,0))
-    diagram(t,add=add,color=NULL,names=species()$name,
+    a <- affinity(pH=c(0,14),Eh=c(-1,0))
+    diagram(a,add=add,color=NULL,names=species()$name,
       col=mycol[i],col.names=mycol[i])
   }
   title(main=paste("Intracellular (AMPM) and extracellular proteins\n",
@@ -127,10 +127,10 @@
   mod.buffer("TPX",paste("TPX",organisms,sep="_"))
   # set up the buffered activities
   basis(c("CO2","H2O","NH3","O2"),"TPX")
-  t <- affinity(return.buffer=TRUE,T=50)
-  basis(c("CO2","H2O","NH3","O2"),as.numeric(t[1:4]))
-  t <- affinity(pH=c(0,14,200),T=c(25,80,200))
-  diagram(t,color=NULL)
+  a <- affinity(return.buffer=TRUE,T=50)
+  basis(c("CO2","H2O","NH3","O2"),as.numeric(a[1:4]))
+  a <- affinity(pH=c(0,14,200),T=c(25,80,200))
+  diagram(a,color=NULL)
   title(main=paste("Thiol peroxidases from bacteria\n",
     describe(thermo$basis[-6,],T=NULL)),cex.main=0.9)
 
@@ -159,12 +159,12 @@
 
 \references{
 
-  Dick, J. M., LaRowe, D. E. and Helgeson, H. C., 2006. Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences}, 3, 311-336. \url{http://www.biogeosciences.net/3/311/2006/bg-3-311-2006.html}
+  Dick, J. M., LaRowe, D. E. and Helgeson, H. C. (2006) Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences} \bold{3}, 311--336. \url{http://www.biogeosciences.net/3/311/2006/bg-3-311-2006.html}
 
-  Makhatadze, G. I. and Privalov, P. L., 1990. Heat capacity of proteins. 1. Partial molar heat capacity of individual amino acid residues in aqueous solution: Hydration effect. \emph{J. Mol. Biol.}, 213, 375-384. \url{http://dx.doi.org/10.1016/S0022-2836(05)80197-4}
+  Makhatadze, G. I. and Privalov, P. L. (1990) Heat capacity of proteins. 1. Partial molar heat capacity of individual amino acid residues in aqueous solution: Hydration effect. \emph{J. Mol. Biol.} \bold{213}, 375--384. \url{http://dx.doi.org/10.1016/S0022-2836(05)80197-4}
 
-  Privalov, P. L. and Makhatadze, G. I., 1990. Heat capacity of proteins. II. Partial molar heat capacity of the unfolded polypeptide chain of proteins: Protein unfolding effects. \emph{J. Mol. Biol.}, 213, 385-391. \url{http://dx.doi.org/10.1016/S0022-2836(05)80198-6}
+  Privalov, P. L. and Makhatadze, G. I. (1990) Heat capacity of proteins. II. Partial molar heat capacity of the unfolded polypeptide chain of proteins: Protein unfolding effects. \emph{J. Mol. Biol.} \bold{213}, 385--391. \url{http://dx.doi.org/10.1016/S0022-2836(05)80198-6}
 
 }
 
-\keyword{misc}
+\keyword{secondary}

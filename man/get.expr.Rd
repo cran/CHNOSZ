@@ -42,17 +42,18 @@ Get abundance data from a protein expression experiment and add the proteins to 
 \examples{
   \dontshow{data(thermo)}
   # let's use a sample data file
-  file <- system.file("extdata/ISR+08.csv",package="CHNOSZ")
-  # read the abundances and get the proteins from thermo$ECO.csv
+  file <- system.file("extdata/abundance/ISR+08.csv",package="CHNOSZ")
+  # read the abundances and get the proteins from ECO.csv
   expr <- get.expr(file,"ID","emPAI","ECO")
   # what if we just wanted kinases?
   expr <- get.expr(file,"ID","emPAI","ECO",list(description="kinase"))
   # the abundances were scaled so that the total activity of residues is unity
   pl <- protein.length(-expr$iprotein)
   stopifnot(all.equal(sum(pl*10^expr$loga),1))
+  # see the 'protactiv' vignette for comparison with equilibrium calculations
 
   # if you want to read the protein sequences from a FASTA file...
   # e <- get.expr(file,"ID","emPAI","ECOLI.fasta")
 }
 
-\keyword{misc}
+\keyword{primary}

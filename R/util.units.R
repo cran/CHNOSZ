@@ -1,5 +1,4 @@
 # CHNOSZ/util.units.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # convert units and set preferred units 
 
 nuts <- function(units=NULL) {
@@ -106,7 +105,7 @@ convert <- function(value,units,T=thermo$opt$Tr,P=thermo$opt$Pr,pH=7,logaH2O=0) 
   if(!is.matrix(value)) {
     args <- makesame(list(value=value,units=units,T=T,pH=pH,logaH2O=logaH2O))
     # except we only accept one type of destination units
-    value <- args$value; units <- args$units[1]; T <- args$T; pH <- args$pH; logaH2O <- args$logaH2O
+    value <- as.numeric(args$value); units <- args$units[1]; T <- args$T; pH <- args$pH; logaH2O <- args$logaH2O
   }
   # tests and calculations for the specified units
   if(units %in% c('c','k')) {

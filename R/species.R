@@ -30,7 +30,7 @@ species <- function(species=NULL,state=NULL,delete=FALSE,quiet=FALSE) {
         cat('species: removing species definitions.\n')
         thermo$species <<- NULL
       }
-      return(thermo$species)
+      return(invisible(NULL))
     }
     if(is.character(species[1])) {
       is <- match(species,thermo$species$name)

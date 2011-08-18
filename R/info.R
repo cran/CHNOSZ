@@ -2,57 +2,32 @@
 # search information and thermodynamic properties of species
 # 20061024 extraced from species.R jmd
 
-info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE,check=FALSE) {
-  # file argument: where to cat the messages about inconsistencies among
-  # GHS, and between eos parameters and Cp, V ('' for console)
-
+info <- function(species=NULL,states=NULL,quiet=FALSE,return.approx=TRUE) {
   # quiet=TRUE disables checks of self-consistency of ghs
   # and eos/Cp/V values and also makes things run faster
-  #if(missing(quiet)) if(sys.nframe()>1) quiet <- TRUE
 
-  # if check=TRUE, run a consistency check for each species,
-  # returning a nice table at the end ...
-  if(check) {
-    if(missing(species)) species <- 1:nrow(thermo$obigt)
-    cat(paste('info: checking consistency of parameters for',length(species),'species\n'))
-    if(file != "") cat(paste('info: saving output to file',file,'\n'))
-    else cat("info: this will take a while...\n")
-  } else {
-    if(missing(species)) {
-      # a friendly summary of thermodynamic information? 20101129
-      cat("info: species is NULL; summarizing information about thermo data object...\n")
-      cat(paste("thermo$obigt has",nrow(thermo$obigt[thermo$obigt$state=="aq",]),"aqueous,",
-        nrow(thermo$obigt),"total species\n"))
-      cat(paste("number of literature sources:",nrow(thermo$source),", available elements:",
-        nrow(thermo$element),", buffers:",length(unique(thermo$buffer$name)),"\n"))
-      cat(paste("number of proteins in thermo$protein is",nrow(thermo$protein),"from",
-        length(unique(thermo$protein$organism)),"organisms\n"))
-      cat(paste("number of proteins from complete genomes:",nrow(thermo$ECO),"(ECO),",
-        nrow(thermo$HUM),"(HUM),",nrow(thermo$SGD),"(SGD)\n"))
-      cat(paste("thermo$yeastgfp has",nrow(thermo$yeastgfp),"localizations and",
-        length(thermo$yeastgfp$abundance[!is.na(thermo$yeastgfp$abundance)]),"abundances\n"))
-    }
+  if(missing(species)) {
+    # a friendly summary of thermodynamic information? 20101129
+    cat("info: species is NULL; summarizing information about thermodynamic data...\n")
+    cat(paste("thermo$obigt has",nrow(thermo$obigt[thermo$obigt$state=="aq",]),"aqueous,",
+      nrow(thermo$obigt),"total species\n"))
+    cat(paste("number of literature sources: ",nrow(thermo$refs),", elements: ",
+      nrow(thermo$element),", buffers: ",length(unique(thermo$buffers$name)),"\n",sep=""))
+    cat(paste("number of proteins in thermo$protein is",nrow(thermo$protein),"from",
+      length(unique(thermo$protein$organism)),"organisms\n"))
+    # print information about SGD.csv, ECO.csv, HUM.csv
+    get.protein(organism="SGD")
+    get.protein(organism="ECO")
+    #get.protein(organism="HUM")
+    # print information about yeastgfp.csv
+    yeastgfp()
   }
 
-  # show license or release notes
-  if(identical(tolower(species),'license') | identical(tolower(species),'licence') | 
-    identical(tolower(species),'copying')) {
-      licensefile <- file.path(system.file(package="CHNOSZ"), "COPYING")
-      file.show(licensefile)
-      return()
-  }
-  if(identical(tolower(species),'chnosz') | identical(tolower(species),'news')) {
-    newsfile <- file.path(system.file(package="CHNOSZ"), "NEWS")
-    file.show(newsfile)
-    return()
-  }
-
+  # argument handling
   species.na <- states.na <- FALSE
   if(!is.null(species)) if(is.na(species[1])) species.na <- TRUE 
   if(!is.null(states)) if(is.na(states[1])) states.na <- TRUE 
   if(species.na | states.na) stop('info: species and/or states arguments are NA.')
-
-  # argument handling
   if(missing(states) | is.null(states)) missing.states <- TRUE else missing.states <- FALSE
   if(!is.null(states) & length(species)!=length(states))
     states <- rep(states,length.out=length(species))  
@@ -219,8 +194,8 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
         for(j in 1:nrow(thisghs)) {
           tf <- thisghs$formula[j]
           if(tf %in% species) tf <- '' else tf <- paste(', ',tf,sep='')
-          thissource <- thisghs$source1[j]
-          ts2 <- thisghs$source2[j]
+          thissource <- thisghs$ref1[j]
+          ts2 <- thisghs$ref2[j]
           if(!is.na(ts2)) thissource <- paste(thissource,', ',ts2,sep='')
           td <- thisghs$date[j]
           if(!is.na(td)) thissource <- paste(thissource,', ',td,sep='')
@@ -237,142 +212,89 @@ info <- function(species=NULL,states=NULL,quiet=FALSE,file='',return.approx=TRUE
     else return(invisible(as.numeric(ighs.list)))
   }
 
-  # if numeric arguments are given, return ghs and eos
+  # if numeric arguments are given, return ghs and eos parameters
   if(is.numeric(species[1])) {
     nnspecies <- species[species > 0]
     myghs <- thermo$obigt[nnspecies,]
-    # to keep track of the results of consistency checks
-    DCp <- DV <- DG <- Di <- numeric()
-    Dname <- Dstate <- character()
+    # species indices don't exceed this value
+    ispeciesmax <- nrow(thermo$obigt)
     for(i in 1:length(species)) {
-      if(species[i] > nrow(thermo$obigt) | species[i] < 1) {
+      if(species[i] > ispeciesmax | species[i] < 1) {
         cat(paste("info: there aren't",species[i],"species.\n"))
         next
       }
-      dCp <- dV <- dG <- NA
-      # convert the eos parameters depending on state
+      # remove scaling factors on EOS parameters depending on state
       # and check them for NAs and consistency with Cp, V values
       if(myghs$state[i]=='aq') {
-        myghs[i,13:20] <- myghs[i,13:20] * 10^c(-1,2,0,4,0,4,5,0)
-        colnames(myghs)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
-        naEOS <- which(is.na(myghs[i,13:20]))
+        # use new obigt2eos function here
+        myghs.conv <- obigt2eos(myghs[i,],"aq")
+        myghs[i,] <- myghs.conv
+        colnames(myghs)[13:20] <- colnames(myghs.conv)[13:20]
         if(!quiet) {
-          # value of X consistent with CHNOSZ
-          X <- -2.773788E-7
-          # value of X consistent with SUPCRT
-          X <- -3.055586E-7
-          Cp <- myghs$c1[i] + myghs$c2[i]/(298.15-228)^2 + myghs$omega[i]*298.15*X
-          if(!is.na(myghs$Cp[i])) {
-            if(abs(Cp-myghs$Cp[i])>1) {
-              cat(paste('info: Cp (from EOS) of',
-                myghs$name[i],myghs$state[i],'differs by',round(Cp-myghs$Cp[i],2),
-                'from tabulated value.\n'),file=file,append=TRUE)
-              dCp <- round(Cp-myghs$Cp[i],2)
-            }
-          } else {
-            if(!is.na(Cp)) {
-              cat(paste('info: Cp of',myghs$name[i],myghs$state[i],
-                'is NA; set by EOS parameters to',round(Cp,2),'\n'))
-              myghs$Cp[i] <- as.numeric(Cp)
-            }
+          # check heat capacities
+          calcCp <- checkEOS(myghs[i,],"aq","Cp")
+          if(!is.na(calcCp) & is.na(myghs$Cp[i])) {
+            cat(paste('info: Cp of',myghs$name[i],myghs$state[i],
+              'is NA; set by EOS parameters to',round(calcCp,2),'\n'))
+            myghs$Cp[i] <- as.numeric(calcCp)
           }
-        }
-        if(!quiet) {
-          # value of Q consistent with IAPWS95/AW90
-          Q <- 0.00002483137
-          # value of Q consistent with SUPCRT92
-          Q <- 0.00002775729
-          V <- convert(myghs$a1[i],'cm3bar') + convert(myghs$a2[i],'cm3bar')/(2601) + 
-            (convert(myghs$a3[i],'cm3bar') + convert(myghs$a4[i],'cm3bar')/(2601))/(298.15-228) - 
-              Q * myghs$omega[i]
-          if(!is.na(myghs$V[i]) & !is.na(V)) {
-            if(abs(V-myghs$V[i])>1) {
-              cat(paste('info: V (from EOS) of',
-                myghs$name[i],myghs$state[i],'differs by',round(V-myghs$V[i],2),
-                'from tabulated value.\n'),file=file,append=TRUE)
-              dV <- round(V-myghs$V[i],2)
-            }
-          } else {
-            if(!is.na(V)) {
-              cat(paste('info: V of',myghs$name[i],myghs$state[i],
-                'is NA; set by EOS parameters to',round(V,2),'\n'))
-              myghs$V[i] <- as.numeric(V)
-            }
+          # check volumes
+          calcV <- checkEOS(myghs[i,],"aq","V")
+          if(!is.na(calcV) & is.na(myghs$V[i])) {
+            cat(paste('info: V of',myghs$name[i],myghs$state[i],
+              'is NA; set by EOS parameters to',round(calcV,2),'\n'))
+            myghs$V[i] <- as.numeric(calcV)
           }
         }
       } else {
-        myghs[i,13:20] <- myghs[i,13:20] * 10^c(0,-3,5,0,-5,0,0,0)
-        colnames(myghs)[13:20] <- c('a','b','c','d','e','f','lambda','T')
-        naEOS <- which(is.na(myghs[i,12:19]))
-        if(length(naEOS)>0) {
-            cat(paste('info:',c2s(colnames(myghs)[12:19][naEOS],sep=','),'of',
-              myghs$name[i],myghs$state[i],'are NA; set to 0.\n'))
-          myghs[i,naEOS+11] <- 0
-        }
+        # for states other than aq
+        myghs.conv <- obigt2eos(myghs[i,],"cr")
+        myghs[i,] <- myghs.conv
+        colnames(myghs)[13:20] <- colnames(myghs.conv)[13:20]
+        # set some EOS parameters to zero if they are NA
+        # why do we need this? 2010808
+#        naEOS <- which(is.na(myghs[i,12:19]))
+#        if(length(naEOS)>0) {
+#          if(!quiet) cat(paste('info:',c2s(colnames(myghs)[12:19][naEOS],sep=','),'of',
+#              myghs$name[i],myghs$state[i],'are NA; set to 0.\n'))
+#          myghs[i,naEOS+11] <- 0
+#        }
         if(!quiet) {
-          Cp <- cgl('Cp',eos=myghs[i,],ghs=myghs[i,],T=thermo$opt$Tr,P=thermo$opt$Pr)[[1]]
-          if(!is.na(myghs$Cp[i]) & !is.na(Cp)) {
-            if(abs(Cp-myghs$Cp[i])>1) {
-              cat(paste('info: Cp (from EOS) of',
-                myghs$name[i],myghs$state[i],'differs by',round(Cp-myghs$Cp[i],2),
-                'from tabulated value.\n'),file=file,append=TRUE)
-              dCp <- round(Cp-myghs$Cp[i],2)
-            }
-          } else {
-            if(!is.na(Cp)) {
-              cat(paste('info: Cp of ',myghs$name[i],' ',myghs$state[i],
-                ' is NA; set by EOS parameters to ',round(Cp,2),'.\n',sep=''))
-              myghs$Cp[i] <- as.numeric(Cp)
-            }
+          calcCp <- checkEOS(myghs[i,],"notaq","Cp")
+          if(!is.na(calcCp) & is.na(myghs$Cp[i])) {
+            cat(paste('info: Cp of',myghs$name[i],myghs$state[i],
+              'is NA; set by EOS parameters to',round(calcCp,2),'\n'))
+            myghs$Cp[i] <- as.numeric(calcCp)
           }
         }
       }
+
       # check the GHS values
       naGHS <- which(is.na(myghs[i,8:10]))
-      j <- as.numeric(rownames(myghs)[i])
-      if(length(naGHS)>1) {
-      } else if(length(naGHS)==1) {
+      if(length(naGHS)==1) {
+        # calculate a single missing one of G, H, or S
+        # we do this even if quiet=TRUE,
+        # because NA for one of G, H or S will hamper calculations at high T
         GHS <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
         if(!quiet) cat(paste('info: ',c2s(colnames(myghs)[8:10][naGHS]),' of ',
           myghs$name[i],' ',myghs$state[i],' is NA; set to ',round(GHS,2),'.\n',sep=''))
         myghs[i,naGHS+7] <- GHS
-      } else {
-        G <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
-        warn <- FALSE
-        if(!is.na(G)) {
-          if(abs(G-myghs[i,8])>1000) warn <- TRUE
-          #if(myghs[i,8]!=0) if(abs((G-myghs[i,8])/myghs[i,8])>0.05) warn <- TRUE
-          if(warn) {
-            if(!quiet) cat(paste('info: G (from H and S) of',myghs$name[i],myghs$state[i],'differs by',
-              round(G-myghs[i,8]),'from tabulated value.\n'),file=file,append=TRUE)
-            dG <- round(G-myghs[i,8])
-          }
-        } else {
-          if(!quiet) cat(paste('info: G of',myghs$name[i],myghs$state[i],'is NA!!! (maybe a missing element?)\n'),file=file,append=TRUE)
+      } else if(length(naGHS)==0 & !(quiet)) {
+        # check the values
+        calcG <- checkGHS(myghs[i,])
+        if(is.null(calcG)) {
+          cat(paste('info: calculated G of',myghs$name[i],myghs$state[i],
+            'is NA!!! (maybe a missing element?)\n'))
         }
       }
-      if(check) {
-        if(!(is.na(dCp)&is.na(dV)&is.na(dG)) ) {
-          Dname <- c(Dname,as.character(myghs$name[i]))
-          Dstate <- c(Dstate,as.character(myghs$state[i]))
-          DCp <- c(DCp,dCp)
-          DV <- c(DV,dV)
-          DG <- c(DG,dG)
-          Di <- c(Di,species[i])
-        }
-      }
+
     } # end loop over i species
 
     if(length(unique(myghs$state))!=1 & 'aq' %in% myghs$state) {
-      cat('info: the species are in aqueous and other states\n')
+      if(!quiet) cat('info: the species are in aqueous and other states\n')
       colnames(myghs)[13:20] <- colnames(thermo$obigt)[13:20]
     }
-    if(check | all(is.na(myghs))) {
-      # for some reason, DCp likes to become list. make it numeric
-      DCp <- as.numeric(DCp)
-      t <- data.frame(ispecies=Di,name=Dname,state=Dstate,DCp=DCp,DV=DV,DG=DG)
-      return(t)
-    } else return(myghs)
+    return(myghs)
   }
 }
 

@@ -1,0 +1,25 @@
+,[-CH3],[-CH2-],[-CH2OH],[-CO-],[-COOH]
+ethane,2,,,,
+propane,2,1,,,
+butane,2,2,,,
+methanol,1,-1,1,,
+ethanol,1,,1,,
+1-propanol,1,1,1,,
+1-butanol,1,2,1,,
+1-pentanol,1,3,1,,
+3-pentanol,1,3,1,,
+2-propanol,1,1,1,,
+2-butanol,1,2,1,,
+2-pentanol,1,3,1,,
+acetone,2,,,1,
+butanone,2,1,,1,
+3-pentanone,2,2,,1,
+2-heptanone,2,4,,1,
+acetaldehyde,2,-1,,1,
+"acetic acid",1,,,,1
+"propanoic acid",1,1,,,1
+"butanoic acid",1,2,,,1
+"2-methylpropanoic acid",3,-1,,,1
+"2,4-dimethyl-3-pentanone",6,-2,,1,
+"lactic acid",,1,1,,1
+"citric acid",-2,4,1,,3

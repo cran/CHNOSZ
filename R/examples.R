@@ -1,5 +1,6 @@
 # CHNOSZ/examples.R
-# run examples, and extra examples
+# run examples from the help files, 
+# and a function containing extra examples
 
 examples <- function(do.png=FALSE) {
   # run all the examples in CHNOSZ documentation
@@ -9,7 +10,8 @@ examples <- function(do.png=FALSE) {
   topics <- c("CHNOSZ-package","util.args","util.array","util.blast","util.character","util.data",
     "util.fasta","util.formula","util.misc","util.seq","util.stat","util.units",
     "taxonomy","info","hkf","water","subcrt","examples","makeup","basis","species","affinity",
-    "diagram","buffer","protein","ionize","get.protein","revisit","findit","transfer")
+    "diagram","buffer","protein","ionize","get.protein","revisit","findit",
+    "transfer","anim","EOSregress")
   do.plot <- FALSE
   if(is.character(do.png))
     png(paste(do.png,"%d.png",sep=""),width=700,height=700,pointsize=18)
@@ -26,7 +28,6 @@ examples <- function(do.png=FALSE) {
 
 longex <- function(which) {
   # extra examples for fun
-  #if(is.null(which)) which <- c("sources","copper","cordierite","phosphate","nucleobase","pie")
   if(length(which) > 1) {
     for(i in 1:length(which)) out <- longex(which[i])
     return(invisible(out))
@@ -35,24 +36,22 @@ longex <- function(which) {
   if(which=="sources") {
     ## cross-checking sources
     # the reference sources
-    ref.source <- thermo$source$source
-    # only take those that aren't journal abbreviations
-    ref.source <- ref.source[-grep('_',ref.source)]
+    ref.source <- thermo$refs$key
     # sources of elemental data
     element.source <- thermo$element$source
     # sources in the primary thermodynamic database
-    os1 <- thermo$obigt$source1
-    os2 <- thermo$obigt$source2
-    # sources also in the supplemental database
+    os1 <- thermo$obigt$ref1
+    os2 <- thermo$obigt$ref2
+    # sources also in the supplemental database (OBIGT-2.csv)
     add.obigt()
-    os3 <- thermo$obigt$source1
-    os4 <- thermo$obigt$source2
+    os3 <- thermo$obigt$ref1
+    os4 <- thermo$obigt$ref2
     data(thermo)
     # all of the thermodynamic data sources - some of them might be NA
     obigt.source <- unique(c(os1,os2,os3,os4))
     obigt.source <- obigt.source[!is.na(obigt.source)]
     # sources of protein compositions
-    protein.source <- thermo$protein$source
+    protein.source <- thermo$protein$ref
     # sources of stress response proteins
     stress.source <- as.character(thermo$stress[2,])
     # if the sources are all accounted for 
@@ -245,7 +244,7 @@ longex <- function(which) {
     plot.pie.calc <- function(which="high",T=25,main='') {
       # first clean up the buffer definition in case we have
       # been run already
-      thermo$buffer <<- thermo$buffer[thermo$buffer$name!='PROTEINS',]
+      thermo$buffers <<- thermo$buffers[thermo$buffers$name!='PROTEINS',]
       # we take four predominant proteins from SWM+05
       myprot <- PROTEINS[get(paste(which,"S.which",sep=""))][1:4]
       mypercent <- get(paste(which,"S.values",sep=""))[1:4]
@@ -508,5 +507,87 @@ longex <- function(which) {
     }
     # finally, make the plot
     figure()
+
+  } else if(which=="findit") {
+
+    # an organic example: 
+    # find chemical activities where metastable activities of
+    # selected proteins in P. ubique have high correlation
+    # with a lognormal distribution (i.e., maximize r of q-q plot)
+    f <- system.file("extdata/fasta/HTCC1062.faa.xz",package="CHNOSZ")
+    # search for three groups of proteins
+    myg <- c("ribosomal","nucle","membrane")
+    g <- lapply(myg,function(x) grep.file(f,x))
+    # note that some proteins match more than one search term
+    uug <- unique(unlist(g))
+    # read their amino acid compositions from the file
+    p <- read.fasta(f,uug)
+    # add these proteins to thermo$protein
+    ip <- add.protein(p)
+    # load a predefined set of uncharged basis species
+    # (speeds things up as we won't model protein ionization)
+    basis("CHNOS")
+    # make colors for the diagram
+    rgbargs <- lapply(1:3,function(x) as.numeric(uug %in% g[[x]]))
+    col <- do.call(rgb,c(rgbargs,list(alpha=0.5)))
+    # get point symbols (use 1,2,4 and their sums)
+    pch <- colSums(t(list2array(rgbargs)) * c(1,2,4))
+    # plot 1: calculated logarithms of chemical activity
+    # as a function of logfO2 ... a bundle of curves near logfO2 = -77
+    a <- affinity(O2=c(-90,-50),iprotein=ip)
+    d <- diagram(a,logact=0,col=col)
+    # plot 2: q-q correlation coefficient
+    # it shows lognormal distribution favored near logfO2 = -73.6
+    r <- revisit(d,"qqr")
+    # plot 3: q-q at a single value of logfO2
+    basis("O2",-73.6)
+    a <- affinity(iprotein=ip)
+    d <- diagram(a,logact=0,do.plot=FALSE)
+    qqr3 <- revisit(d,"qqr",pch=pch)$H
+    legend("topleft",pch=c(1,2,4),legend=myg)
+    # plot 4: findit... maximize qqr as a function of O2-H2O-NH3-CO2
+    # it shows an optimum at low logaH2O, logaNH3
+    f1 <- findit(list(O2=c(-90,-70),H2O=c(-30,0),CO2=c(-20,10),NH3=c(-15,0)),
+      "qqr",iprotein=ip,n=8)
+    # plot 5: q-q plot at the final loga O2, H2O, CO2, NH3
+    # higher correlation coefficient than plot 3
+    a <- affinity(iprotein=ip)
+    d <- diagram(a,logact=0,do.plot=FALSE)
+    qqr5 <- revisit(d,"qqr",pch=pch)$H
+    legend("topleft",pch=c(1,2,4),legend=myg)
+    # plot 6: trajectory of O2, H2O, CO2, NH3, and the
+    # q-q correlation coefficient in the search
+    plot(f1,mar=c(2,5,1,1),mgp=c(4,1,0))
+
+  } else if(which=="co2ac") {
+
+    # one can solve for the logact of a 
+    # basis species using the 'what' argument of diagram
+    basis("CHNOS")
+    basis("CO2",999)
+    species("acetic acid",-3)
+    a <- affinity(O2=c(-85,-70,4),T=c(25,100,4))
+    # hacking to write a title with formulas and subscripts
+    lCO2 <- axis.label("CO2",as.expression=FALSE)
+    lAC <- species.label("CH3COOH",as.expression=FALSE)
+    main <- substitute(a~~b~~c,list(a=lCO2,b="buffered by",
+      c="acetic acid"))
+    d <- diagram(a,what="CO2",main=main)
+    species(1,-10)
+    a <- affinity(O2=c(-85,-70,4),T=c(25,100,4))
+    d <- diagram(a,what="CO2",add=TRUE,lty=2)
+    # add a legend
+    ltext <- c(axis.label("CH3COOH",state="aq"),-3,-10)
+    lty <- c(NA,1,2)
+    legend("topright",legend=ltext,lty=lty,bg="white")
+    # do return.buffer and diagram(what) give the same results?
+    and <- as.numeric(d$logact[[1]])
+    basis("CO2","AC")
+    mod.buffer("AC",logact=-10)
+    a.buffer <- affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
+    ana <- as.numeric(unlist(a.buffer[[1]]))
+    stopifnot(all.equal(ana,and))
+
   }
+
 }

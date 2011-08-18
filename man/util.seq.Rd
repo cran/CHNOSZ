@@ -50,7 +50,7 @@
   nucleicacids(n,type="RNA")
 }
 
-\keyword{misc}
+\keyword{util}
 
 
 

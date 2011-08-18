@@ -29,8 +29,13 @@ s2c <- function(x,sep=NULL,keep.sep=TRUE) {
           # in-between matches
           xtail <- paste("",xtail,sep=sep)
         } 
-        # a match at the end
-        if(length(grep(paste(sep,"$",sep=""),x[[i]]) > 0)) xtail <- c(xtail,sep)
+        # a match at the end ... grep here causes problems
+        # when sep contains control characters (e.g. protein.refseq)
+        #if(length(grep(paste(sep,"$",sep=""),x[[i]]) > 0)) xtail <- c(xtail,sep)
+        # use substr instead
+        nx <- nchar(x[[i]])
+        ns <- nchar(sep)
+        if(substr(x[[i]],nx-ns+1,nx) == sep) xtail <- c(xtail,sep)
         xi <- c(xhead,xtail)
       }
       x[[i]] <- xi

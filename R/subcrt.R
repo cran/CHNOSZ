@@ -3,7 +3,9 @@
 # and import and export thermodynamic data in SUPCRT format
 # 20060817 jmd
 
-subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V','Cp'),T=seq(273.15,623.15,25),P='Psat',grid=NULL,convert=TRUE,do.phases=TRUE,logact=NULL,action.unbalanced='warn',IS=0) {
+subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','V','Cp'),
+  T=seq(273.15,623.15,25), P='Psat', grid=NULL, convert=TRUE, do.phases=TRUE,
+  logact=NULL, action.unbalanced='warn', IS=0) {
 
   # revise the call if the states have 
   # come as the second argument 
@@ -95,33 +97,41 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
   }
 
   # get species information
-  # convert numeric species argument to character and state
-  ispecies <- NULL
+  # pre-20110808, we sent numeric species argument through info() to
+  # get species name and state(s)
+  # but why slow things down if we already have a species index?
+  # so now phase species stuff will only work for character species names
   if(is.numeric(species[1])) {
     ispecies <- species
     species <- as.character(thermo$obigt$name[ispecies])
     state <- as.character(thermo$obigt$state[ispecies])
-  }
-
-  # get species indices and states and possibly
-  # keep track of phase species (cr1 cr2 ...)
-  sinfo <- numeric()
-  newstate <- character()
-  for(i in 1:length(species)) {
-    mysearch <- species[i]
-    if(can.be.numeric(mysearch)) mysearch <- thermo$obigt$name[as.numeric(mysearch)]
-    si <- info(mysearch,state[i],quiet=TRUE)
-    if(is.na(si[1])) stop('no info found for ',species[i],state[i])
-    if(!is.null(state[i])) is.cr <- state[i]=='cr' else is.cr <- FALSE
-    if(thermo$obigt$state[si[1]]=='cr1' & (is.null(state[i]) | is.cr)) {
-      newstate <- c(newstate,'cr')
-      sinfo <- c(sinfo,si[1])
-    } else {
-      newstate <- c(newstate,as.character(thermo$obigt$state[si[1]]))
-      if(!is.null(ispecies)) sinfo <- c(sinfo,ispecies[i])
-      else sinfo <- c(sinfo,si[1])
+    newstate <- as.character(thermo$obigt$state[ispecies])
+    sinfo <- ispecies
+  } else {
+    # from names, get species indices and states and possibly
+    # keep track of phase species (cr1 cr2 ...)
+    sinfo <- numeric()
+    newstate <- character()
+    for(i in 1:length(species)) {
+      mysearch <- species[i]
+      if(can.be.numeric(mysearch)) mysearch <- thermo$obigt$name[as.numeric(mysearch)]
+      si <- info(mysearch,state[i],quiet=TRUE)
+      if(is.na(si[1])) stop('no info found for ',species[i],state[i])
+      if(!is.null(state[i])) is.cr <- state[i]=='cr' else is.cr <- FALSE
+      if(thermo$obigt$state[si[1]]=='cr1' & (is.null(state[i]) | is.cr)) {
+        newstate <- c(newstate,'cr')
+        sinfo <- c(sinfo,si[1])
+      } else {
+        newstate <- c(newstate,as.character(thermo$obigt$state[si[1]]))
+        sinfo <- c(sinfo,si[1])
+      }
     }
   }
+
+  # to make the following more readable and maybe save
+  # run time, keep some parts of thermo$obigt handy
+  ton <- thermo$obigt$name
+  tos <- thermo$obigt$state
 
   # stop if species not found
   noname <- is.na(sinfo)
@@ -129,8 +139,8 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
     stop(paste('species',species[noname],'not found.\n'))
 
   # take care of mineral phases
-  state <- as.character(thermo$obigt$state[sinfo])
-  name <- as.character(thermo$obigt$name[sinfo])
+  state <- as.character(tos[sinfo])
+  name <- as.character(ton[sinfo])
   # a counter of all species considered
   # inpho is longer than sinfo if cr1 cr2 ... phases are present
   # sinph shows which of sinfo correspond to inpho
@@ -142,7 +152,7 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
   for(i in 1:length(sinfo)) {
      if(newstate[i]=='cr') {
        searchstates <- c('cr','cr1','cr2','cr3','cr4','cr5','cr6','cr7','cr8','cr9') 
-       tghs <- thermo$obigt[(thermo$obigt$name %in% name[i]) & thermo$obigt$state %in% searchstates,]
+       tghs <- thermo$obigt[(ton %in% name[i]) & tos %in% searchstates,]
        # we only take one if they in fact duplicated species and not phase species
        if(all(tghs$state==tghs$state[1])) tghs <- thermo$obigt[sinfo[i],]
      } else tghs <- thermo$obigt[sinfo[i],]
@@ -152,8 +162,8 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
   }
 
   # where we keep info about the species involved
-  reaction <- data.frame( coeff=coeff.new,name=thermo$obigt$name[inpho],
-    formula = thermo$obigt$formula[inpho],state=thermo$obigt$state[inpho],
+  reaction <- data.frame( coeff=coeff.new,name=ton[inpho],
+    formula = thermo$obigt$formula[inpho],state=tos[inpho],
     ispecies=inpho)
   # make the rownames readable ... but they have to be unique
   if(length(unique(inpho))==length(inpho)) rownames(reaction) <- as.character(inpho)
@@ -240,7 +250,6 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
     }
   }
 
-
   # calculate the properties
   # if we want affinities we must have logK
   if(!is.null(logact)) if(!'logk' %in% prop) prop <- c('logk',prop)
@@ -271,19 +280,22 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
     H2O.PT <- water(c(wprop.PrTr,wprop.PT),T=T,P=P)
     if(TRUE %in% isaq) {
       # now the species stuff
-      si <- info(inpho[isaq],quiet=TRUE)
-      domega <- thermo$obigt$name[inpho[isaq]]!='H+'
+      # 20110808 if inpho are the species indices let's avoid
+      # the overhead of info() and use new obigt2eos() instead
+      #si <- info(inpho[isaq],quiet=TRUE)
+      si <- obigt2eos(thermo$obigt[inpho[isaq],], "aq", fixGHS = TRUE)
+      domega <- thermo$obigt$name[inpho[isaq]] != 'H+'
       p.aq <- hkf(eosprop,T=T,P=P,ghs=si,eos=si,H2O.PT=H2O.PT,H2O.PrTr=H2O.PrTr,domega=domega)
       if(any(IS!=0)) p.aq <- nonideal(inpho[isaq],p.aq,newIS,T)
       out <- c(out,p.aq)
     }
   }
-
   # crystalline, gas, liquid (except water) species
   iscgl <- reaction$state %in% c('liq','cr','gas','cr1','cr2','cr3',
     'cr4','cr5','cr6','cr7','cr8','cr9') & reaction$name != 'water'
   if(TRUE %in% iscgl) {
-    si <- info(inpho[iscgl],quiet=TRUE)
+    #si <- info(inpho[iscgl],quiet=TRUE)
+    si <- obigt2eos(thermo$obigt[inpho[iscgl],], "cgl", fixGHS = TRUE)
     p.cgl <- cgl(eosprop,T=T,P=P,ghs=si,eos=si)
     # replace Gibbs energies with 999999 where the
     # phases are beyond their temperature range
@@ -431,7 +443,9 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
       # assemble the Gibbs energies for each species
       for(j in 1:length(iphases)) {
         G.this <- out[[iphases[j]]]$G
-        if(length(which(is.na(G.this))) > 0) warning(paste('subcrt: NAs found for G of ',reaction$name[iphases[j]],' ',reaction$state[iphases[j]],' at T-P point(s) ',c2s(which(is.na(G.this)),sep=' '),'.',sep=''),call.=FALSE)
+        if(length(which(is.na(G.this))) > 0) warning(paste('subcrt: NAs found for G of ',
+          reaction$name[iphases[j]],' ',reaction$state[iphases[j]],' at T-P point(s) ',
+          c2s(which(is.na(G.this)),sep=' '),'.',sep=''),call.=FALSE)
         if(j==1) G <- as.data.frame(G.this)
         else G <- cbind(G,as.data.frame(G.this))
       }
@@ -443,7 +457,8 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
         if(length(ps)==0) {
           # minimum not found: NAs have crept in (like something wrong with Psat?)
           ps <- 1
-          warning('subcrt: stable phase for ',reaction$name[iphases[ps]],' at T-P point ',j,' undetermined (using ',reaction$state[iphases[ps]],').',call.=FALSE)
+          warning('subcrt: stable phase for ',reaction$name[iphases[ps]],' at T-P point ',j,
+          ' undetermined (using ',reaction$state[iphases[ps]],').',call.=FALSE)
         } 
         phasestate <- c(phasestate,ps)
         out.new.entry[j,] <- out[[ iphases[ps] ]][j,]
@@ -472,7 +487,9 @@ subcrt <- function(species,coeff=1,state=NULL,property=c('logK','G','H','S','V',
       coeff.orig <- reaction$coeff
       reaction.new[i,] <- reaction[iphases,]
       reaction.new$coeff <- coeff.orig
-      rs <- as.character(reaction.new$state); rs[i] <- as.character(reaction$state[iphases]); reaction.new$state <- rs
+      rs <- as.character(reaction.new$state)
+      rs[i] <- as.character(reaction$state[iphases])
+      reaction.new$state <- rs
       isaq.new <- c(isaq.new,isaq[iphases])
       iscgl.new <- c(iscgl.new,iscgl[iphases])
       isH2O.new <- c(isH2O.new,isH2O[iphases])
@@ -874,9 +891,9 @@ write.supcrt <- function(file='supcrt.dat',obigt=thermo$obigt) {
     c2s(c(abbrv,abbrv.pad,f,f.pad),sep='')
   }
   DATE <- function(o) {
-    source <- as.character(o$source1)
-    if(!is.na(o$source2)) if(!o$source2=='CHNOSZ') 
-      source <- paste(source,',',as.character(o$source2),sep='')
+    source <- as.character(o$ref1)
+    if(!is.na(o$ref2)) if(!o$ref2=='CHNOSZ') 
+      source <- paste(source,',',as.character(o$ref2),sep='')
     date <- as.character(o$date)
     .space <- c(20,51)
     .length <- c(nchar(source),nchar(date))
@@ -1076,7 +1093,7 @@ write.supcrt <- function(file='supcrt.dat',obigt=thermo$obigt) {
   # (used to make the result SUPCRT92-friendly
   # presumably by making the file shorter)
   #dropsource <- c(dropsource,'SK93','SK95','PSK99','HSS95','SS98','SSW+97')
-  idrop <- iaq[obigt$source1[iaq] %in% dropsource]
+  idrop <- iaq[obigt$ref1[iaq] %in% dropsource]
   if(length(idrop)>0) {
     iaq <- iaq[!iaq %in% idrop]
     print(paste('dropping these species from',dropsource))
@@ -1097,8 +1114,8 @@ write.supcrt <- function(file='supcrt.dat',obigt=thermo$obigt) {
   # header: identify the file (change this as appropriate)
   write(paste('***',file,'of',date()),file)
   # header: the sources
-  s1 <- as.character(obigt$source1[c(iaq,igas,imin0,imin1,imin2,imin3)])
-  s2 <- as.character(obigt$source2[c(iaq,igas,imin0,imin1,imin2,imin3)])
+  s1 <- as.character(obigt$ref1[c(iaq,igas,imin0,imin1,imin2,imin3)])
+  s2 <- as.character(obigt$ref2[c(iaq,igas,imin0,imin1,imin2,imin3)])
   s2 <- s2[!is.na(s2)]
   sources <- sort(unique(c(s1,s2)))
   sources <- sources[!sources=='CHNOSZ']

@@ -5,9 +5,9 @@
 \alias{rmsd}
 \alias{cvrmsd}
 \alias{lograt}
-\title{Miscellaneous Statistical Functions}
+\title{Functions for Various Statistical Operations}
 \description{
-  Calculate root mean square deviation (RMSD), coefficient of variation of the RMSD, Spearman's rank correlation coefficient, and correlation coefficient on a q-q plot.
+  Calculate root mean square deviation (RMSD), coefficient of variation of the RMSD, Spearman's rank correlation coefficient, or correlation coefficient of a q-q plot.
 }
 
 \usage{
@@ -25,7 +25,7 @@
 
 \details{
 
-  \code{qqr} returns the correlation coefficient of a quantile-quantile plot using the values given in \code{y}. This calculation can used to characterize the deviation of a given set of values from a normal distribution.
+  \code{qqr} returns the correlation coefficient of a quantile-quantile plot using the values given in \code{y}. 
 
   \code{spearman} calculates Spearman's rank correlation coefficient between \code{a} and \code{b}. \code{rmsd} and \code{cvrmsd} return the root mean square deviation and coefficient of variation of the RMSD, repsectively. The coefficient of variation is computed as the RMSD divided by the mean of the values in \code{a}
 
@@ -48,4 +48,4 @@
   cvrmsd(a,b)          # 1/5
 }
 
-\keyword{misc}
+\keyword{util}

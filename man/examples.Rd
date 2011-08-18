@@ -3,7 +3,7 @@
 \alias{longex}
 \title{Run examples from the documentation}
 \description{
-  Run the examples contained each of the documentation topics. }
+  Run the examples contained in each of the documentation topics. }
 
 \arguments{
   \item{do.png}{logical, generate PNG files for the plots?}
@@ -27,13 +27,18 @@
     \code{cordierite} \tab equilibrium constant of hydrous cordierite dehydration \cr
     \code{phosphate} \tab phosphate speciation with pH, temperature and ionic strength \cr
     \code{nucleobase} \tab relative stabilities of nucleobases and some amino acids \cr
-    \code{pie} \tab pie charts comparing relative abundances of organisms and model proteins in metastable equilibrium \cr
+    \code{pie} \tab pie charts comparing relative abundances of organisms (Spear et al., 2005) and model proteins in metastable equilibrium \cr
     \code{orp} \tab oxidation-reduction potential of redox standards as a function of temperature \cr
+    \code{findit} \tab detailed example of usage of \code{\link{findit}} using log-normal distribution as an objective \cr
+    \code{co2ac} \tab activity of CO2 buffered by acetic acid; comparing \code{\link{affinity}(return.buffer=TRUE)} with \code{\link{diagram}(what="CO2")} \cr
   }
 
 }
 
-\keyword{misc}
+\references{
+  Spear, J. R., Walker, J. J., McCollom, T. M. and  Pace, N. R. (2005) Hydrogen and bioenergetics in the Yellowstone geothermal ecosystem. \emph{Proc. Natl. Acad. Sci. U. S. A.} \bold{102}, 2555--2560.
+}
+
 
 \examples{
   \dontshow{data(thermo)}
@@ -41,3 +46,6 @@
     longex(c("copper","orp"))
   }
 }
+
+
+\keyword{extra}

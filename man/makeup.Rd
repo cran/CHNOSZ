@@ -74,10 +74,10 @@
   ## formulas (ncol = number of elements)
   # as a dataframe	
   makeup("Zn(CH3CH2CH2CH2CO2)2","")
-  print( t <- makeup(c("HCl","H2O"),"") )
+  print( m <- makeup(c("HCl","H2O"),"") )
   # as a character formula
   makeup(makeup(info("glycinium"),""),"")
-  makeup(t,"")
+  makeup(m,"")
   # C6H12O6
   makeup(makeup(makeup("CHO6H11C5"),""),"")
 
@@ -97,4 +97,4 @@
   makeup("CHNOSe")  # Se is an element
 }
 
-\keyword{misc}
+\keyword{secondary}

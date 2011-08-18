@@ -22,7 +22,7 @@
 
   This is the first function of two (\code{\link{species}} is the second) used to define for the program the system of interest. The basis species represent the possible range of chemical compositions for all the species of interest. Any valid set of basis species used here must meet two conditions: 1) the number of basis species is the same as the number of chemical elements (including charge) in those species and 2) the square matrix representing the elemental stoichiometries of the basis species has a real inverse. Basis species can, but do not always (and not if a charged basis species is present), correspond to the thermodynamic components of a system.
 
-  To create a basis definition, call this function with the names or formulas of the basis species in the first argument. If successful, \code{\link{thermo}$basis} is replaced with the new basis definition. If the second and/or third arguments are present: if either one is of type numeric it refers to values for logarithms of activities (or fugacities) of basis species identified in the first argument. If either of these arguments is character, it refers to the name of a state (if present in \code{thermo$obigt$state}) or to the name of a \code{\link{buffer}} (if present in \code{thermo$buffer$name}).
+  To create a basis definition, call this function with the names or formulas of the basis species in the first argument. If successful, \code{\link{thermo}$basis} is replaced with the new basis definition. If the second and/or third arguments are present: if either one is of type numeric it refers to values for logarithms of activities (or fugacities) of basis species identified in the first argument. If either of these arguments is character, it refers to the name of a state (if present in \code{thermo$obigt$state}) or to the name of a \code{\link{buffer}} (if present in \code{thermo$buffers$name}).
 
   To update the logarithms of activities of basis species, provide their formulas or names in the first argument and the values in the second. To change the basis definition, specify the names or formulas of the new basis species in the first argument. When the basis definition is changed, any species of interest that were present are deleted, unless the new basis definition has exactly the same elements as before. In that case, the species are kept and the activities of the new basis species are set so that the chemical potentials of the elements at 25 \eqn{^{\circ}}{degrees }C and 1 bar are unchanged.
 
@@ -98,4 +98,4 @@
   species()  # formation reactions were updated
 }
 
-\keyword{misc}
+\keyword{primary}

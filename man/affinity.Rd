@@ -56,7 +56,7 @@
    The \code{iprotein} and \code{loga.protein} arguments can be used to compute the chemical affinities of formation reactions of proteins that are not in the global \code{\link{species}} definition. This approach takes advantage of the commutative properties of the protein group additivity algorithm (Dick et al., 2006), and can be utilized in order to calculate the properties of many proteins in a fraction of the time it would take to calculate them individually. The appropriate \code{\link{basis}} species still must be defined prior to calling \code{affinity}. The user can give the indices of desired proteins contained in \code{\link{thermo}$protein} and \code{affinity} will automatically add to the species list the amino acid \emph{residues} and protein backbone group then calculate the properties of the reactions for the residues, and add them together to get those of the indicated proteins. The \code{iprotein} option is compatible with calculations for \code{\link{ionize}}d proteins.
 
 
-  In \pkg{CHNOSZ} version 0.9, \code{energy} gained a new argument \samp{transect} which is set to TRUE by \code{energy.args} when the length(s) of the variables is(are) greater than three. In this mode of operation, instead of performing the calculations on an \eqn{n}{n}-dimensional grid, the affinities are calculated on an \eqn{n}{n}-dimensional transect through chemical potential (possibly including T and/or P) space. 
+  In CHNOSZ version 0.9, \code{energy} gained a new argument \samp{transect} which is set to TRUE by \code{energy.args} when the length(s) of the variables is(are) greater than three. In this mode of operation, instead of performing the calculations on an \eqn{n}{n}-dimensional grid, the affinities are calculated on an \eqn{n}{n}-dimensional transect through chemical potential (possibly including T and/or P) space. 
 
 }
 
@@ -211,18 +211,18 @@
 
 \references{
 
-  Amend, J. P. and Shock, E. L., 1998. Energetics of amino acid synthesis in hydrothermal ecosystems. \emph{Science}, 281, 1659-1662. \url{http://dx.doi.org/10.1126/science.281.5383.1659}
+  Amend, J. P. and Shock, E. L. (1998) Energetics of amino acid synthesis in hydrothermal ecosystems. \emph{Science} \bold{281}, 1659--1662. \url{http://dx.doi.org/10.1126/science.281.5383.1659}
 
-  Amend, J. P. and Shock, E. L., 2001. Energetics of overall metabolic reactions of thermophilic and hyperthermophilic Archaea and Bacteria. \emph{FEMS Microbiol. Rev.}, 25, 175-243. \url{http://dx.doi.org/10.1016/S0168-6445(00)00062-0}
+  Amend, J. P. and Shock, E. L. (2001) Energetics of overall metabolic reactions of thermophilic and hyperthermophilic Archaea and Bacteria. \emph{FEMS Microbiol. Rev.} \bold{25}, 175--243. \url{http://dx.doi.org/10.1016/S0168-6445(00)00062-0}
 
-  Dick, J. M., LaRowe, D. E. and Helgeson, H. C., 2006. Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences}, 3, 311-336. \url{http://www.biogeosciences.net/3/311/2006/bg-3-311-2006.html}
+  Dick, J. M., LaRowe, D. E. and Helgeson, H. C. (2006) Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences} \bold{3}, 311--336. \url{http://www.biogeosciences.net/3/311/2006/bg-3-311-2006.html}
 
-  Kondepudi, D. K. and Prigogine, I., 1998. \emph{Modern Thermodynamics: From Heat Engines to Dissipative Structures}, John Wiley & Sons, New York, 486 p. \url{http://www.worldcat.org/oclc/38055900}
+  Kondepudi, D. K. and Prigogine, I. (1998) \emph{Modern Thermodynamics: From Heat Engines to Dissipative Structures}, John Wiley & Sons, New York, 486 p. \url{http://www.worldcat.org/oclc/38055900}
 
-  Schulte, M. D. and Shock, E. L.,  1995. Thermodynamics of Strecker synthesis in hydrothermal systems. \emph{Orig. Life Evol. Biosph.}, 25, 161-173. \url{http://dx.doi.org/10.1007/BF01581580}
+  Schulte, M. D. and Shock, E. L. (1995) Thermodynamics of Strecker synthesis in hydrothermal systems. \emph{Orig. Life Evol. Biosph.} \bold{25}, 161--173. \url{http://dx.doi.org/10.1007/BF01581580}
 
 
 }
 
 
-\keyword{misc}
+\keyword{primary}

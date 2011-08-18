@@ -1,0 +1,2152 @@
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass literate-article
+\begin_preamble
+%\VignetteIndexEntry{An introduction to CHNOSZ}
+
+% so DOIs in bibliography show up as hyperlinks
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\end_preamble
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman ae
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_title "An Introduction to CHNOSZ"
+\pdf_author "Jeffrey M. Dick"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize letterpaper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\cite_engine natbib_numerical
+\use_bibtopic false
+\paperorientation portrait
+\branch stuff
+\selected 1
+\color #000000
+\end_branch
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+An introduction to CHNOSZ
+\end_layout
+
+\begin_layout Author
+Jeffrey M.
+ Dick
+\end_layout
+
+\begin_layout Scrap
+<<echo=FALSE>>=
+\begin_inset Newline newline
+\end_inset
+
+options(width=90)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Section
+About
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+This document will orient you to the basic functionality of CHNOSZ, a package
+ for the R software environment.
+ R is a powerful language and also very fun to use.
+ Don't worry if you're new to it; just plow through the examples below and
+ you'll start to get the hang of it.
+ If you want a more structured approach to learning the language, there
+ are some excellent guides in the Manuals section of the 
+\begin_inset CommandInset href
+LatexCommand href
+name "R Project page"
+target "http://www.r-project.org"
+
+\end_inset
+
+.
+ There is also a publication on CHNOSZ available 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08"
+
+\end_inset
+
+, and 
+\begin_inset CommandInset href
+LatexCommand href
+name "a website"
+target "http://www.chnosz.net"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The package was developed since 2006 to support a research project on the
+ thermodynamic properties of proteins.
+ Since that time, the functions in the package have expanded to include
+ calculation of the thermodynamic properties of reactions, and especially
+ the construction of equilibrium chemical activity diagrams for both inorganic
+ and organic systems.
+ The development of the package since 2009 has focused on the calculation
+ of the equilibrium chemical activities of large numbers of proteins with
+ applications in interpretation of metagenomic data and protein abundances
+ in a variety of settings.
+\end_layout
+
+\begin_layout Standard
+The database and functions are flexible in their use, allowing one to model
+ the relative stabilities of proteins, minerals or aqueous species using
+ very similar commands.
+ Examples below are intended to demonstrate basic usage to new users.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Outline of workflow
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+CHNOSZ is made up of a set of functions and supporting datasets.
+ The major components of the package are shown in the figure below, which
+ is a modified version of the flowchart shown in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08"
+
+\end_inset
+
+ (boxes -- functions; ellipses -- datasets).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename chnosz_new.pdf
+	lyxscale 70
+	width 80col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Some common usage scenarios are:
+\end_layout
+
+\begin_layout Itemize
+using 
+\family typewriter
+info()
+\family default
+ to search for species in the thermodynamic database
+\end_layout
+
+\begin_layout Itemize
+using 
+\family typewriter
+subcrt()
+\family default
+ to calculate the thermodynamic properties of species and reactions
+\end_layout
+
+\begin_layout Itemize
+using the sequence 
+\family typewriter
+basis()
+\family default
+, 
+\family typewriter
+species()
+\family default
+, 
+\family typewriter
+affinity()
+\family default
+, 
+\family typewriter
+diagram()
+\family default
+ to assign the basis species that define the dimensions of chemical composition
+ in a system, define the species of interest for relative stability calculations
+, calculate the affinities of formation reactions of the species of interest
+ under reference (non-equilibrium) conditions, and to transform the non-equilibr
+ium affinities to equilibrium chemical activities and plot the results.
+\end_layout
+
+\begin_layout Itemize
+using 
+\family typewriter
+revisit()
+\family default
+ to calculate/plot statistics of the chemical activities of the species
+ of interest and 
+\family typewriter
+findit()
+\family default
+ to search for combinations of activities of basis species, temperature
+ and/or pressure that optimize those statistics.
+ (These features, first appearing in version 0.9-3 of the package, are not
+ covered in this document.)
+\end_layout
+
+\begin_layout Standard
+The functions are designed with an interactive setting in mind; you can
+ use CHNOSZ without having to write your own scripts.
+ The examples in this vignette are meant to portray a simple interactive
+ session.
+ However, as you become more familiar with CHNOSZ and R, you will probably
+ find it helpful to save sequences of function calls that produce interesting
+ results.
+ The results can then be reproduced on demand by yourself or others with
+ whom you might share your scripts.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Installing and loading CHNOSZ
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+If you have just installed R, and you are online, installing the CHNOSZ
+ package should be as simple as selecting 
+\begin_inset Quotes eld
+\end_inset
+
+Install packages from CRAN
+\begin_inset Quotes erd
+\end_inset
+
+ or similar menu item in the R GUI or using the following command to start
+ the package installation process.
+ (If you are not online, you instead have to tell R to install the package
+ from a local package file.)
+\end_layout
+
+\begin_layout Scrap
+<<install_CHNOSZ,eval=FALSE>>=
+\begin_inset Newline newline
+\end_inset
+
+install.packages("CHNOSZ")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Then load the CHNOSZ package to make its functions and data available in
+ your working session.
+\end_layout
+
+\begin_layout Scrap
+<<library_CHNOSZ>>=
+\begin_inset Newline newline
+\end_inset
+
+library(CHNOSZ)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Scrap
+<<thermo_opt_online,echo=FALSE>>=
+\begin_inset Newline newline
+\end_inset
+
+thermo$opt$online <- TRUE
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+The rest of this document assumes that the CHNOSZ package is loaded.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Thermodynamic database
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+
+\family typewriter
+info()
+\family default
+ part I
+\end_layout
+
+\begin_layout Standard
+So you want to know what are the standard molal thermodynamic properties
+ and equations of state parameters of aqueous ethylene? Look no further
+ than the 
+\family typewriter
+info()
+\family default
+ function, which provides a convenient interface to retrieve entries from
+ the thermodynamic database packaged with CHNOSZ.
+\end_layout
+
+\begin_layout Scrap
+<<info_ethylene>>=
+\begin_inset Newline newline
+\end_inset
+
+info("ethylene")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+There are two species named 
+\begin_inset Quotes eld
+\end_inset
+
+ethylene
+\begin_inset Quotes erd
+\end_inset
+
+ in the database.
+ Normally, 
+\family typewriter
+info()
+\family default
+ gives preference to aqueous species if they exist, so in this case we find
+ that aqueous ethylene is species number 88 in the database.
+ Let's display this entry, now by giving the species index to the function.
+\end_layout
+
+\begin_layout Scrap
+<<info_88>>=
+\begin_inset Newline newline
+\end_inset
+
+info(88)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+If you were instead interested in the properties of the gas, you could run:
+\end_layout
+
+\begin_layout Scrap
+<<info_ethylene_gas>>=
+\begin_inset Newline newline
+\end_inset
+
+info("ethylene","gas")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+info()
+\family default
+ itself is used by other functions in the package.
+ It prints output to the screen, but also returns a numeric value if it
+ finds a species matching the search term.
+ So, we can retrieve the properties of aqueous acetic acid without having
+ to type in the species ID number.
+\end_layout
+
+\begin_layout Scrap
+<<info_acetic>>=
+\begin_inset Newline newline
+\end_inset
+
+aadata <- info(info("acetic acid"))
+\begin_inset Newline newline
+\end_inset
+
+print(aadata)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+
+\family typewriter
+thermo$refs
+\end_layout
+
+\begin_layout Standard
+The thermodynamic data and other parameters used by the functions, as well
+ as system definitions provided by the user in an interactive session, are
+ stored in a list object called 
+\family typewriter
+thermo
+\family default
+.
+\end_layout
+
+\begin_layout Scrap
+<<summary_thermo>>=
+\begin_inset Newline newline
+\end_inset
+
+summary(thermo)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Within this list, the thermodynamic database is contained in a data frame
+ (an R object that is like a matrix with named columns), 
+\family typewriter
+thermo$obigt
+\family default
+, and the references to the original sources of thermodynamic data in the
+ literature are listed in 
+\family typewriter
+thermo$refs
+\family default
+.
+ Many of the authors who are responsible for these data would be grateful
+ if you cite them whenever these data are used in publications! Use the
+ 
+\family typewriter
+browse.refs()
+\family default
+ function without any arguments to show citation information for all of
+ the references in a browser window.
+ You can include a species index number to open the URL(s) associated with
+ that entry in the database (this requires an Internet connection).
+\end_layout
+
+\begin_layout Scrap
+<<browse.refs,eval=F>>=
+\begin_inset Newline newline
+\end_inset
+
+browse.refs(88)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+browse.refs: opening URL for SH90 (E.
+ L.
+ Shock and H.
+ C.
+ Helgeson, 1990)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+
+\family typewriter
+info()
+\family default
+ part II
+\end_layout
+
+\begin_layout Standard
+Want to know what acids are in the database?
+\end_layout
+
+\begin_layout Scrap
+<<info_acid>>=
+\begin_inset Newline newline
+\end_inset
+
+info("acid")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Here, 
+\family typewriter
+info()
+\family default
+ couldn't find an exact match to a name, so it performed a fuzzy search.
+ That's why 
+\begin_inset Quotes eld
+\end_inset
+
+uracil
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+metacinnabar
+\begin_inset Quotes erd
+\end_inset
+
+ show up above.
+ If you really just want species whose names include the term 
+\begin_inset Quotes eld
+\end_inset
+
+acid
+\begin_inset Quotes erd
+\end_inset
+
+, you can add a placeholder character to narrow the search.
+ (Note: don't use an underscore (
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+) here because that character is reserved for names of proteins.
+ Any other character will do; here we use a space.)
+\end_layout
+
+\begin_layout Scrap
+<<info_spaceacid>>=
+\begin_inset Newline newline
+\end_inset
+
+info(" acid")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+The names of species other than proteins use (almost) exclusively lowercase
+ letters.
+ 
+\family typewriter
+info()
+\family default
+ can also be used to search the text of the chemical formulas as they are
+ entered in the database; the symbols for the elements always start with
+ a capital letter.
+ The example below lists the formulas of aqueous species, then minerals,
+ that contain the symbol commonly used to represent the hydroxide group.
+\end_layout
+
+\begin_layout Scrap
+<<info_OH>>=
+\begin_inset Newline newline
+\end_inset
+
+info("(OH)")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Proteins
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+
+\family typewriter
+protein()
+\end_layout
+
+\begin_layout Standard
+There are few things more fun than calculating the standard molal Gibbs
+ energy of formation from the elements at 25 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C and 1 bar of a protein using group additivity.
+ And there are few proteins whose thermodynamic properties are more well
+ studied than lysozyme from the egg of the chicken.
+\end_layout
+
+\begin_layout Scrap
+<<protein_LYSC>>=
+\begin_inset Newline newline
+\end_inset
+
+protein("LYSC_CHICK")
+\begin_inset Newline newline
+\end_inset
+
+protein(6)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+What happened there? Well, the first line extracted the row (rownumber 6)
+ of 
+\family typewriter
+thermo$protein
+\family default
+ that contains the amino acid composition of LYSC_CHICK.
+ The second line used group additivity 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "DLH06"
+
+\end_inset
+
+ to calculate the standard molal thermodynamic properties and equations
+ of state parameters of the aqueous protein species.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+
+\family typewriter
+info()
+\end_layout
+
+\begin_layout Standard
+Most of the time you probably won't be using the 
+\family typewriter
+protein()
+\family default
+ function.
+ That's because 
+\family typewriter
+info()
+\family default
+ recognizes the underscore character as being an essential part of the name
+ of a protein.
+ The names of proteins in CHNOSZ are mostly consistent with those used in
+ 
+\begin_inset CommandInset href
+LatexCommand href
+name "Swiss-Prot/UniProtKB"
+target "http://www.uniprot.org"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Scrap
+<<info_LYSC>>=
+\begin_inset Newline newline
+\end_inset
+
+si <- info("LYSC_CHICK")
+\begin_inset Newline newline
+\end_inset
+
+info(si)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+When CHNOSZ is first loaded, the thermodynamic properties and parameters
+ of the proteins are not present in 
+\family typewriter
+thermo$obigt
+\family default
+.
+ Therefore, the first call to
+\family typewriter
+ info()
+\family default
+ just above had a side effect of adding the computed properties and parameters
+ to 
+\family typewriter
+thermo$obigt
+\family default
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Reaction properties
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+A single species
+\end_layout
+
+\begin_layout Standard
+A major feature of CHNOSZ is the ability to calculate standard molal properties
+ of species and reactions as a function of temperature and pressure.
+ The function used is called 
+\family typewriter
+subcrt()
+\family default
+, which takes its name (with modification) from the well known SUPCRT package
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "JOH92"
+
+\end_inset
+
+.
+ 
+\family typewriter
+subcrt()
+\family default
+, like 
+\family typewriter
+info()
+\family default
+, has the name of a species (including proteins) as its first argument (it
+ also works if you give it the numeric index of the species in the database).
+ If no reaction coefficients are given, the function calculates the standard
+ molal properties of the indicated species on a default temperature-pressure
+ grid.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_water>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt("water")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+The columns in the output are temperature (
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C), pressure (bar), density of water (g cm
+\begin_inset Formula $^{-3}$
+\end_inset
+
+), logarithm of the equilibrium constant (only meaningful for reactions;
+ see below), and standard molal Gibbs energy and enthalpy of formation from
+ the elements (cal mol
+\begin_inset Formula $^{-1}$
+\end_inset
+
+), and standard molal entropy (cal K
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ mol
+\begin_inset Formula $^{-1}$
+\end_inset
+
+), volume (cm
+\begin_inset Formula $^{3}$
+\end_inset
+
+ mol
+\begin_inset Formula $^{-1}$
+\end_inset
+
+) and heat capacity (cal K
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ mol
+\begin_inset Formula $^{-1}$
+\end_inset
+
+).
+ 
+\end_layout
+
+\begin_layout Standard
+Compared to other species available in CHNOSZ, the equations for calculating
+ the properties of liquid 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+ are quite complex.
+ The package uses a Fortran subroutine taken from SUPCRT for these calculations.
+ See 
+\family typewriter
+help(water)
+\family default
+ for more information.
+\end_layout
+
+\begin_layout Subsection
+A reaction
+\end_layout
+
+\begin_layout Standard
+To calculate the properties of a reaction, enter the stoichiometric reaction
+ coefficients as a second argument to 
+\family typewriter
+subcrt()
+\family default
+.
+ Reactants have negative coefficients, and products have positive coefficients.
+ The function call below also shows the specification of temperature.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_C2H5OH>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("C2H5OH","O2","CO2","H2O"),c(-1,-3,2,3),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+For historical reasons (i.e., the prevalence of the use of oxygen fugacity
+ in geochemical modeling 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "And05"
+
+\end_inset
+
+), 
+\begin_inset Formula $\mathrm{O_{2}}$
+\end_inset
+
+ breaks the general rule in CHNOSZ that species whose states are not specified
+ are given the aqueous designation if it is available in the thermodynamic
+ database.
+ If you want to specify the physical states of the species in the reaction,
+ that's possible too.
+ For example, we can ensure that dissolved 
+\begin_inset Formula $\mathrm{O_{2}}$
+\end_inset
+
+ instead of the gaseous form is used in the calculation.
+ 
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_C2H5OH_O2aq>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("C2H5OH","O2","CO2","H2O"),c(-1,-3,2,3),c("aq","aq","aq","liq"),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+A useful feature of 
+\family typewriter
+subcrt()
+\family default
+ is that it emits a warning if the reaction is not balanced.
+ Let's say you forgot to account for oxygen on the left-hand side of the
+ reaction
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+This example is motivated by the unbalanced reaction found at the 
+\begin_inset CommandInset href
+LatexCommand href
+name "Wikipedia entry on ethanol metabolism"
+target "http://en.wikipedia.org/wiki/Ethanol_metabolism"
+
+\end_inset
+
+ on 2010-09-23 and still present as of 2011-08-15: 
+\begin_inset Quotes eld
+\end_inset
+
+Complete Reaction: C
+\begin_inset Formula $_{2}$
+\end_inset
+
+H
+\begin_inset Formula $_{6}$
+\end_inset
+
+O(Ethanol)→C
+\begin_inset Formula $_{2}$
+\end_inset
+
+H
+\begin_inset Formula $_{4}$
+\end_inset
+
+O(Acetaldehyde)→C
+\begin_inset Formula $_{2}$
+\end_inset
+
+H
+\begin_inset Formula $_{4}$
+\end_inset
+
+O
+\begin_inset Formula $_{2}$
+\end_inset
+
+(acetic Acid) →Acetyl-CoA→3H
+\begin_inset Formula $_{2}$
+\end_inset
+
+O+2CO
+\begin_inset Formula $_{2}$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_C2H5OH_unbal>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("C2H5OH","CO2","H2O"),c(-1,2,3),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+The function still reports the results of the calculations, but use them
+ very cautiously (only if you have a specific reason for writing an unbalanced
+ reaction).
+ In the next section we'll see how to use another feature of CHNOSZ to automatic
+ally balance reactions.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Basis species
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+What are basis species?
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Basis species
+\series default
+ are a minimal number of chemical species that represent the compositional
+ variation in a system.
+ Operationally, a 
+\series bold
+system
+\series default
+ is the combination of basis species and species of interest which is set
+ up by the user to investigate a real-life system.
+ The basis species are akin to thermodynamic components, but can include
+ charged species.
+ 
+\end_layout
+
+\begin_layout Standard
+There are at least two reasons to define the basis species when using CHNOSZ.
+ First, you might want to use them to automatically balance reactions.
+ Second, they are required for making chemical activity diagrams.
+ Let's start with an example that 
+\emph on
+doesn't
+\emph default
+ work.
+\end_layout
+
+\begin_layout Scrap
+<<basis_not,eval=FALSE>>=
+\begin_inset Newline newline
+\end_inset
+
+basis(c("CO2","H2O","NH3","H2S","H+"))
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+We need a character in standard layout otherwise wrapsweave environment
+ not properly ended!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+Error in put.basis(basis, mystates) : 
+\end_layout
+
+\begin_layout LyX-Code
+  the stoichiometric matrix must be square and invertible
+\end_layout
+
+\begin_layout LyX-Code
+In addition: Warning messages:
+\end_layout
+
+\begin_layout LyX-Code
+1: basis: 5 compounds ( CO2 H2O NH3 H2S H+ ) 
+\end_layout
+
+\begin_layout LyX-Code
+2: basis: 6 elements ( C H N O S Z ) 
+\end_layout
+
+\begin_layout Standard
+A limitation of CHNOSZ is that the number of basis species must be equal
+ to the number of elements, plus one if charge is present.
+ This way, any possible species of interest made up of these elements can
+ be compositionally represented by a linear combination of the basis species.
+ Now let's write a working basis definition.
+\end_layout
+
+\begin_layout Scrap
+<<basis>>=
+\begin_inset Newline newline
+\end_inset
+
+basis(c("CO2","H2O","NH3","O2","H2S","H+"))
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+First basis definition! Note the column names, which give CHNOSZ its name.
+ These represent the elements in the commonly-occurring amino acids, together
+ with charge, denoted by 
+\begin_inset Quotes eld
+\end_inset
+
+Z
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Auto-balancing a reaction
+\end_layout
+
+\begin_layout Standard
+Now that the basis species are defined, try the unbalanced reaction again.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_C2H5OH_auto>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("C2H5OH","CO2","H2O"),c(-1,2,3),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Here, 
+\family typewriter
+subcrt()
+\family default
+ detected an unbalanced reaction, but since the missing element was among
+ the elements of the basis species, it added the appropriate amount of 
+\begin_inset Formula $\mathrm{O_{2}}_{\left(gas\right)}$
+\end_inset
+
+ to the reaction before running the calculations.
+ You can go even further and eliminate 
+\begin_inset Formula $\mathrm{CO_{2}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+ from the function call, but still get the same results.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_C2H5OH>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("C2H5OH"),c(-1),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+What if you were interested in the thermodynamic properties of the reaction
+ of ethanol to acetaldehyde, but didn't want to balance the reaction yourself
+ (and you also didn't know how the formulas of the species are written in
+ the database)?
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_ethanol>>=
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("ethanol","acetaldehyde"),c(-1,1),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Notice how 2 H's needed to be added to the right-hand side of the reaction;
+ in our definition of basis species this comes out to 
+\begin_inset Formula $\mathrm{H_{2}O}-0.5\mathrm{O_{2}}$
+\end_inset
+
+.
+ With a different choice of basis species, but the same elements, the reaction
+ might look quite different.
+ As an example, suppose you had amino acids in mind.
+ The first line below, 
+\family typewriter
+data(thermo)
+\family default
+, is a quick way to reset the 
+\family typewriter
+thermo
+\family default
+ object to its original state, in order to clear the current system definition.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_acetaldehyde>>=
+\begin_inset Newline newline
+\end_inset
+
+data(thermo)
+\begin_inset Newline newline
+\end_inset
+
+basis(c("glutamic acid","methionine","isoleucine","lysine","tyrosine","H+"))
+\begin_inset Newline newline
+\end_inset
+
+subcrt(c("ethanol","acetaldehyde"),c(-1,1),T=37)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+In this case, the function finds that 2 H's are the compositional equivalent
+ of 
+\begin_inset Formula $0.5\mathrm{C_{6}H_{13}NO_{2}}-0.125\mathrm{C_{6}H_{14}N_{2}O_{2}}-0.250\mathrm{C_{9}H_{11}NO_{3}}$
+\end_inset
+
+.
+ It's pretty easy for the computer to figure that out using matrix operations,
+ but probably isn't something you'd want to do by hand.
+ You might complain that this reaction is not likely to represent an actual
+ metabolic process ...
+ as always, the challenge (and fun) of coming up with a useful basis definition
+ is in relating the species to observable quantities.
+\end_layout
+
+\begin_layout Subsection
+It works for proteins too!
+\end_layout
+
+\begin_layout Standard
+Let's set the basis definition again, this time using a keyword that refers
+ to a preset combination of basis species commonly encountered in the documentat
+ion for CHNOSZ.
+ Then we will use 
+\family typewriter
+subcrt()
+\family default
+ to calculate the thermodynamic properties of a reaction to form a protein
+ from the basis species.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_LYSC>>=
+\begin_inset Newline newline
+\end_inset
+
+data(thermo)
+\end_layout
+
+\begin_layout Scrap
+basis("CHNOS+")
+\end_layout
+
+\begin_layout Scrap
+subcrt("LYSC_CHICK",1,T=25)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Standard
+Note that using the keyword argument in 
+\family typewriter
+basis()
+\family default
+ also set the logarithms of activities (or fugacity in the case of 
+\begin_inset Formula $\mathrm{O_{2}}_{\left(g\right)}$
+\end_inset
+
+) to nominal values.
+ While these settings do not affect the results of the 
+\family typewriter
+subcrt()
+\family default
+ calculation (which normally returns only the standard molal properties
+ of the reaction), they are essential for calculating the relative stabilities
+ of the species of interest.
+\end_layout
+
+\begin_layout Standard
+If the protein is not found in CHNOSZ's own database, the amino acid composition
+ of the protein can be retrieved from the UniProt Knowledge Base using the
+ Swiss-Prot name (if the computer is connected to the Internet).
+ This is the only time a function in CHNOSZ asks for confirmation from a
+ user, in order to give fair warning that an online activity is about to
+ be performed.
+\end_layout
+
+\begin_layout Scrap
+<<subcrt_ALAT1,eval=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+subcrt("ALAT1_HUMAN",1,T=25)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+Shall I try an online search for  ALAT1_HUMAN _ SWISS ? y
+\end_layout
+
+\begin_layout LyX-Code
+protein: trying http://www.uniprot.org/uniprot/ALAT1_HUMAN ...
+ got it!
+\end_layout
+
+\begin_layout LyX-Code
+protein: found P24298 ...
+  Alanine aminotransferase 1  (length 496).
+\end_layout
+
+\begin_layout LyX-Code
+protein: found ALAT1_HUMAN (C2429H3866N684O705S22, 496 residues)
+\end_layout
+
+\begin_layout LyX-Code
+subcrt: 1 species at 298.15 K and 1 bar (wet) 
+\end_layout
+
+\begin_layout LyX-Code
+subcrt: reaction is not balanced; it is missing this composition:
+\end_layout
+
+\begin_layout LyX-Code
+     C     H    N    O   S
+\end_layout
+
+\begin_layout LyX-Code
+ -2429 -3866 -684 -705 -22
+\end_layout
+
+\begin_layout LyX-Code
+subcrt: adding missing composition from basis definition and restarting...
+\end_layout
+
+\begin_layout LyX-Code
+subcrt: 6 species at 298.15 K and 1 bar (wet) 
+\end_layout
+
+\begin_layout LyX-Code
+$reaction
+\end_layout
+
+\begin_layout LyX-Code
+     coeff        name               formula state ispecies
+\end_layout
+
+\begin_layout LyX-Code
+2926     1 ALAT1_HUMAN C2429H3866N684O705S22    aq     2926
+\end_layout
+
+\begin_layout LyX-Code
+69   -2429         CO2                   CO2    aq       69
+\end_layout
+
+\begin_layout LyX-Code
+1     -885       water                   H2O   liq        1
+\end_layout
+
+\begin_layout LyX-Code
+68    -684         NH3                   NH3    aq       68
+\end_layout
+
+\begin_layout LyX-Code
+70     -22         H2S                   H2S    aq       70
+\end_layout
+
+\begin_layout LyX-Code
+2691  2519      oxygen                    O2   gas     2691
+\end_layout
+
+\begin_layout LyX-Code
+$out
+\end_layout
+
+\begin_layout LyX-Code
+   T P      logK         G         H        S      V        Cp
+\end_layout
+
+\begin_layout LyX-Code
+1 25 1 -191972.3 261897066 273248830 38245.59 -73411 -107650.2
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Activity diagrams
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+Quick example: stability diagram for proteins
+\end_layout
+
+\begin_layout Standard
+Suppose that we are asked to calculate the relative stabilities of some
+ proteins from different organisms.
+ We will use part of a case study presented in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08"
+
+\end_inset
+
+.
+ 
+\emph on
+Methanocaldococcus jannaschii
+\emph default
+ is a hyperthermophilic methanogen known to live at higher temperatures
+ than 
+\emph on
+Methanococcus voltae
+\emph default
+ (also a methanogen) and 
+\emph on
+Haloarcula japonica 
+\emph default
+(a halophile).
+ These archaeal organisms produce cell-surface glycoproteins (a.k.a.
+ surface-layer proteins).
+\end_layout
+
+\begin_layout Standard
+After defining the basis species we can define the 
+\series bold
+species of interest
+\series default
+, i.e.
+ those proteins whose relative stabilities we wish to calculate.
+ 
+\end_layout
+
+\begin_layout Scrap
+<<CSG_species>>=
+\begin_inset Newline newline
+\end_inset
+
+species(c("CSG_METJA","CSG_METVO","CSG_HALJP"))
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Standard
+Note the output: the matrix denotes the coefficients of each of the basis
+ species in the formation reaction for one mole of each of the species of
+ interest.
+ The 
+\series bold
+formation reaction
+\series default
+ is the chemical reaction to form one mole of a species of interest (as
+ a product) from a combination of basis species (as reactants and/or products,
+ depending on the stoichiometric constraints).
+ The formation reactions generally are 
+\emph on
+not
+\emph default
+ statements about the mechanisms of reactions.
+ The species definition also includes reference values for the chemical
+ activities of the species of interest.
+ 
+\end_layout
+
+\begin_layout Standard
+Now we are all set up to calculate the chemical affinities of the formation
+ reactions.
+ The chemical affinity is the negative of the Gibbs energy change of a reaction
+ per unit of reaction progress; it is calculated in CHNOSZ using 
+\begin_inset Formula $\boldsymbol{A}=2.303RT\log(K/Q)$
+\end_inset
+
+ (
+\begin_inset Formula $R$
+\end_inset
+
+ -- gas constant, 
+\begin_inset Formula $T$
+\end_inset
+
+ -- temperature, 
+\begin_inset Formula $K$
+\end_inset
+
+ -- equilibrium constant, 
+\begin_inset Formula $Q$
+\end_inset
+
+ -- activity product).
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+affinity()
+\family default
+ can accept arguments describing the range of chemical conditions we're
+ interested in.
+ The names of the arguments can refer to the basis species.
+ Here, we vary the logarithm of the fugacity of oxygen.
+ The chemical activities of the other basis species are taken to be constants
+ equal to the values shown above.
+\end_layout
+
+\begin_layout Scrap
+<<CSG_affinity>>=
+\begin_inset Newline newline
+\end_inset
+
+a <- affinity(O2=c(-80,-65))
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Now we can use 
+\family typewriter
+diagram()
+\family default
+ to plot the relative stabilities of the proteins in the system.
+ We'll also specify where the legend should be placed on the plot.
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.6
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<CSG_diagram,fig=T,width=4,height=4>>=
+\begin_inset Newline newline
+\end_inset
+
+diagram(a,legend.x="bottomleft")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Standard
+Notably, the protein from the organism found at the highest temperatures
+ is relatively stable at more reduced conditions.
+\end_layout
+
+\begin_layout Subsection
+How does this work?
+\end_layout
+
+\begin_layout Standard
+Here is a partial explanation: You use 
+\family typewriter
+affinity()
+\family default
+ to calculate the chemical affinities of the formation reactions of the
+ proteins, taking into account chemical activities of the proteins that
+ are set to reference, non-equilibrium values.
+ Then, the 
+\family typewriter
+diagram()
+\family default
+ function transforms these non-equilibrium affinities into chemical activities
+ of the proteins at metastable equilibrium (this is actually achieved using
+ the Boltzmann distribution).
+ These activities satisfy the conditions that 1) the total activity of an
+ immobile component (for proteins, this defaults to the protein backbone
+ group) is constant and 2) the chemical affinities of the formation reactions
+ are all equal (but generally not zero).
+ More details can be found in another vignette (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+protactiv
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Subsection
+More proteins, more dimensions
+\end_layout
+
+\begin_layout Standard
+Now let's add some bacterial surface-layer proteins.
+ They are in some way functional analogs (but not 
+\begin_inset CommandInset href
+LatexCommand href
+name "homologs"
+target "http://en.wikipedia.org/wiki/Homology_(biology)"
+
+\end_inset
+
+) of the archaeal cell-surface glycoproteins.
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.6
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<PredominanceDiagram,fig=T,width=4,height=4>>=
+\end_layout
+
+\begin_layout Scrap
+species(c("SLAP_ACEKI","SLAP_BACST","SLAP_BACLI","SLAP_AERSA"))
+\end_layout
+
+\begin_layout Scrap
+basis(c("NH3","H2S"),c(-1,-10))
+\end_layout
+
+\begin_layout Scrap
+a <- affinity(O2=c(-90,-70),H2O=c(-15,0))
+\end_layout
+
+\begin_layout Scrap
+diagram(a)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Standard
+Equilibrium predominances for proteins as a function of two chemical activities!
+ If you don't like the colors in the plot, don't worry...
+ the colors can be changed by using the 
+\family typewriter
+col
+\family default
+ argument of 
+\family typewriter
+diagram()
+\family default
+.
+ This example hints at the multidimensional nature of the stability problem.
+ Note how the order of predominance fields at 
+\begin_inset Formula $\log a_{\mathrm{H_{2}O}}=0$
+\end_inset
+
+ matches the order of proteins with highest equilibrium activities in the
+ previous diagram.
+ Interpreting the meaning of low activities of 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+ in these calculations remains a challenge.
+\end_layout
+
+\begin_layout Standard
+Why did we increase the activity of 
+\begin_inset Formula $\mathrm{NH_{3}}$
+\end_inset
+
+ and decrease that of 
+\begin_inset Formula $\mathrm{H_{2}S}$
+\end_inset
+
+? It was done here in order to increase the size of the equilibrium predominance
+ fields of the bacterial proteins.
+ This behavior is a result of the elemental makeup of the proteins: the
+ bacterial proteins under consideration are, per residue, more nitrogen-rich
+ and sulfur-poor than their archaeal counterparts (except for CSG_HALJP,
+ which has no sulfur).
+ CHNOSZ has a function to display the compositional makeup of the proteins,
+ per residue, from the basis species.
+\end_layout
+
+\begin_layout Scrap
+<<residue.info>>=
+\end_layout
+
+\begin_layout Scrap
+residue.info()
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Subsection
+A mineral example
+\end_layout
+
+\begin_layout Standard
+This example is modeled after a figure on p.
+ 246 of Bowers et al., 1984 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "BJH84"
+
+\end_inset
+
+ for the system HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C and 1000 bar.
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=0.6
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Scrap
+<<Bowers,fig=T,width=4,height=4>>=
+\begin_inset Newline newline
+\end_inset
+
+basis(c("HCl","H2O","Ca+2","CO2","Mg+2","SiO2","O2","H+"),
+\end_layout
+
+\begin_layout Scrap
+  c(999,0,999,999,999,999,999,-7))
+\end_layout
+
+\begin_layout Scrap
+species(c("quartz","talc","forsterite","tremolite","diopside",
+\end_layout
+
+\begin_layout Scrap
+  "wollastonite","monticellite","merwinite"))
+\end_layout
+
+\begin_layout Scrap
+a <- affinity("Mg+2"=c(-12,-4),"Ca+2"=c(-8,0),T=300,P=1000)
+\end_layout
+
+\begin_layout Scrap
+diagram(a)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Scrap
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Standard
+The 999's in the assignment of logarithms of activities of basis species
+ could be any number -- these settings do not affect the outcome of the
+ calculation.
+ This is so because 1) 
+\begin_inset Formula $\mathrm{HCl}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{CO_{2}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{O_{2}}$
+\end_inset
+
+ have zero stoichiometric coefficients in the species, 2) the activities
+ of 
+\begin_inset Formula $\mathrm{Ca}^{+2}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{Mg}^{+2}$
+\end_inset
+
+ correspond to the axes of the diagram, and their ranges are taken from
+ the call to 
+\family typewriter
+affinity()
+\family default
+, and 3) 
+\begin_inset Formula $\mathrm{SiO_{2}}$
+\end_inset
+
+ is the immobile (conserved) component.
+ Also note that 
+\begin_inset Quotes eld
+\end_inset
+
+Mg+2
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+Ca+2
+\begin_inset Quotes erd
+\end_inset
+
+ are not valid names of objects in R, but we can use them as names of arguments
+ by putting them in quotation marks in the call to 
+\family typewriter
+affinity()
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Here, the scales of the axes here depend on the pH setting.
+ This calculation is therefore logically different from the formulation
+ used in Ref.
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "BJH84"
+
+\end_inset
+
+, where the axes are 
+\begin_inset Formula $\log\left(a_{\mathrm{Mg^{+2}}}/\sigma_{\mathrm{Mg}^{+2}}a_{\mathrm{H^{+}}}^{2}\right)$
+\end_inset
+
+ and 
+\begin_inset Formula $\log\left(a_{\mathrm{Ca^{+2}}}/\sigma_{\mathrm{Ca}^{+2}}a_{\mathrm{H^{+}}}^{2}\right)$
+\end_inset
+
+ (where 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ is a function of the solvation of the subscripted species).
+ However, the geometry of the stability fields in the diagram produced here
+ is consistent with the previous work.
+\end_layout
+
+\begin_layout Standard
+In just a few lines it's possible to make a wide variety of activity diagrams
+ for organic and inorganic species.
+ Try it for your favorite system!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Where to go from here
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+You can explore the package documentation through R's help system; just
+ type 
+\family typewriter
+help.start()
+\family default
+ at the command line and select CHNOSZ in the browser window that comes
+ up.
+ If you want to get an idea of the types of calculations available in CHNOSZ,
+ run the examples in the help files for individual functions.
+ A good one to try out might be 
+\family typewriter
+diagram()
+\family default
+; you can run all of the examples there with a single command:
+\end_layout
+
+\begin_layout Scrap
+<<example_diagram,eval=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+example(diagram)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Standard
+Or you can use the following to run 
+\emph on
+all
+\emph default
+ of the examples provided in the documentation for the package.
+ You will see a lot of text fly by on the screen, as well as a variety of
+ plots.
+ The examples will take about 5--10 minutes to run, depending on your machine.
+ 
+\end_layout
+
+\begin_layout Scrap
+<<examples,eval=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+examples()
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Standard
+If you want to add to or modify the thermodynamic database, read the instruction
+s at the top of the help page for 
+\family typewriter
+thermo
+\family default
+:
+\end_layout
+
+\begin_layout Scrap
+<<helpthermo,eval=FALSE>>=
+\end_layout
+
+\begin_layout Scrap
+help(thermo)
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\begin_layout Standard
+Have fun!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Document information
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+Revision history:
+\end_layout
+
+\begin_layout Itemize
+2010-09-30 Initial version
+\end_layout
+
+\begin_layout Itemize
+2011-08-15 Add 
+\family typewriter
+browse.refs()
+\family default
+; modifying database hint changed to 
+\family typewriter
+help(thermo)
+\end_layout
+
+\begin_layout Standard
+R session information:
+\end_layout
+
+\begin_layout Scrap
+<<session_info>>=
+\end_layout
+
+\begin_layout Scrap
+sessionInfo()
+\end_layout
+
+\begin_layout Scrap
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "vig"
+options "unsrtnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

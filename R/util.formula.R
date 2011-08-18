@@ -1,5 +1,4 @@
-# CHNOSZ/util.element.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
+# CHNOSZ/util.formula.R
 # functions to deal with chemical formulas
 
 GHS <- function(species=NULL,DG=NA,DH=NA,S=NA,T=thermo$opt$Tr) {

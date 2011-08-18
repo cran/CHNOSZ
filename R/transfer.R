@@ -1,5 +1,4 @@
 # CHNOSZ/transfer.R
-# Copyright (C) 2009 Jeffrey M. Dick
 # plot reaction paths on activity diagrams
 # 20090325 jmd
 
@@ -372,7 +371,7 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
       # chemical affinities (near-equilibrium rates)
       # 20090409 use abundance here -- relative
       # abundances of species in equilibrium
-      molspecies3 <- 10^as.numeric(logact.mb(myaff,rep(1,length(myaff)),0))
+      molspecies3 <- 10^as.numeric(equil.boltz(myaff,rep(1,length(myaff)),0))
     }
     # the number of moles of basis species used
     ipresent <- which(log10(molspecies3) > logpresent)
@@ -825,22 +824,22 @@ feldspar <- function(which="closed",do.plot=FALSE) {
 
   if(which=='closed') {
     # closed system diagram (SLS94 Fig. 2)
-    t <- transfer(550,dmode='coupled',plot=plot,devmax=0.2)
-    if(do.plot) draw.transfer(t)
+    tr <- transfer(550,dmode='coupled',plot=plot,devmax=0.2)
+    if(do.plot) draw.transfer(tr)
   } else if(which=='open') {
     # open system (SLS94 Fig. 3)
     # A* - B* - C* - D*
-    t <- transfer(450,dmode='none',plot=plot)     
+    tr <- transfer(450,dmode='none',plot=plot)     
     # E* - F*
     species(c('k-felsdspar','kaolinite'),c(-999,-4))
-    t <- transfer(150,dmode='none',plot=plot)
+    tr <- transfer(150,dmode='none',plot=plot)
     # F* - H*
     species(c('k-feldspar','kaolinite'),c(-4,-999))
-    basis('H4SiO4',t$basis[rownames(t$basis)=='H4SiO4',ncol(t$basis)])
-    t <- transfer(420,dmode='none',plot=plot)
-    if(do.plot) draw.transfer(t)
+    basis('H4SiO4',tr$basis[rownames(tr$basis)=='H4SiO4',ncol(tr$basis)])
+    tr <- transfer(420,dmode='none',plot=plot)
+    if(do.plot) draw.transfer(tr)
   }
-  return(invisible(t))
+  return(invisible(tr))
 }
 
 apc <- function(which="open",basis="CO2",do.plot=FALSE) {
@@ -864,21 +863,21 @@ apc <- function(which="open",basis="CO2",do.plot=FALSE) {
   species(1:nrow(species()),-999)
   species("APC2_YEAST",0)
   if(which=="open") {
-    t <- transfer(220,ibalance="PBB",plot=c(1,4),dmode="none",devmax=0.2)
-    if(do.plot) draw.transfer(t,ylim=c(-22,-6),logprogress=TRUE)
+    tr <- transfer(220,ibalance="PBB",plot=c(1,4),dmode="none",devmax=0.2)
+    if(do.plot) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
   } else if(which=="closed") {
-    t <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
-    if(do.plot) draw.transfer(t,ylim=c(-22,-6),logprogress=TRUE)
+    tr <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
+    if(do.plot) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
   } else if(which=="many") {
-    t <- transfer(250,ibalance="PBB",plot=c(1,4),dmode="none",devmax=0.15,fmode="many")
-    if(do.plot) draw.transfer(t,ylim=c(-15,-8),logprogress=TRUE)
+    tr <- transfer(250,ibalance="PBB",plot=c(1,4),dmode="none",devmax=0.15,fmode="many")
+    if(do.plot) draw.transfer(tr,ylim=c(-15,-8),logprogress=TRUE)
   } else if(which=="buffer") {
     mod.buffer("H2S","H2S","aq",0)
     species("APC2_YEAST",0)
-    t <- transfer(700,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15,
+    tr <- transfer(700,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15,
       buffers=list(basis="H2S",buffer="H2S"),beta=4)
-    if(do.plot) draw.transfer(t,ylim=c(-22,-6),logprogress=TRUE)
+    if(do.plot) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
   }
-  return(invisible(t))
+  return(invisible(tr))
 }
 

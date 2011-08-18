@@ -2,22 +2,21 @@
 # functions to analyze BLAST output files
 # 20100320 jmd
 
-## process a blast tabular output file, counting 
-## representation of each phylum
-count.taxa <- function(file,gi.taxid,taxid.phylum,
-  similarity=30,evalue=1e-5,max.hits=10,min.query=0,min.phylum=0,min.taxon=0) {
+## read a BLAST tabular output file, and fileter by similarity,
+## e-value and max hits per query
+read.blast <- function(file, similarity=30, evalue=1e-5, max.hits=1, quiet=FALSE) {
   # read the blast tabular file
-  cat(paste("count.taxa: reading",file,"\n"))
+  cat(paste("read.blast: reading",basename(file),"\n"))
   blast <- read.csv(file,header=FALSE,sep="\t",stringsAsFactors=FALSE)
-  cat(paste("  read",nrow(blast),"lines with",length(unique(blast$V1)),"query sequences\n"))
+  if(!quiet) cat(paste("  read",nrow(blast),"lines with",length(unique(blast$V1)),"query sequences\n"))
   # take out rows that don't meet our desired similarity
   is <- which(blast$V3 >= similarity)
   blast <- blast[is,]
-  cat(paste("  similarity filtering leaves",length(is),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  if(!quiet) cat(paste("  similarity filtering leaves",length(is),"lines and",length(unique(blast$V1)),"query sequences\n"))
   # take out rows that don't meet our desired e-value
   ie <- which(blast$V11 <= evalue)
   blast <- blast[ie,]
-  cat(paste("  evalue filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  if(!quiet) cat(paste("  evalue filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
   # now take only max hits for each query sequence
   query.shift <- query <- blast$V1
   lq <- length(query)
@@ -28,30 +27,27 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
   query.shift <- query.shift[c((lq-max.hits+1):lq,1:(lq-max.hits))]
   ib <- which(query!=query.shift)
   blast <- blast[ib,]
-  cat(paste("  max hits filtering leaves",length(ib),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  if(!quiet) cat(paste("  max hits filtering leaves",length(ib),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  return(blast)
+}
+
+## process a blast table, identify the taxon
+## for each hit
+id.blast <- function(blast, gi.taxid, taxid.names, min.taxon=0, 
+  min.query=0, min.phylum=0, take.first=TRUE) {
   # what are gi numbers of the hits
   gi <- blast$V2
   ugi <- unique(gi)
   # what taxid do they hit
-  cat("  getting taxids ... ")
+  cat("id.blast: getting taxids ... ")
   # we use def2gi to extract just the gi numbers
-  def2gi <- function(def) {
-    # extract gi numbers from FASTA deflines 20110131
-    stuff <- strsplit(def,"\\|")
-    gi <- sapply(1:length(stuff),function(x) {
-      # the gi number should be in the 2nd position (after "gi")
-      if(length(stuff[[x]])==1) return(stuff[[x]][1])
-      else return(stuff[[x]][2])
-    })
-    return(gi)
-  }
   imatch <- match(def2gi(ugi),def2gi(gi.taxid[[1]]))
   utaxid <- gi.taxid[[2]][imatch]
   # what phyla are these
-  cat("getting taxon names ... ")
-  iphy <- match(utaxid,taxid.phylum$taxid)
-  uphyla <- taxid.phylum$phylum[iphy]
-  uspecies <- taxid.phylum$species[iphy]
+  cat("getting taxid.names ... ")
+  iphy <- match(utaxid,taxid.names$taxid)
+  uphyla <- taxid.names$phylum[iphy]
+  uspecies <- taxid.names$species[iphy]
   cat(paste(length(unique(uphyla)),"phyla,",length(unique(utaxid)),"taxa\n"))
   # now expand phyla into our blast table
   igi <- match(gi,ugi)
@@ -109,7 +105,7 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
       "phyla,",length(unique(blast$taxid)),"taxa\n"))
   } else {
     # we'll just take the first hit for each query sequence
-    blast <- blast[iquery,]
+    if(take.first) blast <- blast[iquery,]
   }
   # now on to drop those phyla that are below a certain relative abundance
   blast$phylum <- as.character(blast$phylum)
@@ -122,3 +118,29 @@ count.taxa <- function(file,gi.taxid,taxid.phylum,
   return(blast)
 } 
 
+write.blast <- function(blast,outfile) {
+  # using the output of read.blast
+  # create a trimmed "blast format" output file with data only
+  # in the following columns
+  # 1 - query sequence ID
+  # 2 - hit sequence ID (i.e., FASTA defline .. extract gi number)
+  # 3 - similarity
+  # 11 - evalue
+  not <- rep(NA,length(blast[[1]]))
+  not7 <- data.frame(not,not,not,not,not,not,not)
+  c2 <- paste("gi",def2gi(blast[[2]]),sep="|")
+  out <- data.frame(blast[[1]],c2,blast[[3]],not7,blast[[11]],not)
+  write.table(out,outfile,sep="\t",col.names=FALSE,row.names=FALSE,quote=FALSE,na="")
+  return(invisible(out))
+}
+
+def2gi <- function(def) {
+  # extract gi numbers from FASTA deflines 20110131
+  stuff <- strsplit(def,"\\|")
+  gi <- sapply(1:length(stuff),function(x) {
+    # the gi number should be in the 2nd position (after "gi")
+    if(length(stuff[[x]])==1) return(stuff[[x]][1])
+    else return(stuff[[x]][2])
+  })
+  return(gi)
+}

@@ -392,8 +392,8 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       for(i in 1:length(is.buffer)) is.buff <- c(is.buff,as.numeric(is.buffer[[i]]))
       is.only.buffer <- is.buff[!is.buff %in% is.species]
       buffers <- names(is.buffer)
-      # reorder the buffers according to thermo$buffer
-      buffers <- buffers[order(match(buffers,thermo$buffer$name))]
+      # reorder the buffers according to thermo$buffers
+      buffers <- buffers[order(match(buffers,thermo$buffers$name))]
     }
 
     # ionization stuff
@@ -510,7 +510,7 @@ affinity <- function(...,property=NULL,sout=NULL,do.phases=FALSE,
       # the current species list, containing the residues
       resspecies <- thermo$species
       # now we can delete the residues from the species list
-      species(ires,delete=TRUE)
+      species(ires,delete=TRUE,quiet=TRUE)
       # state and protein names
       state <- resspecies$state[1]
       name <- paste(thermo$protein$protein[iprotein],thermo$protein$organism[iprotein],sep="_")

@@ -1,9 +1,8 @@
 # CHNOSZ/protein.R
-# Copyright (C) 2006-2009 Jeffrey M. Dick
 # calculate properties of proteins
 # 20061109 jmd
 
-protein <- function(protein,organism=NULL,online=thermo$opt$online) {
+protein <- function(protein,organism=NULL,online=thermo$opt$online,chains=1) {
 
   protein.download <- function(protein,organism,online) {
     # download protein sequence information from
@@ -52,13 +51,13 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
       cat(paste(' length is ',sum(s[1,]),'.\n',sep=''))
       # 20090316 moved "chains" to column 5
       colnames(s) <- colnames(thermo$protein)[6:25]
-      s <- data.frame(protein=protein,organism='SGD',source=NA,abbrv=NA,s)
+      s <- data.frame(protein=protein,organism='SGD',ref=NA,abbrv=NA,s)
       thermo$protein <<- rbind(thermo$protein,s)
       rownames(thermo$protein) <<- seq(1:nrow(thermo$protein))
       return(nrow(thermo$protein))
     }
     if(organism=='SWISS') {
-      url <- paste('http://www.expasy.org/uniprot/',protein,sep='')
+      url <- paste('http://www.uniprot.org/uniprot/',protein,sep='')
       cat(paste('protein: trying ',url,' ... ',sep=''))
       oldopt <- options(warn=-1)
       myt <- try(readLines(url),TRUE)
@@ -89,7 +88,7 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
       cat(paste(' (length ',sum(s[1,]),').\n',sep=''))
       colnames(s) <- colnames(thermo$protein)[6:25]
       po <- s2c(protein,sep='_',keep.sep=FALSE)
-      s <- data.frame(protein=po[1],organism=po[2],source=NA,abbrv=NA,chains=1,s)
+      s <- data.frame(protein=po[1],organism=po[2],ref=NA,abbrv=NA,chains=1,s)
       thermo$protein <<- rbind(thermo$protein,s)
       rownames(thermo$protein) <<- seq(1:nrow(thermo$protein))
       return(nrow(thermo$protein))
@@ -144,8 +143,8 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
     pname <- po[1]; oname <- po[2]
     if(TRUE %in% (thermo$protein$protein==pname & thermo$protein$organism==oname))
       stop('a protein with that name (',organism,') already exists.')
-    newrow <- data.frame(protein=pname,organism=oname,source=NA,abbrv=NA)
-    newrow <- cbind(newrow,chains=1,t)
+    newrow <- data.frame(protein=pname,organism=oname,ref=NA,abbrv=NA)
+    newrow <- cbind(newrow,chains=chains,t)
     colnames(newrow) <- colnames(thermo$protein)
     thermo$protein <<- rbind(thermo$protein,newrow)
     cat(paste('protein: added ',pname,'_',oname,' (length=',protein.length(organism),').\n',sep=''))
@@ -163,11 +162,14 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
         # get the composition
         seq <- as.numeric(thermo$protein[protein[j],6:25])
         chains <- as.numeric(thermo$protein$chains[protein[j]])
-        groups <- c(colnames(thermo$protein)[6:25],'AABB','UPBB')
+        # the names of the groups depend on the state
+        # [UPBB] for aq or [PBB] for cr
+        if(!missing(organism)) state <- organism else state <- thermo$opt$state
+        if(state=="aq") groups <- c(colnames(thermo$protein)[6:25],'AABB','UPBB')
+        else groups <- c(colnames(thermo$protein)[6:25],'AABB','PBB')
         length <- sum(seq)
         # seq, AABB, UPBB
         seq <- c(seq,chains,length-chains)  # n[UPBB] is n-1 if chains=1
-        if(!missing(organism)) state <- organism else state <- thermo$opt$state
         # limit to state
         to <- thermo$obigt[thermo$obigt$state==state,]
         # put brackets around amino acid sidechain group names
@@ -201,8 +203,8 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
         cat(paste('protein: found '))
         cat(paste(name,' (',f,', ',sep=''))
         cat(paste(round(as.numeric(protein.length(name)),3),' residues)\n',sep=''))
-        source <- thermo$protein$source[protein[j]]
-        to <- data.frame(name=name,abbrv=NA,formula=f,state=state,source1=source,source2=NA,date=NA,to)
+        ref <- thermo$protein$ref[protein[j]]
+        to <- data.frame(name=name,abbrv=NA,formula=f,state=state,ref1=ref,ref2=NA,date=NA,to)
         if(j==1) jo <- to else jo <- rbind(jo,to)
       }
       return(jo)
@@ -230,10 +232,25 @@ protein <- function(protein,organism=NULL,online=thermo$opt$online) {
     }
 }
 
-yeastgfp <- function(location,exclusive=TRUE) {
+yeastgfp <- function(location=NULL,exclusive=TRUE) {
   # return a list of ORFs and protein abundances
   # for the given subcellular location
-  ygfp <- thermo$yeastgfp
+  ypath <- "extdata/abundance/yeastgfp.csv.xz"
+  yfile <- system.file(ypath,package="CHNOSZ")
+  # yeastgfp preprocessing
+  ygfp <- read.csv(yfile)
+  # convert factors to numeric w/o NA coercion warnings
+  warn <- options(warn=-1)
+  ygfp$abundance <- as.numeric(as.character(ygfp$abundance))
+  options(warn)
+  # if location is NULL, just report on the content of the file
+  # and return the names of the locations
+  if(is.null(location)) {
+    cat(paste("yeastgfp:",ypath,"has",nrow(ygfp),"localizations and",
+      length(ygfp$abundance[!is.na(ygfp$abundance)]),"abundances\n"))
+    return(invisible(colnames(ygfp)[6:28]))
+  }
+  # what location do we want?
   ncol <- match(location,colnames(ygfp)[6:28]) + 5
   if(is.na(ncol)) ncol <- agrep(location,colnames(ygfp)[6:28])[1] + 5
   if(is.na(ncol)) stop(paste(location,'not matched in yeastgfp.'))
@@ -251,10 +268,10 @@ yeastgfp <- function(location,exclusive=TRUE) {
   return(list(yORF=orf,abundance=abundance))
 }
 
-get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,digits=1) {
+get.protein <- function(protein="",organism="SGD",abundance=NULL,pname=NULL,average=TRUE,digits=1) {
   # a replacement for the 'proteome' function 20090311
   # return the composition of one or more proteins: 
-  # from E. coli or S. cerevisiae (organism = ECO or SGD)
+  # from S. cerevisiae or E. coli or H. sapiens (organism = SGD, ECO or HUM)
   # or representing various stress response experiments 
   # (organism in colnames of thermo$stress)
   ## step 0: call ourself to get data for multiple stress experiments
@@ -290,10 +307,16 @@ get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,
   length.in <- length(protein)
   protein <- unique(protein)
   length.unique <- length(protein)
-  ## step 3: retrieve protein sequences from SGD or ECO dataframes
-  im <- match(organism,names(thermo))
-  if(is.na(im)) stop(paste("missing thermo$",organism," data frame",sep=""))
-  mydata <- thermo[[im]]
+  ## step 3: retrieve protein sequences from SGD or ECO or HUM datafiles
+  inpath <- paste("extdata/protein/",organism,".csv.xz",sep="")
+  infile <- system.file(inpath,package="CHNOSZ")
+  if(infile=="") stop(paste("missing",inpath))
+  mydata <- read.csv(infile)
+  # if protein is not supplied, just give some information about the datafile
+  if(identical(protein,"")) {
+    cat(paste("get.protein:",inpath,"has data for",nrow(mydata),"proteins\n"))
+    return(invisible())
+  }
   if(organism=="SGD") {
     # which columns to search for matches
     searchcols <- c("OLN","OLN")
@@ -326,7 +349,10 @@ get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,
   }
   if(length.unique==length.in) cat(paste("get.protein: found ",length(protein)," of ",length.in," proteins",sep=""))
   else cat(paste("get.protein: found ",length(protein)," of (",length.unique," unique of ",length.in," proteins)",sep=""))
-  if(length(imatch)==0) stop("no proteins found!")
+  if(length(imatch)==0) {
+    cat("\n")
+    stop("no proteins found!")
+  }
   aa <- data.frame(mydata[imatch,iaa])
   ## step 4: sum up the compositions if abundance(s) are given
   if(!is.null(abundance)) {
@@ -344,9 +370,9 @@ get.protein <- function(protein,organism,abundance=NULL,pname=NULL,average=TRUE,
   ## step 5: the identifying columns
   organism <- rep(organism,length(protein))
   abbrv <- rep(NA,length(protein))
-  source <- rep(date(),length(protein))
+  ref <- rep(date(),length(protein))
   chains <- rep(1,length(protein))
-  precols <- data.frame(protein,organism,source,abbrv,chains,stringsAsFactors=FALSE)
+  precols <- data.frame(protein,organism,ref,abbrv,chains,stringsAsFactors=FALSE)
   colnames(aa) <- aminoacids(nchar=3)
   aa <- cbind(precols,aa)
   ## step 6: return
@@ -493,7 +519,7 @@ residue.info <- function(T=25) {
     # save the results
     ts[,colnames(ts)=="H+"] <- z
     # unload ionizable groups
-    species(iz,delete=TRUE)
+    species(iz,delete=TRUE,quiet=TRUE)
   }
   # get lengths of proteins
   pl <- protein.length(ts$name)
