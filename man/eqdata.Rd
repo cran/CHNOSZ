@@ -44,14 +44,12 @@
 }
 
 \examples{
-  \dontrun{
-  # if an EQ6 output file named "rainbow2.6o"
-  # is in the current working directory, the following
-  # command will output values of log act 
-  # (logarithm of activity) for the selected aqueous 
+\dontrun{
+  # if an EQ6 output file named "rainbow2.6o" is in the current 
+  # working directory, the following command will output values 
+  # of log act (logarithm of activity) for the selected aqueous 
   # species to a file named rainbow2.6o.log act.csv
-  eqdata("rainbow2.6o",c("h+","sio2,aq","h2,aq"),"log act")
-  }
+  eqdata("rainbow2.6o",c("h+","sio2,aq","h2,aq"),"log act") }
 }
 
 \keyword{extra}

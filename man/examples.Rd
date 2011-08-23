@@ -36,7 +36,7 @@
 }
 
 \references{
-  Spear, J. R., Walker, J. J., McCollom, T. M. and  Pace, N. R. (2005) Hydrogen and bioenergetics in the Yellowstone geothermal ecosystem. \emph{Proc. Natl. Acad. Sci. U. S. A.} \bold{102}, 2555--2560.
+  Spear, J. R., Walker, J. J., McCollom, T. M. and  Pace, N. R. (2005) Hydrogen and bioenergetics in the Yellowstone geothermal ecosystem. \emph{Proc. Natl. Acad. Sci. U. S. A.} \bold{102}, 2555--2560. \url{http://dx.doi.org/10.1073/pnas.0409574102}
 }
 
 

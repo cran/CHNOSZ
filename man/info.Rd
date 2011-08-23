@@ -45,11 +45,10 @@
 \examples{
   \dontshow{data(thermo)}
   ## basic operation
-  \dontrun{
+\dontrun{
   # run a consistency check on each species in the database
   # (marked dontrun because it takes a while)
-  info(check=TRUE)
-  }
+  info(check=TRUE) }
 
   ## species information
   # search for something named (or whose formula is) "Fe"

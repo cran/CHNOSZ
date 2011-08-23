@@ -41,12 +41,11 @@
 }
 
 \examples{
-  \dontrun{
+\dontrun{
   # animate a stability diagram with a high-temperature overlay
   anim.TCA(high.T=TRUE)
   # using H2 instead of O2
-  anim.TCA(list(H2=c(-20,0)))
-  }
+  anim.TCA(list(H2=c(-20,0))) }
 
   # using anim.carboxylase in non-animation mode
   anim.carboxylase(T=100)

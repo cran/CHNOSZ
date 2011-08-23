@@ -89,19 +89,18 @@
   mod.obigt("myspecies",formula="CHNOSZ",G=0,H=0)
   info(im <- info("myspecies"))
 
-  \dontrun{
-    ## marked dontrun because they open pages in a browser
-    # show the contents of thermo$refs
-    browse.refs()
-    # Internet needed for the following examples:
-    # open URL for Helgeson et al., 1998
-    browse.refs("HOK+98")
-    # open two URLs for alanine
-    browse.refs(info("alanine"))
-    # open three URLs for species in the reaction
-    s <- subcrt(c("O2","O2"),c("gas","aq"),c(-1,1))
-    browse.refs(s)
-  }
+\dontrun{
+  ## marked dontrun because they open pages in a browser
+  # show the contents of thermo$refs
+  browse.refs()
+  # Internet needed for the following examples:
+  # open URL for Helgeson et al., 1998
+  browse.refs("HOK+98")
+  # open two URLs for alanine
+  browse.refs(info("alanine"))
+  # open three URLs for species in the reaction
+  s <- subcrt(c("O2","O2"),c("gas","aq"),c(-1,1))
+  browse.refs(s) }
 }
 
 \keyword{util}

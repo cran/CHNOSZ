@@ -93,180 +93,176 @@ Calculate the amino acid compositions of one or more proteins from \emph{Escheri
   # add title
   title(main=paste("ER.to.Golgi; points - relative abundances",
     "from YeastGFP. Figure after Dick, 2009",sep="\n"))
-
-  \donttest{
-    ## Chemical activities of model subcellular proteins
-    # (one-dimensional speciation diagram as a function of logfO2)
-    # After Dick, 2009
-    basis("CHNOS+")
-    names <- yeastgfp()
-    # calculate amino acid compositions using "get.protein" function 
-    for(i in 1:length(names)) {
-      y <- yeastgfp(names[i])
-      p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
-      add.protein(p)
-    }
-    species(names,"SGD")
-    # set unit activity of residues
-    pl <- protein.length(thermo$species$name)
-    species(NULL,unitize(thermo$species$logact,pl))
-    res <- 200
-    a <- affinity(O2=c(-82,-65,res))
-    mycolor <- topo.colors(6)[1:4]
-    mycolor <- rep(mycolor,times=rep(6,4))
-    oldpar <- par(bg="black",fg="white")
-    logact <- diagram(a,balance="PBB",names=names,ylim=c(-5,-3),legend.x=NULL,
-      col=mycolor,lwd=2)$logact
-    # so far good, but how about labels on the plot?
-    for(i in 1:length(logact)) {
-      myloga <- as.numeric(logact[[i]])
-      # don't take values that lie above the plot (vacuole in this example)
-      myloga[myloga > -3.1] <- -999
-      imax <- which.max(myloga)
-      adj <- 0.5
-      if(imax > 180) adj <- 1
-      if(imax < 20) adj <- 0
-      text(seq(-82,-65,length.out=res)[imax],logact[[i]][imax],
-        labels=names[i],adj=adj)
-    }
-    title(main=paste("Subcellular proteins of S. cerevisiae, after Dick, 2009",
-      describe(thermo$basis[-5,]),sep="\n"),col.main=par("fg"),cex.main=0.9)
-    par(oldpar)
-
-    ## Oxygen fugacity - activity of H2O predominance 
-    ## diagrams for proteologs for 23 YeastGFP localizations
-    # arranged by decreasing metastability:
-    # order of this list of locations is based on the 
-    # (dis)appearance of species on the current set of diagrams
-    names <- c("vacuole","early.Golgi","ER","lipid.particle",
-      "cell.periphery","ambiguous","Golgi","mitochondrion",
-      "bud","actin","cytoplasm","late.Golgi",
-      "endosome","nucleus","vacuolar.membrane","punctate.composite",
-      "peroxisome","ER.to.Golgi","nucleolus","spindle.pole",
-      "nuclear.periphery","bud.neck","microtubule")
-    nloc <- c(4,5,3,4,4,3)
-    inames <- 1:length(names)
-    # define the system
-    basis("CHNOS+")
-    # calculate amino acid compositions using "get.protein" function 
-    for(i in 1:length(names)) {
-      y <- yeastgfp(names[i])
-      p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
-      add.protein(p)
-    }
-    species(names,"SGD")
-    a <- affinity(H2O=c(-5,0,256),O2=c(-80,-66,256))
-    # setup the plot
-    layout(matrix(c(1,1,2:7),byrow=TRUE,nrow=4),heights=c(0.7,3,3,3))
-    par(mar=c(0,0,0,0))
-    plot.new()
-    text(0.5,0.5,paste("Subcellular proteins of S. cerevisiae,",
-     "after Dick, 2009\n",describe(thermo$basis[-c(2,5),])),cex=1.5)
-    opar <- par(mar=c(3,4,1,1),xpd=TRUE)
-    for(i in 1:length(nloc)) {
-      cex.axis <- 0.75
-      # uncomment the following and dev.off() below to generate png files
-      #png(paste(i,"png",sep="."),width=300,height=250); cex.axis <- 1
-      diagram(a,balance="PBB",names=names[inames],
-        ispecies=inames,cex.axis=cex.axis)
-      label.plot(letters[i])
-      title(main=paste(length(inames),"locations"))
-      #dev.off()
-      # take out the stable species
-      inames <- inames[-(1:nloc[i])]
-    }
-    # make an animated gif from png files (with ImageMagick convert tool)
-    #system(paste("convert -delay 100 1.png 1.png 1.png 2.png",
-    #  "3.png 4.png 5.png 6.png 6.png 6.png yeast.gif"))
-    # return to plot defaults
-    layout(matrix(1))
-    par(opar)
-
-    ## Compare calculated and experimenal relative abundances
-    ## of proteins in a subcellular location, after Dick, 2009
-    # get the amino acid composition of the proteins
-    loc <- "vacuolar.membrane"
-    y <- yeastgfp(loc)
-    ina <- which(is.na(y$abundance))
-    p <- get.protein(y$yORF[-ina],"SGD")
+\donttest{
+  ## Chemical activities of model subcellular proteins
+  # speciation diagram as a function of logfO2, after Dick, 2009
+  basis("CHNOS+")
+  names <- yeastgfp()
+  # calculate amino acid compositions using "get.protein" function 
+  for(i in 1:length(names)) {
+    y <- yeastgfp(names[i])
+    p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
     add.protein(p)
-    # set up the system
-    basis("CHNOS+")
-    # this is the logfO2 value that gives the best fit (see paper)
-    basis("O2",-74)
-    is <- species(p$protein,p$organism)
-    np <- length(is)
-    pl <- protein.length(species()$name)
-    # we use unitize so total activity of residues is unity
-    loga <- rep(0,np)
-    species(1:np,unitize(loga,pl))
-    a <- affinity()
-    d <- diagram(a,do.plot=FALSE)
-    calc.loga <- as.numeric(d$logact)
-    expt.loga <- unitize(log10(y$abundance[-ina]),pl)
-    # which ones are outliers
-    rmsd <- sqrt(sum((expt.loga-calc.loga)^2)/np)
-    residuals <- abs(expt.loga - calc.loga)
-    iout <- which(residuals > rmsd)
-    pch <- rep(16,length(is))
-    pch[iout] <- 1
-    # the colors reflect average oxidation number of carbon
-    # corrects misassigned colors in Figs. 5 and 6 of Dick 2009
-    ZC <- ZC(thermo$obigt$formula[species()$ispecies])
-    col <- rgb(0.15-ZC,0,0.35+ZC,max=0.5)
-    # there is a color-plotting error on line 567 of the plot.R file 
-    # of Dick, 2009 that can be reproduced with
-    #col <- rep(col,length.out=9)
-    xlim <- ylim <- extendrange(c(calc.loga,expt.loga))
-    thermo.plot.new(xlim=xlim,ylim=ylim,xlab=expression(list("log"*italic(a),
-      "calc")),ylab=expression(list("log"*italic(a),"expt")))
-    points(calc.loga,expt.loga,pch=pch,col=col)
-    lines(xlim,ylim+rmsd,lty=2)
-    lines(xlim,ylim-rmsd,lty=2)
-    title(main=paste("Calculated and experimental relative abundances of\n",
-      "proteins in ",loc,", after Dick, 2009",sep=""),cex.main=0.95)
-    
-    ### examples for stress response experiments
-
-    ## predominance fields for overall protein compositions induced by
-    ## carbon, sulfur and nitrogen limitation
-    ## (experimental data from Boer et al., 2003)
-    expt <- c("low.C","low.N","low.S")
-    for(i in 1:length(expt)) {
-      p <- get.protein(expt[i],"SGD",abundance=1)
-      add.protein(p)
-    }
-    basis("CHNOS+") 
-    basis("O2",-75.29)
-    species(expt,"SGD")
-    a <- affinity(CO2=c(-5,0),H2S=c(-10,0))
-    diagram(a,balance="PBB",names=expt,color=NULL)
-    title(main=paste("Proteins induced by",
-      "carbon, sulfur and nitrogen limitation",sep="\n"))
-
-    ## predominance fields for overall protein compositions 
-    ## induced and repressed in an/aerobic carbon limitation
-    ## (experiments of Tai et al., 2005)
-    # the activities of glucose, ammonium and sulfate
-    # are similar to the non-growth-limiting concentrations
-    # used by Boer et al., 2003
-    basis(c("glucose","H2O","NH4+","hydrogen","SO4-2","H+"),
-      c(-1,0,-1.3,999,-1.4,-7))
-    # the names of the experiments in thermo$stress
-    expt <- c("Clim.aerobic.down","Clim.aerobic.up",
-      "Clim.anaerobic.down","Clim.anaerobic.up")
-    # here we use abundance to indicate that the protein
-    # compositions should be summed together in equal amounts
-    for(i in 1:length(expt)) {
-      p <- get.protein(expt[i],"SGD",abundance=1)
-      add.protein(p)
-    }
-    species(expt,"SGD")
-    a <- affinity(C6H12O6=c(-35,-20),H2=c(-20,0))
-    diagram(a,color=NULL,as.residue=TRUE)
-    title(main=paste("Average protein residue composition in",
-      "an/aerobic carbon limitation in yeast",sep="\n"))
   }
+  species(names,"SGD")
+  # set unit activity of residues
+  pl <- protein.length(thermo$species$name)
+  species(NULL,unitize(thermo$species$logact,pl))
+  res <- 200
+  a <- affinity(O2=c(-82,-65,res))
+  mycolor <- topo.colors(6)[1:4]
+  mycolor <- rep(mycolor,times=rep(6,4))
+  logact <- diagram(a,balance="PBB",names=names,ylim=c(-5,-3),legend.x=NULL,
+    col=mycolor,lwd=2)$logact
+  # so far good, but how about labels on the plot?
+  for(i in 1:length(logact)) {
+    myloga <- as.numeric(logact[[i]])
+    # don't take values that lie above the plot (vacuole in this example)
+    myloga[myloga > -3.1] <- -999
+    imax <- which.max(myloga)
+    adj <- 0.5
+    if(imax > 180) adj <- 1
+    if(imax < 20) adj <- 0
+    text(seq(-82,-65,length.out=res)[imax],logact[[i]][imax],
+      labels=names[i],adj=adj)
+  }
+  title(main=paste("Subcellular proteins of S. cerevisiae, after Dick, 2009",
+    describe(thermo$basis[-5,]),sep="\n"),col.main=par("fg"),cex.main=0.9)
+
+  ## Oxygen fugacity - activity of H2O predominance 
+  ## diagrams for proteologs for 23 YeastGFP localizations
+  # arranged by decreasing metastability:
+  # order of this list of locations is based on the 
+  # (dis)appearance of species on the current set of diagrams
+  names <- c("vacuole","early.Golgi","ER","lipid.particle",
+    "cell.periphery","ambiguous","Golgi","mitochondrion",
+    "bud","actin","cytoplasm","late.Golgi",
+    "endosome","nucleus","vacuolar.membrane","punctate.composite",
+    "peroxisome","ER.to.Golgi","nucleolus","spindle.pole",
+    "nuclear.periphery","bud.neck","microtubule")
+  nloc <- c(4,5,3,4,4,3)
+  inames <- 1:length(names)
+  # define the system
+  basis("CHNOS+")
+  # calculate amino acid compositions using "get.protein" function 
+  for(i in 1:length(names)) {
+    y <- yeastgfp(names[i])
+    p <- get.protein(y$yORF,"SGD",y$abundance,names[i])
+    add.protein(p)
+  }
+  species(names,"SGD")
+  a <- affinity(H2O=c(-5,0,256),O2=c(-80,-66,256))
+  # setup the plot
+  layout(matrix(c(1,1,2:7),byrow=TRUE,nrow=4),heights=c(0.7,3,3,3))
+  par(mar=c(0,0,0,0))
+  plot.new()
+  text(0.5,0.5,paste("Subcellular proteins of S. cerevisiae,",
+   "after Dick, 2009\n",describe(thermo$basis[-c(2,5),])),cex=1.5)
+  opar <- par(mar=c(3,4,1,1),xpd=TRUE)
+  for(i in 1:length(nloc)) {
+    cex.axis <- 0.75
+    # uncomment the following and dev.off() below to generate png files
+    #png(paste(i,"png",sep="."),width=300,height=250); cex.axis <- 1
+    diagram(a,balance="PBB",names=names[inames],
+      ispecies=inames,cex.axis=cex.axis)
+    label.plot(letters[i])
+    title(main=paste(length(inames),"locations"))
+    #dev.off()
+    # take out the stable species
+    inames <- inames[-(1:nloc[i])]
+  }
+  # make an animated gif from png files (with ImageMagick convert tool)
+  #system(paste("convert -delay 100 1.png 1.png 1.png 2.png",
+  #  "3.png 4.png 5.png 6.png 6.png 6.png yeast.gif"))
+  # return to plot defaults
+  layout(matrix(1))
+  par(opar)
+
+  ## Compare calculated and experimenal relative abundances
+  ## of proteins in a subcellular location, after Dick, 2009
+  # get the amino acid composition of the proteins
+  loc <- "vacuolar.membrane"
+  y <- yeastgfp(loc)
+  ina <- which(is.na(y$abundance))
+  p <- get.protein(y$yORF[-ina],"SGD")
+  add.protein(p)
+  # set up the system
+  basis("CHNOS+")
+  # this is the logfO2 value that gives the best fit (see paper)
+  basis("O2",-74)
+  is <- species(p$protein,p$organism)
+  np <- length(is)
+  pl <- protein.length(species()$name)
+  # we use unitize so total activity of residues is unity
+  loga <- rep(0,np)
+  species(1:np,unitize(loga,pl))
+  a <- affinity()
+  d <- diagram(a,do.plot=FALSE)
+  calc.loga <- as.numeric(d$logact)
+  expt.loga <- unitize(log10(y$abundance[-ina]),pl)
+  # which ones are outliers
+  rmsd <- sqrt(sum((expt.loga-calc.loga)^2)/np)
+  residuals <- abs(expt.loga - calc.loga)
+  iout <- which(residuals > rmsd)
+  pch <- rep(16,length(is))
+  pch[iout] <- 1
+  # the colors reflect average oxidation number of carbon
+  # corrects misassigned colors in Figs. 5 and 6 of Dick 2009
+  ZC <- ZC(thermo$obigt$formula[species()$ispecies])
+  col <- rgb(0.15-ZC,0,0.35+ZC,max=0.5)
+  # there is a color-plotting error on line 567 of the plot.R file 
+  # of Dick, 2009 that can be reproduced with
+  #col <- rep(col,length.out=9)
+  xlim <- ylim <- extendrange(c(calc.loga,expt.loga))
+  thermo.plot.new(xlim=xlim,ylim=ylim,xlab=expression(list("log"*italic(a),
+    "calc")),ylab=expression(list("log"*italic(a),"expt")))
+  points(calc.loga,expt.loga,pch=pch,col=col)
+  lines(xlim,ylim+rmsd,lty=2)
+  lines(xlim,ylim-rmsd,lty=2)
+  title(main=paste("Calculated and experimental relative abundances of\n",
+    "proteins in ",loc,", after Dick, 2009",sep=""),cex.main=0.95)
+  
+  ### examples for stress response experiments
+
+  ## predominance fields for overall protein compositions induced by
+  ## carbon, sulfur and nitrogen limitation
+  ## (experimental data from Boer et al., 2003)
+  expt <- c("low.C","low.N","low.S")
+  for(i in 1:length(expt)) {
+    p <- get.protein(expt[i],"SGD",abundance=1)
+    add.protein(p)
+  }
+  basis("CHNOS+") 
+  basis("O2",-75.29)
+  species(expt,"SGD")
+  a <- affinity(CO2=c(-5,0),H2S=c(-10,0))
+  diagram(a,balance="PBB",names=expt,color=NULL)
+  title(main=paste("Proteins induced by",
+    "carbon, sulfur and nitrogen limitation",sep="\n"))
+
+  ## predominance fields for overall protein compositions 
+  ## induced and repressed in an/aerobic carbon limitation
+  ## (experiments of Tai et al., 2005)
+  # the activities of glucose, ammonium and sulfate
+  # are similar to the non-growth-limiting concentrations
+  # used by Boer et al., 2003
+  basis(c("glucose","H2O","NH4+","hydrogen","SO4-2","H+"),
+    c(-1,0,-1.3,999,-1.4,-7))
+  # the names of the experiments in thermo$stress
+  expt <- c("Clim.aerobic.down","Clim.aerobic.up",
+    "Clim.anaerobic.down","Clim.anaerobic.up")
+  # here we use abundance to indicate that the protein
+  # compositions should be summed together in equal amounts
+  for(i in 1:length(expt)) {
+    p <- get.protein(expt[i],"SGD",abundance=1)
+    add.protein(p)
+  }
+  species(expt,"SGD")
+  a <- affinity(C6H12O6=c(-35,-20),H2=c(-20,0))
+  diagram(a,color=NULL,as.residue=TRUE)
+  title(main=paste("Average protein residue composition in",
+    "an/aerobic carbon limitation in yeast",sep="\n"))
+}
 }
 
 \references{

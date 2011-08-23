@@ -118,11 +118,10 @@
   describe(thermo$basis,T=NULL,P=NULL)
 
   ## scale logarithms of activity
-  ## suppose we have two proteins whose lengths
-  ## are 100 and 200; what are the logarithms
-  ## of activity of the proteins that are equal to
-  ## each other and that give a total activity of
-  ## residues equal to unity?
+  # suppose we have two proteins whose lengths are 100 and 
+  # 200; what are the logarithms of activity of the proteins 
+  # that are equal to each other and that give a total 
+  # activity of residues equal to unity?
   logact <- c(-3,-3)  # could be any two equal numbers
   length <- c(100,200)
   logact.tot <- 0
@@ -139,7 +138,6 @@
   stopifnot(isTRUE(all.equal(loga[2]-loga[1],1)))
   # but the activities of residues still add up to one
   stopifnot(isTRUE(all.equal(sum(10^loga * length),1)))
-
 }
 
 \references{

@@ -108,7 +108,6 @@
   }
   title(main=paste("Most Abundant Phyla in a Portion",
     "of the Bison Pool Metagenome", sep="\n"))
-
 }
 
 \references{

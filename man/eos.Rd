@@ -51,7 +51,6 @@
 
 \examples{
   \dontshow{data(thermo)}
-  
   ## aqueous species
   a <- info(info("methane","aq"))	
   hkf(property="Cp",ghs=a,eos=a)
@@ -67,10 +66,8 @@
   a <- info(info(rep("n-octane",3),c("cr","liq","gas")))
   b <- cgl(property="G",ghs=a,eos=a,T=seq(200,420,10),P=1)
   which.pmax(b,pmin=TRUE)  # 1 = cr, 2 = liq, 3 = gas
-  # compare that result with the tabulated 
-  # transition temperatures
+  # compare that result with the tabulated transition temperatures
   print(a)
-
 }
 
 \references{

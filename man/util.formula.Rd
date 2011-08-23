@@ -120,7 +120,6 @@
   axis(1,1:13,terms,las=2)
   title(main=paste("Average Oxidation State of Carbon:",
     "Total Protein per taxID in NCBI RefSeq",sep="\n"))
-  
 }
 
 \references{

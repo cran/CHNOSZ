@@ -1,3 +1,19 @@
+CHANGES IN CHNOSZ 0.9-7 (2011-08-23)
+------------------------------------
+
+- Restore ZipData: no in DESCRIPTION, needed for building the package
+  on R < 2.13.0 on Windows.
+
+- Remove some incorrect titles for barplots in diagram().
+
+- Add more informative titles for plots in first example of diagram.Rd.
+
+- In EOSvar() and EOSlab(), name the first argument 'EXPR' in calls to 
+  switch() to avoid partial matching with 'E' (expansivity).
+
+- Shorten CHNOSZ-package.Rd and clean up formatting of some examples
+  in other documentation topics.
+
 CHANGES IN CHNOSZ 0.9-6 (2011-08-18)
 ------------------------------------
 
@@ -31,10 +47,9 @@ SIGNIFICANT CHANGES TO FUNCTIONS:
 - eqdata() can now also extract results for solids, saturation states of
   minerals, and major speciation of basis species from EQ6 output files.
 
-
 DATA UPDATES:
 
-- Rename 'source.csv' to 'refs.csv'. Add URLS for most references.
+- Rename 'source.csv' to 'refs.csv'. Add URLs for most references.
 
 - Column names 'source1' and 'source2' in OBIGT.csv, changed to
   'ref1' and 'ref2'.
@@ -85,10 +100,10 @@ DOCUMENTATION AND VIGNETTES:
 - Adapted 'formation.Rnw' to work with pdflatex, and remove
   Makefile in inst/doc.
 
-- Add 'hs-chemistry.Rns' with calculations of relative stabilities 
+- Add 'hs-chemistry.Rnw' with calculations of relative stabilities 
   of model proteins in a hot spring (Dick and Shock, 2011).
 
-- Add 'protactiv.Rd' with detailed information on calculating equilibrium
+- Add 'protactiv.Rnw' with detailed information on calculating equilibrium
   activities of proteins, and comparisons with experimental abundances in 
   human blood plasma and E. coli.
 
@@ -102,7 +117,7 @@ OTHER CHANGES:
 
 - Add Suggests: xtable in DESCRIPTION (used for 'xadditivity' vignette).
 
-- In DESCRIPTION, change deprecated "ZipData" to "BuildResaveData", keeping 
+- In DESCRIPTION, change "ZipData" to "BuildResaveData", keeping 
   the setting at "no". Resaving data as compressed files reduces the
   installed package size by about 200Kb, but complicates showing the file 
   formats to new users.

@@ -99,39 +99,37 @@ Plot chemical activity (speciation) or equal-activity (predominance) diagrams as
 
 \examples{
 \dontshow{data(thermo)}
-## chemical affinities of formation (equal activity ref. state)
-## and activities (equal affinity ref. state) of amino acids
+## chemical affinities of formation (for equal activities)
+## and equilibrium activities (for equal affinities) of amino acids
 opar <- par(mfrow=c(2,2))
 mycol <- rev(rainbow(5))
 basis("CHNOS+")
+# comment out next line to find predominance of methionine
 basis("H2S",-25)
 aa <- c("glutamic acid","methionine","isoleucine",
   "leucine","tyrosine")
 species(aa)
 # affinities of reactions per CO2 at fixed conditions
 a <- affinity()
-diagram(a,what="A",col=mycol)
+diagram(a,what="A",col=mycol,yline=3,
+  main=paste("affinity of formation reactions per CO2\n",
+  "logfO2 = -80, logaH2O = 0"))
 # affinities of reactions as a function of oxygen fugacity
 a <- affinity(O2=c(-80,-66))
-d <- diagram(a,what="A",balance=1,ylim=c(-80,30),
-  cex.names=0.7,col=mycol,lwd=2)
-title(main="Amino acid formation")
+diagram(a,what="A",ylim=c(-15,5),col=mycol,lwd=2)
+title("affinity per CO2; logaH2O = 0")
 ## logarithms of activities of amino acids
-# balanced on amino acid backbone, using equil.react
-d1 <- diagram(a,balance=1,legend.x=NULL,col=mycol,lwd=2)
-# balanced on amino acid backbone, using equil.boltz
-d2 <- diagram(a,balance=1,residue=TRUE,do.plot=FALSE)
-# the last two give the same results
-stopifnot(all.equal(unlist(d2$logact),
-  unlist(d1$logact)))
+# reactions balanced on CO2
+diagram(a,legend.x="bottomright",col=mycol,lwd=2)
+title("equilibrium activities; logaH2O = 0")
 # in two dimensions
-a <- affinity(H2O=c(-10,5),O2=c(-80,-66))
+a <- affinity(O2=c(-80,-66),H2O=c(-8,4))
 diagram(a,color=mycol)
+title("highest equilibrium activities")
 # reset the plot device
 par(opar)
 
-### simple example of calculating the equilibrium logarithm of
-### activity of a basis species
+### calculate the equilibrium logarithm of activity of a basis species
 basis("CHNOS")
 species(c("ethanol","acetic acid","lactic acid"))
 a <- affinity(T=c(0,150))
@@ -157,10 +155,8 @@ title(main=paste("Aqueous sulfur speciation, 325 degC, 350 bar\n",
   "After Seewald, 1997"))
 # try it with and without the logact argument (total activity of 
 # the balanced quantity, in this case H2S aka sulfur) 
-
 \donttest{
 ## Degrees of formation of ionized forms of glycine
-## as a function of pH
 ## After Fig. 1 of Aksu and Doyle, 2001 
 basis("CHNOS+")
 species(ispecies <- info(c("glycinium","glycine","glycinate")))
@@ -202,13 +198,11 @@ title(main=paste("Equilibrium degrees of formation of",
 ### predominance diagrams (equal activities of
 ### species as a function of two variables) 
 
-## T-P stability diagram for SiO2
-## after Ernst, 1976, Fig. 4.4
-# the system is SiO2 (one component) but
-# the basis species require all the elements:
-# note that basis(c("SiO2","O2")) would identify SiO2(aq) 
-# which is okay but brings in calculations of properties 
-# of  water which are relatively slow.
+## T-P stability diagram for SiO2, after Ernst, 1976, Fig. 4.4
+# the system is SiO2 (one component) but the basis species require 
+# all the elements: note that basis(c("SiO2","O2")) would identify 
+# SiO2(aq) which is okay but brings in calculations of properties 
+# of water which are relatively slow.
 basis(c("quartz","O2"))  # cr, gas
 # browse the species of interest
 info("SiO2 ")
@@ -258,8 +252,7 @@ title(main=paste("Fe-S-O-H After Majzlan et al., 2006",
 # reset the database
 data(thermo)
 
-## cysteine-cysteinate-cystine Eh-pH
-## at 25 and 100 deg C
+## cysteine-cysteinate-cystine Eh-pH at 25 and 100 deg C
 basis("CHNOSe")
 species(c("cysteine","cysteinate","cystine"))
 a <- affinity(pH=c(5,10),Eh=c(-0.5,0))

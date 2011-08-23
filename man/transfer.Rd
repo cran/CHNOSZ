@@ -66,35 +66,35 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
 \examples{
   \dontshow{data(thermo)}
-  \donttest{
-    ## react potassium feldspar in a closed system
-    ## after Steinmann et al., 1994 and Helgeson et al., 1969
-    basis(c("Al+3","H4SiO4","K+","H2O","H+","O2"),c(0,-6,-6,0,0,0))
-    species(c("k-feldspar","muscovite","pyrophyllite","kaolinite","gibbsite"))
-    a <- affinity(H4SiO4=c(-6,-2),"K+"=c(-3,8))
-    diagram(a)
-    basis("pH",4)
-    species(1:5,c(-4,rep(-999,4)))
-    tr <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
-    # plot the output from transfer
-    draw.transfer(tr)
-    # reset the plot layout
-    layout(matrix(1))
-    # note, the same calculation can be performed using
-    # feldspar("closed")
+\donttest{
+  ## react potassium feldspar in a closed system
+  ## after Steinmann et al., 1994 and Helgeson et al., 1969
+  basis(c("Al+3","H4SiO4","K+","H2O","H+","O2"),c(0,-6,-6,0,0,0))
+  species(c("k-feldspar","muscovite","pyrophyllite","kaolinite","gibbsite"))
+  a <- affinity(H4SiO4=c(-6,-2),"K+"=c(-3,8))
+  diagram(a)
+  basis("pH",4)
+  species(1:5,c(-4,rep(-999,4)))
+  tr <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
+  # plot the output from transfer
+  draw.transfer(tr)
+  # reset the plot layout
+  layout(matrix(1))
+  # note, the same calculation can be performed using
+  # feldspar("closed")
 
-    ## react APC2 from Saccharomyces cerevisiae
-    ## to other proteins in the anaphase-promoting complex
-    basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
-    species(c("APC1","APC2","APC5","CDC16","APC10","SWM1"),"YEAST")
-    a <- affinity(CO2=c(-10,0),H2=c(-10,0))
-    diagram(a,as.residue=TRUE)
-    species(1:nrow(species()),-999)
-    species("APC2_YEAST",0)
-    tr <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
-    # this calculation is also available with
-    # apc("closed")
-  }
+  ## react APC2 from Saccharomyces cerevisiae
+  ## to other proteins in the anaphase-promoting complex
+  basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
+  species(c("APC1","APC2","APC5","CDC16","APC10","SWM1"),"YEAST")
+  a <- affinity(CO2=c(-10,0),H2=c(-10,0))
+  diagram(a,as.residue=TRUE)
+  species(1:nrow(species()),-999)
+  species("APC2_YEAST",0)
+  tr <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
+  # this calculation is also available with
+  # apc("closed")
+}
 }
 
 \references{

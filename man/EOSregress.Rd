@@ -85,7 +85,6 @@
 
 \examples{
   \dontshow{data(thermo)}
-  
   ## regress experimental heat capacities of CH4
   ## using revised Helgeson-Kirkham-Flowers equations
   # read the data from Hnedkovsky and Wood, 1997

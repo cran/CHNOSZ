@@ -59,15 +59,14 @@
   basis(c("H2O","O2"))  # two elements
   basis(c("H2O","O2","H+"))
 
-  \dontrun{
-    # marked dontrun because they produce intentional errors
-    # fewer basis species than elements
-    basis(c("H2O","H+"))
-    # more basis species than elements
-    basis(c("H2O","O2","H2","H+"))
-    # non-independent basis species
-    basis(c("CO2","H2O","HCl","Cl-","H+"))
-  }
+\dontrun{
+  # marked dontrun because they produce errors
+  # fewer basis species than elements
+  basis(c("H2O","H+"))
+  # more basis species than elements
+  basis(c("H2O","O2","H2","H+"))
+  # non-independent basis species
+  basis(c("CO2","H2O","HCl","Cl-","H+")) }
 
   ## specify activities and states
   basis(c("H2O","O2","CO2"),c(-2,-78,-3),c("liq","gas","aq"))

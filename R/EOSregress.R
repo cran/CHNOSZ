@@ -6,7 +6,7 @@
 EOSvar <- function(var,T,P) {
   # get the variables of a term in a regression equation
   # T (K), P (bar)
-  out <- switch(var,
+  out <- switch(EXPR = var,
     "(Intercept)" = rep(1,length(T)),
     "T" = T,
     "P" = P,
@@ -21,7 +21,7 @@ EOSvar <- function(var,T,P) {
     "beta" = water(var,T=T,P=P)[,1],
     "X" = water(var,T=T,P=P)[,1],
     "Q" = water(var,T=T,P=P)[,1],
-    "TX" = T*water(prop="X",T=T,P=P)[,1],
+    "TX" = T*water("X",T=T,P=P)[,1],
     "drho.dT" = -water("rho",T=T,P=P)[,1]*water("E",T=T,P=P)[,1],
     "V.kT" = water("V",T=T,P=P)[,1]*water("kT",T=T,P=P)[,1],
     NA
@@ -31,7 +31,7 @@ EOSvar <- function(var,T,P) {
 
 EOSlab <- function(var,coeff="") {
   # make pretty labels for the variables
-  lab <- switch(var,
+  lab <- switch(EXPR = var,
     "(Intercept)" = substitute(YYY*" ",list(YYY=coeff)),
     "TTheta" = substitute(YYY%*%(italic(T)-Theta),list(YYY=coeff)),
     "invTTheta" = substitute(YYY/(italic(T)-Theta),list(YYY=coeff)),

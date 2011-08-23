@@ -78,7 +78,6 @@
 
 \examples{
   \dontshow{data(thermo)}
-
   ## set up a system and calculate
   ## chemical affinities of formation reactions
   basis(c("SiO2","MgO","H2O","O2"),c(-5,-5,0,999))
@@ -100,7 +99,6 @@
   affinity(property="G.species")
   # Standard molal Gibbs energies of reactions
   affinity(property="G")
-
   \donttest{
   ## Activity of glycine as a function of those of
   ## HCN and formaldehyde (200 C, 300 bar)
@@ -183,14 +181,12 @@
   # this is so the plots in the next examples show up OK
   layout(matrix(1))
 
-  ## continuation of last example, affinity calculations 
-  ## in three dimensions
+  ## continuation of last example, now in three dimensions
   print(affinity(H2=c(-10,0,3),O2=c(-10,0,3),T=c(25,150,4))$values)
 
   ## calculations on a transect
-  # suppose that temperature and oxygen fugacity
-  # both change in space (say from 1 to 6 meters),
-  # that we have six values for each but want to
+  # suppose that temperature and oxygen fugacity both change in space 
+  # (say from 1 to 6 meters), and we have six values for each but want to
   # interpolate them to make a plot with smooth curves
   T <- splinefun(1:6,c(0,25,30,40,55,75))(seq(1,5,length.out=100))
   O2 <- splinefun(1:6,c(-90,-83,-78,-73,-68,-63))(seq(1,5,length.out=100))
@@ -206,7 +202,6 @@
   title(main=paste("Computed abundances of surface-layer proteins",
     "as a function of T and logfO2",sep="\n"))
   }
-  
 }
 
 \references{

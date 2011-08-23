@@ -151,130 +151,126 @@
   subcrt("alanine",T=seq(0,5000,by=1000))
   # above the T, P limits for the H2O equations of state
   subcrt("alanine",T=c(2250,2251),P=c(30000,30001),grid="T")
+\donttest{
+  ## heat capacity of Fe(cr)
+  # compare calculated values of heat capacity with
+  # values from Robie and Hemingway, 1995, (from which 
+  # the parameters in the database were derived)
+  nuts(c("J","K"))  # set the units
+  # we set pressure here otherwise subcrt goes for Psat (saturation 
+  # vapor pressure of H2O above 100 degrees C) which can not be 
+  # calculated above the critical point of H2O (~647 K)
+  s <- subcrt("Fe",T=seq(300,1800,20),P=1)
+  plot(s$out[[1]]$T,s$out[[1]]$Cp,type="l",
+    xlab=axis.label("T"),ylab=axis.label("Cp"))
+  # add points from RH95
+  RH95 <- read.csv(system.file("extdata/cpetc/RH95.csv",package="CHNOSZ"))
+  points(RH95[,1],RH95[,2])
+  title(main=paste("Heat capacity of Fe(cr)\n",
+    "(points - Robie and Hemingway, 1995)"))
+  # reset the units
+  nuts(c("C","cal"))
+  
+  ## Skarn example after Johnson et al., 1992
+  P <- seq(500,5000,500)
+  # this is like the temperature specification used 
+  # in the example by Johnson et al., 1992
+  # T <- seq(0,1000,100)
+  # we use this one to avoid warnings at 0 deg C, 5000 bar
+  T <- c(2,seq(100,1000,100))
+  subcrt(c("andradite","carbon dioxide","H2S","Cu+","quartz","calcite",
+    "chalcopyrite","H+","H2O"),coeff=c(-1,-3,-4,-2,3,3,2,2,3),
+    state=c("cr","g","aq","aq","cr","cr","cr","aq","liq"),
+    P=P,T=T,grid="P")
+  # the results are not identical to SUPCRT92, at least because CHNOSZ
+  # doesn't have volume changes for quartz, and has updated
+  # parameters for species e.g. Cu+ from Shock et al., 1997
 
-  \donttest{
-    ## heat capacity of Fe(cr)
-    # compare calculated values of heat capacity with
-    # values from Robie and Hemingway, 1995, (from which 
-    # the parameters in the database were derived)
-    nuts(c("J","K"))  # set the units
-    # we set pressure here otherwise subcrt goes for 
-    # Psat (saturation vapor pressure of H2O above 
-    # 100 degrees C) which can not be calculated above 
-    # the critical point of H2O (~647 K)
-    s <- subcrt("Fe",T=seq(300,1800,20),P=1)
-    plot(s$out[[1]]$T,s$out[[1]]$Cp,type="l",
-      xlab=axis.label("T"),ylab=axis.label("Cp"))
-    # add points from RH95
-    RH95 <- read.csv(system.file("extdata/cpetc/RH95.csv",package="CHNOSZ"))
-    points(RH95[,1],RH95[,2])
-    title(main=paste("Heat capacity of Fe(cr)\n",
-      "(points - Robie and Hemingway, 1995)"))
-    # reset the units
-    nuts(c("C","cal"))
-    
-    ## Skarn example after Johnson et al., 1992
-    P <- seq(500,5000,500)
-    # this is like the temperature specification used 
-    # in the example by Johnson et al., 1992
-    # T <- seq(0,1000,100)
-    # we use this one to avoid warnings at 0 deg C, 5000 bar
-    T <- c(2,seq(100,1000,100))
-    subcrt(c("andradite","carbon dioxide","H2S","Cu+","quartz","calcite",
-      "chalcopyrite","H+","H2O"),coeff=c(-1,-3,-4,-2,3,3,2,2,3),
-      state=c("cr","g","aq","aq","cr","cr","cr","aq","liq"),
-      P=P,T=T,grid="P")
-    # the volumes differ from SUPCRT92, at least because CHNOSZ
-    # doesn't have include volume changes for quartz
-    # other differences are from updated properties of species
-    # e.g. Cu+ from Shock et al., 1997
+  ## Standard Gibbs energy of reactions with HCN and 
+  ## formaldehyde, after Schulte and Shock, 1995 Fig. 1
+  rxn1 <- subcrt(c("formaldehyde","HCN","H2O","glycolic acid","NH3"),
+    c(-1,-1,-2,1,1),P=300)
+  rxn2 <- subcrt(c("formaldehyde","HCN","H2O","glycine"),
+    c(-1,-1,-1,1),P=300)
+  plot(x=rxn1$out$T,rxn1$out$G/1000,type="l",ylim=c(-40,-10),
+    xlab=axis.label("T"),ylab=axis.label("DG0r","k"))
+  lines(rxn1$out$T,rxn2$out$G/1000)
+  # write the reactions on the plot
+  text(150,-14,describe(rxn1$reaction,
+    use.name=c(TRUE,FALSE,FALSE,TRUE,FALSE)))
+  text(200,-35,describe(rxn2$reaction,
+    use.name=c(TRUE,FALSE,FALSE,TRUE)))
+  title(main=paste("Standard Gibbs energy of reactions",
+    "after Schulte and Shock, 1995",sep="\n"))
 
-    ## Standard Gibbs energy of reactions with HCN and 
-    ## formaldehyde, after Schulte and Shock, 1995 Fig. 1
-    rxn1 <- subcrt(c("formaldehyde","HCN","H2O","glycolic acid","NH3"),
-      c(-1,-1,-2,1,1),P=300)
-    rxn2 <- subcrt(c("formaldehyde","HCN","H2O","glycine"),
-      c(-1,-1,-1,1),P=300)
-    plot(x=rxn1$out$T,rxn1$out$G/1000,type="l",ylim=c(-40,-10),
-      xlab=axis.label("T"),ylab=axis.label("DG0r","k"))
-    lines(rxn1$out$T,rxn2$out$G/1000)
-    # write the reactions on the plot
-    text(150,-14,describe(rxn1$reaction,
-      use.name=c(TRUE,FALSE,FALSE,TRUE,FALSE)))
-    text(200,-35,describe(rxn2$reaction,
-      use.name=c(TRUE,FALSE,FALSE,TRUE)))
-    title(main=paste("Standard Gibbs energy of reactions",
-      "after Schulte and Shock, 1995",sep="\n"))
+  ## Calculation of chemical affinities
+  # after LaRowe and Helgeson, 2007, Fig. 3 (a): reduction of nicotinamide 
+  # adenine dinucleotide (NAD) coupled to oxidation of glucose
+  # list the available NAD species
+  info("NAD ")
+  T <- seq(0,120,10)
+  # oxidation of glucose (C6H12O6)
+  basis(c("glucose","H2O","NH3","CO2","H+"),c(-3,0,999,-3,-7))
+  s <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(0,0),T=T)
+  # LH07's diagrams are shown per mole of electron (24 e- per 12 NAD)
+  A <- s$out$A/24/1000
+  plot(x=T,y=A,xlim=range(T),ylim=c(1.4,5.4),
+    xlab=axis.label("T"),ylab=axis.label("A",opt="k"),type="l")
+  text("NAD(ox)-/NAD(red)-2 = 1",x=median(T),y=median(A))
+  # different activity ratio
+  s <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(1,0),T=T)
+  A <- s$out$A/24/1000
+  lines(x=T,y=A)
+  text("NAD(ox)-/NAD(red)-2 = 10",x=median(T),y=median(A))
+  # different activity ratio
+  s <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(0,1),T=T)
+  A <- s$out$A/24/1000
+  lines(x=T,y=s$out$A/24/1000)
+  text("NAD(ox)-/NAD(red)-2 = 0.1",x=median(T),y=median(A))
+  # this command prints the reaction on the plot
+  text(40,4.5,c2s(s2c(describe(s$reaction,
+    use.name=c(TRUE,TRUE,FALSE,FALSE,FALSE,FALSE)),
+    sep="="),sep="\n"))
+  # label the plot
+  title(main=paste("Chemical affinity of NAD reduction",
+   "after LaRowe and Helgeson, 2007",sep="\n"),
+   sub=describe(thermo$basis,T=NULL))
 
-    ## Calculation of chemical affinities
-    # after LaRowe and Helgeson, 2007
-    # Fig. 3 (a): reduction of nicotinamide adenine 
-    # dinucleotide (NAD) coupled to oxidation of glucose
-    # list the available NAD species
-    info("NAD ")
-    T <- seq(0,120,10)
-    # oxidation of glucose (C6H12O6)
-    basis(c("glucose","H2O","NH3","CO2","H+"),c(-3,0,999,-3,-7))
-    s <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(0,0),T=T)
-    # LH07's diagrams are shown per mole of electron (24 e- per 12 NAD)
-    A <- s$out$A/24/1000
-    plot(x=T,y=A,xlim=range(T),ylim=c(1.4,5.4),
-      xlab=axis.label("T"),ylab=axis.label("A",opt="k"),type="l")
-    text("NAD(ox)-/NAD(red)-2 = 1",x=median(T),y=median(A))
-    # different activity ratio
-    s <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(1,0),T=T)
-    A <- s$out$A/24/1000
-    lines(x=T,y=A)
-    text("NAD(ox)-/NAD(red)-2 = 10",x=median(T),y=median(A))
-    # different activity ratio
-    s <- subcrt(c("NAD(ox)-","NAD(red)-2"),c(-12,12),logact=c(0,1),T=T)
-    A <- s$out$A/24/1000
-    lines(x=T,y=s$out$A/24/1000)
-    text("NAD(ox)-/NAD(red)-2 = 0.1",x=median(T),y=median(A))
-    # this command prints the reaction on the plot
-    text(40,4.5,c2s(s2c(describe(s$reaction,
-      use.name=c(TRUE,TRUE,FALSE,FALSE,FALSE,FALSE)),
-      sep="="),sep="\n"))
-    # label the plot
-    title(main=paste("Chemical affinity of NAD reduction",
-     "after LaRowe and Helgeson, 2007",sep="\n"),
-     sub=describe(thermo$basis,T=NULL))
-
-    ### non-ideality calculations -- activity coefficients of 
-    ### aqueous species as a function of charge, temperature,
-    ### and ionic strength -- after Alberty, 2003 
-    ## p. 16 Table 1.3  apparent pKa of acetic acid with
-    ## changing ionic strength
-    subcrt(c("acetic acid","acetate","H+"),c(-1,1,1),
-      IS=c(0,0.1,0.25),T=25,property="logK")
-    # note that these *apparent* values of G and logK approach
-    # their *standard* counterparts as IS goes to zero.
-    ## p. 95: basis and elemental stoichiometries of species 
-    ## (a digression here from the nonideality calculations) 
-    # note coefficient of O2 and NH3 will be zero for these species
-    basis(c("ATP-4","H+","H2O","HPO4-2","O2","NH3"))
-    # cf Eq. 5.1-33: (basis composition) 
-    species(c("ATP-4","H+","H2O","HPO4-2","ADP-3","HATP-3","HADP-2","H2PO4-"))
-    lb <- length(basis())
-    # cf Eq. 5.1-32: (elemental composition)
-    as.matrix(species()[,1:lb]) %*% as.matrix(basis()[,1:lb]) 
-    ## p. 273-275: activity coefficient (gamma)
-    ## as a function of ionic strength and temperature
-    ## (as of 20080304, these do look quantitatively different 
-    ## from the plots in Alberty's book.)
-    iplotfun <- function(T,col,add=TRUE) {
-      IS <- seq(0,0.25,0.0025)
-      s <- subcrt(c("H2PO4-","HADP-2","HATP-3","ATP-4"),IS=IS,grid="IS",T=T)
-      if(!add) thermo.plot.new(xlim=range(IS),ylim=c(0,1),
-        xlab=axis.label("IS"),ylab="gamma")
-      for(i in 1:4) lines(IS,10^s$out[[i]]$loggam,col=col)
-    }
-    iplotfun(0,"blue",add=FALSE)
-    iplotfun(25,"black")
-    iplotfun(40,"red")
-    title(main=paste("activity coefficient (gamma) of -1,-2,-3,-4",
-      "charged species at 0, 25, 40 deg C, after Alberty, 2003",
-      sep="\n"),cex.main=0.95)
+  ### non-ideality calculations -- activity coefficients of 
+  ### aqueous species as a function of charge, temperature,
+  ### and ionic strength -- after Alberty, 2003 
+  ## p. 16 Table 1.3  apparent pKa of acetic acid with
+  ## changing ionic strength
+  subcrt(c("acetic acid","acetate","H+"),c(-1,1,1),
+    IS=c(0,0.1,0.25),T=25,property="logK")
+  # note that these *apparent* values of G and logK approach
+  # their *standard* counterparts as IS goes to zero.
+  ## p. 95: basis and elemental stoichiometries of species 
+  ## (a digression here from the nonideality calculations) 
+  # note coefficient of O2 and NH3 will be zero for these species
+  basis(c("ATP-4","H+","H2O","HPO4-2","O2","NH3"))
+  # cf Eq. 5.1-33: (basis composition) 
+  species(c("ATP-4","H+","H2O","HPO4-2","ADP-3","HATP-3","HADP-2","H2PO4-"))
+  lb <- length(basis())
+  # cf Eq. 5.1-32: (elemental composition)
+  as.matrix(species()[,1:lb]) %*% as.matrix(basis()[,1:lb]) 
+  ## p. 273-275: activity coefficient (gamma)
+  ## as a function of ionic strength and temperature
+  ## (as of 20080304, these do look quantitatively different 
+  ## from the plots in Alberty's book.)
+  iplotfun <- function(T,col,add=TRUE) {
+    IS <- seq(0,0.25,0.0025)
+    s <- subcrt(c("H2PO4-","HADP-2","HATP-3","ATP-4"),IS=IS,grid="IS",T=T)
+    if(!add) thermo.plot.new(xlim=range(IS),ylim=c(0,1),
+      xlab=axis.label("IS"),ylab="gamma")
+    for(i in 1:4) lines(IS,10^s$out[[i]]$loggam,col=col)
+  }
+  iplotfun(0,"blue",add=FALSE)
+  iplotfun(25,"black")
+  iplotfun(40,"red")
+  title(main=paste("activity coefficient (gamma) of -1,-2,-3,-4",
+    "charged species at 0, 25, 40 deg C, after Alberty, 2003",
+    sep="\n"),cex.main=0.95)
   }
 }
 

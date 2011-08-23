@@ -65,8 +65,7 @@
      cex.main=0.9)
   # forget our changes to thermo$obigt for next examples
   data(thermo)
-
-  \donttest{
+\donttest{
   ## Heat capacity of LYSC_CHICK as a function of T
   basis("CHNOS+"); species("LYSC_CHICK")
   pH <- c(5,9,3); T <- c(0,100,25)

@@ -424,10 +424,8 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
       loga <- 0; a <- loga - loga.sum
       for(j in 1:length(A)) A[[j]] <- 10^(A[[j]] + a)
       ylab <- "alpha"
-      if(missing(main)) main <- "alpha"
     } else {
       ylab <- axis.title(what)
-      if(missing(main)) main <- "logarithm of activity"
     }
     if(do.plot) {
       mgp <- par("mgp")
@@ -437,8 +435,7 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
         v <- numeric()
         for(i in 1:length(A)) v <- c(v,A[[i]])
         barplot(v,names.arg=names,ylab=ylab,mgp=mgp,cex.names=cex.names,col=col)
-        if(missing(main)) main <- main
-        title(main=main)
+        if(!is.null(main)) title(main=main)
       } else if(do.loga.equil) {
         # the equilibrium logact of a basis species
         v <- as.numeric(A)
@@ -607,7 +604,8 @@ diagram <- function(affinity,what="logact",ispecies=NULL,balance=NULL,
     # if we're not calculating predominances we can only make a contour plot for properties
     # of a single reaction
     if(!do.loga.equil) A <- aval
-    if(length(A)!=1) warning(paste("can't make contour plot of",what,"for more than one reaction. suggestion: select a single one with 'ispecies'"))
+    if(length(A)!=1) warning(paste("can't make contour plot of",what,
+      "for more than one reaction. suggestion: select a single one with 'ispecies'"))
     else if(do.plot & nd==2) {
       if(!add) {
         xstate=as.character(affinity$basis$state[match(affinity$xname,rownames(affinity$basis))])

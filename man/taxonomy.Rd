@@ -62,8 +62,7 @@
   id4 <- allparents(id1,taxdir)
   sciname(id4,taxdir)
 
-  ## the names of the organisms in the supplied
-  ## taxonomy files
+  ## the names of the organisms in the supplied taxonomy files
   taxdir <- system.file("extdata/taxonomy",package="CHNOSZ")
   id5 <- c(83333,4932,9606,186497,243232)
   sciname(id5,taxdir)

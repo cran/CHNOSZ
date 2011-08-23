@@ -63,52 +63,52 @@
 
 \examples{
   \dontshow{data(thermo)}
-  \donttest{
-    # an inorganic example: sulfur species
-    basis("CHNOS+")
-    basis("pH",5)
-    species(c("H2S","S2-2","S3-2","S2O3-2","S2O4-2","S3O6-2",
-      "S5O6-2","S2O6-2","HSO3-","SO2","HSO4-"))
-    # to minimize the standard deviations of the loga of the species
-    target <- "sd"
-    # this one gives logfO2=-27.8
-    f1 <- findit(list(O2=c(-50,-15)),target,T=325,P=350,n=3)
-    title("SD of equilibrium log activities of sulfur species")
-    # this one gives logfO2=-30.0 pH=9.38
-    f2 <- findit(list(O2=c(-50,-15),pH=c(0,14)),target,T=325,P=350,res=16,n=4)
-    title("SD of equilibrium log activities of sulfur species")
+\donttest{
+  # an inorganic example: sulfur species
+  basis("CHNOS+")
+  basis("pH",5)
+  species(c("H2S","S2-2","S3-2","S2O3-2","S2O4-2","S3O6-2",
+    "S5O6-2","S2O6-2","HSO3-","SO2","HSO4-"))
+  # to minimize the standard deviations of the loga of the species
+  target <- "sd"
+  # this one gives logfO2=-27.8
+  f1 <- findit(list(O2=c(-50,-15)),target,T=325,P=350,n=3)
+  title("SD of equilibrium log activities of sulfur species")
+  # this one gives logfO2=-30.0 pH=9.38
+  f2 <- findit(list(O2=c(-50,-15),pH=c(0,14)),target,T=325,P=350,res=16,n=4)
+  title("SD of equilibrium log activities of sulfur species")
 
-    # test the findit function in three dimensions
-    # first calculate equilibrium activities of some proteins
-    # using specified activities of basis species
-    ip <- 1:20
-    basis("CHNOS+")
-    basis("CO2",-pi)        # -3.141593
-    basis("H2O",-exp(1))    # -2.718282
-    basis("NH3",-sqrt(2))   # -1.414214
-    a <- affinity(iprotein=ip)
-    # scale relative abundances such that total activity of residues 
-    # is unity (since loga.tot=0 is default for findit)
-    d <- diagram(a,do.plot=FALSE,logact=0)
-    loga.ref <- as.numeric(d$logact)
-    # return to default values for activities of basis species,
-    basis("CHNOS+")
-    a <- affinity(iprotein=ip)
-    d <- diagram(a,do.plot=FALSE,logact=0)
-    # we have diverged from the reference activities of proteins
-    r0 <- revisit(d,"rmsd",loga.ref,main="")
-    title(main=paste("log activities of 20 proteins for basis activities",
-      "from numerical constants (ref) and CHNOSZ default (calc)",sep="\n"))
-    # now find the activities of the basis species, within search 
-    # intervals, that get us close to reference activities of proteins
-    f <- findit(lims=list(CO2=c(-5,0),H2O=c(-5,0),NH3=c(-5,0)),
-      "rmsd",10,iprotein=ip,loga.ref=loga.ref,res=16)
-    title(main="RMSD of log activities from reference values")
-    # -pi, -e and -sqrt(2) were approximately retrieved!
-    -sapply(f$value,tail,1)[1:3]
-    # we can plot the trajectories
-    plot(f,mar=c(4,5,2,2))
-  }
+  # test the findit function in three dimensions
+  # first calculate equilibrium activities of some proteins
+  # using specified activities of basis species
+  ip <- 1:20
+  basis("CHNOS+")
+  basis("CO2",-pi)        # -3.141593
+  basis("H2O",-exp(1))    # -2.718282
+  basis("NH3",-sqrt(2))   # -1.414214
+  a <- affinity(iprotein=ip)
+  # scale relative abundances such that total activity of residues 
+  # is unity (since loga.tot=0 is default for findit)
+  d <- diagram(a,do.plot=FALSE,logact=0)
+  loga.ref <- as.numeric(d$logact)
+  # return to default values for activities of basis species,
+  basis("CHNOS+")
+  a <- affinity(iprotein=ip)
+  d <- diagram(a,do.plot=FALSE,logact=0)
+  # we have diverged from the reference activities of proteins
+  r0 <- revisit(d,"rmsd",loga.ref,main="")
+  title(main=paste("log activities of 20 proteins for basis activities",
+    "from numerical constants (ref) and CHNOSZ default (calc)",sep="\n"))
+  # now find the activities of the basis species, within search 
+  # intervals, that get us close to reference activities of proteins
+  f <- findit(lims=list(CO2=c(-5,0),H2O=c(-5,0),NH3=c(-5,0)),
+    "rmsd",10,iprotein=ip,loga.ref=loga.ref,res=16)
+  title(main="RMSD of log activities from reference values")
+  # -pi, -e and -sqrt(2) were approximately retrieved!
+  -sapply(f$value,tail,1)[1:3]
+  # we can plot the trajectories
+  plot(f,mar=c(4,5,2,2))
+}
 }
 
 

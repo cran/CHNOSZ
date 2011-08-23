@@ -72,8 +72,7 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
   info("LYSC_CHICK")
   # thermodynamic properties can be calculated with subcrt()
   subcrt("LYSC_CHICK")				
-
-  \donttest{
+\donttest{
   ### Table of properties of some proteins
   basis("CHNOS+")
   species(c("LYSC_CHICK", "CYC_BOVIN", "MYG_HORSE", "RNAS1_BOVIN"))
@@ -83,14 +82,13 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
   residue.info()
 
   ## Protein Data from Online Sources
-  \dontrun{
-    ## marked dontrun because it requires internet
-    # this asks to search SWISS-Prot
-    info("PRND_HUMAN")
-    # an online search can also be started from the
-    # "subcrt" function
-    subcrt("SPRN_HUMAN")
-  }  ## end dontrun
+\dontrun{
+  ## marked dontrun because it requires internet
+  # this asks to search SWISS-Prot
+  info("PRND_HUMAN")
+  # an online search can also be started from the
+  # "subcrt" function
+  subcrt("SPRN_HUMAN") } 
 
   ## Inputting protein compositions
   # make a new protein
@@ -124,7 +122,6 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
   d <- describe(s$reaction,
     use.name=c(TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE))
   text(170, -3, c2s(s2c(d,sep="="),sep="\n"), cex=0.8)
-
 
   ### Metastability calculations
 
@@ -226,8 +223,7 @@ Retrieve the amino acid compositions or thermodynamic properties and equations o
     lab <- paste("logaH2O =",logaH2O)
     text(logaH2[itext]+0.4,logaO2[itext],lab,srt=-64)
   }
-
-  }
+}
 }
 
 \references{
