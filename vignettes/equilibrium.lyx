@@ -1,0 +1,2187 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+%\VignetteIndexEntry{Equilibrium in CHNOSZ}
+
+% so DOIs in bibliography show up as hyperlinks
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\end_preamble
+\use_default_options true
+\begin_modules
+sweave
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman palatino
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
+\pdf_quoted_options "citecolor=black, linkcolor=black"
+\papersize letterpaper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine natbib_numerical
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\branch scrap
+\selected 1
+\filename_suffix 0
+\color #000000
+\end_branch
+\branch stuff
+\selected 1
+\filename_suffix 0
+\color #000000
+\end_branch
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Equilibrium in CHNOSZ
+\end_layout
+
+\begin_layout Author
+Jeffrey M.
+ Dick
+\end_layout
+
+\begin_layout Section
+Background; terminology
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+
+\emph on
+Species of interest
+\emph default
+ (or simply 
+\emph on
+species
+\emph default
+) are chosen by the user to represent the possible species in a chemical
+ system.
+ 
+\emph on
+Basis species
+\emph default
+ combine linearly to make up the species of interest.
+ Basis species are analogous to thermodynamic components in that they are
+ the minimum number to describe the compositional variation, but unlike
+ components basis species can be charged.
+\end_layout
+
+\begin_layout Standard
+The calculations of chemical equilibrium in CHNOSZ are formulated for a
+ system that is open with respect to the basis species.
+ Therefore, the natural variables are temperature, pressure and chemical
+ potentials of the basis species.
+\end_layout
+
+\begin_layout Standard
+To calculate the equilibrium distribution of species in a given system,
+ a single linear balancing constraint must be specified.
+ Therefore, we say things like 
+\begin_inset Quotes eld
+\end_inset
+
+the reactions are balanced on 
+\begin_inset Formula $\mathrm{CO_{2}}$
+\end_inset
+
+
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+the reactions are balanced on protein length
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The 
+\emph on
+balancing coefficients
+\emph default
+ describe these constraints.
+ At different times in the documentation of CHNOSZ, the balancing constraint
+ has been associated with the conserved component, immobile component, or
+ conserved basis species, all with the same meaning.
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Quotes eld
+\end_inset
+
+reactions
+\begin_inset Quotes erd
+\end_inset
+
+ in the preceding statements refer to 
+\emph on
+transformations
+\emph default
+ between species.
+ The actual calculations, however, start with the definitions of the formation
+ reactions.
+ The 
+\emph on
+formation reaction
+\emph default
+ for any species has one mole of the species as a product, and the mass
+ balance is made up of the basis species.
+\end_layout
+
+\begin_layout Standard
+By definition, the formation reaction is written to form one mole of a species.
+ For many systems, the extent of the molar formula of the species is not
+ a matter of concern.
+ However, for systems made of polymers, such as proteins, it is often desirable
+ to normalize the molar formula by the balancing coefficients.
+ This normalization has been referred to previously as using the residue
+ equivalents of proteins 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08"
+
+\end_inset
+
+; here the terminology of 
+\emph on
+normalize
+\emph default
+ will be used preferentially
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+The older style of function call using 
+\family typewriter
+diagram(..., residue=TRUE)
+\family default
+ has been replaced by 
+\family typewriter
+equilibrate(..., normalize=TRUE)
+\family default
+ or 
+\family typewriter
+diagram(..., normalize=TRUE)
+\family default
+ starting with version 0.9-9 of CHNOSZ.
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Two different methods of calculating the equilibrium activities of species
+ in a system are described below.
+ These are referred to as the 
+\emph on
+reaction-matrix approach
+\emph default
+ and the 
+\emph on
+Boltzmann distribution
+\emph default
+.
+ Each method is illustrated using specific example that has been described
+ previously 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08,DS11"
+
+\end_inset
+
+ (the 
+\begin_inset Quotes eld
+\end_inset
+
+CSG
+\begin_inset Quotes erd
+\end_inset
+
+ example).
+ The example system demonstrates that two approaches are equivalent when
+ the molar formluas are normalized.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Standard states, the ideal approximation and sources of data
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+By chemical activity we mean the quantity 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ that appears in the expression 
+\begin_inset Formula 
+\begin{equation}
+\mu_{i}=\mu_{i}^{\circ}+RT\ln a_{i}\,,\label{eq:mu}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\mu_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mu_{i}^{\circ}$
+\end_inset
+
+ stand for the chemical potential and the standard chemical potential of
+ the 
+\begin_inset Formula $i$
+\end_inset
+
+th species, and 
+\begin_inset Formula $R$
+\end_inset
+
+ and 
+\begin_inset Formula $T$
+\end_inset
+
+ represent the gas constant and the temperature in Kelvin.
+ Chemical activity is related to molality (
+\begin_inset Formula $m_{i}$
+\end_inset
+
+) by
+\begin_inset Formula 
+\begin{equation}
+a_{i}=\gamma_{i}m_{i}\,,\label{eq:activity}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\gamma_{i}$
+\end_inset
+
+ stands for the activity coefficient of the 
+\begin_inset Formula $i$
+\end_inset
+
+th species.
+ For this discussion, we take 
+\begin_inset Formula $\gamma_{i}=1$
+\end_inset
+
+ for all species, so chemical activity is assumed to be numerically equivalent
+ to molality.
+ Since molality is a measure of concentration, calculating the equilibrium
+ chemical activities can be a theoretical tool to help understand the relative
+ abundances of species, including proteins.
+\end_layout
+
+\begin_layout Standard
+For the CSG examples below, we would like to reproduce exactly the values
+ appearing in publications.
+ Because recent versions of CHNOSZ incorporate data updates for the methionine
+ sidechain group, we should therefore revert to the previous values before
+ proceding.
+ The 
+\family typewriter
+add.obigt()
+\family default
+ function does just that, as well as adds other species from the 
+\begin_inset Quotes eld
+\end_inset
+
+supplemental
+\begin_inset Quotes erd
+\end_inset
+
+ database provided with CHNOSZ:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<add_obigt>>=
+\end_layout
+
+\begin_layout Chunk
+
+library(CHNOSZ)
+\end_layout
+
+\begin_layout Chunk
+
+add.obigt()
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chunk
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Reaction-matrix approach
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+CSG Example: Whole formulas
+\end_layout
+
+\begin_layout Standard
+Let us calculate the equilibrium activities of two proteins in metastable
+ equilibrium.
+ To do this we start by writing the formation reactions of each protein
+ as
+\begin_inset Formula 
+\begin{equation}
+stuff_{3}\rightleftharpoons\mathrm{CSG\_METVO}\,\label{react:CSG_METVO}
+\end{equation}
+
+\end_inset
+
+and
+\begin_inset Formula 
+\begin{equation}
+stuff_{4}\rightleftharpoons\mathrm{CSG\_METJA}\,.\label{react:CSG_METJA}
+\end{equation}
+
+\end_inset
+
+The basis species in the reactions are collectively symbolized by 
+\begin_inset Formula $stuff$
+\end_inset
+
+; the subscripts simply refer to the reaction number in this document.
+ In these examples, 
+\begin_inset Formula $stuff$
+\end_inset
+
+ consists of 
+\begin_inset Formula $\mathrm{CO_{2}}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{H_{2}O}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{NH_{3}}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{O_{2}}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{H_{2}S}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{H^{+}}$
+\end_inset
+
+ in different molar proportions.
+ To see what 
+\begin_inset Formula $stuff$
+\end_inset
+
+ is, try out these commands in CHNOSZ:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<ProteinFormation>>=
+\end_layout
+
+\begin_layout Chunk
+
+basis("CHNOS+")
+\end_layout
+
+\begin_layout Chunk
+
+species("CSG",c("METVO", "METJA"))
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Although the basis species are defined, the temperature is not yet specified,
+ so it is not immediately possible to calculate the ionization states of
+ the proteins.
+ That is why the coefficient on 
+\begin_inset Formula $\mathrm{H^{+}}$
+\end_inset
+
+ is zero in the output above.
+ To see what the computed protein charges are at 25 
+\begin_inset Formula $^{\circ}$
+\end_inset
+
+C and 1 bar and at pH 7 (which is the opposite of the logarithm of activity
+ of 
+\begin_inset Formula $\mathrm{H^{+}}$
+\end_inset
+
+ in the basis species), try this:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<ProteinInfo>>=
+\end_layout
+
+\begin_layout Chunk
+
+protein.info(species()$name)
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that 
+\family typewriter
+affinity()
+\family default
+ is called twice by 
+\family typewriter
+protein.info()
+\family default
+; this so that both charges and standard Gibbs energies of ionization of
+ the proteins can be calculated.
+ The 
+\family typewriter
+Z
+\family default
+ values in the table are the charges of the proteins computed using the
+ ionization constants of sidechain and terminal groups, and the 
+\family typewriter
+G.Z
+\family default
+ values are the calculated Gibbs energies of formation of the ionized proteins
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DLH06"
+
+\end_inset
+
+.
+ The 
+\family typewriter
+ZC
+\family default
+ values are the average oxidation states of carbon of the proteins.
+ Let us now calculate the chemical affinities of formation of the ionized
+ proteins:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<ProteinAffinity>>=
+\end_layout
+
+\begin_layout Chunk
+
+a <- affinity()
+\end_layout
+
+\begin_layout Chunk
+
+a$values
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since 
+\family typewriter
+affinity()
+\family default
+ returns a list with a lot of information (such as the basis species and
+ species definitions) the last command was written to only print the 
+\family typewriter
+values
+\family default
+ part of that list.
+ The values are actually dimensionless, i.e.
+ 
+\begin_inset Formula $\boldsymbol{A}/2.303RT$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The affinities of the formation reactions above were calculated for a 
+\emph on
+reference value of activity of the proteins, which is not the equilibrium
+ value
+\emph default
+.
+ Those non-equilibrium activities were 
+\begin_inset Formula $10^{-3}$
+\end_inset
+
+.
+ How do we calculate the equilibrium values? Let us write specific statements
+ of the expression for chemical affinity (2.303 is used here to stand for
+ 
+\begin_inset Formula $\ln10$
+\end_inset
+
+), 
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}=2.303RT\log(K/Q)\,,\label{eq:affinity}
+\end{equation}
+
+\end_inset
+
+for Reactions 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "react:CSG_METVO"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "react:CSG_METJA"
+
+\end_inset
+
+ as
+\begin_inset Formula 
+\begin{equation}
+\begin{array}{rl}
+\boldsymbol{A}_{3}/2.303RT & =\log K_{3}-\log Q_{3}\\
+ & =\log K_{3}+\log a_{stuff,3}-\log a_{\mathrm{CSG\_METVO}}\\
+ & =\boldsymbol{A}_{3}^{*}/2.303RT-\log a_{\mathrm{CSG\_METVO}}
+\end{array}\label{eq:A3_METVO}
+\end{equation}
+
+\end_inset
+
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\begin{array}{rl}
+\boldsymbol{A}_{4}/2.303RT & =\log K_{4}-\log Q_{4}\\
+ & =\log K_{4}+\log a_{stuff,4}-\log a_{\mathrm{CSG\_METJA}}\\
+ & =\boldsymbol{A}_{4}^{*}/2.303RT-\log a_{\mathrm{CSG\_METJA}}\,.
+\end{array}\label{eq:A4_METJA}
+\end{equation}
+
+\end_inset
+
+The 
+\begin_inset Formula $\boldsymbol{A}^{*}$
+\end_inset
+
+ denote the affinities of the formation reactions when the activities of
+ the proteins are unity.
+ I like to call these the 
+\begin_inset Quotes eld
+\end_inset
+
+starved
+\begin_inset Quotes erd
+\end_inset
+
+ affinities.
+ From the output above it follows that 
+\begin_inset Formula $\boldsymbol{A}_{3}^{*}/2.303RT=104.6774$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{A}_{4}^{*}/2.303RT=314.1877$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Next we must specify how reactions are balanced in this system: what is
+ conserved during transformations between species (let us call it the immobile
+ component)? For proteins, one possibility is to use the repeating protein
+ backbone group.
+ Let us use 
+\begin_inset Formula $n_{i}$
+\end_inset
+
+ to designate the number of residues in the 
+\begin_inset Formula $i$
+\end_inset
+
+th protein, which is equal to the number of backbone groups, which is equal
+ to the length of the sequence.
+ If 
+\begin_inset Formula $\gamma_{i}=1$
+\end_inset
+
+ in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:activity"
+
+\end_inset
+
+), the relationship between the activity of the 
+\begin_inset Formula $i$
+\end_inset
+
+th protein (
+\begin_inset Formula $a_{i}$
+\end_inset
+
+) and the activity of the residue equivalent of the 
+\begin_inset Formula $i$
+\end_inset
+
+th protein (
+\begin_inset Formula $a_{residue,i}$
+\end_inset
+
+) is
+\begin_inset Formula 
+\begin{equation}
+a_{residue,i}=n_{i}\times a_{i}\,.\label{eq:a_residue_i}
+\end{equation}
+
+\end_inset
+
+ We can use this to write a statement of mass balance: 
+\begin_inset Formula 
+\begin{equation}
+553\times a_{\mathrm{CSG\_METVO}}+530\times a_{\mathrm{CSG\_METJA}}=1.083\,.\label{eq:a_residue}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+At equilibrium, the affinities of the formation reactions, per conserved
+ quantity (in this case protein backbone groups) are equal.
+ Therefore 
+\begin_inset Formula $\boldsymbol{A}=\boldsymbol{A}_{3}/553=\boldsymbol{A}_{4}/530$
+\end_inset
+
+ is a condition for equilibrium.
+ Combining this with Eqs.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A3_METVO"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A4_METJA"
+
+\end_inset
+
+) gives
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}/2.303RT=\left(104.6774-\log a_{\mathrm{CSG\_METVO}}\right)/553\label{eq:A_METVO}
+\end{equation}
+
+\end_inset
+
+and
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}/2.303RT=\left(314.1877-\log a_{\mathrm{CSG\_METJA}}\right)/530\,.\label{eq:A_METJA}
+\end{equation}
+
+\end_inset
+
+Now we have three equations (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:a_residue"
+
+\end_inset
+
+--
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A_METJA"
+
+\end_inset
+
+) with three unknowns.
+ The solution can be displayed in CHNOSZ as follows.
+ Because the balancing coefficients differ from unity, the function called
+ by 
+\family typewriter
+equilibrate()
+\family default
+ in this case is 
+\family typewriter
+equil.reaction()
+\family default
+, which implements the equation-solving strategy described in the next section.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<ProteinActivities>>=
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a)
+\end_layout
+
+\begin_layout Chunk
+
+e$loga.equil
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Those are the logarithms of the equilibrium activities of the proteins.
+ Combining these values with either Eqs.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A_METVO"
+
+\end_inset
+
+) or (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A_METJA"
+
+\end_inset
+
+) gives us the same value for affinity of the formation reactions per residue
+ (or per protein backbone group), 
+\begin_inset Formula $\boldsymbol{A}/2.303RT=0.5978817$
+\end_inset
+
+.
+ Equilibrium activities that differ by such great magnitudes make it appear
+ that the proteins are very unlikely to coexist in metastable equilibrium.
+ Later we explain the concept of using residue equivalents of the proteins
+ to achieve a different result.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+Implementing the reaction-matrix approach
+\end_layout
+
+\begin_layout Standard
+The implementation used in CHNOSZ for finding a solution to the system of
+ equations relies on a difference function for the activity of the immobile
+ component.
+ The steps to obtain this difference function are:
+\end_layout
+
+\begin_layout Enumerate
+Set the total activity of the immobile (conserved) component as 
+\begin_inset Formula $a_{\mathrm{ic}}$
+\end_inset
+
+ (e.g., the 1.083 in Eqn.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:a_residue"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Write a function for the logarithm of activity of each of the species of
+ interest: 
+\begin_inset Formula $\boldsymbol{A}=\left(\boldsymbol{A}_{i}^{*}-2.303RT\log a_{i}\right)/n_{\mathrm{ic},i}$
+\end_inset
+
+, where 
+\begin_inset Formula $n_{\mathrm{ic},i}$
+\end_inset
+
+ stands for the number of moles of the immobile component that react in
+ the formation of one mole of the 
+\begin_inset Formula $i$
+\end_inset
+
+th species.
+ (e.g., for systems of proteins where the backbone group is conserved, 
+\begin_inset Formula $n_{\mathrm{ic},i}$
+\end_inset
+
+ is the same as 
+\begin_inset Formula $n_{i}$
+\end_inset
+
+ in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:a_residue_i"
+
+\end_inset
+
+).
+ Calculate values for each of the 
+\begin_inset Formula $\boldsymbol{A}_{i}^{*}$
+\end_inset
+
+.
+ Metastable equilibrium is implied by the identity of 
+\begin_inset Formula $\boldsymbol{A}$
+\end_inset
+
+ in all of the equations.
+\end_layout
+
+\begin_layout Enumerate
+Write a function for the total activity of the immobile component: 
+\begin_inset Formula $a_{\mathrm{ic}}^{'}=\sum n_{\mathrm{ic},i}a_{i}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+The difference function is now 
+\begin_inset Formula $\delta a_{\mathrm{ic}}=a_{\mathrm{ic}}^{'}-a_{\mathrm{ic}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Now all we have to do is solve for the value of 
+\begin_inset Formula $\boldsymbol{A}$
+\end_inset
+
+ where 
+\begin_inset Formula $\delta a_{\mathrm{ic}}=0$
+\end_inset
+
+.
+ This is achieved in the code by first looking for a range of values of
+ 
+\begin_inset Formula $\boldsymbol{A}$
+\end_inset
+
+ where at one end 
+\begin_inset Formula $\delta a_{\mathrm{ic}}<0$
+\end_inset
+
+ and at the other end 
+\begin_inset Formula $\delta a_{\mathrm{ic}}>0$
+\end_inset
+
+, then using the 
+\family typewriter
+uniroot()
+\family default
+ function that is part of R to find the solution.
+ 
+\end_layout
+
+\begin_layout Standard
+This approach is subject to failure if for all trial ranges of 
+\begin_inset Formula $\boldsymbol{A}$
+\end_inset
+
+ the 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\delta a_{\mathrm{ic}}$
+\end_inset
+
+ are of the same sign, which gives an error message like 
+\begin_inset Quotes eld
+\end_inset
+
+i tried it 1000 times but can't make it work
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Even if values of 
+\begin_inset Formula $\delta a_{\mathrm{ic}}$
+\end_inset
+
+ on either side of zero can be located, the algorithm does not guarantee
+ an accurate solution and may give a warning about poor convergence if a
+ certain (currently hard-coded) tolerance is not reached.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+CSG Example: normalized formulas (residue equivalents)
+\end_layout
+
+\begin_layout Standard
+Let us consider the formation reactions of the normalized formulas (residue
+ equivalents) of proteins, for example
+\begin_inset Formula 
+\begin{equation}
+stuff_{12}\rightleftharpoons\mathrm{CSG\_METVO(residue)}\,\label{react:CSG_METVO_residue}
+\end{equation}
+
+\end_inset
+
+and
+\begin_inset Formula 
+\begin{equation}
+stuff_{13}\rightleftharpoons\mathrm{CSG\_METJA(residue)}\,.\label{react:CSG_METJA_residue}
+\end{equation}
+
+\end_inset
+
+The formulas of the residue equivalents are those of the proteins divided
+ by the number of residues in each protein.
+ With the 
+\family typewriter
+protein.basis()
+\family default
+ function it is possible to see the coefficients on the basis species in
+ these reactions:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<>>=
+\end_layout
+
+\begin_layout Chunk
+
+protein.basis(species()$name, normalize=TRUE)
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let us denote by 
+\begin_inset Formula $\boldsymbol{A}_{12}$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{A}_{13}$
+\end_inset
+
+ the chemical affinities of Reactions 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "react:CSG_METVO_residue"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "react:CSG_METJA_residue"
+
+\end_inset
+
+.
+ We can write 
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}_{12}/2.303RT=\log K_{12}+\log a_{stuff,12}-\log a_{\mathrm{CSG\_METVO(residue)}}\label{eq:A3_METVO_residue}
+\end{equation}
+
+\end_inset
+
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}_{13}/2.303RT=\log K_{13}+\log a_{stuff,13}-\log a_{\mathrm{CSG\_METJA(residue)}}\,,\label{eq:A4_METJA_residue}
+\end{equation}
+
+\end_inset
+
+For metastable equilibrium we have 
+\begin_inset Formula $\boldsymbol{A}_{12}/1=\boldsymbol{A}_{13}/1$
+\end_inset
+
+.
+ The 
+\begin_inset Formula $1$
+\end_inset
+
+'s in the denominators are there as a reminder that we are still conserving
+ residues, and that each reaction now is written for the formation of a
+ single residue equivalent.
+ So, let us write 
+\begin_inset Formula $\boldsymbol{A}$
+\end_inset
+
+ for 
+\begin_inset Formula $\boldsymbol{A}_{12}=\boldsymbol{A}_{13}$
+\end_inset
+
+ and also define 
+\begin_inset Formula $\boldsymbol{A}_{12}^{*}=\boldsymbol{A}_{12}+2.303RT\log a_{\mathrm{CSG\_METVO(residue)}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{A}_{13}^{*}=\boldsymbol{A}_{13}+2.303RT\log a_{\mathrm{CSG\_METJA(residue)}}$
+\end_inset
+
+.
+ At the same temperature, pressure and activities of basis species and proteins
+ as shown in the previous section, we can write 
+\begin_inset Formula $\boldsymbol{A}_{12}^{*}=\boldsymbol{A}_{3}^{*}/553=2.303RT\times0.1892901$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{A}_{13}^{*}=\boldsymbol{A}_{4}^{*}/530=2.303RT\times0.5928069$
+\end_inset
+
+ to give 
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}/2.303RT=0.1892901-\log a_{\mathrm{CSG\_METVO(residue)}}\label{eq:A_METVO_residue}
+\end{equation}
+
+\end_inset
+
+and
+\begin_inset Formula 
+\begin{equation}
+\boldsymbol{A}/2.303RT=0.5928069-\log a_{\mathrm{CSG\_METJA(residue)}}\,,\label{eq:A_METJA_residue}
+\end{equation}
+
+\end_inset
+
+which are equivalent to Equations 12 and 13 in the paper 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Dic08"
+
+\end_inset
+
+ but with more decimal places shown.
+ A third equation arises from the conservation of amino acid residues:
+\begin_inset Formula 
+\begin{equation}
+a_{\mathrm{CSG\_METVO(residue)}}+a_{\mathrm{CSG\_METJA(residue)}}=1.083\,.\label{eq:a_residue_2}
+\end{equation}
+
+\end_inset
+
+The solution to these equations is 
+\begin_inset Formula $a_{\mathrm{CSG\_METVO(residue)}}=0.3065982$
+\end_inset
+
+, 
+\begin_inset Formula $a_{\mathrm{CSG\_METJA(residue)}}=0.7764018$
+\end_inset
+
+ and 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\boldsymbol{A}/2.303RT=0.7027204$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The corresponding logarithms of activities of the proteins are 
+\begin_inset Formula $\log\left(0.307/553\right)=-3.256$
+\end_inset
+
+ and 
+\begin_inset Formula $\log\left(0.776/530\right)=-2.834$
+\end_inset
+
+.
+ These activities of the proteins are much closer to each other than those
+ calculated using formation reactions for whole protein formulas, so this
+ result seems more compatible with the actual coexistence of proteins in
+ nature.
+\end_layout
+
+\begin_layout Standard
+The approach just described is not used by 
+\family typewriter
+diagram()
+\family default
+ when 
+\family typewriter
+residue=TRUE
+\family default
+ (which is the default setting).
+ Instead, the Boltzmann distribution, described next, is implemented for
+ that situation.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Boltzmann distribution
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+CSG Example: Normalized formulas
+\end_layout
+
+\begin_layout Standard
+An expression for Boltzmann distribution, relating equilibrium activities
+ of species to the affinities of their formation reactions, can be written
+ as (using the same definitions of the symbols above)
+\begin_inset Formula 
+\begin{equation}
+\frac{a_{i}}{\sum a_{i}}=\frac{e^{\boldsymbol{A}_{i}^{*}/RT}}{\sum e^{\boldsymbol{A}_{i}^{*}/RT}}\,.\label{eq:Boltzmann}
+\end{equation}
+
+\end_inset
+
+Using this equation, we can very quickly (without setting up a system of
+ equations) calculate the equilibrium activities of proteins using their
+ residue equivalents.
+ Above, we saw 
+\begin_inset Formula $\boldsymbol{A}_{12}^{*}/2.303RT=0.1892901$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{A}_{13}^{*}/2.303RT=0.5928069$
+\end_inset
+
+.
+ Multiplying by 
+\begin_inset Formula $\ln10=2.302585$
+\end_inset
+
+ gives 
+\begin_inset Formula $\boldsymbol{A}_{12}^{*}/RT=0.4358565$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{A}_{13}^{*}/RT=1.364988$
+\end_inset
+
+.
+ We then have 
+\begin_inset Formula $e^{\boldsymbol{A}_{12}^{*}/RT}=1.546287$
+\end_inset
+
+ and 
+\begin_inset Formula $e^{\boldsymbol{A}_{13}/RT}=3.915678$
+\end_inset
+
+.
+ This gives us 
+\begin_inset Formula $\sum e^{A_{i}^{*}/RT}=5.461965$
+\end_inset
+
+, 
+\begin_inset Formula $a_{12}/\sum a_{i}=0.2831009$
+\end_inset
+
+ and 
+\begin_inset Formula $a_{13}/\sum a_{i}=0.7168991$
+\end_inset
+
+.
+ Since 
+\begin_inset Formula $\sum a_{i}=1.083$
+\end_inset
+
+, we arrive at 
+\begin_inset Formula $a_{12}=0.3065982$
+\end_inset
+
+ and 
+\begin_inset Formula $a_{13}=0.7764018$
+\end_inset
+
+, the same result as above.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Notes on implementation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+CSG example: another look
+\end_layout
+
+\begin_layout Standard
+All the tedium of writing reactions, calculating affinities, etc., above
+ does help to understand the application of the reaction-matrix and Boltzmann
+ distribution methods to protein equilibrium calculations.
+ But can we automate the step-by-step calculation for any system, including
+ more than two proteins? And can we be sure that higher-level functions
+ in CHNOSZ, particularly 
+\family typewriter
+equilibrate()
+\family default
+, match the output of the step-by-step calculations? Now we can, with the
+ 
+\family typewriter
+protein.equil()
+\family default
+ function introduced in version 0.9-9.
+ Below is its output when configured for CSG example we have been discussing.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+
+\backslash
+begin{small}
+\end_layout
+
+\begin_layout Chunk
+
+<<protein_equil>>=
+\end_layout
+
+\begin_layout Chunk
+
+# get an error if we don't data(thermo), only in the re-building vignettes
+ of R CMD check
+\end_layout
+
+\begin_layout Chunk
+
+data(thermo)
+\end_layout
+
+\begin_layout Chunk
+
+protein <- iprotein(c("CSG_METVO", "CSG_METJA"))
+\end_layout
+
+\begin_layout Chunk
+
+basis("CHNOS+")
+\end_layout
+
+\begin_layout Chunk
+
+swap.basis("O2", "H2")
+\end_layout
+
+\begin_layout Chunk
+
+protein.equil(protein, loga.protein=-3)
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+end{small}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The function checks (
+\begin_inset Quotes eld
+\end_inset
+
+check it!
+\begin_inset Quotes erd
+\end_inset
+
+) against the step-by-step calculations the values of 
+\begin_inset Formula $\boldsymbol{A}^{*}$
+\end_inset
+
+ calculated using 
+\family typewriter
+affinity()
+\family default
+, and the equilibrium activities of the proteins calculated using 
+\family typewriter
+equilibrate()
+\family default
+.
+ (Note that Astar/RT in the second line after the first 
+\begin_inset Quotes eld
+\end_inset
+
+check it!
+\begin_inset Quotes erd
+\end_inset
+
+ can be multiplied by 
+\begin_inset Formula $\ln10$
+\end_inset
+
+ to get the values shown above in Eqs.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A_METVO_residue"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:A_METJA_residue"
+
+\end_inset
+
+.) If the checks failed, an error would be produced and this vignette could
+ not be published on CRAN.
+ Therefore, the calculations made using 
+\family typewriter
+affinity()
+\family default
+ and 
+\family typewriter
+equilibrate()
+\family default
+ are demonstrably consistent with the methods we have outline above.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+Visualizing the effects of normalization
+\end_layout
+
+\begin_layout Standard
+A comparison of the outcomes of equilibrium calculations that do and do
+ not use the normalized formulas for proteins was given in a publication
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Dic08"
+
+\end_inset
+
+.
+ An expanded version of a diagram in that paper is below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+<<ProteinSpeciation,fig=T>>=
+\end_layout
+
+\begin_layout Chunk
+
+organisms <- c("METSC", "METJA", "METFE", "HALJP",
+\end_layout
+
+\begin_layout Chunk
+
+  "METVO", "METBU", "ACEKI", "GEOSE", "BACLI", "AERSA")
+\end_layout
+
+\begin_layout Chunk
+
+proteins <- c(rep("CSG", 6), rep("SLAP", 4))
+\end_layout
+
+\begin_layout Chunk
+
+basis("CHNOS+")
+\end_layout
+
+\begin_layout Chunk
+
+species(proteins, organisms)
+\end_layout
+
+\begin_layout Chunk
+
+a <- affinity(O2=c(-100, -65))
+\end_layout
+
+\begin_layout Chunk
+
+par(mfrow=c(2, 1))
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a)
+\end_layout
+
+\begin_layout Chunk
+
+diagram(e, ylim=c(-5, -1), legend.x=NA)
+\end_layout
+
+\begin_layout Chunk
+
+title(main="Equilibrium activities of proteins, whole formulas")
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a, normalize=TRUE)
+\end_layout
+
+\begin_layout Chunk
+
+diagram(e, ylim=c(-5, -1), legend.x=NA)
+\end_layout
+
+\begin_layout Chunk
+
+title(main="Equilibrium activities of proteins, normalized formulas")
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The reaction-matrix approach described above can also be applied to systems
+ having conservation coefficients that differ from unity, such as many mineral
+ and inorganic systems, where the immobile component has different molar
+ coefficients in the formulas.
+ For example, consider a system like that described in 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "See96"
+
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+
+\backslash
+setkeys{Gin}{width=0.7
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Chunk
+
+<<SulfurSpeciation,fig=T>>=
+\end_layout
+
+\begin_layout Chunk
+
+basis("CHNOS+")
+\end_layout
+
+\begin_layout Chunk
+
+basis("pH",5)
+\end_layout
+
+\begin_layout Chunk
+
+species(c("H2S", "S2-2", "S3-2", "S2O3-2", "S2O4-2",
+\end_layout
+
+\begin_layout Chunk
+
+  "S3O6-2", "S5O6-2", "S2O6-2", "HSO3-", "SO2", "HSO4-"))
+\end_layout
+
+\begin_layout Chunk
+
+a <- affinity(O2=c(-50, -15), T=325, P=350)
+\end_layout
+
+\begin_layout Chunk
+
+par(mfrow=c(2, 1))
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a, loga.balance=-2)
+\end_layout
+
+\begin_layout Chunk
+
+diagram(e, ylim=c(-30, 0), legend.x="topleft", cex.names=0.8)
+\end_layout
+
+\begin_layout Chunk
+
+title(main="Aqueous sulfur speciation, whole formulas")
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a, loga.balance=-2, normalize=TRUE)
+\end_layout
+
+\begin_layout Chunk
+
+diagram(e, ylim=c(-30, 0), legend.x="topleft", cex.names=0.8)
+\end_layout
+
+\begin_layout Chunk
+
+title(main="Aqueous sulfur speciation, normalized formulas")
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The first diagram is quantitatively very similar to the one shown by Seewald,
+ 1997, but if we use the normalized formulas, in this case divided by 
+\begin_inset Formula $\mathrm{H_{2}S}$
+\end_inset
+
+ in the formation reactions, the range of activities of species is lower
+ at any given 
+\begin_inset Formula $\log f_{\mathrm{O_{2}}_{\left(g\right)}}$
+\end_inset
+
+.
+ Maybe 
+\family typewriter
+normalize=TRUE
+\family default
+ doesn't make sense for systems like this where the formulas of species
+ are similar in size to those of the basis species.
+ For biomacromolecules such as proteins it seems to be a useful concept.
+\end_layout
+
+\begin_layout Standard
+With the potential for calculating equilibrium activities of proteins comes
+ the desire to compare these calculations to actual measurements! To be
+ continued...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+The maximum affinity method
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+When making a predominance diagram, we don't need to know the equilibrium
+ activities of all species in the system, only the species that has the
+ higest activity at any temperature, pressure and chemical activities of
+ basis species.
+ The 
+\emph on
+maximum affinity method
+\emph default
+ for producing predominance diagrams existed in early versions of CHNOSZ,
+ before equilibrium calculations were implemented.
+\end_layout
+
+\begin_layout Standard
+In a system where whole formulas are used in the formation reactions, derivation
+ of the maximum affinity method is easy.
+ Consider a generalized reaction to form a species of interest 
+\begin_inset Formula $Z_{i}$
+\end_inset
+
+ from basis species 
+\begin_inset Formula $X$
+\end_inset
+
+ and 
+\begin_inset Formula $Y$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{equation}
+n_{X,i}X+n_{Y,i}Y\rightleftharpoons Z_{i}\,,\label{eq:Z_formation}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $n_{X,i}$
+\end_inset
+
+ and 
+\begin_inset Formula $n_{Y,i}$
+\end_inset
+
+ stand for the reaction coefficients on the basis species.
+\end_layout
+
+\begin_layout Standard
+...
+\end_layout
+
+\begin_layout Standard
+So for 
+\family typewriter
+normalize=TRUE
+\family default
+ the maximum affinity method results in an identical predominance diagram
+ to one calculated using the equilibrium activities (Blood plasma proteins,
+ 
+\begin_inset Quotes eld
+\end_inset
+
+IL
+\begin_inset Quotes erd
+\end_inset
+
+ for interleukin):
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+
+\backslash
+begin{small}
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+setkeys{Gin}{width=0.8
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Chunk
+
+<<Plasma, fig=T, results=hide, width=8, height=4>>=
+\end_layout
+
+\begin_layout Chunk
+
+data(thermo)  # cleanup from previous plot
+\end_layout
+
+\begin_layout Chunk
+
+basis(c("CO2", "NH3", "H2S", "H2O", "O2"), c(-3, -3, -10))
+\end_layout
+
+\begin_layout Chunk
+
+f <- system.file("extdata/abundance/AA03.csv", package="CHNOSZ")
+\end_layout
+
+\begin_layout Chunk
+
+pdat <- read.csv(f, as.is=TRUE)
+\end_layout
+
+\begin_layout Chunk
+
+iil <- grep("^IL", pdat$name)
+\end_layout
+
+\begin_layout Chunk
+
+species(pdat$name[iil], "HUMAN")
+\end_layout
+
+\begin_layout Chunk
+
+a <- affinity(O2=c(-82, -78), H2O=c(-12, -2))
+\end_layout
+
+\begin_layout Chunk
+
+par(mfrow=c(1, 2))
+\end_layout
+
+\begin_layout Chunk
+
+dA <- diagram(a, normalize=TRUE, main="maximum affinity")
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a, normalize=TRUE)
+\end_layout
+
+\begin_layout Chunk
+
+dE <- diagram(e, main="equilibrium activities")
+\end_layout
+
+\begin_layout Chunk
+
+stopifnot(identical(dA$predominant, dE$predominant))
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+end{small}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here is an example where the predominant species in the equilibrium assemblage
+ are 
+\series bold
+\emph on
+not
+\series default
+\emph default
+ identical to those calculated the maximum affinity method, and it is not
+ possible for the maximum affinity method to make those curved lines!!
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch scrap
+status open
+
+\begin_layout Chunk
+
+
+\backslash
+begin{small}
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+setkeys{Gin}{width=0.8
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Chunk
+
+<<Amino, fig=T, results=hide, width=8, height=4>>=
+\end_layout
+
+\begin_layout Chunk
+
+basis("CHNOS+")
+\end_layout
+
+\begin_layout Chunk
+
+species(aminoacids(""))
+\end_layout
+
+\begin_layout Chunk
+
+a <- affinity(O2=c(-71, -66), H2O=c(-8, 4))
+\end_layout
+
+\begin_layout Chunk
+
+par(mfrow=c(1, 2))
+\end_layout
+
+\begin_layout Chunk
+
+dA <- diagram(a, main="maximum affinity")
+\end_layout
+
+\begin_layout Chunk
+
+e <- equilibrate(a)
+\end_layout
+
+\begin_layout Chunk
+
+dE <- diagram(e, main="equilibrium activities")
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\begin_layout Chunk
+
+
+\backslash
+end{small}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Take-home: when making predominance diagrams, confidently use the maximum
+ affinity method when 
+\family typewriter
+normalize=TRUE
+\family default
+ (as done here for proteins); otherwise it is advisable to compute the equilibri
+um distribution.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Document Information
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+Revision history
+\end_layout
+
+\begin_layout Itemize
+2009-11-29 Initial version containing CSG example (title: Calculating relative
+ abundances of proteins)
+\end_layout
+
+\begin_layout Itemize
+2012-09-30 Renamed from previous 
+\begin_inset Quotes eld
+\end_inset
+
+protactiv.Rnw
+\begin_inset Quotes erd
+\end_inset
+
+: Remove activity comparisons, add maximum affinity method.
+\end_layout
+
+\begin_layout Standard
+R session information
+\end_layout
+
+\begin_layout Chunk
+
+<<SessionInfo>>=
+\end_layout
+
+\begin_layout Chunk
+
+sessionInfo()
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "vig"
+options "plainnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

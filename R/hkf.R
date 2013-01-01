@@ -45,88 +45,38 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
   # loop over each species
   GHS <- ghs[k,]
   EOS <- eos[k,]
+  # substitute Cp and V for missing EoS parameters
+  # here we assume that the parameters are in the same position as in thermo$obigt
+  # put the heat capacity in for c1 if both c1 and c2 are missing
+  if(all(is.na(EOS[, 17:18]))) EOS[, 17] <- EOS$Cp
+  # put the volume in for a1 if a1, a2, a3 and a4 are missing
+  if(all(is.na(EOS[, 13:16]))) EOS[, 13] <- convert(EOS$V, "calories")
+  # test for availability of the EoS parameters
+  hasEOS <- any(!is.na(EOS[, 13:20]))
+  # if at least one of the EoS parameters is available, zero out any NA's in the rest
+  if(hasEOS) EOS[, 13:20][, is.na(EOS[, 13:20])] <- 0
   # compute values of omega(P,T) from those of omega(Pr,Tr)
   # using g function etc. (Shock et al., 1992 and others)
   omega <- EOS$omega  # omega.PrTr
+  # its derivatives are zero unless the g function kicks in
+  dwdP <- dwdT <- d2wdT2 <- numeric(length(T))
   Z <- EOS$Z
   omega.PT <- rep(EOS$omega,length(T))
-  d2wdT2 <- dwdT <- dwdP <- rep(0,length(T))
-  rhohat <- H2O.PT$rho/1000  # just converting kg/m3 to g/cm3
-  do.g <- rhohat < 1
-  # temporarily turn off warnings
-  warn <- options(warn=-1)
-  if(!is.na(Z)) if(Z != 0) if(domega[k]) if(dosupcrt) if(any(do.g)) {
+  if(!is.na(Z)) if(Z != 0) if(domega[k]) if(dosupcrt) {
     # g and f function stuff (Shock et al., 1992; Johnson et al., 1992)
+    rhohat <- H2O.PT$rho/1000  # just converting kg/m3 to g/cm3
+    g <- gfun(rhohat, convert(T, "C"), P, H2O.PT$alpha, H2O.PT$daldT, H2O.PT$beta)
+    # after SUPCRT92/reac92.f
     eta <- 1.66027E5
-    ag1 <- -2.037662; ag2 <- 5.747000E-3; ag3 <- -6.557892E-6
-    bg1 <- 6.107361; bg2 <- -1.074377E-2; bg3 <- 1.268348E-5
-    af1 <- 0.3666666E2
-    af2 <- -0.1504956E-9
-    af3 <- 0.5017997E-13
-    ag <- function(T) ag1 + ag2 * T + ag3 * T ^ 2
-    bg <- function(T) bg1 + bg2 * T + bg3 * T ^ 2
-    g <- function(rho,T,P,ag,bg,do.f) {
-      g <- ag*(1-rho)^bg
-      f <- ( ((T-155)/300)^4.8 + af1*((T-155)/300)^16 ) *
-           ( af2*(1000-P)^3 + af3*(1000-P)^4 )
-      g[do.f] <- g[do.f] - f[do.f]
-      # why is this necessary - 
-      # should we warn if this happens?
-      g[is.nan(g)] <- 0
-      return(g)
-    }
-    # on to the calculation
-    Tc <- convert(T,'C')
-    do.f <- !(Tc < 155 | P > 1000 | Tc > 355)
-    # replace the functions with their numerical results
-    ag <- ag(Tc)
-    bg <- bg(Tc)
-    g <- g(rhohat,Tc,P,ag,bg,do.f)
-    # partial derivatives of omega - equation numbers from JOH92
-    alpha <- H2O.PT$E  # expansivity - dVdT
-    daldT <- H2O.PT$daldT  # d2VdT2
-    beta <- H2O.PT$kT  # isothermal compressibility
-    # Eqn. 76
-    d2fdT2 <- (0.0608/300*((Tc-155)/300)^2.8 + af1/375*((Tc-155)/300)^14) * (af2*(1000-P)^3 + af3*(1000-P)^4)
-    # Eqn. 75
-    dfdT <- (0.016*((Tc-155)/300)^3.8 + 16*af1/300*((Tc-155)/300)^15) * (af2*(1000-P)^3 + af3*(1000-P)^4)
-    # Eqn. 74
-    dfdP <- -(((Tc-155)/300)^4.8 + af1*((Tc-155)/300)^16) * (3*af2*(1000-P)^2 + 4*af3*(1000-P)^3)
-    d2bdT2 <- 2 * bg3  # Eqn. 73
-    d2adT2 <- 2 * ag3  # Eqn. 72
-    dbdT <- bg2 + 2*bg3*Tc  # Eqn. 71
-    dadT <- ag2 + 2*ag3*Tc  # Eqn. 70
-    # Eqn. 69
-    dgadT <- bg*rhohat*alpha*(1-rhohat)^(bg-1) + log(1-rhohat)*g/ag*dbdT  
-    D <- rhohat
-    # transcribed from SUPCRT92/reac92.f
-    dDdT <- -D * alpha
-    dDdP <- D * beta
-    dDdTT <- -D * (daldT - alpha^2)
-    Db <- (1-D)^bg
-    dDbdT <- -bg*(1-D)^(bg-1)*dDdT + log(1-D)*Db*dbdT
-    dDbdTT <- -(bg*(1-D)^(bg-1)*dDdTT + (1-D)^(bg-1)*dDdT*dbdT + 
-      bg*dDdT*(-(bg-1)*(1-D)^(bg-2)*dDdT + log(1-D)*(1-D)^(bg-1)*dbdT)) +
-      log(1-D)*(1-D)^bg*d2bdT2 - (1-D)^bg*dbdT*dDdT/(1-D) + log(1-D)*dbdT*dDbdT
-    d2gdT2 <- ag*dDbdTT + 2*dDbdT*dadT + Db*d2adT2
-    d2gdT2[do.f] <- d2gdT2[do.f] - d2fdT2[do.f]
-    dgdT <- g/ag*dadT + ag*dgadT  # Eqn. 67
-    dgdT[do.f] <- dgdT[do.f] - dfdT[do.f]
-    dgdP <- -bg*rhohat*beta*g*(1-rhohat)^-1  # Eqn. 66
-    dgdP[do.f] <- dgdP[do.f] - dfdP[do.f]
-    # after reac92.f
     reref <- Z^2 / (omega/eta + Z/(3.082 + 0))
-    re <- reref + abs(Z) * g
-    omega.PT <- eta * (Z^2/re - Z/(3.082 + g))
-    Z3 <- abs(Z^3)/re^2 - Z/(3.082 + g)^2
-    Z4 <- abs(Z^4)/re^3 - Z/(3.082 + g)^3
-    dwdP[do.g] <- (-eta * Z3 * dgdP)[do.g]
-    dwdT[do.g] <- (-eta * Z3 * dgdT)[do.g]
-    d2wdT2[do.g] <- (2 * eta * Z4 * dgdT^2 - eta * Z3 * d2gdT2)[do.g]
+    re <- reref + abs(Z) * g$g
+    omega.PT <- eta * (Z^2/re - Z/(3.082 + g$g))
+    Z3 <- abs(Z^3)/re^2 - Z/(3.082 + g$g)^2
+    Z4 <- abs(Z^4)/re^3 - Z/(3.082 + g$g)^3
+    dwdP <- (-eta * Z3 * g$dgdP)
+    dwdT <- (-eta * Z3 * g$dgdT)
+    d2wdT2 <- (2 * eta * Z4 * g$dgdT^2 - eta * Z3 * g$d2gdT2)
   }
-
-  # re-enable warnings
-  options(warn)
   # loop over each property
   w <- NULL
   for(i in 1:length(property)) {
@@ -139,25 +89,36 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
         # nonsolvation ghs equations
         if(prop=="h") {
           p.c <- EOS$c1*(T-Tr) - EOS$c2*(1/(T-Theta)-1/(Tr-Theta))
-          p.a <- EOS$a1*(P-Pr) + EOS$a2*log((Psi+P)/(Psi+Pr)) + ((2*T-Theta)/(T-Theta)^2)*(EOS$a3*(P-Pr)+EOS$a4*log((Psi+P)/(Psi+Pr)))
+          p.a <- EOS$a1*(P-Pr) + EOS$a2*log((Psi+P)/(Psi+Pr)) + 
+            ((2*T-Theta)/(T-Theta)^2)*(EOS$a3*(P-Pr)+EOS$a4*log((Psi+P)/(Psi+Pr)))
           p <- p.c + p.a
-        }
-        if(prop=="s") {
-          p.c <- EOS$c1*log(T/Tr) - (EOS$c2/Theta)*( 1/(T-Theta)-1/(Tr-Theta) + log( (Tr*(T-Theta))/(T*(Tr-Theta)) )/Theta )
+        } else if(prop=="s") {
+          p.c <- EOS$c1*log(T/Tr) - 
+            (EOS$c2/Theta)*( 1/(T-Theta)-1/(Tr-Theta) + 
+            log( (Tr*(T-Theta))/(T*(Tr-Theta)) )/Theta )
           p.a <- (T-Theta)^(-2)*(EOS$a3*(P-Pr)+EOS$a4*log((Psi+P)/(Psi+Pr)))
           p <- p.c + p.a
-        }
-        if(prop=="g") {
-          p.c <- -EOS$c1*(T*log(T/Tr)-T+Tr) - EOS$c2*( (1/(T-Theta)-1/(Tr-Theta))*((Theta-T)/Theta) - (T/Theta^2)*log((Tr*(T-Theta))/(T*(Tr-Theta))) )
-          p.a <- EOS$a1*(P-Pr) + EOS$a2*log((Psi+P)/(Psi+Pr)) + (EOS$a3*(P-Pr) + EOS$a4*log((Psi+P)/(Psi+Pr)))/(T-Theta)
+        } else if(prop=="g") {
+          p.c <- -EOS$c1*(T*log(T/Tr)-T+Tr) - 
+            EOS$c2*( (1/(T-Theta)-1/(Tr-Theta))*((Theta-T)/Theta) - 
+            (T/Theta^2)*log((Tr*(T-Theta))/(T*(Tr-Theta))) )
+          p.a <- EOS$a1*(P-Pr) + EOS$a2*log((Psi+P)/(Psi+Pr)) + 
+            (EOS$a3*(P-Pr) + EOS$a4*log((Psi+P)/(Psi+Pr)))/(T-Theta)
           p <- p.c + p.a
-        }
         # nonsolvation cp v kt e equations
-        if(prop=='cp') p <- EOS$c1 + EOS$c2 * ( T - Theta ) ^ (-2)        
-        if(prop=='v') p <- convert(EOS$a1,'cm3bar') + convert(EOS$a2,'cm3bar') / ( Psi + P) +
-          ( convert(EOS$a3,'cm3bar') + convert(EOS$a4,'cm3bar') / ( Psi + P ) ) / ( T - Theta)
-        if(prop=='kt') p <- ( convert(EOS$a2,'cm3bar') + convert(EOS$a4,'cm3bar') / (T - Theta) ) * (Psi + P) ^ (-2)
-        if(prop=='e') p <- convert( - ( EOS$a3 + EOS$a4 / convert((Psi + P),'calories') ) * (T - Theta) ^ (-2),'cm3bar')
+        } else if(prop=='cp') {
+          p <- EOS$c1 + EOS$c2 * ( T - Theta ) ^ (-2)        
+        } else if(prop=='v') {
+          p <- convert(EOS$a1,'cm3bar') + 
+            convert(EOS$a2,'cm3bar') / ( Psi + P) +
+            ( convert(EOS$a3,'cm3bar') + convert(EOS$a4,'cm3bar') / ( Psi + P ) ) / ( T - Theta)
+        } else if(prop=='kt') {
+          p <- ( convert(EOS$a2,'cm3bar') + 
+            convert(EOS$a4,'cm3bar') / (T - Theta) ) * (Psi + P) ^ (-2)
+        } else if(prop=='e') {
+          p <- convert( - ( EOS$a3 + EOS$a4 / convert((Psi + P),'calories') ) * 
+            (T - Theta) ^ (-2),'cm3bar')
+        }
       }
       if( icontrib=="s") {
         # solvation ghs equations
@@ -169,10 +130,12 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
         if(prop=="s") 
           p <- omega.PT*H2O.PT$Y + (ZBorn+1)*dwdT - omega*H2O.PrTr$Y 
         # solvation cp v kt e equations
-        if(prop=='cp') p <- omega.PT*T*H2O.PT$X + 2*T*H2O.PT$Y*dwdT + T*(ZBorn+1)*d2wdT2
-        if(prop=='v') p <- -convert(omega.PT,'cm3bar') * H2O.PT$Q + convert(dwdP,'cm3bar') * (-ZBorn - 1)
-        # WARNING: the partial derivatives of omega are not implemented for kt and e
-        # (to do it, see p. 820 of SOJ+92)
+        if(prop=='cp') p <- omega.PT*T*H2O.PT$X + 2*T*H2O.PT$Y*dwdT + 
+          T*(ZBorn+1)*d2wdT2
+        if(prop=='v') p <- -convert(omega.PT,'cm3bar') * 
+          H2O.PT$Q + convert(dwdP,'cm3bar') * (-ZBorn - 1)
+        # WARNING: the partial derivatives of omega are not included here here for kt and e
+        # (to do it, see p. 820 of SOJ+92 ... but kt requires d2wdP2 which we don't have yet)
         if(prop=='kt') p <- convert(omega,'cm3bar') * H2O.PT$N
         if(prop=='e') p <- -convert(omega,'cm3bar') * H2O.PT$UBorn
       }
@@ -186,7 +149,6 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
       }
       p <- rep(p,length.out=length(hkf.p))
       ip <- 1:length(p)
-      if(prop %in% c('g','h','s')) ip <- which(!is.na(p))
       hkf.p[ip] <- hkf.p[ip] + p[ip]
     }
     wnew <- data.frame(hkf.p)
@@ -196,5 +158,100 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
   x[[k]] <- w
  }
  return(x)
+}
+
+gfun <- function(rhohat, Tc, P, alpha, daldT, beta) {
+  ## g and f functions for describing effective electrostatic radii of ions
+  ## split from hkf() 20120123 jmd      
+  ## based on equations in
+  ## Shock EL, Oelkers EH, Johnson JW, Sverjensky DA, Helgeson HC, 1992
+  ## Calculation of the Thermodynamic Properties of Aqueous Species at High Pressures 
+  ## and Temperatures: Effective Electrostatic Radii, Dissociation Constants and 
+  ## Standard Partial Molal Properties to 1000 degrees C and 5 kbar
+  ## J. Chem. Soc. Faraday Trans., 88(6), 803-826  doi:10.1039/FT9928800803
+  # rhohat - density of water in g/cm3
+  # Tc - temperature in degrees Celsius
+  # P - pressure in bars
+  # start with an output list of zeros
+  out0 <- numeric(length(rhohat))
+  out <- list(g=out0, dgdT=out0, d2gdT2=out0, dgdP=out0)
+  # only rhohat less than 1 will give results other than zero
+  idoit <- rhohat < 1 & !is.na(rhohat)
+  rhohat <- rhohat[idoit]
+  Tc <- Tc[idoit]
+  P <- P[idoit]
+  alpha <- alpha[idoit]
+  daldT <- daldT[idoit]
+  beta <- beta[idoit]
+  # eta in Eq. 1
+  eta <- 1.66027E5
+  # Table 3
+  ag1 <- -2.037662
+  ag2 <- 5.747000E-3
+  ag3 <- -6.557892E-6
+  bg1 <- 6.107361
+  bg2 <- -1.074377E-2
+  bg3 <- 1.268348E-5
+  # Eq. 25
+  ag <- ag1 + ag2 * Tc + ag3 * Tc ^ 2
+  # Eq. 26
+  bg <- bg1 + bg2 * Tc + bg3 * Tc ^ 2
+  # Eq. 24
+  g <- ag * (1 - rhohat) ^ bg
+  # Table 4
+  af1 <- 0.3666666E2
+  af2 <- -0.1504956E-9
+  af3 <- 0.5017997E-13
+  # Eq. 33
+  f <- 
+    ( ((Tc - 155) / 300) ^ 4.8 + af1 * ((Tc - 155) / 300) ^ 16 ) *
+    ( af2 * (1000 - P) ^ 3 + af3 * (1000 - P) ^ 4 ) 
+  # limits of the f function (region II of Fig. 6)
+  ifg <- Tc > 155 & P < 1000 & Tc < 355
+  # in case any T or P are NA
+  ifg <- ifg & !is.na(ifg)
+  # Eq. 32
+  g[ifg] <- g[ifg] - f[ifg]
+  ## now we have g at P, T
+  ## the rest is to get its partial derivatives with pressure and temperature
+  ## after Johnson et al., 1992
+  # alpha - coefficient of isobaric expansivity (K^-1)
+  # daldT - temperature derivative of coefficient of isobaric expansivity (K^-2)
+  # beta - coefficient of isothermal compressibility (bar^-1)
+  # Eqn. 76
+  d2fdT2 <- (0.0608/300*((Tc-155)/300)^2.8 + af1/375*((Tc-155)/300)^14) * (af2*(1000-P)^3 + af3*(1000-P)^4)
+  # Eqn. 75
+  dfdT <- (0.016*((Tc-155)/300)^3.8 + 16*af1/300*((Tc-155)/300)^15) * (af2*(1000-P)^3 + af3*(1000-P)^4)
+  # Eqn. 74
+  dfdP <- -(((Tc-155)/300)^4.8 + af1*((Tc-155)/300)^16) * (3*af2*(1000-P)^2 + 4*af3*(1000-P)^3)
+  d2bdT2 <- 2 * bg3  # Eqn. 73
+  d2adT2 <- 2 * ag3  # Eqn. 72
+  dbdT <- bg2 + 2*bg3*Tc  # Eqn. 71
+  dadT <- ag2 + 2*ag3*Tc  # Eqn. 70
+  # Eqn. 69
+  dgadT <- bg*rhohat*alpha*(1-rhohat)^(bg-1) + log(1-rhohat)*g/ag*dbdT  
+  D <- rhohat
+  # transcribed from SUPCRT92/reac92.f
+  dDdT <- -D * alpha
+  dDdP <- D * beta
+  dDdTT <- -D * (daldT - alpha^2)
+  Db <- (1-D)^bg
+  dDbdT <- -bg*(1-D)^(bg-1)*dDdT + log(1-D)*Db*dbdT
+  dDbdTT <- -(bg*(1-D)^(bg-1)*dDdTT + (1-D)^(bg-1)*dDdT*dbdT + 
+    bg*dDdT*(-(bg-1)*(1-D)^(bg-2)*dDdT + log(1-D)*(1-D)^(bg-1)*dbdT)) +
+    log(1-D)*(1-D)^bg*d2bdT2 - (1-D)^bg*dbdT*dDdT/(1-D) + log(1-D)*dbdT*dDbdT
+  d2gdT2 <- ag*dDbdTT + 2*dDbdT*dadT + Db*d2adT2
+  d2gdT2[ifg] <- d2gdT2[ifg] - d2fdT2[ifg]
+  dgdT <- g/ag*dadT + ag*dgadT  # Eqn. 67
+  dgdT[ifg] <- dgdT[ifg] - dfdT[ifg]
+  dgdP <- -bg*rhohat*beta*g*(1-rhohat)^-1  # Eqn. 66
+  dgdP[ifg] <- dgdP[ifg] - dfdP[ifg]
+  # phew! done with those derivatives
+  # put the results in their right place (where rhohat < 1)
+  out$g[idoit] <- g
+  out$dgdT[idoit] <- dgdT
+  out$d2gdT2[idoit] <- d2gdT2
+  out$dgdP[idoit] <- dgdP
+  return(out)
 }
 

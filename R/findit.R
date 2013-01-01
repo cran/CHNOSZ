@@ -1,14 +1,14 @@
 # CHNOSZ/findit.R
-# find the minimum or maximum of a target 
+# find the minimum or maximum of a objective 
 # (eg cv, richness, shannon)
 # as a function the specified chemical potentials
 # 20100831 jmd
 
-findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
-  T=25,P="Psat",res=NULL,labcex=0.6,loga.ref=NULL,as.residue=FALSE,
-  loga.tot=0) {
+findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.it=TRUE,
+  T=25, P="Psat", res=NULL, labcex=0.6, loga2=NULL,
+  loga.balance=0, rat=NULL, balance=NULL, normalize=FALSE) {
   # the lims list has the limits of the arguments to affinity()
-  # we iteratively move toward a higher/lower value of the target
+  # we iteratively move toward a higher/lower value of the objective
   # within these limits
   
   # fun stuff: when running on either side of 100 deg C,
@@ -18,18 +18,20 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
   nd <- length(lims)
 
   # get protein lengths if iprotein is given
-  if(!is.null(iprotein)) pl <- protein.length(-iprotein)
+  if(!is.null(iprotein)) pl <- protein.length(iprotein)
 
   # how many gradations in each dimension we can timely 
   # consider goes down with the number of dimensions
   if(is.null(res)) res <- c(128,64,16,8,6,4,4)[nd]
-  if(is.null(n)) n <- c(4,6,6,8,12,12,12)[nd]
+  if(is.null(niter)) niter <- c(4,6,6,8,12,12,12)[nd]
   # the size fraction of the new intervals after each iteration
   # we can zoom in more quickly if the gradations are smaller
-  rat <- 0.85
-  if(res > 4) rat <- 0.8
-  if(res > 8) rat <- 0.75
-  if(res > 16) rat <- 2/(1+sqrt(5))
+  if(is.null(rat)) {
+    rat <- 0.95
+    if(res > 4) rat <- 0.9
+    if(res > 8) rat <- 0.8
+    if(res > 16) rat <- 0.7
+  }
 
   # the initial values of the guesses (if midpoint==FALSE)
   basis <- thermo$basis
@@ -45,19 +47,21 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
 
   # function to get the current limits of a variable
   limfun <- function(lim,curr,i) {
-    # in the ith loop we consider intervals
-    # of rat^(i-1) of the ranges specified at start
-    cat(paste("now",round(curr,4),"",""))
-    range <- range(lim)
-    if(i==1) int <- abs(diff(range)) 
-    else int <- abs(diff(range)) * rat^(i-1)
-    mylims <- c(curr-int/2,curr+int/2)
-    # don't go beyond the starting limits
-    if(any(mylims < min(range))) mylims <- mylims + (min(range) - min(mylims))
-    if(any(mylims > max(range))) mylims <- mylims - (max(mylims) - max(range))
-    # reverse the order if the axis is reversed
-    if(diff(lim) < 0) mylims <- rev(mylims)
-    cat(paste("limits",round(mylims[1],4),round(mylims[2],4),"\n"))
+    if(i==1) mylims <- lim
+    else {
+      # in the ith loop we consider intervals
+      # of rat^(i-1) of the ranges specified at start
+      msgout(paste("optimal:",round(curr,4),"",""))
+      range <- range(lim)
+      int <- abs(diff(range)) * rat^(i-1)
+      mylims <- c(curr-int/2, curr+int/2)
+      # don't go beyond the starting limits
+      if(any(mylims < min(range))) mylims <- mylims + (min(range) - min(mylims))
+      if(any(mylims > max(range))) mylims <- mylims - (max(mylims) - max(range))
+      # reverse the order if the axis is reversed
+      if(diff(lim) < 0) mylims <- rev(mylims)
+    }
+    msgout(paste("new limits:",round(mylims[1],4),round(mylims[2],4),"\n"))
     return(mylims)
   }
 
@@ -71,15 +75,15 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
 
   # loop for the specified number of iterations
   # (todo: loop until an error threshhold is reached)
-  for(i in 1:n) {
-    cat(paste("\n###### findit: iteration",i,"of",n,"\n"))
+  for(i in 1:niter) {
+    msgout(paste("\n###### findit: iteration",i,"of",niter,"\n"))
     # to generate the argument list for affinity
     # with the variables specified in lims
     aargs <- list()
     for(j in 1:length(lims)) {
       if(names(lims)[j] %in% rownames(basis)) {
         ibasis <- match(names(lims)[j],rownames(basis))
-        cat(paste("###",rownames(basis)[ibasis],""))
+        msgout(paste("###",rownames(basis)[ibasis],""))
         # the starting search limits for this species
         lim <- lims[[j]]
         # center the search interval on the current values
@@ -89,7 +93,7 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
         names(myarg) <- rownames(basis)[ibasis]
         aargs <- c(aargs,myarg)
       } else if(names(lims[j]) %in% c("T","P")) {
-        cat(paste("###",names(lims[j]),""))
+        msgout(paste("###",names(lims[j]),""))
         if(names(lims[j])=="T") {
           lim <- lims$T
           curr <- T
@@ -113,19 +117,13 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
 
     # now calculate the affinities
     a <- do.call(affinity,aargs)
-    # then calculate the values of the target function
-    d <- diagram(a,do.plot=FALSE,mam=FALSE,as.residue=as.residue,logact=loga.tot)
-    dd <- revisit(d$logact,target,loga.ref=loga.ref)$H
-    # find the extreme value
-    iext <- where.extreme(dd,target)
-    # find the extreme value
-    teststat <- c(teststat,dd[iext])
-    # what are its coordinates
-    dd1 <- dd
-    dd1[] <- 1
-    ai <- which(dd1==1,arr.ind=TRUE)
-    if(nd==1) ai <- ai[iext]
-    else ai <- ai[iext,]
+    # then calculate the values of the objective function
+    e <- equilibrate(a, balance=balance, loga.balance=loga.balance, normalize=normalize)
+    dd <- revisit(e$loga.equil, objective, loga2=loga2)$H
+    # coordinates of the extreme value (take only the first set of coords)
+    iopt <- optimal.index(dd, objective)[1,, drop=FALSE]
+    # the extreme value
+    teststat <- c(teststat,dd[iopt])
 
     # loop to update the current parameters
     for(j in 1:length(lims)) {
@@ -135,7 +133,7 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
       # the increments used
       myinc <- seq(mylims[1],mylims[2],length.out=mylims[3])
       # the value of the variable at the extreme of the function
-      myval <- myinc[ai[j]]
+      myval <- myinc[iopt[j]]
       # update the basis table, T or P
       if(names(lims)[j] %in% rownames(basis)) {
         ibasis <- match(names(lims)[j],rownames(basis))
@@ -154,24 +152,24 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
     }
 
     # are we making a plot?
-    if(do.plot) {
+    if(plot.it) {
       # add our search lines and extreme points
       # to the plot
       if(nd==1) {
-        if(i==1) revisit(d,target,loga.ref,xlim=lims[[1]])
+        if(i==1) revisit(e,objective,loga2,xlim=lims[[1]])
         # on a 1-D diagram we add vertical lines to show our search limits
         abline(v=outlims[[1]][1:2])
         lines(myinc,dd)
-        points(myval,dd[iext])
+        points(myval,dd[iopt])
       } else if(nd==2) {
-        if(i==1) revisit(d,target,loga.ref,xlim=lims[[1]],ylim=lims[[2]],labcex=labcex)
+        if(i==1) revisit(e,objective,loga2,xlim=lims[[1]],ylim=lims[[2]],labcex=labcex)
         else {
           # on a 2-D diagram we add a box around our search limits
           # and an updated map for this region
           ol1 <- outlims[[1]]
           ol2 <- outlims[[2]]
           rect(ol1[1],ol2[1],ol1[2],ol2[2],border=par("fg"),col="white")
-          revisit(d,target,loga.ref,xlim=lims[[1]],ylim=lims[[2]],add=TRUE,labcex=labcex)
+          revisit(e,objective,loga2,xlim=lims[[1]],ylim=lims[[2]],add=TRUE,labcex=labcex)
         }
         text(out[[1]],out[[2]])
         points(out[[1]],out[[2]],cex=2)
@@ -189,10 +187,10 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
         # we extract the third dimension until only two remain
         for(j in 3:nd) {
           # ai[j] - which slice in this dimension has the extremum
-          for(k in 1:length(d$logact)) d$logact[[k]] <- slice(d$logact[[k]],3,ai[j])
+          for(k in 1:length(e$loga.equil)) e$loga.equil[[k]] <- slice(e$loga.equil[[k]],3,iopt[j])
         }
         # now make the plot
-        revisit(d,target,loga.ref,xlim=lims[[1]],ylim=lims[[2]],add=add,labcex=labcex)
+        revisit(e,objective,loga2,xlim=lims[[1]],ylim=lims[[2]],add=add,labcex=labcex)
         # indicate the location of the extremum
         text(out[[1]],out[[2]])
         points(out[[1]],out[[2]],cex=2)
@@ -207,7 +205,7 @@ findit <- function(lims=list(),target="cv",n=NULL,iprotein=NULL,do.plot=TRUE,
   }  # end main loop
   # build return list: values of chemical variables and test statistic
   teststat <- list(teststat)
-  names(teststat) <- target
+  names(teststat) <- objective
   value <- c(out,teststat)
   # build return list: limits at each step
   out <- list(value=value,lolim=lolim,hilim=hilim)
@@ -224,17 +222,17 @@ plot.findit <- function(x,which=NULL,mar=c(3.5,5,2,2),xlab="iteration",...) {
   l <- length(which)
   opar <- par(mfrow=c(l,1),mar=mar) 
   for(i in which) {
-    n <- length(x$value[[i]])
+    niter <- length(x$value[[i]])
     ylab <- names(x$value)[i]
     if(ylab %in% c(rownames(thermo$basis),"T","P","pH","Eh")) ylab <- axis.label(ylab)
     # the values
-    plot(1:n,x$value[[i]],xlab=xlab,ylab=ylab,...)
-    lines(1:n,x$value[[i]])
+    plot(1:niter,x$value[[i]],xlab=xlab,ylab=ylab,...)
+    lines(1:niter,x$value[[i]])
     # the search intervals
     # (not available for the test statistic)
     if(i!=length(x$value)) {
-      lines(1:n,x$lolim[[i]],lty=2)
-      lines(1:n,x$hilim[[i]],lty=2)
+      lines(1:niter,x$lolim[[i]],lty=2)
+      lines(1:niter,x$hilim[[i]],lty=2)
     }
   }
   par(opar)

@@ -1,6 +1,5 @@
 # CHNOSZ/util.list.R
 # functions to work with lists
-# Copyright (C) 2008-2009 Jeffrey M. Dick
 
 which.pmax <- function (elts, na.rm = FALSE, pmin=FALSE) {
   # adapted from R's pmax. elts is a list of numeric vectors
@@ -58,28 +57,5 @@ pprod <- function(x,y) {
   # by corresponding value in list x
   pfun <- function(i) x[[i]]*y[i]
   lapply(1:length(y),pfun)
-}
-
-psum <- function(x) {
-  # sum all elements of a list
-  s <- x[[1]]
-  for(j in 2:length(x)) s <- s+x[[j]]
-  return(s)
-}
-
-mylapply <- function(X,FUN,...) {
-  # wrapper to run lapply or mclapply
-  if(length(X) > 20) {
-    if("multicore" %in% (.packages())) {
-      # tell the user the number of iterations and the name of the calling function
-      cn <- caller.name()
-      if(length(cn)==0) ntext <- "..." else ntext <- paste("called by",cn,"...")
-      if(thermo$opt$verbose) cat("mylapply:",length(X),"calculations using multicore",ntext)
-      out <- do.call("mclapply",list(X,FUN,...))
-      if(thermo$opt$verbose) cat("done!\n")
-    }
-    else out <- lapply(X,FUN,...)
-  } else out <- lapply(X,FUN,...)
-  return(out)
 }
 

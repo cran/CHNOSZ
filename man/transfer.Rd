@@ -14,8 +14,8 @@ Simulate a mass transfer process such as mineral weathering or sequential format
     alphastart = -10, T = 25, P = "Psat", do.title = TRUE, beta = 0)
   draw.transfer(t, ylim = c(-10, 1), ylimbasis = c(-12, -2), 
     logprogress = FALSE)
-  feldspar(which = "closed", do.plot = FALSE)
-  apc(which = "open", basis = "CO2", do.plot = FALSE)
+  feldspar(which = "closed", plot.it = FALSE)
+  apc(which = "open", basis = "CO2", plot.it = FALSE)
 }
 
 \arguments{
@@ -37,7 +37,7 @@ Simulate a mass transfer process such as mineral weathering or sequential format
   \item{ylimbasis}{numeric, y-axis limits for the logarithms of activities of basis species.}
   \item{logprogress}{logical, put reaction progress on a logarithmic scale?}
   \item{which}{character, type of system to simulate.}
-  \item{do.plot}{logical, summarize the results using draw.transfer?}
+  \item{plot.it}{logical, summarize the results using draw.transfer?}
   \item{basis}{character, type of basis definition to use.}
 }
 
@@ -55,7 +55,7 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
   \code{draw.transfer} is used to plot the logarithms of activities of basis species, and logarithms of activities (moles for solid species, molalities for aqueous species) of the minerals or proteins as a function of reaction progress, or logarithm of reaction progress if \code{logprogress} is set to \code{TRUE}. The y-limits of the plots can be set using \code{ylim} and \code{ylimbasis}.
 
-  \code{feldspar} and \code{apc} encode examples for feldspar weathering and reactions among proteins in the anaphase-promoting complex of yeast. Equivalent code for two selected examples is shown below.
+  \code{feldspar} and \code{apc} encode examples for feldspar weathering and reactions among proteins in the anaphase-promoting complex of yeast.
 
 }
 
@@ -64,45 +64,32 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 }
 
 
-\examples{
-  \dontshow{data(thermo)}
-\donttest{
-  ## react potassium feldspar in a closed system
-  ## after Steinmann et al., 1994 and Helgeson et al., 1969
-  basis(c("Al+3","H4SiO4","K+","H2O","H+","O2"),c(0,-6,-6,0,0,0))
-  species(c("k-feldspar","muscovite","pyrophyllite","kaolinite","gibbsite"))
-  a <- affinity(H4SiO4=c(-6,-2),"K+"=c(-3,8))
-  diagram(a)
-  basis("pH",4)
-  species(1:5,c(-4,rep(-999,4)))
-  tr <- transfer(550,dmode="coupled",plot=c(2,3),devmax=0.2)
-  # plot the output from transfer
-  draw.transfer(tr)
-  # reset the plot layout
-  layout(matrix(1))
-  # note, the same calculation can be performed using
-  # feldspar("closed")
+\examples{\dontshow{data(thermo)}
+\donttest{## react potassium feldspar in a closed system
+## after Steinmann et al., 1994 and Helgeson et al., 1969
+basis(c("Al+3", "H4SiO4", "K+", "H2O", "H+", "O2"), c(0, -6, -6, 0, 0, 0))
+species(c("k-feldspar", "muscovite", "pyrophyllite", "kaolinite", "gibbsite"))
+a <- affinity(H4SiO4=c(-6, -2), "K+"=c(-3, 8))
+diagram(a, fill="heat")
+basis("pH", 4)
+species(1:5, c(-4, rep(-999, 4)))
+tr <- transfer(550, dmode="coupled", plot=c(2, 3), devmax=0.2)
+# plot the output from transfer
+draw.transfer(tr)
+# reset the plot layout
+layout(matrix(1))
 
-  ## react APC2 from Saccharomyces cerevisiae
-  ## to other proteins in the anaphase-promoting complex
-  basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
-  species(c("APC1","APC2","APC5","CDC16","APC10","SWM1"),"YEAST")
-  a <- affinity(CO2=c(-10,0),H2=c(-10,0))
-  diagram(a,as.residue=TRUE)
-  species(1:nrow(species()),-999)
-  species("APC2_YEAST",0)
-  tr <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
-  # this calculation is also available with
-  # apc("closed")
+## can also run the calculation above with
+#feldspar("closed")
+## or an example for proteins with
+#apc("closed")
 }
 }
 
 \references{
-
   Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T. (1969) Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta} \bold{33}, 455--481. \url{http://dx.doi.org/10.1016/0016-7037(69)90127-6}
 
   Steinmann, P., Lichtner, P. C. and Shotyk, W. (1994) Reaction path approach to mineral weathering reactions. \emph{Clay Clay Min.} \bold{42}, 197--206. \url{http://ccm.geoscienceworld.org/cgi/content/abstract/42/2/197}
-
 }
 
-\keyword{primary}
+\keyword{extra}

@@ -3,7 +3,7 @@
 # for each of the microbial taxa in RefSeq database
 
 # change this to the location where names.dmp and nodes.dmp are located
-taxdir <- "/home/download/sequences/taxonomy/refseq47"
+taxdir <- "/home/download/sequences/taxonomy/refseq55"
 
 # get the taxids from protein_refseq.csv
 pr <- read.csv("protein_refseq.csv.xz")
@@ -28,7 +28,6 @@ names(out) <- c(ranks)
 
 # loop over taxids
 ii <- seq_along(taxid)
-ii <- 1946:length(taxid)
 for(i in ii) {
   # test if data are available for this taxid
   if(!taxid[i] %in% taxnames$id) {

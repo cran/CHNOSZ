@@ -47,9 +47,9 @@
 
   If \code{y} is NULL and a supported operating system is identified, the operating system's \samp{grep} function (or other specified in the \code{grep} argument) is applied directly to the file instead of R's \code{\link{grep}}. This avoids having to read the file into R using \code{\link{readLines}}. If the lines from the file were obtained in a preceding operation, they can be supplied to this function in the \code{lines} argument.
 
-  \code{read.fasta} is used to retrieve entries from a FASTA file. The line numbers for the headers of the desired sequences are passed to the function in \code{i} (they can be generated using \code{grep.file}). The function returns various formats depending on the value of \code{ret}; the default \samp{count} returns a dataframe of amino acid counts (the dataframe can be given to \code{\link{add.protein}} in order to add the proteins to \code{\link{thermo}$protein}), \samp{seq} returns a list of sequences, and \samp{fas} returns a list of lines extracted from the FASTA file, including the headers (this can be used e.g. to generate a new FASTA file with only the selected sequences). Similarly to \code{grep.file}, this function utilizes the OS's \samp{grep} on supported operating systems in order to identify the header lines as well as \samp{cat} to read the file, otherwise \code{\link{readLines}} and \R's \code{\link{substr}} are used to read the file and locate the header lines. \code{lines}, if it is given, bypasses the reading of the file and also overrides the use of the OS's tools. If the line numbers of the header lines were previously determined, they can be supplied in \code{ihead}. 
+  \code{read.fasta} is used to retrieve entries from a FASTA file. The line numbers for the headers of the desired sequences are passed to the function in \code{i} (they can be generated using \code{grep.file}). The function returns various formats depending on the value of \code{ret}; the default \samp{count} returns a dataframe of amino acid counts (the data frame can be given to \code{\link{add.protein}} in order to add the proteins to \code{\link{thermo}$protein}), \samp{seq} returns a list of sequences, and \samp{fas} returns a list of lines extracted from the FASTA file, including the headers (this can be used e.g. to generate a new FASTA file with only the selected sequences). Similarly to \code{grep.file}, this function utilizes the OS's \samp{grep} on supported operating systems in order to identify the header lines as well as \samp{cat} to read the file, otherwise \code{\link{readLines}} and \R's \code{\link{substr}} are used to read the file and locate the header lines. \code{lines}, if it is given, bypasses the reading of the file and also overrides the use of the OS's tools. If the line numbers of the header lines were previously determined, they can be supplied in \code{ihead}. 
 
-  \code{splitline} takes a single character object (the \code{line}) and splits it into multiple lines of the given length (the last line can be shorter than this). It returns a character object that contains the lines. This function is utilized by \code{trimfas}, which extracts the specified positions from a (usually) aligned FASTA file. The length of the lines used by \code{trimfas} is equal to the length of the first sequence line in the given \code{file}.
+  \code{splitline} takes a single character object (the \code{line}) and splits it into multiple lines of the given length (the last line can be shorter than this). It returns a character object that contains the lines. This function is utilized by \code{trimfas}, which extracts the specified positions from a (usually) aligned FASTA file. The length of the lines output by \code{trimfas} is equal to the length of the first sequence line in the given \code{file}.
 
 }
 
@@ -65,13 +65,23 @@
 \section{Side Effects}{None}
 
 \examples{
-  # basic use of splitline
-  splitline("abcdefghijklmnopqrstuvwxyz",10)
+## basic use of splitline
+(AA21 <- splitline("ACDEFGHIKLMNPQRSTVWYX", 10))
+stopifnot(length(AA21)==3)
 
-  # get the first ten positions of each of the sequences
-  # in a FASTA file
-  f <- system.file("extdata/fasta/HTCC1062.faa.xz",package="CHNOSZ")
-  fnew <- trimfas(f,1,10)
+## reading a protein FASTA file
+# the path to the file
+file <- system.file("extdata/fasta/EF-Tu.aln", package="CHNOSZ")
+# read the sequences, and print the first one
+(seq <- read.fasta(file, ret="seq"))[[1]]
+# count the amino acids in the sequences
+(aa <- read.fasta(file))[1,]
+stopifnot(protein.length(aa[1,])==nchar(seq[[1]]))
+# extract characters 3-11 in the sequences
+seqtrim <- trimfas(file, 3, 11)
+# trimfas keeps all lines including the headers
+# so first sequence is the second element of the vector
+stopifnot(seqtrim[2]==substr(seq[[1]], 3, 11))
 }
 
 \keyword{util}

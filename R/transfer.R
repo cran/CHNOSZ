@@ -371,7 +371,7 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
       # chemical affinities (near-equilibrium rates)
       # 20090409 use abundance here -- relative
       # abundances of species in equilibrium
-      molspecies3 <- 10^as.numeric(equil.boltz(myaff,rep(1,length(myaff)),0))
+      molspecies3 <- 10^as.numeric(equil.boltzmann(myaff,rep(1,length(myaff)),0))
     }
     # the number of moles of basis species used
     ipresent <- which(log10(molspecies3) > logpresent)
@@ -792,7 +792,7 @@ draw.transfer <- function(t,ylim=c(-10,1),ylimbasis=c(-12,-2),logprogress=FALSE)
   legend(legend=t$species$name,lty=1:nrow(t$species),x='bottomright')
 }
 
-feldspar <- function(which="closed",do.plot=FALSE) {
+feldspar <- function(which="closed",plot.it=FALSE) {
   # open- and closed-system reaction paths
   # for weathering of k-feldspar
   # after Steinmann, Lichtner, and Shotyk, 1994
@@ -825,7 +825,7 @@ feldspar <- function(which="closed",do.plot=FALSE) {
   if(which=='closed') {
     # closed system diagram (SLS94 Fig. 2)
     tr <- transfer(550,dmode='coupled',plot=plot,devmax=0.2)
-    if(do.plot) draw.transfer(tr)
+    if(plot.it) draw.transfer(tr)
   } else if(which=='open') {
     # open system (SLS94 Fig. 3)
     # A* - B* - C* - D*
@@ -837,12 +837,12 @@ feldspar <- function(which="closed",do.plot=FALSE) {
     species(c('k-feldspar','kaolinite'),c(-4,-999))
     basis('H4SiO4',tr$basis[rownames(tr$basis)=='H4SiO4',ncol(tr$basis)])
     tr <- transfer(420,dmode='none',plot=plot)
-    if(do.plot) draw.transfer(tr)
+    if(plot.it) draw.transfer(tr)
   }
   return(invisible(tr))
 }
 
-apc <- function(which="open",basis="CO2",do.plot=FALSE) {
+apc <- function(which="open",basis="CO2",plot.it=FALSE) {
   # react APC2 to other proteins in the anaphase-promoting complex, e.g.
   # apc("open")
   # apc("closed")
@@ -858,25 +858,25 @@ apc <- function(which="open",basis="CO2",do.plot=FALSE) {
   # create a diagram
   if(basis=="CO2") a <- affinity(CO2=c(-10,0),H2=c(-10,0))
   else if(basis=="acetic") a <- affinity(C2H4O2=c(-10,-2),H2=c(-10,-4))
-  diagram(a,residue=TRUE,as.residue=TRUE)
+  diagram(a, normalize=TRUE)
   # set APC2 to react
   species(1:nrow(species()),-999)
   species("APC2_YEAST",0)
   if(which=="open") {
     tr <- transfer(220,ibalance="PBB",plot=c(1,4),dmode="none",devmax=0.2)
-    if(do.plot) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
+    if(plot.it) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
   } else if(which=="closed") {
     tr <- transfer(510,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15)
-    if(do.plot) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
+    if(plot.it) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
   } else if(which=="many") {
     tr <- transfer(250,ibalance="PBB",plot=c(1,4),dmode="none",devmax=0.15,fmode="many")
-    if(do.plot) draw.transfer(tr,ylim=c(-15,-8),logprogress=TRUE)
+    if(plot.it) draw.transfer(tr,ylim=c(-15,-8),logprogress=TRUE)
   } else if(which=="buffer") {
     mod.buffer("H2S","H2S","aq",0)
     species("APC2_YEAST",0)
     tr <- transfer(700,ibalance="PBB",plot=c(1,4),dmode="coupled",devmax=0.15,
       buffers=list(basis="H2S",buffer="H2S"),beta=4)
-    if(do.plot) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
+    if(plot.it) draw.transfer(tr,ylim=c(-22,-6),logprogress=TRUE)
   }
   return(invisible(tr))
 }

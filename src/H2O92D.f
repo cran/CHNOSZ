@@ -2800,10 +2800,12 @@
       ELSE
            IF (DABS(base) .GT. TOL) THEN
                 IF (DBLE(INT(exp)) .NE. exp) THEN
-                     WRITE(wterm,10) base, exp
- 10                  FORMAT(/,' neg base ** real exp is complex',
-     1                      /,' base,exp: ',2e20.13,/)
-                     STOP
+*                  exclude WRITE and STOP statements for 
+*                  interoperability with R (2011-11-13 jmd)
+*                     WRITE(wterm,10) base, exp
+* 10                  FORMAT(/,' neg base ** real exp is complex',
+*     1                      /,' base,exp: ',2e20.13,/)
+*                     STOP
                 ELSE
                      IF (MOD(exp,2.0d0) .EQ. 0.0d0) THEN
                           power =  (-base)**exp
@@ -2815,10 +2817,10 @@
                 IF (exp .GT. 0.0d0) THEN
                      power = 0.0d0
                 ELSE
-                     WRITE(wterm,20) base, exp
- 20                  FORMAT(/,' zero base ** (exp <= 0) is undefined',
-     1                      /,' base,exp: ',2e20.13)
-                     STOP
+*                     WRITE(wterm,20) base, exp
+* 20                  FORMAT(/,' zero base ** (exp <= 0) is undefined',
+*     1                      /,' base,exp: ',2e20.13)
+*                     STOP
                 END IF
            END IF
       END IF

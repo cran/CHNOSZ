@@ -12,7 +12,7 @@
 
 \usage{
   read.blast(file, similarity = 30, evalue = 1e-5, max.hits = 1, 
-    quiet = FALSE)
+    min.length = NA, quiet = FALSE)
   id.blast(blast, gi.taxid, taxid.names, min.taxon = 0, 
     min.query = 0, min.phylum = 0, take.first = TRUE)
   write.blast(blast, outfile)
@@ -20,25 +20,26 @@
 }
 
 \arguments{
-  \item{file}{character, name of BLAST tabular output file.}
-  \item{similarity}{numeric, hits above this similarity score are kept.}
-  \item{evalue}{character, hits below this E value are kept.}
-  \item{max.hits}{numeric, up to this many hits are kept for each query sequence.}
+  \item{file}{character, name of BLAST tabular output file}
+  \item{similarity}{numeric, hits above this similarity score are kept}
+  \item{evalue}{character, hits below this E value are kept}
+  \item{max.hits}{numeric, up to this many hits are kept for each query sequence}
+  \item{min.length}{numeric, hits with at least this alignment length are kept}
   \item{quiet}{logical, produce fewer messages?}
-  \item{blast}{dataframe, BLAST table.}
-  \item{gi.taxid}{list, first component is sequence identifiers (gi numbers), second is taxon ids (taxids).}
-  \item{taxid.names}{dataframe, with at least columns \samp{taxid} (taxon id), \samp{phylum} (name of phylum), \samp{species} (name of species).}
-  \item{min.taxon}{numeric, this taxon is kept if it makes up at least this fraction of total.}
-  \item{min.query}{numeric, query sequence is counted if a single phylum makes up this fraction of its hits.}
-  \item{min.phylum}{numeric, this phylum is kept if it makes up at least this fraction of total.}
+  \item{blast}{dataframe, BLAST table}
+  \item{gi.taxid}{list, first component is sequence identifiers (gi numbers), second is taxon ids (taxids)}
+  \item{taxid.names}{dataframe, with at least columns \samp{taxid} (taxon id), \samp{phylum} (name of phylum), \samp{species} (name of species)}
+  \item{min.taxon}{numeric, this taxon is kept if it makes up at least this fraction of total}
+  \item{min.query}{numeric, query sequence is counted if a single phylum makes up this fraction of its hits}
+  \item{min.phylum}{numeric, this phylum is kept if it makes up at least this fraction of total}
   \item{take.first}{logical, keep only first hit after all other filtering steps?}
-  \item{outfile}{character, name of output file.}
+  \item{outfile}{character, name of output file}
   \item{def}{character, FASTA defline(s)}
 }
 
 \details{
 
-  \code{read.blast} reads a BLAST tabular output \code{file}, keeping only those hits with greater than or equal to the \code{similarity} and less than or equal to the \code{evalue} (expectation value) specified in the arguments. Furthermore, for each query sequence, only the top number of hits specified by \code{max.hits} are kept. Note that BLAST (Altschul et al., 1997) tabular output files can be generated using the -m 8 switch to the \sQuote{blastall} command. 
+  \code{read.blast} reads a BLAST (Altschul et al., 1997) tabular output \code{file} (such as generated using the -m 8 switch to the \sQuote{blastall} command), keeping only those hits with greater than or equal to \code{similarity} and less than or equal to \code{evalue} (expectation value). Furthermore, for each query sequence, only the top number of hits specified by \code{max.hits} are kept, and only hits with an alignment length of at least \code{min.length} are kept. One or more of these filters can be disabled by setting \code{similarity}, \code{evalue} and/or \code{max.hits} to NA. 
 
   \code{id.blast} takes a BLAST table (i.e., the output of \code{read.blast}) and finds the taxonomic ID, phylum and species name for each hit (subject sequence). The BLAST results are tied to taxids using \code{gi.taxid}, which is a list consisting of \samp{gi} and \samp{taxid} numeric vectors. Any subject sequence identifiers appearing in the BLAST file that do not match gi numbers in the \code{gi.taxid} list are dropped. The \code{taxid.names} dataframe lists the phylum and species names for each taxid.
 
@@ -75,7 +76,7 @@
   taxid.names <- read.csv(nfile)
   # the BLAST files
   sites <- c("N","S","R","Q","P")
-  bfile <- paste("extdata/bison/bison", sites, "_vs_refseq47.blastp.xz", sep="")
+  bfile <- paste("extdata/bison/bison", sites, "_vs_refseq55.blastp.xz", sep="")
   for(i in 1:5) {
     file <- system.file(bfile[i], package="CHNOSZ")
     # read the blast file, with default filtering settings
@@ -106,8 +107,8 @@
     y <- (cumsum(bd) - bd/2)[ib]
     text(bp[i], y, names[ib])
   }
-  title(main=paste("Most Abundant Phyla in a Portion",
-    "of the Bison Pool Metagenome", sep="\n"))
+  title(main=paste("Phylum Classification of Protein Sequences",
+    "in Part of the Bison Pool Metagenome", sep="\n"))
 }
 
 \references{
@@ -115,4 +116,3 @@
 }
 
 \keyword{util}
-

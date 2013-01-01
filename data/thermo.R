@@ -1,29 +1,23 @@
 # CHNOSZ/data/thermo.R
-# create the "thermo" data object from data files
+# load the "thermo" data object into an environment named CHNOSZ:thermo
 
+# data(thermo) can be called multiple times during an interactive session,
+# first call is at package loading (by .onAttach); subsequent calls are from the user
+if("CHNOSZ:thermo" %in% search()) {
+  # the environment already exists; restore the "thermo" object to default values
+  source("xxx.R") 
+} else {
+  # the environment doesn't exist; create it and the "thermo" object
+  sys.source("yyy.R", attach(NULL, name="CHNOSZ:thermo"))
+}
 
-thermo <- list(
-  # as.is: keep character values as character and not factor
-  opt = as.list(read.csv("opt.csv",as.is=TRUE)),
-  element = read.csv("element.csv",as.is=1:3),
-  obigt = read.csv("OBIGT.csv",as.is=1:7),
-  refs = read.csv("refs.csv",as.is=TRUE),
-  buffers = read.csv("buffer.csv",as.is=1:3),
-  protein = read.csv("protein.csv",as.is=1:4),
-  stress = read.csv("stress.csv",check.names=FALSE,as.is=TRUE),
-  groups = read.csv("groups.csv",row.names=1,check.names=FALSE),
-  basis = NULL,
-  species = NULL,
-  water = NULL,
-  water2 = NULL
-)
-
-packageStartupMessage(paste("thermo$obigt has",
+# give a summary of some of the data
+packageStartupMessage(paste("thermo$obigt:",
   nrow(thermo$obigt[thermo$obigt$state=="aq",]),
-  "aqueous,",nrow(thermo$obigt),"total species"))
+  "aqueous,", nrow(thermo$obigt), "total species"))
 
-#cat(paste("thermo: loaded",nrow(thermo$ECO),"proteins to thermo$ECO\n"))
-#cat(paste("thermo: loaded",nrow(thermo$SGD),"proteins to thermo$SGD\n"))
-#cat(paste("thermo: loaded",nrow(thermo$yeastgfp),"localizations and",
-#  length(thermo$yeastgfp$abundance[!is.na(thermo$yeastgfp$abundance)]),"abundances to thermo$yeastgfp\n"))
-
+# note if there are duplicated species
+idup <- duplicated(paste(thermo$obigt$name, thermo$obigt$state))
+if(any(idup)) warning("thermo$obigt: duplicated species: ", 
+  paste(thermo$obigt$name[idup], "(", thermo$obigt$state[idup], ")", sep="", collapse=" "))
+rm(idup)

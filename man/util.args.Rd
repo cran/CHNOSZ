@@ -38,7 +38,7 @@ A list is return by \code{eos.args} and \code{TP.args}, and character is returne
   ## produces an error because "Q" is not allowed in water.SUPCRT92
 \dontrun{
   eos.args("hkf",c("G","H","S","Cp","V","kT","E","Q")) }
-  thermo$opt$water <- "IAPWS"  # needed for p and n in next line
+  thermo$opt$water <<- "IAPWS"  # needed for p and n in next line
   eos.args("water",c("p","u","cv","psat","rho","n","q","x","y","epsilon"))
   TP.args(c(273.15,373.15))
   TP.args(c(273.15,373.15),"Psat")
@@ -48,5 +48,3 @@ A list is return by \code{eos.args} and \code{TP.args}, and character is returne
 }
 
 \keyword{util}
-
-

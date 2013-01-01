@@ -1,11 +1,11 @@
+Date: 2013-01-01
 Package: CHNOSZ
+Version: 0.9-9
 Title: Chemical Thermodynamics and Activity Diagrams
-Version: 0.9-7
-Date: 2011-08-23
-Author: Jeffrey M. Dick <jmdick@asu.edu>
+Author: Jeffrey M. Dick
 Maintainer: Jeffrey M. Dick <jmdick@asu.edu>
-Depends: R (>= 2.10.0), utils
-Suggests: xtable
+Depends: R (>= 2.12.0), utils
+Suggests: testthat, parallel, limSolve
 Description: This package includes functions and data sets to support
         chemical thermodynamic modeling in biochemistry and
         low-temperature geochemistry. The features include calculation
@@ -21,7 +21,7 @@ Description: This package includes functions and data sets to support
 License: GPL (>= 2)
 BuildResaveData: no
 ZipData: no
-URL: http://www.chnosz.net/
-Packaged: 2011-08-23 00:43:25 UTC; jedick
+URL: http://www.chnosz.net/, http://chnosz.r-forge.r-project.org/
+Packaged: 2013-01-01 13:31:12 UTC; jedick
 Repository: CRAN
-Date/Publication: 2011-08-23 05:10:01
+Date/Publication: 2013-01-01 15:15:40

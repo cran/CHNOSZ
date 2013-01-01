@@ -1,300 +1,231 @@
 # CHNOSZ/info.R
-# search information and thermodynamic properties of species
+# search database for species names or formulas
+# and retrieve thermodynamic properties of species
 # 20061024 extraced from species.R jmd
+# 20120507 code rewrite and split into info.[character,approx,numeric];
+#   these functions expect arguments of length 1; 
+#   info() handles longer arguments
 
-info <- function(species=NULL,states=NULL,quiet=FALSE,return.approx=TRUE) {
-  # quiet=TRUE disables checks of self-consistency of ghs
-  # and eos/Cp/V values and also makes things run faster
+info.text <- function(ispecies) {
+  # a textual description of species name, formula, source, e.g.
+  # CO2 [CO2(aq)] (SSW01, SHS89, 11.Oct.07)
+  this <- thermo$obigt[ispecies, ]
+  sourcetext <- this$ref1
+  ref2 <- this$ref2
+  if(!is.na(ref2)) sourcetext <- paste(sourcetext, ref2, sep=", ")
+  date <- this$date
+  if(!is.na(date)) sourcetext <- paste(sourcetext, date, sep=", ")
+  out <- paste(this$name, " [", this$formula, "(", this$state, ")", "] (", sourcetext, ")", sep="")
+  return(out)
+}
 
-  if(missing(species)) {
-    # a friendly summary of thermodynamic information? 20101129
-    cat("info: species is NULL; summarizing information about thermodynamic data...\n")
-    cat(paste("thermo$obigt has",nrow(thermo$obigt[thermo$obigt$state=="aq",]),"aqueous,",
-      nrow(thermo$obigt),"total species\n"))
-    cat(paste("number of literature sources: ",nrow(thermo$refs),", elements: ",
-      nrow(thermo$element),", buffers: ",length(unique(thermo$buffers$name)),"\n",sep=""))
-    cat(paste("number of proteins in thermo$protein is",nrow(thermo$protein),"from",
-      length(unique(thermo$protein$organism)),"organisms\n"))
+info.character <- function(species, state=NULL, check.protein=TRUE) {
+  # returns the rownumbers of thermo$obigt having an exact match of 'species' to
+  # thermo$obigt$[species|abbrv|formula] or NA otherwise
+  # a match to thermo$obigt$state is also required if 'state' is not NULL
+  # (first occurence of a match to species is returned otherwise)
+  # all matches for the species
+  matches.species <- thermo$obigt$name==species | 
+    thermo$obigt$abbrv==species | thermo$obigt$formula==species
+  # since thermo$obigt$abbrv contains NAs, convert NA results to FALSE
+  matches.species[is.na(matches.species)] <- FALSE
+  # turn it in to no match if it's a protein in the wrong state
+  ip <- suppressMessages(iprotein(species))
+  if(any(matches.species) & !is.na(ip) & !is.null(state)) {
+    matches.state <- matches.species & grepl(state, thermo$obigt$state)
+    if(!any(matches.state)) matches.species <- FALSE
+  }
+  # no match, not available
+  if(!any(matches.species)) {
+    # unless it's a protein
+    if(check.protein) {
+      # did we find a protein? add its properties to obigt
+      if(!is.na(ip)) {
+        # here we use a default state from thermo$opt$state
+        if(is.null(state)) state <- thermo$opt$state
+        # retrieve the amino acid composition
+        aa <- ip2aa(ip)
+        # add up protein properties
+        eos <- aa2eos(aa, state)
+        # the real assignment work 
+        nrows <- suppressMessages(mod.obigt(eos))
+        matches.species <- rep(FALSE, nrows)
+        matches.species[nrows] <- TRUE
+      } else return(NA)
+    } else return(NA)
+  }
+  # do we demand a particular state
+  if(!is.null(state)) {
+    # special treatment for H2O: aq retrieves the liq
+    if(species %in% c("H2O", "water") & state=="aq") state <- "liq"
+    # the matches for both species and state
+    matches.state <- matches.species & grepl(state, thermo$obigt$state)
+    if(!any(matches.state)) {
+      # the requested state is not available for this species
+      available.states <- thermo$obigt$state[matches.species]
+      if(length(available.states)==1) a.s.verb <- "is" else a.s.verb <- "are"
+      a.s.text <- paste("'", available.states, "'", sep="", collapse=" ")
+      msgout("info.character: requested state '", state, "' for ", species, 
+        " but only ", a.s.text, " ", a.s.verb, " available\n")
+      return(NA)
+    }
+    matches.species <- matches.state
+  }
+  # all of the species that match
+  ispecies <- which(matches.species)
+  # special treatment for O2/oxygen: we prefer the gas
+  if(species %in% c("O2", "oxygen") & is.null(state)) {
+    igas <- match("gas", thermo$obigt$state[ispecies])
+    ispecies <- c(ispecies[igas], ispecies[-igas])
+  }
+  # we return only the first species that matches
+  # unless they are 'cr1' 'cr2' etc. and we requested state 'cr'
+  if(identical(state, "cr")) ispecies.out <- ispecies
+  else ispecies.out <- ispecies[1]
+  # let user know if there is more than one state for this species
+  if(length(ispecies) > length(ispecies.out)) {
+    ispecies.other <- ispecies[!ispecies %in% ispecies.out]
+    othertext <- paste(thermo$obigt$state[ispecies.other], collapse=", ")
+    msgout("info.character: found ", species, "(", thermo$obigt$state[ispecies.out], 
+      "), also available in ", othertext, "\n")
+  }
+  return(ispecies.out)
+}
+
+info.numeric <- function(ispecies, check.it=TRUE) {
+  # from a numeric species index in 'ispecies' return the 
+  # thermodynamic properties and equations-of-state parameters
+  # if we're called with NA, return an empty row
+  if(is.na(ispecies)) {
+    this <- thermo$obigt[1,]
+    this[] <- NA
+    return(this)
+  }
+  this <- thermo$obigt[ispecies,]
+  # species indices must be in range
+  ispeciesmax <- nrow(thermo$obigt)
+  if(ispecies > ispeciesmax | ispecies < 1) 
+    stop(paste("species index", ispecies, "not found in thermo$obigt\n"))
+  # remove scaling factors on EOS parameters depending on state
+  # use new obigt2eos function here
+  this <- obigt2eos(this, this$state)
+  # identify any missing GHS values
+  naGHS <- which(is.na(this[8:10]))
+  # a missing one of G, H or S can cause problems for subcrt calculations at high T
+  if(length(naGHS)==1) {
+    # calculate a single missing one of G, H, or S from the others
+    GHS <- as.numeric(GHS(as.character(this$formula), G=this[,8], H=this[,9], S=this[,10]))
+    msgout("info.numeric: ", colnames(this)[8:10][naGHS], " of ",
+      this$name, "(", this$state, ") is NA; set to ", round(GHS[naGHS],2), "\n")
+    this[, naGHS+7] <- GHS[naGHS]
+  } 
+  # now perform consistency checks for GHS and EOS parameters if check.it=TRUE
+  if(check.it) {
+    # check GHS if they were all present
+    if(length(naGHS)==0) calcG <- checkGHS(this)
+    # check tabulated heat capacities against EOS parameters
+    calcCp <- checkEOS(this, this$state, "Cp")
+    # fill in NA heat capacity
+    if(!is.na(calcCp) & is.na(this$Cp)) {
+      msgout("info.numeric: Cp of ", this$name, "(", this$state, ") is NA; set by EOS parameters to ", round(calcCp, 2), "\n")
+      this$Cp <- as.numeric(calcCp)
+    }
+    # check tabulated volumes - only for aq (HKF equation)
+    if(identical(this$state, "aq")) {
+      calcV <- checkEOS(this, this$state, "V")
+      # fill in NA volume
+      if(!is.na(calcV) & is.na(this$V)) {
+        msgout("info.numeric: V of ", this$name, "(", this$state, ") is NA; set by EOS parameters to ", round(calcV, 2), "\n")
+        this$V <- as.numeric(calcV)
+      }
+    }
+  } # done checking
+  # all done!
+  return(this)
+}
+
+info.approx <- function(species, state=NULL) {
+  # returns species indices that have an approximate match of 'species'
+  # to thermo$obigt$[name|abbrv|formula], 
+  # possibly restricted to a given state
+  if(!is.null(state)) this <- thermo$obigt[thermo$obigt$state==state, ]
+  else this <- thermo$obigt
+  # only look for fairly close matches
+  max.distance <- 0.1
+  approx.name <- agrep(species, this$name, max.distance)
+  approx.abbrv <- agrep(species, this$abbrv, max.distance)
+  approx.formula <- agrep(species, this$formula, max.distance)
+  approx.species <- unique(c(approx.name, approx.abbrv, approx.formula))
+  if(!is.na(approx.species[1])) {
+    # show the names of the species
+    if(length(approx.species)==1) {
+      msgout("info.approx: '", species, "' is similar to ", info.text(approx.species), "\n")
+    } else {
+      napprox.max <- 25
+      exttext <- ":"
+      if(length(approx.species) > napprox.max) exttext <- paste(" (showing first ", napprox.max, ")", sep="")
+      msgout("info.approx: '", species, "' is ambiguous; has approximate matches to ", 
+        length(approx.species), " species", exttext, "\n")
+      printout <- capture.output(print(thermo$obigt$name[head(approx.species, napprox.max)]))
+      msgout(paste(printout, collapse="\n"), "\n")
+    }
+    return(approx.species)
+  }
+  # if we got here there were no approximate matches
+  msgout("info.approx: '", species, "' has no approximate matches\n")
+  return(NA)
+}
+
+info <- function(species=NULL, state=NULL, check.it=TRUE) {
+  ## return information for one or more species in thermo$obigt
+  ## if no species are requested, summarize the available data  20101129
+  if(is.null(species)) {
+    msgout("info: 'species' is NULL; summarizing information about thermodynamic data...\n")
+    msgout(paste("thermo$obigt has", nrow(thermo$obigt[thermo$obigt$state=="aq", ]), "aqueous,",
+      nrow(thermo$obigt), "total species\n"))
+    msgout(paste("number of literature sources: ", nrow(thermo$refs), ", elements: ",
+      nrow(thermo$element), ", buffers: ", length(unique(thermo$buffers$name)), "\n", sep=""))
+    msgout(paste("number of proteins in thermo$protein is", nrow(thermo$protein), "from",
+      length(unique(thermo$protein$organism)), "organisms\n"))
     # print information about SGD.csv, ECO.csv, HUM.csv
-    get.protein(organism="SGD")
-    get.protein(organism="ECO")
-    #get.protein(organism="HUM")
+    more.aa(organism="Sce")
+    more.aa(organism="Eco")
+    #pdata.aa(organism="HUM")
     # print information about yeastgfp.csv
     yeastgfp()
+    return()
   }
-
-  # argument handling
-  species.na <- states.na <- FALSE
-  if(!is.null(species)) if(is.na(species[1])) species.na <- TRUE 
-  if(!is.null(states)) if(is.na(states[1])) states.na <- TRUE 
-  if(species.na | states.na) stop('info: species and/or states arguments are NA.')
-  if(missing(states) | is.null(states)) missing.states <- TRUE else missing.states <- FALSE
-  if(!is.null(states) & length(species)!=length(states))
-    states <- rep(states,length.out=length(species))  
-  # fill-in missing state with default setting
-  if(is.null(states)) states <- rep(thermo$opt$state,length(species))
-
-
-  # if arguments are character, return the matching rownumbers in thermo$obigt
-  if(is.character(species[1])) {
-    # first make sure the rownames are their numbers
-    rownames(thermo$obigt) <<- 1:nrow(thermo$obigt)
-    # the lists of species addresses
-    ighs <- numeric(0); ieos <- numeric(0)
-    ighs.list <- list()
-    # dataframe for telling the user what species are found
-    thisghs <- thermo$obigt[0,]
-    for(i in 1:length(species)) {
-        use.other.states <- FALSE
-        if(length(grep('_',species[i]))>0) {
-          # we're dealing with a protein
-          tghs <- thermo$obigt[(thermo$obigt$name %in% species[i]) & thermo$obigt$state %in% states[i],]
-          # try to add up protein
-          if(nrow(tghs)==0) {
-          # split the name at the underscore
-            us <- match(TRUE, s2c(species[i]) == '_')
-            protein <- substr(species[i],1,us-1)
-            organism <- substr(species[i],us+1,nchar(species[i]))
-            ip <- protein(protein,organism)
-            # did we find a protein? add its properties to obigt
-            if(length(ip) > 0) {
-              newrow <- protein(ip,states[i])
-              colnames(newrow) <- colnames(thermo$obigt)
-              thermo$obigt <<- rbind(thermo$obigt,newrow)
-              rownames(thermo$obigt) <<- 1:nrow(thermo$obigt)
-              tghs <- thermo$obigt[nrow(thermo$obigt),]
-            }
-          }
-          iighs <- nrow(tghs)
-          if(iighs==0) iighs <- 1
-        } else {
-          # selection criteria: search names and abbreviations and formulas
-          # and state, if the states argument is supplied
-          if(missing.states) use.other.states <- TRUE
-          else if(states[i]=="") use.other.states <- TRUE 
-          if(!use.other.states) {
-            if(states[i]=='cr') searchstates <- c('cr','cr1','cr2','cr3',
-              'cr4','cr5','cr6','cr7','cr8','cr9') else searchstates <- states[i]
-            tghs <- thermo$obigt[(thermo$obigt$name %in% species[i] | 
-              thermo$obigt$abbrv %in% species[i] | thermo$obigt$formula %in% species[i]) & 
-              thermo$obigt$state %in% searchstates,]
-            iighs <- 1:nrow(tghs)
-          }
-          # allow other states if the argument is missing
-          else {
-            tghs <- thermo$obigt[(thermo$obigt$name %in% species[i] | 
-              thermo$obigt$abbrv %in% species[i] | thermo$obigt$formula %in% species[i]),]
-            # 20090416 if the name matched put that first
-            iname <- match(species[i],tghs$name)[1]
-            if(!is.na(iname)) tghs <- tghs[c(iname,(1:nrow(tghs))[-iname]),]
-            # except we like O2(g)
-            if(species[i]=="O2") {
-              iname <- match("oxygen",tghs$name)
-              if(!is.na(iname)) tghs <- tghs[c(iname,(1:nrow(tghs))[-iname]),]
-            }
-            # here we go to the last (duplicated) entry that thermo$opt$level allows
-            if(nrow(tghs)==0) iiighs <- 99
-            else iiighs <- which(tghs$state==tghs$state[1])
-            #iighs <- max(min(thermo$opt$level,max(iiighs)),1)
-            iighs <- max(min(1,max(iiighs)),1)
-            states[i] <- as.character(tghs$state[iighs])
-          }
-        }
-
-        # notify the user of multiple matches
-        if(nrow(tghs)>1) { 
-          if(!quiet) {
-            tg <- tghs[,1:5]
-            if(length(unique(tg$formula))==1 & length(unique(tg$name))==1) {
-              otext <- ''
-              if(species[i] %in% tg$formula) otext <- tg$name[1]
-              if(species[i] %in% tg$name) otext <- tg$formula[1]
-              if(otext==species[i]) otext <- '' else otext <- paste(' (',otext,')',sep='')
-              stext <- ''
-              for(j in 1:nrow(tg)) {
-                if(j==nrow(tg)) ntext <- '.\n' else ntext <- ', '
-                stext <- paste(stext,tg$state[j],ntext,sep='')
-              }
-              cat(paste('info: ',species[i],otext,' available in ',stext,sep=''))
-            } else {
-              cat(paste('info:',species[i],'matches these species:\n'))
-              print(tghs[,1:5])
-            }
-          } 
-        }
-
-        # notify the user of no matches
-        if(nrow(tghs)==0) {
-          findnames <- function(species,state=NA,max) {
-            if(!is.na(state)) altghs <- thermo$obigt[thermo$obigt$state==state,]
-            else altghs <- thermo$obigt
-            anames <- unique(c(agrep(species,as.character(altghs$name),value=TRUE,max.distance=max),
-                               agrep(species,as.character(altghs$abbrv),value=TRUE,max.distance=max),
-                               agrep(species,as.character(altghs$formula),value=TRUE,max.distance=max)))
-            if(length(anames)>0) {
-              # finish off the message and print the approximate matches
-              # 20090301 observe quiet
-              if(!quiet) cat('.\n')
-              # which species are approximately matching
-              iga <- which(altghs$name %in% anames | 
-                altghs$abbrv %in% anames | altghs$formula %in% anames,1:4)
-              # print species names
-              # 20090301 only if return.approx is TRUE
-              if(return.approx) {
-                if(length(anames) > 20) {
-                  cat('info: similar species names, abbreviations, or formulas are:\n')
-                  nt <- 200
-                  if(length(anames) > nt) {
-                    cat('info: (truncated at) ',nt,'.\n',sep='')
-                    anames <- anames[1:200]
-                  }
-                  print(anames)
-                # print species info
-                } else {
-                  cat('info: approximately matching species are:\n')
-                  print(altghs[iga,1:4])
-                }
-              }
-              return(iga)  
-            } else return()
-          }
-          if(use.other.states) {
-            # 20090301 observe quiet
-            if(!quiet) cat(paste('info: no match for ',species[i],sep=''))
-            t <- findnames(species[i],max=0.1)
-            if(is.null(t)) t <- findnames(species[i],max=0.3)
-          } else {
-            if(!quiet) cat(paste('info: no match for ',species[i],' ',states[i],sep=''))
-            t <- findnames(species[i],states[i],max=0.1)
-            if(is.null(t)) t <- findnames(species[i],states[i],max=0.3)
-          }
-          if(is.null(t)) {
-            if(!quiet) cat(', and no approximate matches.\n')
-            if(return.approx) ighs.list[length(ighs.list)+1] <- NA
-          } else {
-            #  if we want to return the indices of approximate matches
-            if(return.approx) ighs.list[length(ighs.list)+1] <- list(t)
-          }
-        } 
-        tighs <- as.numeric(rownames(tghs)[iighs])
-        ighs <- c(ighs,tighs)
-        if(!is.na(tighs[1])) for(i in 1:length(tighs))
-          ighs.list[[length(ighs.list)+1]] <- tighs[i]
-        # build the table of species to show the user
-        if(!is.na(tighs[[1]])) thisghs <- rbind(thisghs,tghs[iighs,])
+  ## run info.numeric or info.character depending on the input type
+  if(is.numeric(species)) {
+    out <- lapply(species, info.numeric, check.it)
+    # if we different states the column names could be different
+    if(length(unique(unlist(lapply(out, names)))) > ncol(thermo$obigt)) {
+      # make them the same as thermo$obigt
+      out <- lapply(out, function(row) {
+        colnames(row) <- colnames(thermo$obigt); return(row)
+      }) 
     }
-    if(nrow(thisghs)>0) {
-      if(quiet) {
-        #cat(paste('info: matching species indices are ',c2s(rownames(thermo$obigt)[ighs],sep=', '),'.\n',sep=''))
-      } else {
-        #if(nrow(thisghs)==1) {iword <- 'index'; word <- 'this'}
-        #else {iword <- 'indices'; word <- 'these'}
-        #cat('info: returning',iword,'for',word,'species:\n')
-        #print(thisghs[,1:7])
-        for(j in 1:nrow(thisghs)) {
-          tf <- thisghs$formula[j]
-          if(tf %in% species) tf <- '' else tf <- paste(', ',tf,sep='')
-          thissource <- thisghs$ref1[j]
-          ts2 <- thisghs$ref2[j]
-          if(!is.na(ts2)) thissource <- paste(thissource,', ',ts2,sep='')
-          td <- thisghs$date[j]
-          if(!is.na(td)) thissource <- paste(thissource,', ',td,sep='')
-          ii <- ighs[j]
-          if(is.na(ii)) ii <- rownames(thisghs)[j]
-          cat('info: ',ii,' refers to ',thisghs$name[j],tf,
-            ' ',thisghs$state[j],' (',thissource,')\n',sep='')
-        }
-      }
+    # turn the list into a data frame
+    out <- do.call(rbind, out)
+  } else {
+    # state and species should be same length
+    if(!is.null(state)) {
+      lmax <- max(length(species), length(state))
+      state <- rep(state, length.out=lmax)
+      species <- rep(species, length.out=lmax)
     }
-    # try to return a vector not a list
-    t <- try(as.numeric(ighs.list),silent=TRUE)
-    if(class(t)=='try-error') return(invisible(ighs.list))
-    else return(invisible(as.numeric(ighs.list)))
+    # loop over the species
+    out <- sapply(seq_along(species), function(i) {
+      # first look for exact match
+      ispecies <- info.character(species[i], state[i])
+      # if no exact match and it's not a protein, show approximate matches (side effect of info.approx)
+      if(identical(ispecies, NA) & !grepl("_", species[i])) ispecies.notused <- info.approx(species[i], state[i])
+      # do not accept multiple matches
+      if(length(ispecies) > 1) ispecies <- NA
+      return(ispecies)
+    })
   }
-
-  # if numeric arguments are given, return ghs and eos parameters
-  if(is.numeric(species[1])) {
-    nnspecies <- species[species > 0]
-    myghs <- thermo$obigt[nnspecies,]
-    # species indices don't exceed this value
-    ispeciesmax <- nrow(thermo$obigt)
-    for(i in 1:length(species)) {
-      if(species[i] > ispeciesmax | species[i] < 1) {
-        cat(paste("info: there aren't",species[i],"species.\n"))
-        next
-      }
-      # remove scaling factors on EOS parameters depending on state
-      # and check them for NAs and consistency with Cp, V values
-      if(myghs$state[i]=='aq') {
-        # use new obigt2eos function here
-        myghs.conv <- obigt2eos(myghs[i,],"aq")
-        myghs[i,] <- myghs.conv
-        colnames(myghs)[13:20] <- colnames(myghs.conv)[13:20]
-        if(!quiet) {
-          # check heat capacities
-          calcCp <- checkEOS(myghs[i,],"aq","Cp")
-          if(!is.na(calcCp) & is.na(myghs$Cp[i])) {
-            cat(paste('info: Cp of',myghs$name[i],myghs$state[i],
-              'is NA; set by EOS parameters to',round(calcCp,2),'\n'))
-            myghs$Cp[i] <- as.numeric(calcCp)
-          }
-          # check volumes
-          calcV <- checkEOS(myghs[i,],"aq","V")
-          if(!is.na(calcV) & is.na(myghs$V[i])) {
-            cat(paste('info: V of',myghs$name[i],myghs$state[i],
-              'is NA; set by EOS parameters to',round(calcV,2),'\n'))
-            myghs$V[i] <- as.numeric(calcV)
-          }
-        }
-      } else {
-        # for states other than aq
-        myghs.conv <- obigt2eos(myghs[i,],"cr")
-        myghs[i,] <- myghs.conv
-        colnames(myghs)[13:20] <- colnames(myghs.conv)[13:20]
-        # set some EOS parameters to zero if they are NA
-        # why do we need this? 2010808
-#        naEOS <- which(is.na(myghs[i,12:19]))
-#        if(length(naEOS)>0) {
-#          if(!quiet) cat(paste('info:',c2s(colnames(myghs)[12:19][naEOS],sep=','),'of',
-#              myghs$name[i],myghs$state[i],'are NA; set to 0.\n'))
-#          myghs[i,naEOS+11] <- 0
-#        }
-        if(!quiet) {
-          calcCp <- checkEOS(myghs[i,],"notaq","Cp")
-          if(!is.na(calcCp) & is.na(myghs$Cp[i])) {
-            cat(paste('info: Cp of',myghs$name[i],myghs$state[i],
-              'is NA; set by EOS parameters to',round(calcCp,2),'\n'))
-            myghs$Cp[i] <- as.numeric(calcCp)
-          }
-        }
-      }
-
-      # check the GHS values
-      naGHS <- which(is.na(myghs[i,8:10]))
-      if(length(naGHS)==1) {
-        # calculate a single missing one of G, H, or S
-        # we do this even if quiet=TRUE,
-        # because NA for one of G, H or S will hamper calculations at high T
-        GHS <- GHS(as.character(myghs$formula[i]),DG=myghs[i,8],DH=myghs[i,9],S=myghs[i,10])
-        if(!quiet) cat(paste('info: ',c2s(colnames(myghs)[8:10][naGHS]),' of ',
-          myghs$name[i],' ',myghs$state[i],' is NA; set to ',round(GHS,2),'.\n',sep=''))
-        myghs[i,naGHS+7] <- GHS
-      } else if(length(naGHS)==0 & !(quiet)) {
-        # check the values
-        calcG <- checkGHS(myghs[i,])
-        if(is.null(calcG)) {
-          cat(paste('info: calculated G of',myghs$name[i],myghs$state[i],
-            'is NA!!! (maybe a missing element?)\n'))
-        }
-      }
-
-    } # end loop over i species
-
-    if(length(unique(myghs$state))!=1 & 'aq' %in% myghs$state) {
-      if(!quiet) cat('info: the species are in aqueous and other states\n')
-      colnames(myghs)[13:20] <- colnames(thermo$obigt)[13:20]
-    }
-    return(myghs)
-  }
+  ## all done!
+  return(out)
 }
 

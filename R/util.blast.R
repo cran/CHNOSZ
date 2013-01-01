@@ -2,32 +2,50 @@
 # functions to analyze BLAST output files
 # 20100320 jmd
 
-## read a BLAST tabular output file, and fileter by similarity,
-## e-value and max hits per query
-read.blast <- function(file, similarity=30, evalue=1e-5, max.hits=1, quiet=FALSE) {
+## read a BLAST tabular output file, and filter by similarity,
+## E-value and max hits per query
+read.blast <- function(file, similarity=30, evalue=1e-5, max.hits=1, min.length=NA, quiet=FALSE) {
+  # display some information about the file
+  if("connection" %in% class(file)) fname <- summary(file)$description
+  else fname <- basename(file)
+  cat(paste("read.blast: reading", fname, "\n"))
   # read the blast tabular file
-  cat(paste("read.blast: reading",basename(file),"\n"))
   blast <- read.csv(file,header=FALSE,sep="\t",stringsAsFactors=FALSE)
   if(!quiet) cat(paste("  read",nrow(blast),"lines with",length(unique(blast$V1)),"query sequences\n"))
   # take out rows that don't meet our desired similarity
-  is <- which(blast$V3 >= similarity)
-  blast <- blast[is,]
-  if(!quiet) cat(paste("  similarity filtering leaves",length(is),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  if(!is.na(similarity)) {
+    is <- which(blast$V3 >= similarity)
+    blast <- blast[is,]
+    if(!quiet) cat(paste("  similarity filtering leaves",length(is),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  }
   # take out rows that don't meet our desired e-value
-  ie <- which(blast$V11 <= evalue)
-  blast <- blast[ie,]
-  if(!quiet) cat(paste("  evalue filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  if(!is.na(evalue)) {
+    ie <- which(blast$V11 <= evalue)
+    blast <- blast[ie,]
+    if(!quiet) cat(paste("  evalue filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  }
+  # take out rows that don't have the minimum alignment length
+  if(!is.na(min.length)) {
+    ie <- which(blast$V4 >= min.length)
+    blast <- blast[ie,]
+    if(!quiet) cat(paste("  alignment length filtering leaves",length(ie),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  }
   # now take only max hits for each query sequence
-  query.shift <- query <- blast$V1
-  lq <- length(query)
-  # for short (i.e., 1 query sequence) files, make sure that
-  # the hits get counted
-  query.shift[max((lq-max.hits+1),1):lq] <- -1
-  #query.shift <- query.shift[c((max.hits+1):lq,1:max.hits)]
-  query.shift <- query.shift[c((lq-max.hits+1):lq,1:(lq-max.hits))]
-  ib <- which(query!=query.shift)
-  blast <- blast[ib,]
-  if(!quiet) cat(paste("  max hits filtering leaves",length(ib),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  if(!is.na(max.hits)) {
+    query.shift <- query <- blast$V1
+    lq <- length(query)
+    # for short (i.e., 1 query sequence) files, make sure that the hits get counted
+    query.shift[max((lq-max.hits+1),1):lq] <- -1
+    #query.shift <- query.shift[c((max.hits+1):lq,1:max.hits)]
+    query.shift <- query.shift[c((lq-max.hits+1):lq,1:(lq-max.hits))]
+    ib <- which(query!=query.shift)
+    blast <- blast[ib,]
+    if(!quiet) cat(paste("  max hits filtering leaves",length(ib),"lines and",length(unique(blast$V1)),"query sequences\n"))
+  }
+  # assign meaningful column names
+  # http://bergmanlab.smith.man.ac.uk/?p=41, accessed 20111223
+  colnames(blast) <- c("queryId", "subjectId", "percIdentity", "alnLength", "mismatchCount", 
+    "gapOpenCount", "queryStart", "queryEnd", "subjectStart", "subjectEnd", "eVal", "bitScore")
   return(blast)
 }
 
@@ -36,31 +54,28 @@ read.blast <- function(file, similarity=30, evalue=1e-5, max.hits=1, quiet=FALSE
 id.blast <- function(blast, gi.taxid, taxid.names, min.taxon=0, 
   min.query=0, min.phylum=0, take.first=TRUE) {
   # what are gi numbers of the hits
-  gi <- blast$V2
-  ugi <- unique(gi)
+  # we use def2gi to extract just the gi numbers
+  gi <- def2gi(blast[,2])
   # what taxid do they hit
   cat("id.blast: getting taxids ... ")
-  # we use def2gi to extract just the gi numbers
-  imatch <- match(def2gi(ugi),def2gi(gi.taxid[[1]]))
-  utaxid <- gi.taxid[[2]][imatch]
+  imatch <- match(gi,gi.taxid[[1]])
+  taxid <- gi.taxid[[2]][imatch]
   # what phyla are these
   cat("getting taxid.names ... ")
-  iphy <- match(utaxid,taxid.names$taxid)
-  uphyla <- taxid.names$phylum[iphy]
-  uspecies <- taxid.names$species[iphy]
-  cat(paste(length(unique(uphyla)),"phyla,",length(unique(utaxid)),"taxa\n"))
+  iphy <- match(taxid,taxid.names$taxid)
+  phylum <- taxid.names$phylum[iphy]
+  species <- taxid.names$species[iphy]
+  cat(paste(length(unique(phylum)),"unique phyla,",length(unique(taxid)),"unique taxa\n"))
   # now expand phyla into our blast table
-  igi <- match(gi,ugi)
-  taxid <- utaxid[igi]
-  phylum <- uphyla[igi]
-  species <- uspecies[igi]
-  tax.out <- data.frame(taxid=taxid,phylum=as.character(phylum),species=species)
+  # we really don't want our stringsAsFactors (to use NAphylum, below)
+  tax.out <- data.frame(taxid=taxid, phylum=as.character(phylum), species=species, 
+    stringsAsFactors=FALSE)
   blast.out <- blast[,c(1,2,3,11)]
-  colnames(blast.out) <- c("query","subject","similarity","evalue")
+  colnames(blast.out) <- c("queryId","subjectId","percIdentity","eVal")
   blast <- cbind(blast.out,tax.out)
   # drop taxa that do not appear a certain number of times
   blast$taxid <- as.character(blast$taxid)
-  nt <- tapply(blast$taxid,blast$taxid,length)
+  nt <- table(blast$taxid)
   it <- which(nt/sum(nt) >= min.taxon)
   itt <- which(blast$taxid %in% names(nt)[it])
   blast <- blast[itt,]
@@ -81,7 +96,7 @@ id.blast <- function(blast, gi.taxid, taxid.names, min.taxon=0,
       # take those hits, count each phyla, take the highest abundance,
       # check if it's above the minimum proportion of hits
       p <- as.character(blast$phylum[myiq])
-      np <- tapply(p,p,length)
+      np <- table(p)
       pp <- np/sum(np)
       ip <- which.max(pp)
       if(pp[ip] < min.query) return(numeric())
@@ -108,8 +123,10 @@ id.blast <- function(blast, gi.taxid, taxid.names, min.taxon=0,
     if(take.first) blast <- blast[iquery,]
   }
   # now on to drop those phyla that are below a certain relative abundance
-  blast$phylum <- as.character(blast$phylum)
-  np <- tapply(blast$phylum,blast$phylum,length)
+  # we count NA as a real phylum
+  iNA <- which(is.na(blast$phylum))
+  blast$phylum[iNA] <- "NAphylum"
+  np <- table(blast$phylum)
   ip <- which(np/sum(np) >= min.phylum)
   ipp <- which(blast$phylum %in% names(np)[ip])
   blast <- blast[ipp,]

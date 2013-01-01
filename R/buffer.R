@@ -20,7 +20,7 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
     if(length(imod)>0) {
       if(state[1]=='') {
         thermo$buffers <<- thermo$buffers[-imod,]
-        cat(paste('mod.buffer: removed ',c2s(species),' in ',
+        msgout(paste('mod.buffer: removed ',c2s(species),' in ',
           c2s(unique(name)),' buffer.\n',sep=''))
       } else {
         if(missing(state)) state <- thermo$buffers$state[imod]
@@ -32,10 +32,10 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
         thermo$buffers$state[imod] <<- state
         thermo$buffers$logact[imod] <<- logact
         if(identical(state.old,state) & identical(logact.old,logact)) {
-          cat(paste('mod.buffer: nothing changed for ',
+          msgout(paste('mod.buffer: nothing changed for ',
             c2s(species),' in ',c2s(unique(name)),' buffer.\n',sep=''))
         } else {
-          cat(paste('mod.buffer: changed state and/or logact of ',
+          msgout(paste('mod.buffer: changed state and/or logact of ',
             c2s(species),' in ',c2s(unique(name)),' buffer.\n',sep=''))
         }
       }
@@ -47,13 +47,12 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
     if(state[1]=='') state <- rep(thermo$opt$state,length.out=ls)
     t <- data.frame(name=name,species=species,state=state,logact=logact)
     thermo$buffers <<- rbind(thermo$buffers,t)
-    cat(paste('mod.buffer: added ',c2s(unique(name)),'.\n',sep=''))
+    msgout(paste('mod.buffer: added ',c2s(unique(name)),'.\n',sep=''))
   }
   return(invisible(thermo$buffers[thermo$buffers$name %in% name,]))
 }
 
 buffer <- function(logK=NULL,ibasis=NULL,logact.basis=NULL,is.buffer=NULL,balance='PBB') {
-logK <<- logK
   # if logK is NULL load the buffer species
   # otherwise perform buffer calculations.
   if(is.null(logK)) {
@@ -69,11 +68,11 @@ logK <<- logK
         state <- as.character(thermo$buffers$state)[ib]
         #ibuff <- info(species,state,quiet=TRUE)
         #ispecies <- c(ispecies,species(ibuff))
-        ispecies <- c(ispecies,species(species,state,quiet=TRUE))
+        ispecies <- c(ispecies, species(species, state, index.return=TRUE))
       }
       ispecies.new <- c(ispecies.new,list(ispecies))
       # make sure to set the activities
-      species(ispecies,thermo$buffers$logact[ib],quiet=TRUE)
+      species(ispecies,thermo$buffers$logact[ib])
     }
     names(ispecies.new) <- buffers
     return(ispecies.new)
@@ -83,7 +82,7 @@ logK <<- logK
   # times, causing problems for square matrices and such.
   # make them appear singly.
   is.buffer <- unique(is.buffer)
-  bufbasis <- basis(thermo$species$ispecies[is.buffer])
+  bufbasis <- species.basis(thermo$species$ispecies[is.buffer])
   bufname <- thermo$basis$logact[ibasis[1]]
   basisnames <- rownames(thermo$basis)
   are.proteins <- grep('_',as.character(thermo$species$name[is.buffer]))
@@ -159,7 +158,7 @@ logK <<- logK
   if(is.null(newbasis)) context <- '' else context <- paste(', ',basisnames[newbasis],' (conserved)',sep='')
   reqtext <- paste(c2s(basisnames[ibasisrequested]),' (active)',sep='')
   if(length(ibasisadded)==0) addtext <- '' else addtext <- paste(', ',c2s(basisnames[ibasisadded]),sep='')
-  cat(paste('buffer: ( ',bufname,' ) for activity of ',reqtext,addtext,context,'.\n',sep=''))
+  msgout(paste('buffer: ( ',bufname,' ) for activity of ',reqtext,addtext,context,'\n',sep=''))
   #print(bufbasis)
   # there could still be stuff here (over-defined system?)
   xx <- bufbasis[,-ibasis,drop=FALSE]

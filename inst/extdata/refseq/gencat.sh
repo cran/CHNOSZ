@@ -1,6 +1,6 @@
 #/bin/sh
 # extract microbial, genomic records from the RefSeq catalog
-RELEASE=47
+RELEASE=55
 ORG=microbial
 MOL=protein
 BASENAME=RefSeq-release$RELEASE.catalog 
@@ -24,6 +24,8 @@ cat $BASENAME.$ORG.$MOL | awk '{FS="\t"} {print $4,$1,$7}' > gi.taxid.unsrt
 # for some reason the first line in gi.taxid.unsrt needs to be corrected manually
 # (found using both RefSeq 45 and 47)
 # str. 316407 W3110 --> 89106885 316407 21
+# (using RefSeq 49 and 55)
+# NP_047184.1 9 PROVISIONAL --> 10954455 9 280
 
 # sort the file on gi so that it can be used with e.g. the unix 'join' command
 cat gi.taxid.unsrt | sort > gi.taxid.txt

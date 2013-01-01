@@ -4,8 +4,7 @@
 c2s <- function(x, sep=' ') {
   # make a string out of a character vector
   if(length(x) %in% c(0,1)) return(x)
-  s <- x[1]
-  for(i in 2:length(x)) s <- paste(s,x[i],sep=sep)
+  s <- paste(x,collapse=sep)
   return(s)
 }
 

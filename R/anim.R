@@ -50,7 +50,7 @@ anim.TCA <- function(redox=list(O2=c(-95,-60)),high.T=FALSE,
     # don't fill fields with heat colors if we're doing a high-T overlay
     if(high.T) color <- "lightgrey" else color <- "heat"
     # take a single O2-H2O slice along pH
-    diagram(slice.affinity(a.cold,3,iframes[i]),color=color,cex=1.5)
+    diagram(slice.affinity(a.cold,3,iframes[i]),fill=color,cex=1.5)
     ltext <- substitute(paste(italic(T)==x~degree*C),list(x=25))
     lcol <- "black"
     # overlay the high-T diagram
@@ -61,7 +61,7 @@ anim.TCA <- function(redox=list(O2=c(-95,-60)),high.T=FALSE,
     }
     if(high.T) legend("topleft",legend=as.expression(ltext),lty=1,col=lcol)
     title(main=paste("TCA cycle reactants; pH =",
-      format(round(pH[iframes[i]],2))))
+      format(round(pH[iframes[i]],2))),cex.main=1)
   }
   # close the plot device - convert to movie
   dev.off()
@@ -111,17 +111,17 @@ anim.plasma <- function(width=480, height=480) {
   np <- c(rep(head(np,1),8),np,rep(tail(np,1),8))
   # now loop until we get to two proteins
   for(i in 1:length(np)) {
-    d <- diagram(a, ispecies=ispecies, cex=1.5)
+    d <- diagram(a, groups=as.list(ispecies), names=pname[ispecies], normalize=TRUE, cex=1.5)
     # note that the darker colors go with higher abundances
     # as reported by Anderson and Anderson, 2003
     # how many show up on the diagram?
-    nshow <- length(unique(as.numeric(d$out)))
+    nshow <- length(unique(as.numeric(d$predominant)))
     title(main=paste(np[i]," human plasma proteins (",nshow,
       " showing)",sep=""),cex.main=1)
     if(c(0,diff(np))[i] != 0) {
       # identify the protein with the greatest
       # area on the diagram
-      imost <- which.max(tabulate(as.numeric(d$out)))
+      imost <- which.max(tabulate(as.numeric(d$predominant)))
       # take out that proteins
       ispecies <- ispecies[-imost]
     }
@@ -195,15 +195,15 @@ anim.carboxylase <- function(T=25:125,ntop=5,lcex=0.8,width=420,height=320) {
     a <- affinity(T=T)
   } else a <- affinity(T=T,H2=H2)
   # calculate activities
-  d <- diagram(a,residue=TRUE,legend.x=NULL,ylim=c(-6,-2),do.plot=FALSE)
+  e <- equilibrate(a, normalize=TRUE)
   # for each point make a rank plot
-  rank <- 1:length(d$logact)
+  rank <- 1:length(e$loga.equil)
   for(i in 1:length(ido)) {
     # print some progress
     if(i%%20 == 0) cat("\n") else cat(".")
     # keep track of positions of previous points
     loga <- numeric()
-    for(j in 1:length(d$logact)) loga <- c(loga,d$logact[[j]][ido[i]])
+    for(j in 1:length(e$loga.equil)) loga <- c(loga, e$loga.equil[[j]][ido[i]])
     if(i > 4) myrank4 <- myrank3
     if(i > 3) myrank3 <- myrank2
     if(i > 2) myrank2 <- myrank1

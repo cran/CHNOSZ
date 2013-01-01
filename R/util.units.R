@@ -1,45 +1,43 @@
 # CHNOSZ/util.units.R
-# convert units and set preferred units 
+# set units and convert values between units
 
-nuts <- function(units=NULL) {
-  # change preferred units or list the current ones
-  
-  # show the current units, if none are specified
-  if(missing(units)) {
-    cat(paste('nuts: temperature in',thermo$opt$T.units,'\n'))
-    cat(paste('nuts: energy in',thermo$opt$E.units,'\n'))
-    cat(paste('nuts: pressure in',thermo$opt$P.units,'\n'))
-    return(invisible())
-  }
-  
-  for(i in 1:length(units)) {
-    # argument handling
-    if(is.character(units[i])) {
-      units[i] <- tolower(units[i])
-      if(!units[i] %in% c('t','e','p','c','k','cal','j','bar','mpa')) stop('units must be one of T, E, P, C, K, cal, j, bar, MPa.')
-    } else stop('units needs to be character.')
-    # return the current units of a particular property
-    if(units[i]=='t') return(thermo$opt$T.units)
-    if(units[i]=='e') return(thermo$opt$E.units)
-    if(units[i]=='p') return(thermo$opt$P.units)
+P.units <- function(units=NULL) {
+  ## change units of pressure or list the current one
+  # show the current units, if none is specified
+  if(is.null(units)) return(thermo$opt$P.units)
+  # argument handling
+  units <- tolower(units)
+  if(!units %in% c("bar","mpa")) stop("units of pressure must be either bar or MPa")
+  # set the units and return them
+  if(units=="bar") thermo$opt$P.units <<- "bar"
+  if(units=="mpa") thermo$opt$P.units <<- "MPa"
+  return(thermo$opt$P.units)
+}
 
-    # tests and update
-    if(units[i] %in% c('c','k')) {
-      if(units[i]=='c') thermo$opt$T.units <<- 'C'
-      if(units[i]=='k') thermo$opt$T.units <<- 'K'
-      cat(paste('nuts: temperature in',thermo$opt$T.units,'\n'))
-    }
-    if(units[i] %in% c('j','cal')) {
-      if(units[i]=='j') thermo$opt$E.units <<- 'J'
-      if(units[i]=='cal') thermo$opt$E.units <<- 'cal'
-      cat(paste('nuts: energy in',thermo$opt$E.units,'\n'))
-    }
-    if(units[i] %in% c('bar','mpa')) {
-      if(units[i]=='bar') thermo$opt$P.units <<- 'bar'
-      if(units[i]=='mpa') thermo$opt$P.units <<- 'MPa'
-      cat(paste('nuts: pressure in',thermo$opt$P.units,'\n'))
-    }
-  }
+T.units <- function(units=NULL) {
+  ## change units of temperature or list the current one
+  # show the current units, if none is specified
+  if(is.null(units)) return(thermo$opt$T.units)
+  # argument handling
+  units <- tolower(units)
+  if(!units %in% c("c","k")) stop("units of temperature must be either C or K")
+  # set the units and return them
+  if(units=="c") thermo$opt$T.units <<- "C"
+  if(units=="k") thermo$opt$T.units <<- "K"
+  return(thermo$opt$T.units)
+}
+
+E.units <- function(units=NULL) {
+  ## change units of energy or list the current one
+  # show the current units, if none is specified
+  if(is.null(units)) return(thermo$opt$E.units)
+  # argument handling
+  units <- tolower(units)
+  if(!units %in% c("cal","j")) stop("units of energy must be either cal or J")
+  # set the units and return them
+  if(units=="cal") thermo$opt$E.units <<- "cal"
+  if(units=="j") thermo$opt$E.units <<- "J"
+  return(thermo$opt$E.units)
 }
 
 outvert <- function(value,units) {
@@ -96,17 +94,23 @@ convert <- function(value,units,T=thermo$opt$Tr,P=thermo$opt$Pr,pH=7,logaH2O=0) 
   Units <- units # for the possible message to user
   units <- tolower(units)
 
-  # make everything same length
-  makesame <- function(x) {
-    maks <- max(as.numeric(sapply(x,length)))
-    for(i in 1:length(x)) x[[i]] <- rep(x[[i]],length.out=maks)
-    return(x)
-  }
-  if(!is.matrix(value)) {
-    args <- makesame(list(value=value,units=units,T=T,pH=pH,logaH2O=logaH2O))
-    # except we only accept one type of destination units
-    value <- as.numeric(args$value); units <- args$units[1]; T <- args$T; pH <- args$pH; logaH2O <- args$logaH2O
-  }
+## commented out 20120526 for SC10 example in affinity.Rd;
+## this removes the dims in the conversion of a$values and gets diagram() mixed up
+#  # make everything same length
+#  makesame <- function(x) {
+#    maks <- max(as.numeric(sapply(x,length)))
+#    for(i in 1:length(x)) x[[i]] <- rep(x[[i]],length.out=maks)
+#    return(x)
+#  }
+#  if(!is.matrix(value) & !is.data.frame(value)) {
+#    args <- makesame(list(value=value,units=units,T=T,pH=pH,logaH2O=logaH2O))
+#    # except we only accept one type of destination units
+#    value <- as.numeric(args$value)
+#    units <- args$units[1]
+#    T <- args$T
+#    pH <- args$pH
+#    logaH2O <- args$logaH2O
+#  }
   # tests and calculations for the specified units
   if(units %in% c('c','k')) {
     CK <- 273.15

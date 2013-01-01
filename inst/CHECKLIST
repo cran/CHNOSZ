@@ -1,0 +1,31 @@
+****************************
+release checklist for CHNOSZ
+****************************
+
+- update list of documentation topics in examples() with any new ones
+
+- run examples() to make sure that all examples can be run (includes \donttest ones)
+
+- run demos() to run all demos
+
+- run test_package("CHNOSZ") to run all tests
+
+- check output of demo("sources") to make sure all data sources are cited
+
+- recreate extdata/thermo/obigt_check.csv after all data updates:
+  co <- check.obigt()
+  write.csv(co, "obigt_check.csv", row.names=FALSE, na="")
+
+- especially on Windows:  
+  data files are uncompressed on installation? (from BuildResaveData: no)
+  anim.*() produce pngs / movies (ImageMagick dependency)?
+
+- check that dl.aa() works with current UniProt web pages
+
+- check for stale URLs in Rd files
+
+- clean up all TODO, XXX, etc. in Rd files (and hopefully R files too)
+
+- ensure all Rd files have \keyword{...}
+
+- test read.supcrt(), write.supcrt() on e.g. slop98.dat

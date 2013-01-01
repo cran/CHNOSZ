@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{eqdata}
 \alias{eqdata}
 \title{Read data from an EQ6 output file}
@@ -28,7 +29,7 @@
   }
 
 
-  The result of the function is a data frame (returned invisibly), with columns \code{zi} (reaction progress), \code{T} (temperature in degrees C), \code{aH2O} (activity of water) and one column for each of the requested \code{species} or, for speciation of basis species, one column for each unique species found in all of the speciation summary blocks for that basis species. Values are listed as NA (not available) for species or phases that are not present in the EQ6 output at any of the increments of reaction progress. 
+  The result of the function is a data frame (returned invisibly), with columns \code{zi} (reaction progress), \code{T} (temperature in \eqn{^{\circ}}{°}C), \code{aH2O} (activity of water) and one column for each of the requested \code{species} or, for speciation of basis species, one column for each unique species found in all of the speciation summary blocks for that basis species. Values are listed as NA (not available) for species or phases that are not present in the EQ6 output at any of the increments of reaction progress. 
 
   If \code{outfile} is TRUE, the result is saved in a file named like \samp{file}.\samp{property}.\code{csv}, in the same directory as \code{file}. The name of the \code{outfile} can be provided to override this naming scheme, or this argument can be set to FALSE or NULL, to turn off writing the result to a file.
 
@@ -45,11 +46,11 @@
 
 \examples{
 \dontrun{
-  # if an EQ6 output file named "rainbow2.6o" is in the current 
-  # working directory, the following command will output values 
-  # of log act (logarithm of activity) for the selected aqueous 
-  # species to a file named rainbow2.6o.log act.csv
-  eqdata("rainbow2.6o",c("h+","sio2,aq","h2,aq"),"log act") }
+# if an EQ6 output file named "rainbow2.6o" is in the current 
+# working directory, the following command will output values 
+# of log act (logarithm of activity) for the selected aqueous 
+# species to a file named rainbow2.6o.log act.csv
+eqdata("rainbow2.6o",c("h+","sio2,aq","h2,aq"),"log act") }
 }
 
 \keyword{extra}

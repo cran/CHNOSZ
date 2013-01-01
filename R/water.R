@@ -51,174 +51,174 @@ water.AW90 <- function(T=298.15,rho=1000,P=0.1) {
   return(t)
 }
 
-water.IAPWS95 <- function(property,T=298.15,rho=1000) {
-    # the IAPWS-95 formulation for pure H2O from 
-    # Wagner and Pruss, 2002
-    property <- tolower(property)
-    # triple point
-    T.triple <- 273.16 # K
-    P.triple <- 611.657 # Pa
-    rho.triple.liquid <- 999.793
-    rho.triple.vapor <- 0.00485458
-    # normal boiling point
-    T.boiling <- 373.124
-    P.boiling <- 0.101325
-    rho.boiling.liquid <- 958.367
-    rho.boiling.vapor <- 0.597657
-    # critical point constants
-    T.critical <- 647.096 # K
-    rho.critical <- 322 # kg m-3
-    # specific and molar gas constants
-    R <- 0.46151805 # kJ kg-1 K-1
-    # R.M <- 8.314472 # J mol-1 K-1
-    # molar mass
-    M <- 18.015268 # g mol-1
-    
-    ### idealgas
-    idealgas <- function(p) {
-      # Table 6.1
-      n <- c( -8.32044648201, 6.6832105268, 3.00632, 0.012436,
-               0.97315, 1.27950, 0.96956, 0.24873 )
-      gamma <- c( NA, NA, NA, 1.28728967, 
-                  3.53734222, 7.74073708, 9.24437796, 27.5075105 )
-      # Equation 6.5
-      phi <- function() log(delta) + n[1] + n[2]*tau + n[3]*log(tau) +
-        sum( n[4:8] * log(1-exp(-gamma[4:8]*tau)) )
-      phi.delta <- function() 1/delta+0+0+0+0
-      phi.delta.delta <- function() -1/delta^2+0+0+0+0
-      phi.tau <- function() 0+0+n[2]+n[3]/tau+sum(n[4:8]*gamma[4:8]*((1-exp(-gamma[4:8]*tau))^-1-1))
-      phi.tau.tau <- function() 0+0+0-n[3]/tau^2-sum(n[4:8]*gamma[4:8]^2 * 
-        exp(-gamma[4:8]*tau)*(1-exp(-gamma[4:8]*tau))^-2)
-      phi.delta.tau <- function() 0+0+0+0+0
-      return(get(p)())
-    }
-    
-    #### residual
-    residual <- function(p) {
-      # Table 6.2
-      c <- c(rep(NA,7),rep(1,15),rep(2,20),rep(3,4),4,rep(6,4),rep(NA,5))
-      d <- c(1,1,1,2,2,3,4,1,1,1,2,2,3,4,
-             4,5,7,9,10,11,13,15,1,2,2,2,3,4,
-             4,4,5,6,6,7,9,9,9,9,9,10,10,12,
-             3,4,4,5,14,3,6,6,6,3,3,3,NA,NA)
-      t <- c(-0.5,0.875,1,0.5,0.75,0.375,1,4,6,12,1,5,4,2,
-             13,9,3,4,11,4,13,1,7,1,9,10,10,3,
-             7,10,10,6,10,10,1,2,3,4,8,6,9,8,
-             16,22,23,23,10,50,44,46,50,0,1,4,NA,NA)
-      n <- c( 0.12533547935523E-1, 0.78957634722828E1 ,-0.87803203303561E1 ,
-              0.31802509345418   ,-0.26145533859358   ,-0.78199751687981E-2,
-              0.88089493102134E-2,-0.66856572307965   , 0.20433810950965   ,
-             -0.66212605039687E-4,-0.19232721156002   ,-0.25709043003438   ,
-              0.16074868486251   ,-0.40092828925807E-1, 0.39343422603254E-6,
-             -0.75941377088144E-5, 0.56250979351888E-3,-0.15608652257135E-4,
-              0.11537996422951E-8, 0.36582165144204E-6,-0.13251180074668E-11,
-             -0.62639586912454E-9,-0.10793600908932   , 0.17611491008752E-1,
-              0.22132295167546   ,-0.40247669763528   , 0.58083399985759   ,
-              0.49969146990806E-2,-0.31358700712549E-1,-0.74315929710341   ,
-              0.47807329915480   , 0.20527940895948E-1,-0.13636435110343   ,
-              0.14180634400617E-1, 0.83326504880713E-2,-0.29052336009585E-1,
-              0.38615085574206E-1,-0.20393486513704E-1,-0.16554050063734E-2,
-              0.19955571979541E-2, 0.15870308324157E-3,-0.16388568342530E-4,
-              0.43613615723811E-1, 0.34994005463765E-1,-0.76788197844621E-1,
-              0.22446277332006E-1,-0.62689710414685E-4,-0.55711118565645E-9,
-             -0.19905718354408   , 0.31777497330738   ,-0.11841182425981   ,
-             -0.31306260323435E2 , 0.31546140237781E2 ,-0.25213154341695E4 ,
-             -0.14874640856724   , 0.31806110878444)
-      alpha <- c(rep(NA,51),20,20,20,NA,NA)
-      beta <- c(rep(NA,51),150,150,250,0.3,0.3)
-      gamma <- c(rep(NA,51),1.21,1.21,1.25,NA,NA)
-      epsilon <- c(rep(NA,51),1,1,1,NA,NA)
-      a <- c(rep(NA,54),3.5,3.5)
-      b <- c(rep(NA,54),0.85,0.95)
-      B <- c(rep(NA,54),0.2,0.2)
-      C <- c(rep(NA,54),28,32)
-      D <- c(rep(NA,54),700,800)
-      A <- c(rep(NA,54),0.32,0.32)
+idealgas.IAPWS95 <- function(p, delta, tau) {
+  ## the ideal gas part in the IAPWS-95 formulation
+  # from Table 6.1 of Wagner and Pruss, 2002
+  n <- c( -8.32044648201, 6.6832105268, 3.00632, 0.012436,
+           0.97315, 1.27950, 0.96956, 0.24873 )
+  gamma <- c( NA, NA, NA, 1.28728967, 
+              3.53734222, 7.74073708, 9.24437796, 27.5075105 )
+  # Equation 6.5
+  phi <- function() log(delta) + n[1] + n[2]*tau + n[3]*log(tau) +
+    sum( n[4:8] * log(1-exp(-gamma[4:8]*tau)) )
+  # derivatives from Table 6.4
+  phi.delta <- function() 1/delta+0+0+0+0
+  phi.delta.delta <- function() -1/delta^2+0+0+0+0
+  phi.tau <- function() 0+0+n[2]+n[3]/tau+sum(n[4:8]*gamma[4:8]*((1-exp(-gamma[4:8]*tau))^-1-1))
+  phi.tau.tau <- function() 0+0+0-n[3]/tau^2-sum(n[4:8]*gamma[4:8]^2 * 
+    exp(-gamma[4:8]*tau)*(1-exp(-gamma[4:8]*tau))^-2)
+  phi.delta.tau <- function() 0+0+0+0+0
+  return(get(p)())
+}
 
-
-      # Table 6.5
-      i1 <- 1:7
-      i2 <- 8:51
-      i3 <- 52:54
-      i4 <- 55:56
-      # deriviatives of distance function
-      Delta <- function(i) { Theta(i)^2 + B[i] * ((delta-1)^2)^a[i] }
-      Theta <- function(i) { (1-tau) + A[i] * ((delta-1)^2)^(1/(2*beta[i])) }
-      Psi <- function(i) { exp ( -C[i]*(delta-1)^2 - D[i]*(tau-1)^2 ) }
-      dDelta.bi.ddelta <- function(i) { b[i]*Delta(i)^(b[i]-1)*dDelta.ddelta(i) }
-      d2Delta.bi.ddelta2 <- function(i) { b[i]*( Delta(i)^(b[i]-1) * d2Delta.ddelta2(i) + 
-        (b[i]-1)*Delta(i)^(b[i]-2)*dDelta.ddelta(i)^2 ) }
-      dDelta.bi.dtau <- function(i) { -2*Theta(i)*b[i]*Delta(i)^(b[i]-1) }
-      d2Delta.bi.dtau2 <- function(i) { 2*b[i]*Delta(i)^(b[i]-1) + 4*Theta(i)^2*b[i]*(b[i]-1)*Delta(i)^(b[i]-2) }
-      d2Delta.bi.ddelta.dtau <- function(i) { -A[i]*b[i]*2/beta[i]*Delta(i)^(b[i]-1)*(delta-1) * 
-        ((delta-1)^2)^(1/(2*beta[i])-1) - 2*Theta(i)*b[i]*(b[i]-1)*Delta(i)^(b[i]-2)*dDelta.ddelta(i)  }
-      dDelta.ddelta <- function(i) { (delta-1) * ( A[i]*Theta(i)*2/beta[i]*((delta-1)^2)^(1/(2*beta[i])-1) +
-        2*B[i]*a[i]*((delta-1)^2)^(a[i]-1) ) }
-      d2Delta.ddelta2 <- function(i) { 1/(delta-1)*dDelta.ddelta(i) + (delta-1)^2 * (
-        4*B[i]*a[i]*(a[i]-1)*((delta-1)^2)^(a[i]-2) + 2*A[i]^2*(1/beta[i])^2 *
-          (((delta-1)^2)^(1/(2*B[i])-1))^2 + A[i]*Theta(i)*4/beta[i]*(1/(2*B[i])-1) *
-            ((delta-1)^2)^(1/(2*beta[i])-2) ) }
-      # derivatives of exponential function
-      dPsi.ddelta <- function(i) { -2*C[i]*(delta-1)*Psi(i) }
-      d2Psi.ddelta2 <- function(i) { ( 2*C[i]*(delta-1)^2 - 1 ) * 2*C[i]*Psi(i) }
-      dPsi.dtau <- function(i) { -2*D[i]*(tau-1)*Psi(i) }
-      d2Psi.dtau2 <- function(i) { (2*D[i]*(tau-1)^2 - 1) * 2*D[i]*Psi(i) }
-      d2Psi.ddelta.dtau <- function(i) { 4*C[i]*D[i]*(delta-1)*(tau-1)*Psi(i) }
-      # dimensionless Helmholtz free energy and derivatives
-      phi <- function() {
-        sum(n[i1]*delta^d[i1]*tau^t[i1]) +
-        sum(n[i2]*delta^d[i2]*tau^t[i2]*exp(-delta^c[i2])) +
-        sum(n[i3]*delta^d[i3]*tau^t[i3] *
-          exp( -alpha[i3]*(delta-epsilon[i3])^2 - beta[i3]*(tau-gamma[i3])^2 ) ) +
-        sum(n[i4]*Delta(i4)^b[i4]*delta*Psi(i4))
-      }
-      phi.delta <- function() {
-        sum(n[i1]*d[i1]*delta^(d[i1]-1)*tau^t[i1]) +
-        sum(n[i2]*exp(-delta^c[i2])*(delta^(d[i2]-1)*tau^t[i2]*(d[i2]-c[i2]*delta^c[i2]))) +
-        sum(n[i3]*delta^d[i3]*tau^t[i3] *
-          exp( -alpha[i3]*(delta-epsilon[i3])^2 - beta[i3]*(tau-gamma[i3])^2 ) * 
-            (d[i3]/delta - 2 * alpha[i3]*(delta-epsilon[i3])) ) +
-        sum(n[i4] * ( Delta(i4)^b[i4] * (Psi(i4)+delta*dPsi.ddelta(i4)) + dDelta.bi.ddelta(i4)*delta*Psi(i4) ) ) 
-      }
-      phi.delta.delta <- function() {
-        sum(n[i1]*d[i1]*(d[i1]-1)*delta^(d[i1]-2)*tau^t[i1]) +
-        sum(n[i2]*exp(-delta^c[i2])*(delta^(d[i2]-2)*tau^t[i2]*((d[i2]-c[i2]*delta^c[i2]) * 
-          (d[i2]-1-c[i2]*delta^c[i2])-c[i2]^2*delta^c[i2]))) +
-        sum(n[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2 - beta[i3]*(tau-gamma[i3])^2) * (
-          -2*alpha[i3]*delta^d[i3]+4*alpha[i3]^2*delta^d[i3]*(delta-epsilon[i3])^2 -
-           4*d[i3]*alpha[i3]*delta^(d[i3]-1)*(delta-epsilon[i3])+d[i3]*(d[i3]-1)*delta^(d[i3]-2) ) ) +
-        sum(n[i4]*( Delta(i4)^b[i4]*(2*dPsi.ddelta(i4)+delta*d2Psi.ddelta2(i4)) + 
-          2*dDelta.bi.ddelta(i4)*(Psi(i4)+delta*dPsi.ddelta(i4)) + d2Delta.bi.ddelta2(i4)*delta*Psi(i4) ) )
-      }
-      phi.tau <- function() {
-        sum(n[i1]*t[i1]*delta^d[i1]*tau^(t[i1]-1)) +
-        sum(n[i2]*t[i2]*delta^d[i2]*tau^(t[i2]-1)*exp(-delta^c[i2])) +
-        sum(n[i3]*delta^d[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2-beta[i3]*(tau-gamma[i3])^2) * 
-          (t[i3]/tau-2*beta[i3]*(tau-gamma[i3]))) +
-        sum(n[i4]*delta*(dDelta.bi.dtau(i4)*Psi(i4)+Delta(i4)^b[i4]*dPsi.dtau(i4)))
-      }
-      phi.tau.tau <- function() {
-        sum(n[i1]*t[i1]*(t[i1]-1)*delta^d[i1]*tau^(t[i1]-2)) +
-        sum(n[i2]*t[i2]*(t[i2]-1)*delta^d[i2]*tau^(t[i2]-2)*exp(-delta^c[i2])) +
-        sum(n[i3]*delta^d[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2-beta[i3]*(tau-gamma[i3])^2) * 
-          (((t[i3]/tau)-2*beta[i3]*(tau-gamma[i3]))^2-t[i3]/tau^2-2*beta[i3])) +
-        sum(n[i4]*delta*(d2Delta.bi.dtau2(i4)*Psi(i4)+2*dDelta.bi.dtau(i4)*dPsi.dtau(i4) + 
-          Delta(i4)^b[i4]*d2Psi.dtau2(i4)))
-      }
-      phi.delta.tau <- function() {
-        sum(n[i1]*d[i1]*t[i1]*delta^(d[i1]-1)*tau^(t[i1]-1)) +
-        sum(n[i2]*t[i2]*delta^(d[i2]-1)*tau^(t[i2]-1)*(d[i2]-c[i2]*delta^c[i2])*exp(-delta^c[i2])) +
-        sum(n[i3]*delta^d[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2-beta[i3]*(tau-gamma[i3])^2) * 
-          ((d[i3]/delta)-2*alpha[i3]*(delta-epsilon[i3]))*(t[i3]/tau-2*beta[i3]*(tau-gamma[i3])) ) +
-        sum(n[i4]*(Delta(i4)^b[i4]*(dPsi.dtau(i4)+delta*d2Psi.ddelta.dtau(i4)) + 
-          delta*dDelta.bi.ddelta(i4)*dPsi.dtau(i4)+dDelta.bi.dtau(i4) * (Psi(i4)+delta*dPsi.ddelta(i4)) +
-          d2Delta.bi.ddelta.dtau(i4)*delta*Psi(i4) )) 
-      }
-
-      return(get(p)())
+residual.IAPWS95 <- function(p, delta, tau) {
+  ## the residual part in the IAPWS-95 formulation
+  # from Table 6.2 of Wagner and Pruss, 2002
+  c <- c(rep(NA,7),rep(1,15),rep(2,20),rep(3,4),4,rep(6,4),rep(NA,5))
+  d <- c(1,1,1,2,2,3,4,1,1,1,2,2,3,4,
+         4,5,7,9,10,11,13,15,1,2,2,2,3,4,
+         4,4,5,6,6,7,9,9,9,9,9,10,10,12,
+         3,4,4,5,14,3,6,6,6,3,3,3,NA,NA)
+  t <- c(-0.5,0.875,1,0.5,0.75,0.375,1,4,6,12,1,5,4,2,
+         13,9,3,4,11,4,13,1,7,1,9,10,10,3,
+         7,10,10,6,10,10,1,2,3,4,8,6,9,8,
+         16,22,23,23,10,50,44,46,50,0,1,4,NA,NA)
+  n <- c( 0.12533547935523E-1, 0.78957634722828E1 ,-0.87803203303561E1 ,
+          0.31802509345418   ,-0.26145533859358   ,-0.78199751687981E-2,
+          0.88089493102134E-2,-0.66856572307965   , 0.20433810950965   ,
+         -0.66212605039687E-4,-0.19232721156002   ,-0.25709043003438   ,
+          0.16074868486251   ,-0.40092828925807E-1, 0.39343422603254E-6,
+         -0.75941377088144E-5, 0.56250979351888E-3,-0.15608652257135E-4,
+          0.11537996422951E-8, 0.36582165144204E-6,-0.13251180074668E-11,
+         -0.62639586912454E-9,-0.10793600908932   , 0.17611491008752E-1,
+          0.22132295167546   ,-0.40247669763528   , 0.58083399985759   ,
+          0.49969146990806E-2,-0.31358700712549E-1,-0.74315929710341   ,
+          0.47807329915480   , 0.20527940895948E-1,-0.13636435110343   ,
+          0.14180634400617E-1, 0.83326504880713E-2,-0.29052336009585E-1,
+          0.38615085574206E-1,-0.20393486513704E-1,-0.16554050063734E-2,
+          0.19955571979541E-2, 0.15870308324157E-3,-0.16388568342530E-4,
+          0.43613615723811E-1, 0.34994005463765E-1,-0.76788197844621E-1,
+          0.22446277332006E-1,-0.62689710414685E-4,-0.55711118565645E-9,
+         -0.19905718354408   , 0.31777497330738   ,-0.11841182425981   ,
+         -0.31306260323435E2 , 0.31546140237781E2 ,-0.25213154341695E4 ,
+         -0.14874640856724   , 0.31806110878444)
+  alpha <- c(rep(NA,51),20,20,20,NA,NA)
+  beta <- c(rep(NA,51),150,150,250,0.3,0.3)
+  gamma <- c(rep(NA,51),1.21,1.21,1.25,NA,NA)
+  epsilon <- c(rep(NA,51),1,1,1,NA,NA)
+  a <- c(rep(NA,54),3.5,3.5)
+  b <- c(rep(NA,54),0.85,0.95)
+  B <- c(rep(NA,54),0.2,0.2)
+  C <- c(rep(NA,54),28,32)
+  D <- c(rep(NA,54),700,800)
+  A <- c(rep(NA,54),0.32,0.32)
+  # from Table 6.5
+  i1 <- 1:7
+  i2 <- 8:51
+  i3 <- 52:54
+  i4 <- 55:56
+  # deriviatives of distance function
+  Delta <- function(i) { Theta(i)^2 + B[i] * ((delta-1)^2)^a[i] }
+  Theta <- function(i) { (1-tau) + A[i] * ((delta-1)^2)^(1/(2*beta[i])) }
+  Psi <- function(i) { exp ( -C[i]*(delta-1)^2 - D[i]*(tau-1)^2 ) }
+  dDelta.bi.ddelta <- function(i) { b[i]*Delta(i)^(b[i]-1)*dDelta.ddelta(i) }
+  d2Delta.bi.ddelta2 <- function(i) { b[i]*( Delta(i)^(b[i]-1) * d2Delta.ddelta2(i) + 
+    (b[i]-1)*Delta(i)^(b[i]-2)*dDelta.ddelta(i)^2 ) }
+  dDelta.bi.dtau <- function(i) { -2*Theta(i)*b[i]*Delta(i)^(b[i]-1) }
+  d2Delta.bi.dtau2 <- function(i) { 2*b[i]*Delta(i)^(b[i]-1) + 4*Theta(i)^2*b[i]*(b[i]-1)*Delta(i)^(b[i]-2) }
+  d2Delta.bi.ddelta.dtau <- function(i) { -A[i]*b[i]*2/beta[i]*Delta(i)^(b[i]-1)*(delta-1) * 
+    ((delta-1)^2)^(1/(2*beta[i])-1) - 2*Theta(i)*b[i]*(b[i]-1)*Delta(i)^(b[i]-2)*dDelta.ddelta(i)  }
+  dDelta.ddelta <- function(i) { (delta-1) * ( A[i]*Theta(i)*2/beta[i]*((delta-1)^2)^(1/(2*beta[i])-1) +
+    2*B[i]*a[i]*((delta-1)^2)^(a[i]-1) ) }
+  d2Delta.ddelta2 <- function(i) { 1/(delta-1)*dDelta.ddelta(i) + (delta-1)^2 * (
+    4*B[i]*a[i]*(a[i]-1)*((delta-1)^2)^(a[i]-2) + 2*A[i]^2*(1/beta[i])^2 *
+      (((delta-1)^2)^(1/(2*B[i])-1))^2 + A[i]*Theta(i)*4/beta[i]*(1/(2*B[i])-1) *
+        ((delta-1)^2)^(1/(2*beta[i])-2) ) }
+  # derivatives of exponential function
+  dPsi.ddelta <- function(i) { -2*C[i]*(delta-1)*Psi(i) }
+  d2Psi.ddelta2 <- function(i) { ( 2*C[i]*(delta-1)^2 - 1 ) * 2*C[i]*Psi(i) }
+  dPsi.dtau <- function(i) { -2*D[i]*(tau-1)*Psi(i) }
+  d2Psi.dtau2 <- function(i) { (2*D[i]*(tau-1)^2 - 1) * 2*D[i]*Psi(i) }
+  d2Psi.ddelta.dtau <- function(i) { 4*C[i]*D[i]*(delta-1)*(tau-1)*Psi(i) }
+  # dimensionless Helmholtz free energy and derivatives
+  phi <- function() {
+    sum(n[i1]*delta^d[i1]*tau^t[i1]) +
+    sum(n[i2]*delta^d[i2]*tau^t[i2]*exp(-delta^c[i2])) +
+    sum(n[i3]*delta^d[i3]*tau^t[i3] *
+      exp( -alpha[i3]*(delta-epsilon[i3])^2 - beta[i3]*(tau-gamma[i3])^2 ) ) +
+    sum(n[i4]*Delta(i4)^b[i4]*delta*Psi(i4))
   }
-  
-  # relation of thermodynamic properties to Helmholtz free energy
+  phi.delta <- function() {
+    sum(n[i1]*d[i1]*delta^(d[i1]-1)*tau^t[i1]) +
+    sum(n[i2]*exp(-delta^c[i2])*(delta^(d[i2]-1)*tau^t[i2]*(d[i2]-c[i2]*delta^c[i2]))) +
+    sum(n[i3]*delta^d[i3]*tau^t[i3] *
+      exp( -alpha[i3]*(delta-epsilon[i3])^2 - beta[i3]*(tau-gamma[i3])^2 ) * 
+        (d[i3]/delta - 2 * alpha[i3]*(delta-epsilon[i3])) ) +
+    sum(n[i4] * ( Delta(i4)^b[i4] * (Psi(i4)+delta*dPsi.ddelta(i4)) + dDelta.bi.ddelta(i4)*delta*Psi(i4) ) ) 
+  }
+  phi.delta.delta <- function() {
+    sum(n[i1]*d[i1]*(d[i1]-1)*delta^(d[i1]-2)*tau^t[i1]) +
+    sum(n[i2]*exp(-delta^c[i2])*(delta^(d[i2]-2)*tau^t[i2]*((d[i2]-c[i2]*delta^c[i2]) * 
+      (d[i2]-1-c[i2]*delta^c[i2])-c[i2]^2*delta^c[i2]))) +
+    sum(n[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2 - beta[i3]*(tau-gamma[i3])^2) * (
+      -2*alpha[i3]*delta^d[i3]+4*alpha[i3]^2*delta^d[i3]*(delta-epsilon[i3])^2 -
+       4*d[i3]*alpha[i3]*delta^(d[i3]-1)*(delta-epsilon[i3])+d[i3]*(d[i3]-1)*delta^(d[i3]-2) ) ) +
+    sum(n[i4]*( Delta(i4)^b[i4]*(2*dPsi.ddelta(i4)+delta*d2Psi.ddelta2(i4)) + 
+      2*dDelta.bi.ddelta(i4)*(Psi(i4)+delta*dPsi.ddelta(i4)) + d2Delta.bi.ddelta2(i4)*delta*Psi(i4) ) )
+  }
+  phi.tau <- function() {
+    sum(n[i1]*t[i1]*delta^d[i1]*tau^(t[i1]-1)) +
+    sum(n[i2]*t[i2]*delta^d[i2]*tau^(t[i2]-1)*exp(-delta^c[i2])) +
+    sum(n[i3]*delta^d[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2-beta[i3]*(tau-gamma[i3])^2) * 
+      (t[i3]/tau-2*beta[i3]*(tau-gamma[i3]))) +
+    sum(n[i4]*delta*(dDelta.bi.dtau(i4)*Psi(i4)+Delta(i4)^b[i4]*dPsi.dtau(i4)))
+  }
+  phi.tau.tau <- function() {
+    sum(n[i1]*t[i1]*(t[i1]-1)*delta^d[i1]*tau^(t[i1]-2)) +
+    sum(n[i2]*t[i2]*(t[i2]-1)*delta^d[i2]*tau^(t[i2]-2)*exp(-delta^c[i2])) +
+    sum(n[i3]*delta^d[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2-beta[i3]*(tau-gamma[i3])^2) * 
+      (((t[i3]/tau)-2*beta[i3]*(tau-gamma[i3]))^2-t[i3]/tau^2-2*beta[i3])) +
+    sum(n[i4]*delta*(d2Delta.bi.dtau2(i4)*Psi(i4)+2*dDelta.bi.dtau(i4)*dPsi.dtau(i4) + 
+      Delta(i4)^b[i4]*d2Psi.dtau2(i4)))
+  }
+  phi.delta.tau <- function() {
+    sum(n[i1]*d[i1]*t[i1]*delta^(d[i1]-1)*tau^(t[i1]-1)) +
+    sum(n[i2]*t[i2]*delta^(d[i2]-1)*tau^(t[i2]-1)*(d[i2]-c[i2]*delta^c[i2])*exp(-delta^c[i2])) +
+    sum(n[i3]*delta^d[i3]*tau^t[i3]*exp(-alpha[i3]*(delta-epsilon[i3])^2-beta[i3]*(tau-gamma[i3])^2) * 
+      ((d[i3]/delta)-2*alpha[i3]*(delta-epsilon[i3]))*(t[i3]/tau-2*beta[i3]*(tau-gamma[i3])) ) +
+    sum(n[i4]*(Delta(i4)^b[i4]*(dPsi.dtau(i4)+delta*d2Psi.ddelta.dtau(i4)) + 
+      delta*dDelta.bi.ddelta(i4)*dPsi.dtau(i4)+dDelta.bi.dtau(i4) * (Psi(i4)+delta*dPsi.ddelta(i4)) +
+      d2Delta.bi.ddelta.dtau(i4)*delta*Psi(i4) )) 
+  }
+  return(get(p)())
+}
+
+water.IAPWS95 <- function(property,T=298.15,rho=1000) {
+  ## the IAPWS-95 formulation for pure H2O from 
+  ## Wagner and Pruss, 2002
+  property <- tolower(property)
+  # triple point
+  T.triple <- 273.16 # K
+  P.triple <- 611.657 # Pa
+  rho.triple.liquid <- 999.793
+  rho.triple.vapor <- 0.00485458
+  # normal boiling point
+  T.boiling <- 373.124
+  P.boiling <- 0.101325
+  rho.boiling.liquid <- 958.367
+  rho.boiling.vapor <- 0.597657
+  # critical point constants
+  T.critical <- 647.096 # K
+  rho.critical <- 322 # kg m-3
+  # specific and molar gas constants
+  R <- 0.46151805 # kJ kg-1 K-1
+  # R.M <- 8.314472 # J mol-1 K-1
+  # molar mass
+  M <- 18.015268 # g mol-1
+  ## define functions idealgas and residual, supplying arguments delta and tau
+  idealgas <- function(p) idealgas.IAPWS95(p, delta, tau)
+  residual <- function(p) residual.IAPWS95(p, delta, tau)
+  ## relation of thermodynamic properties to Helmholtz free energy
   a <- function() {
     x <- idealgas('phi')+residual('phi')
     return(x*R*T)
@@ -275,69 +275,22 @@ water.IAPWS95 <- function(property,T=298.15,rho=1000) {
           (idealgas('phi.tau.tau')+residual('phi.tau.tau'))*(1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')) ) 
     return(x/(R*rho))
   }
-
-  if(property[1]=='test') {
-    # Table 6.6
-    pr <- c('phi','phi.delta','phi.delta.delta','phi.tau','phi.tau.tau','phi.delta.tau')
-    i1 <- r1 <- i2 <- r2 <- numeric()
-    print('expt 1: T=500,rho=838.025')
-    T <- 500; rho <- 838.025
-    #T <- 354.467; rho <- 970.942
-    delta <- rho / rho.critical
-    tau <- T.critical / T
-    for(i in 1:length(pr)) i1 <- c(i1,idealgas(pr[i]))
-    for(i in 1:length(pr)) r1 <- c(r1,residual(pr[i]))
-    print('expt 2: T=647,rho=358')
-    T <- 647; rho <- 358
-    #T <- 354.467; rho <- 0.30864
-    delta <- rho / rho.critical
-    tau <- T.critical / T
-    for(i in 1:length(pr)) i2 <- c(i2,idealgas(pr[i]))
-    for(i in 1:length(pr)) r2 <- c(r2,residual(pr[i]))
-    t <- data.frame(idealgas.1=i1,residual.1=r1,idealgas.2=i2,residual.2=r2)
-    rownames(t) <- pr
-    print(t)
-    # properties at triple, boiling, and critical points
-    tl <- tv <- bl <- bv <- cr <- numeric()
-    pr <- c('p','s','u','h','g','cv','cp','mu')
-    T <- T.triple; rho <- rho.triple.liquid
-    delta <- rho / rho.critical; tau <- T.critical / T
-    for(i in 1:length(pr))  tl <- c(tl,get(pr[i])())
-    T <- T.triple; rho <- rho.triple.vapor
-    delta <- rho / rho.critical; tau <- T.critical / T
-    for(i in 1:length(pr))  tv <- c(tv,get(pr[i])())
-    T <- T.boiling; rho <- rho.boiling.liquid
-    delta <- rho / rho.critical; tau <- T.critical / T
-    for(i in 1:length(pr))  bl <- c(bl,get(pr[i])())
-    T <- T.boiling; rho <- rho.boiling.vapor
-    delta <- rho / rho.critical; tau <- T.critical / T
-    for(i in 1:length(pr))  bv <- c(bv,get(pr[i])())
-    T <- T.critical; rho <- rho.critical
-    delta <- rho / rho.critical; tau <- T.critical / T
-    for(i in 1:length(pr))  cr <- c(cr,get(pr[i])())
-    T <- c(T.triple,T.triple,T.boiling,T.boiling,T.critical)
-    rho <- c(rho.triple.liquid,rho.triple.vapor,rho.boiling.liquid,rho.boiling.vapor,rho.critical)
-    t <- as.data.frame(matrix(c(tl,tv,bl,bv,cr),byrow=TRUE,nrow=5))
-    t <- data.frame(T=T,rho=rho,t)
-    rownames(t) <- c('triple.liquid','triple.vapor','boiling.liquid','boiling.vapor','critical')
-    colnames(t) <- c('T','rho',pr)
-    print(t)
-    return()
-  } else {
-    ww <- NULL
-    my.T <- T; my.rho <- rho
-    for(j in 1:length(property)) {
-      t <- numeric()
-      for(i in 1:length(my.T)) {
-        T <- my.T[i]; rho <- my.rho[i]
-        # Equation 6.4
-        delta <- rho / rho.critical
-        tau <- T.critical / T
-        t <- c(t,get(property[j])())
-      }
-      t <- data.frame(t)
-      if(j==1) ww <- t else ww <- cbind(ww,t)
+  ## run the calculations
+  ww <- NULL
+  my.T <- T
+  my.rho <- rho
+  for(j in 1:length(property)) {
+    t <- numeric()
+    for(i in 1:length(my.T)) {
+      T <- my.T[i]
+      rho <- my.rho[i]
+      # Equation 6.4
+      delta <- rho / rho.critical
+      tau <- T.critical / T
+      t <- c(t,get(property[j])())
     }
+    t <- data.frame(t)
+    if(j==1) ww <- t else ww <- cbind(ww,t)
   }
   colnames(ww) <- property
   return(ww)
@@ -397,7 +350,7 @@ water.WP02 <- function(property='rho.liquid',T=298.15) {
 water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
   # calculate the properties of liquid H2O as a function of T and P
   # T in Kelvin, P in bar
-  if(is.null(property)) stop('property was NULL.')
+  if(is.null(property)) stop('property was NULL')
   # this tells us to do the calculations using code taken from SUPCRT
   do.supcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3)) > 0
   eargs <- eos.args('water',property=property,T=T,P=P)
@@ -627,7 +580,7 @@ water <- function(property = NULL,T = thermo$opt$Tr, P = 'Psat') {
   for(i in 1:length(property)) {
     if(property[i] %in% c('e','kt')) {
       # expansivity isn't in the table yet... set it to zero
-      warning('water: values of ',Property[i],' are NA.\n',call.=FALSE)
+      warning('water: values of ',Property[i],' are NA\n',call.=FALSE)
       inew <- rep(NA,length(T))
     } else {
       if(!quiet) {
@@ -694,23 +647,22 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
     for(i in 1:length(T)) {
       states[1] <- Tc[i]
       states[2] <- P[i]
-      if(NaN %in% c(Tc[i],P[i])) {
+      if(any(is.na(c(Tc[i],P[i])))) {
+        # if T or P is NA, all properties are NA
         w <- matrix(rep(NA,23),nrow=1)
         w.out[i,] <- w
         p.out[i] <- NA
         rho.out[i] <- NA
-        if(isat) err <- 0 else err <- 1
-        err.out[i] <- err
       } else {
         inc <- 0
-        t <- .Fortran('H2O92',as.integer(specs),as.double(states),
+        h2o <- .Fortran('H2O92',as.integer(specs),as.double(states),
           as.double(rep(0,46)),as.integer(0),PACKAGE='CHNOSZ')
         # errors
-        err <- t[[4]]
+        err <- h2o[[4]]
         err.out[i] <- err
         # density
-        rho <- t[[2]][3]
-        rho2 <- t[[2]][4]
+        rho <- h2o[[2]][3]
+        rho2 <- h2o[[2]][4]
         if(rho2 > rho) {
           # liquid is denser than vapor
           rho <- rho2 
@@ -719,15 +671,16 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
         }
         rho.out[i] <- rho
         # most of the properties we're interested in
-        w <- t(t[[3]][iprop+inc])
+        w <- t(h2o[[3]][iprop+inc])
         if(err==1) w[1,] <- NA
         # update the ith row of the output matrix
         w.out[i,] <- w
         # Psat
         if(isat | 'psat' %in% tolower(property)) {
-          p <- t[[2]][2]
-          #if(T[i] < 373.124) p <- 1
-          if(p < 1) p <- 1
+          p <- h2o[[2]][2]
+          p[p==0] <- NA
+          # Psat specifies P=1 below 100 degC
+          p[p < 1] <- 1
           p.out[i] <- p
         } else {
           p.out[i] <- P[i]
@@ -751,12 +704,11 @@ water.SUPCRT92 <- function(property,T=298.15,P=1,isat=0) {
       if(length(T) > 1) plural <- "s" else plural <- ""
       nerr <- length(which(err.out==1))
       if(nerr > 1) plural2 <- "s" else plural2 <- ""
-      if(isat) warning(paste("water.SUPCRT92: error",plural2," calculating ",
-        nerr," of ",length(T)," point",plural,"; for Psat we need T < 647.067 K.",sep=""),
-        call.=FALSE,immediate.=TRUE)
-      else warning(paste("water.SUPCRT92: error",plural2," calculating ",nerr,
-        " of ",length(T)," point",plural,"; T and/or P are NA, ",
-        "or T < Tfusion@P, T > 2250 degC, or P > 30kb.",sep=""),call.=FALSE,immediate.=TRUE)
+      if(isat) msgout(paste("water.SUPCRT92: error",plural2," calculating ",
+        nerr," of ",length(T)," point",plural,"; for Psat we need T < 647.067 K\n",sep=""))
+      else msgout(paste("water.SUPCRT92: error",plural2," calculating ",nerr,
+        " of ",length(T)," point",plural,
+        "; T < Tfusion@P, T > 2250 degC, or P > 30kb.\n",sep=""))
         # that last bit is taken from SUP92D.f in the SUPCRT92 distribution
     }
   } else {

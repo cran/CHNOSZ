@@ -2,16 +2,18 @@
 # Functions to create and modify plots
 
 thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par('lwd'),side=c(1,2,3,4),
-  mgp=c(1.2,0.3,0),cex.axis=par('cex'),col=par('col'),yline=NULL,axs='i',do.box=TRUE,ticks=NULL,
+  mgp=c(1.5,0.3,0),cex.axis=par('cex'),col=par('col'),yline=NULL,axs='i',do.box=TRUE,ticks=NULL,
   las=1,xline=NULL) {
   # start a new plot with some customized settings
+  # 20120523 store the old par in thermo$opar
+  if(is.null(thermo$opar)) thermo$opar <<- par(no.readonly=TRUE)
   # 20091108 changed argument name from 'ticks' to 'side' but
   # keep 'ticks' for backward compatibility
   if(!is.null(ticks)) side <- ticks 
   # 20090324 mar handling: NULL - a default setting; NA - par's setting
   # 20090413 changed mar of top side from 2 to 2.5
   if(is.null(mar)) mar <- c(3,3.5,2.5,1) else if(is.na(mar[1])) mar <- par('mar')
-  par(mar=mar,mgp=mgp,tcl=0.3,las=las,xaxs=axs,yaxs=axs,cex=cex,lwd=lwd)
+  par(mar=mar,mgp=mgp,tcl=0.3,las=las,xaxs=axs,yaxs=axs,cex=cex,lwd=lwd,col=col,fg=col)
   plot.new()
   plot.window(xlim=xlim,ylim=ylim)
   if(do.box) box()
@@ -21,14 +23,10 @@ thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par(
   if(is.null(yline)) yline <- mgp[1]
   thermo.axis(ylab,side=2,line=yline,cex=cex.axis,lwd=NULL)
   # (optional) tick marks
-  if(1 %in% side) thermo.axis(NULL,side=1,lwd=lwd,col=par('col'))
-  if(2 %in% side) thermo.axis(NULL,side=2,lwd=lwd,col=par('col'))
-  if(3 %in% side) thermo.axis(NULL,side=3,lwd=lwd,col=par('col'))
-  if(4 %in% side) thermo.axis(NULL,side=4,lwd=lwd,col=par('col'))
-}
-
-thermo.postscript <- function(file,family='Helvetica',width=8,height=6,horizontal=FALSE) {
-  postscript(onefile=FALSE,horizontal=horizontal,paper='special',width=width,height=height,file=file,family=family)
+  if(1 %in% side) thermo.axis(NULL,side=1,lwd=lwd)
+  if(2 %in% side) thermo.axis(NULL,side=2,lwd=lwd)
+  if(3 %in% side) thermo.axis(NULL,side=3,lwd=lwd)
+  if(4 %in% side) thermo.axis(NULL,side=4,lwd=lwd)
 }
 
 thermo.axis <- function(lab='x-axis',side=1,line=1.5,cex=par('cex'),lwd=par('lwd'),T=NULL,col=par('col')) {
@@ -108,141 +106,6 @@ label.plot <- function(x,xfrac=0.95,yfrac=0.9,cex=1,paren=TRUE,adj=1) {
   if(paren) x <- as.expression(substitute(group('(',italic(a),')'),list(a=x)))
   pu <- par('usr')
   text( pu[1]+xfrac*(pu[2]-pu[1]), pu[3]+yfrac*(pu[4]-pu[3]), labels=x, cex=cex , adj=adj)
-}
-
-axis.label <- function(lab,opt=NULL,do.state=TRUE,oldstyle=FALSE,do.upper=FALSE,mol='mol',state=NULL,as.expression=TRUE) {
-  # make axis labels
-  # 20090826: just return the argument if a comma is already present
-  if(length(grep(",",lab)) > 0) return(lab)
-  if(missing(opt)) do.opt <- TRUE else do.opt <- FALSE
-  if(!is.null(opt)) if(is.na(opt)) do.opt <- TRUE
-  if(lab %in% c('T','P','Eh','pH','pe','logK','IS')) {
-    # the label is one of these properties
-    if(lab=='Eh') lab <- paste(lab,'(volt)')
-    else if(lab=='T') {
-      if(do.opt) T.units <- nuts('T') else T.units <- opt
-      if(T.units=='C') lab <- quote(list(italic(T),degree*C))
-      else lab <- quote(list(italic(T),K))
-    } 
-    else if(lab=='P') {
-      if(do.opt) P.units <- nuts('P') else P.units <- opt
-      if(P.units=='bar') lab <- quote(list(italic(P),bar))
-      else lab <- quote(list(italic(P),MPa))
-    } 
-    else if(lab=='logK') lab <- quote(log~italic(K))
-    else if(lab=='IS') lab <- quote(list(IS,mol~~kg^{-1}))
-    if(as.expression) lab <- as.expression(lab)
-    else return(lab)
-  } else {
-    # the label is a chemical activity or fugacity
-    if(is.null(thermo$basis)) rn <- '' else rn <- rownames(basis(quiet=TRUE))
-    if(lab %in% rn | !is.null(state)) {
-      if(is.null(state)) {
-        # 20090215: the state this basis species is in
-        state <- as.character(thermo$basis$state)[match(lab,rn)]
-      }
-      if(oldstyle) {
-        # append (log a) or (log f)
-        if(state %in% c('gas')) llab <- '(log f)' else llab <- '(log a)'
-        newlab <- paste(lab,llab,sep=' ')
-        return(newlab)
-      } else {
-        return(species.label(lab,do.state=do.state,state=state,do.log=TRUE,as.expression=as.expression))
-      }
-    } else {
-      # a way to make expressions for various properties
-      # e.g. axis.label('DG0r','k') for standard molal Gibbs energy
-      # change of reaction in kcal/mol
-      clab <- s2c(lab)
-      wlab <- ''
-      doital <- TRUE; dosub <- FALSE
-      for(i in 1:length(clab)) {
-        blab <- clab[i]
-        #if(dosub) blab <- substitute(phantom0[a],list(a=blab))
-        # D for Delta
-        if(i==1 & blab=='D') wlab <- quote(Delta)
-        else if(i > 1 & blab=='0') {
-          wlab <- substitute(a*degree,list(a=wlab))
-          dosub <- TRUE
-        }
-        else if(i > 1 & (can.be.numeric(blab) | blab=='P' | dosub)) 
-          wlab <- substitute(a[italic(b)],list(a=wlab,b=blab))
-        else if(i > 1 & blab==',') {
-          wlab <- substitute(a*b,list(a=wlab,b=blab))
-          doital <- FALSE
-        }
-        else {
-          if(blab=='A') blab <- substitute(bold(a),list(a=blab))
-          if(i > 1) {
-            if(blab=='p') wlab <- substitute(a[italic(b)],list(a=wlab,b=toupper(blab)))
-            else if(doital) wlab <- substitute(a*italic(b),list(a=wlab,b=blab))
-            else wlab <- substitute(a*b,list(a=wlab,b=blab))
-          } else wlab <- substitute(italic(b),list(b=blab))
-        }
-      }
-      # now to the nuts
-      if(do.state) {
-        mytoupper <- function(lab) {
-          if(do.upper & lab!='g') return(toupper(lab))
-          else return(lab)
-        }
-        if(clab[1]=='D') clab <- clab[-1]
-        ulab <- mytoupper(nuts('E'))
-        if(clab[1] %in% c('C','S')) mylab <- substitute(a~~K^-1,list(a=ulab))
-        else if(clab[1] == c('V')) mylab <- substitute(a^3,list(a=mytoupper('cm')))
-        else if(clab[1] == 'E') mylab <- substitute(a^3~~K^-1,list(a=mytoupper('cm')))
-        else mylab <- ulab
-        if(!is.null(opt)) {
-          if(can.be.numeric(opt)) mylab <- substitute(10^a~~b,list(a=opt,b=mylab))
-          else {
-            opt <- mytoupper(opt)
-            mylab <- substitute(a*b,list(a=opt,b=mylab))
-          }
-        }
-        mylab <- substitute(a~~b^-1,list(a=mylab,b=mytoupper(mol)))
-        wlab <- substitute(list(a,b),list(a=wlab,b=mylab))
-      }
-      return(as.expression(wlab))
-    }
-  }
-}
-
-species.label <- function(formula,do.state=FALSE,state="",do.log=FALSE,as.expression=TRUE) {
-  # make plotting expressions for chemical formulas
-  # that include subscripts, superscripts (if charged)
-  # and optionally designations of states +/- loga or logf prefix
-  labform <- makeup(formula)
-  newlab <- ''
-  for(i in 1:nrow(labform)) {
-      if(rownames(labform)[i] != 'Z') {
-        newlab <- substitute(paste(a,b),list(a=newlab,b=rownames(labform)[i]))
-        if(labform$count[i]!=1) {
-          # subscripts within subscripts (do.log) are too small
-          if(do.log) newlab <- substitute(a*b,list(a=newlab,b=labform$count[i]))
-          else newlab <- substitute(a[b],list(a=newlab,b=labform$count[i]))
-        }
-      } else {
-        # for charged species, don't show "Z" but do show e.g. "+2"
-        lc <- labform$count[i]
-        if(lc==-1) lc <- "-"
-        else if(lc==1) lc <- "+"
-        else if(lc > 0) lc <- paste("+",as.character(lc),sep="")
-        if(do.log) newlab <- substitute(paste(a,b),list(a=newlab,b=lc))
-        else newlab <- substitute(a^b,list(a=newlab,b=lc))
-      }
-  }
-  if(do.state) {
-    llab <- 'f'; slab <- 'g'
-    if(state %in% c('aq','cr','liq')) {llab <- 'a'; slab <- state}
-    #newlab <- substitute(a[group('(',italic(b),')')],list(a=newlab,b=slab))
-    newlab <- substitute(a*group('(',italic(b),')'),list(a=newlab,b=slab))
-    if(do.log) {
-      llab <- substitute(log*italic(a),list(a=llab))
-      newlab <- substitute(a[b],list(a=llab,b=newlab))
-    }
-  }
-  if(as.expression) return(as.expression(newlab))
-  else return(newlab)
 }
 
 

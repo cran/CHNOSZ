@@ -1,136 +1,157 @@
 # CHNOSZ/util.formula.R
-# functions to deal with chemical formulas
+# functions to compute some properties of chemical formulas
 
-GHS <- function(species=NULL,DG=NA,DH=NA,S=NA,T=thermo$opt$Tr) {
-  # convert among G, H, S, Se
-  # calculate Se (entropy of elements)
-  if(!is.null(species)) Se <- element(species,'entropy')[,1] else Se <- 0
-  if(NA%in%(DG) & NA%in%(DH) & NA%in%(S)) return(Se)
-  if(NA%in%(DG) & NA%in%(DH) | NA%in%(DH) & NA%in%(S) | NA%in%(DG) & NA%in%(S))
-    stop('please supply zero, two or three of G,H,S.')
-  if(NA%in%(DH)) return(DG+T*(S-Se)) else
-  if(NA%in%(S)) return((DH-DG)/T+Se) 
-  # G, finally
-  return(DH-T*(S-Se))
+get.formula <- function(formula) {
+  # return the argument if it's a matrix
+  if(is.matrix(formula)) return(formula)
+  # return the argument as matrix if it's a data frame
+  if(is.data.frame(formula)) return(as.matrix(formula))
+  # return the values in the argument, or chemical formula(s) 
+  # for values that are species indices
+  # for numeric values, get the formulas from those rownumbers of thermo$obigt
+  i <- suppressWarnings(as.numeric(formula))
+  # we can't have more than the number of rows in thermo$obigt
+  iover <- i > nrow(thermo$obigt)
+  iover[is.na(iover)] <- FALSE
+  if(any(iover)) stop(paste("species number(s)",paste(i[iover],collapse=" "),
+    "not available in thermo$obigt"))
+  # we let negative numbers pass as formulas
+  i[i < 0] <- NA
+  # replace any species indices with formulas from thermo$obigt
+  formula[!is.na(i)] <- thermo$obigt$formula[i[!is.na(i)]]
+  return(formula)
 }
 
-element <- function(compound,property=c('mass','entropy')) {
-  # calculate the mass and/or entropy of elements in compound(s)
-  if(!is.character(compound[1])) stop('please specify a character argument')
-  for(j in 1:length(compound)) {
-    m <- makeup(compound[j])
-    ie <- match(rownames(m),thermo$element$element)
-    if('mass' %in% property)
-      mass <- data.frame(mass=sum(thermo$element$mass[ie]*m$count))
-    if('entropy' %in% property)
-      entropy <- data.frame(entropy=sum(thermo$element$s[ie]/thermo$element$n[ie]*m$count))
-    if(length(property)>1) {
-      p <- get(property[1])
-      for(i in 2:length(property)) p <- cbind(p,get(property[i]))
-    } else p <- get(property)
-    if(j>1) prop <- rbind(prop,p) else prop <- p
-  }
-  return(prop)
-}
-
-expand.formula <- function(elements,makeup) {
-  # a function to expand formulas (makeups) to any
-  # number of elements, i.e. 
-  # expand.formula(c('C','H','O'),makeup('H2O')) returns c(0,2,1)
-  # if the makeup is missing, return an dataframe with
-  # zero rows and ncol=number of elements
-  if(missing(makeup)) {
-    comp0 <- as.data.frame(matrix(rep(NA,length(elements)),nrow=1))[0,,drop=FALSE]
-    # with column names of elements
-    #if(length(elements) > 1) colnames(comp0) <- elements
-    colnames(comp0) <- elements
-    return(comp0)
-  }
-  # the elements that are present
-  ematch <- match(elements,rownames(makeup))
-  # the exapnding
-  ecount <- makeup[ematch,]
-  # strip NAs
-  ecount[is.na(ecount)] <- 0
-  # 
-  return(ecount)
-}
-
-ZC <- function(x) {
-  # calculate nominal carbon oxidation state of chemical formulas
-  # FIXME: add more elements, warn about missing ones
-  if(!is.null(names(x))) {
-    # to deal with matrix or data frame arguments
-    if(!is.data.frame(x)) x <- as.data.frame(x)
-    # are carbon and other elements on rows or columns?
-    iC <- match("C",colnames(x))
-    if(is.na(iC)) {
-      iC <- match("C",rownames(x))
-      if(is.na(iC)) stop("carbon not found in the formula matrix!")
-      else x <- t(x)
-    }
-    # carbon and other elements are now on the columns
-    elements <- c("H","N","O","S","Z")
-    charges <- c(-1,3,2,2,1)
-    ielement <- match(elements,colnames(x))
-    ina <- is.na(ielement)
-    ielement <- ielement[!ina]
-    elements <- elements[!ina]
-    charges <- charges[!ina]
-    xc <- x[,ielement,drop=FALSE]
-    # sum of the charges
-    xc <- rowSums(t(t(xc)*charges))
-    # numbers of carbons
-    nC <- x[,iC]
-    # average oxidation number
-    ZC <- as.numeric(xc/nC)
+i2A <- function(formula) {
+  ## assemble the stoichiometric matrix (A)
+  ## for the given formulas  20120108 jmd
+  if(is.matrix(formula)) {
+    # do nothing if the argument is already a matrix
+    A <- formula
   } else {
-    # to deal with character arguments
-    # defactorize
-    if(is.factor(x[1])) x <- as.character(x)
-    # make sure all the elements we want are listed (even zeros)
-    ZC <- numeric()
-    for(i in 1:length(x)) {
-      m <- as.data.frame(t(makeup(c(x[i],'C0H0N0O0S0Z0'))))
-      ZC <- c(ZC,(-1*m$H+3*m$N+2*m$O+2*m$S+m$Z)/m$C)
-    }
+    # get the elemental makeup of each formula, counting
+    # zero for elements that appear only in other formulas
+    msz <- makeup(formula, count.zero=TRUE)
+    # convert formulas into a stoichiometric matrix with elements on the columns
+    A <- t(sapply(msz, c))
+    # add names from character argument
+    # or from thermo$obigt for numeric argument
+    if(is.numeric(formula[1])) rownames(A) <- thermo$obigt$name[formula]
+    else rownames(A) <- formula
   }
+  return(A)
+}
+
+as.chemical.formula <- function(makeup, drop.zero=TRUE) {
+  # make a formula character string from the output of makeup()
+  # or from a stoichiometric matrix (output of i2A() or protein.formula())
+  # first define a function to work with a single makeup object
+  cffun <- function(makeup) {
+    # first strip zeroes if needed
+    if(drop.zero) makeup <- makeup[makeup!=0]
+    # Z always goes at end
+    makeup <- c(makeup[names(makeup)!="Z"], makeup[names(makeup)=="Z"])
+    # the elements and coefficients
+    elements <- names(makeup)
+    coefficients <- as.character(makeup)
+    # any 1's get zapped
+    coefficients[makeup==1] <- ""
+    # any Z's get zapped (if they're followed by a negative number)
+    # or turned into a plus sign (to indicate a positive charge)
+    elements[elements=="Z" & makeup < 0] <- ""
+    elements[elements=="Z" & makeup >= 0] <- "+"
+    # put the elements and coefficients together
+    formula <- paste(elements, coefficients, sep="", collapse="")
+    # if the formula is uncharged, and the last element has a negative
+    # coefficient, add an explicit +0 at the end
+    if(!"Z" %in% names(makeup) & tail(makeup,1) < 0) 
+      formula <- paste(formula, "+0", sep="")
+    return(formula)
+  }
+  # call cffun() once for a single makeup, or loop for a matrix
+  if(is.matrix(makeup)) out <- sapply(1:nrow(makeup), function(i) {
+    mkp <- makeup[i, ]
+    return(cffun(mkp))
+  }) else out <- cffun(makeup)
+  return(out)
+}
+
+mass <- function(formula) {
+  # calculate the mass of elements in chemical formulas
+  formula <- i2A(get.formula(formula))
+  ielem <- match(colnames(formula), thermo$element$element)
+  if(any(is.na(ielem))) stop(paste("element(s)",
+    colnames(formula)[is.na(ielem)], "not available in thermo$element"))
+  mass <- as.numeric(formula %*% thermo$element$mass[ielem])
+  return(mass)
+}
+
+entropy <- function(formula) {
+  # calculate the standard molal entropy at Tref of elements in chemical formulas
+  formula <- i2A(get.formula(formula))
+  ielem <- match(colnames(formula), thermo$element$element)
+  if(any(is.na(ielem))) warning(paste("element(s)",
+    paste(colnames(formula)[is.na(ielem)], collapse=" "), "not available in thermo$element"))
+  entropy <- as.numeric( formula %*% (thermo$element$s[ielem] / thermo$element$n[ielem]) )
+  return(entropy)
+}
+
+GHS <- function(formula, G=NA, H=NA, S=NA, T=thermo$opt$Tr) {
+  # for all NA in G, H and S, do nothing
+  # for no  NA in G, H and S, do nothing
+  # for one NA in G, H and S, calculate its value from the other two:
+  # G - standard molal Gibbs energy of formation from the elements
+  # H - standard molal enthalpy of formation from the elements
+  # S - standard molal entropy
+  # argument checking
+  if(!all(diff(sapply(list(formula, G, H, S), length)) == 0))
+    stop("formula, G, H and S arguments are not same length")
+  # calculate Se (entropy of elements)
+  Se <- entropy(formula)
+  # calculate one of G, H, or S if the other two are given
+  GHS <- lapply(seq_along(G), function(i) {
+    G <- G[i]
+    H <- H[i]
+    S <- S[i]
+    Se <- Se[i]
+    if(is.na(G)) G <- H - T * (S - Se)
+    else if(is.na(H)) H <- G + T * (S - Se)
+    else if(is.na(S)) S <- (H - G) / T + Se
+    return(list(G, H, S))
+  })
+  # turn the list into a matrix and add labels
+  GHS <- t(sapply(GHS, c))
+  colnames(GHS) <- c("G", "H", "S")
+  rownames(GHS) <- formula
+  return(GHS)
+}
+
+ZC <- function(formula) {
+  # calculate average oxidation state of carbon 
+  # from chemical formulas of species
+  # if we haven't been supplied with a stoichiometric matrix, first get the formulas
+  formula <- i2A(get.formula(formula))
+  # is there carbon there?
+  iC <- match("C", colnames(formula))
+  if(is.na(iC)) stop("carbon not found in the stoichiometric matrix")
+  # the nominal charges of elements other than carbon
+  # FIXME: add more elements, warn about missing ones
+  knownelement <- c("H", "N", "O", "S", "Z")
+  charge <- c(-1, 3, 2, 2, 1)
+  # where are these elements in the formulas?
+  iknown <- match(knownelement, colnames(formula))
+  # any unknown elements in formula get dropped with a warning
+  iunk <- !colnames(formula) %in% c(knownelement, "C")
+  if(any(iunk)) warning(paste("element(s)",paste(colnames(formula)[iunk], collapse=" "),
+    "not in", paste(knownelement, collapse=" "), "so not included in this calculation"))
+  # contribution to charge only from known elements that are in the formula
+  formulacharges <- t(formula[,iknown[!is.na(iknown)]]) * charge[!is.na(iknown)]
+  # sum of the charges; the arrangement depends on the number of formulas
+  if(nrow(formula)==1) formulacharge <- rowSums(formulacharges) 
+  else formulacharge <- colSums(formulacharges)
+  # numbers of carbons
+  nC <- formula[,iC]
+  # average oxidation state
+  ZC <- as.numeric(formulacharge/nC)
   return(ZC)
 }
-
-## return a matrix with chemical formulas of residues
-residue.formula <- function() {
-  groups <- paste("[",colnames(thermo$protein)[6:25],"]",sep="")
-  # formula of the sidechain groups
-  f.groups <- as.character(thermo$obigt$formula[match(groups,thermo$obigt$name)])
-  f.H2O <- "H2O"
-  formulas <- c(f.H2O,f.groups)
-  # an empty formula so that we have all the elements we need
-  m.0 <- makeup("C0H0N0O0S0")
-  # formula of the protein backbone group
-  f.bb <- "C2H2NO"
-  m.bb <- makeup(m.0,makeup(f.bb))
-  for(i in 1:length(formulas)) {
-    # sum the empty formula with that of the residue
-    if(i==1) f <- makeup(m.0,makeup(formulas[i]))
-    else f <- makeup(m.bb,makeup(formulas[i]))
-    # create the output
-    if(i==1) out <- f else out <- cbind(out,f)
-  }
-  out <- t(out)
-  row.names(out) <- c(f.H2O,groups)
-  out <- as.matrix(out)
-  return(out)
-}
-
-protein.formula <- function(proteins,as.residue=FALSE) {
-  # return a data frame with chemical formulas of proteins
-  # proteins is a data frame in the format of thermo$protein
-  rf <- residue.formula()
-  out <- as.matrix(proteins[,5:25]) %*% as.matrix(rf)
-  if(as.residue) out <- out/rowSums(proteins[,6:25])
-  row.names(out) <- make.unique(paste(proteins$protein,proteins$organism,sep="_"))
-  out <- as.data.frame(out)
-  return(out)
-}
-

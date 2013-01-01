@@ -1,327 +1,260 @@
-# CHNOSZ/makeup.R
-# Copyright (C) 2006-2008 Jeffrey M. Dick
-# manipulate objects describing chemical compositions of species
-# 20060806 jmd
-
-makeup <- function(compound='',component=NULL) {
-  # formula: character, such as C2H3O89
-  # makeup: dataframe equiv of formula (1 column, rownames=elements)
-  # basis: dataframe equiv of formula (1 row, colnames=basis species)
-  
-  # if both arguments are dataframe, return their sum
-  if(is.data.frame(compound) & is.data.frame(component)) {
-    elements <- unique(c(rownames(compound),rownames(component)))
-    nelement <- rep(NA,length(elements))
-    for(i in 1:length(elements)) {
-      n <- 0
-      n1 <- match(elements[i],rownames(compound))
-      n2 <- match(elements[i],rownames(component))
-      if(!is.na(n1)) n <- n + compound[n1,]
-      if(!is.na(n2)) n <- n + component[n2,]
-      nelement[i] <- n
-    }
-    f <- data.frame(count=nelement)
-    rownames(f) <- elements
-    return(f)
+count.charge <- function(formula) {
+  # count the charge in a chemical formula   20120113 jmd
+  # everything else is counted as the uncharged part of the formula
+  # examples:
+  # C3H6NO2-    # charge is -1, uncharged part is C3H6NO2
+  # XYZ-1.2     # charge is -1.2, uncharged part is XYZ
+                # ( makeup() treats this equivalently to XY-0.2 )
+  # C-1.567     # charge is -1.567, uncharged part is C1 (one carbon)
+  # C-1.567+0   # charge is zero, uncharged part C-1.567 (-1.567 carbons)
+  # most of the time the formula isn't charged
+  Z <- 0
+  uncharged <- formula
+  # we have charge if there is a plus or minus sign that is 
+  # followed by only digits (possibly also a decimal point)
+  # at the end of the formula
+  charged <- grep("(\\+|-)(\\.|[0-9])*$", formula)
+  if(length(charged) > 0) {
+    fsplit <- unlist(strsplit(formula, ""))
+    # the position of the sign of charge
+    isign <- tail(grep("(\\+|-)", fsplit), 1)
+    # the sign as +1 or -1
+    if(fsplit[isign]=="+") sign <- 1 else sign <- -1
+    # if the +/- symbol is at the end by itself thats a +/- 1
+    # otherwise we multiply the magnitude by the sign
+    nf <- nchar(formula)
+    if(isign==nf) Z <- sign 
+    else Z <- sign * as.numeric(substr(formula, isign+1 ,nf))
+    # all set ... Zzzz this is wearing me out!
+    # got our charge, so remove it from the formula
+    uncharged <- substr(formula, 1, isign-1)
   } 
-  
-  # if first argument is numeric, get the corresponding species formulas
-  if(is.numeric(compound[1])) compound <- as.character(thermo$obigt$formula[compound])
-
-  # if first argument is of length > 1, return the makeup of
-  # that (those) species, multiplied by the coefficients
-  # specified in the second argument (default=1)
-  if(length(compound) > 1 & !is.character(component[1]) & !is.logical(component[1])) {
-    if(missing(component)) component <- rep(1,length(compound))
-    if(length(compound)==1) {
-      return(component * makeup(compound))
-    } else {
-      m <- data.frame()
-      for(i in 1:length(compound)) {
-        m <- makeup(m,component[i] * makeup(compound[i]))
-      }
-      return(m)
-    }
-  }
-
-  #if(is.character(compound) & is.numeric(component)) {
-  formula.word <- function(compound,component) {
-  # return the word beginning at the specified (2nd arg)
-  # position of the formula (1st word)
-    # a word in the chemical formula of a compound can be:
-    # - the abbreviation of an element 
-    # (an uppercase letter followed by zero or more lowercase letters)
-    # - the coefficient on the element
-    # (a positive, possibly non-integer value which may be absent)
-    # - the net electronic (not protonic) charge
-    # ('+' or '-', possibly followed by a possibly non-integer value)
-    ###  
-    # words are juxtaposed, may appear multiple times, and
-    # can have any arrangement within these conditions:
-    # - the first word must be an element-word
-    # - up to one coefficient-word may follow a given element-word
-    # - the net electronic charge, if it is present, is the last word
-    ###
-    # this function isolates a given word by juxtaposing the letter 
-    # identified by pos with the following ones, up to the one preceding 
-    # the beginning of the next word (or the end of the formula)
-    ###
-    # consequently, the value of pos given in the function call 
-    # should correspond to the start of a word
-
-    # what type is the current position?
-    pos <- component
-    if(can.be.numeric(substr(compound,pos,pos))) 
-      pos.is.value <- TRUE else pos.is.value <- FALSE
-    
-    # what is last position of this word?
-    pos.end <- nchar(compound)
-    flag <- FALSE
-    for(i in pos:nchar(compound)) {
-      if(flag) next()
-      letter <- substr(compound,i,i)
-      if(can.be.numeric(letter) != pos.is.value & letter!='.') {pos.end <- i-1; flag <- TRUE}
-      if(!can.be.numeric(letter)) {
-        if(letter==toupper(letter) & i != pos) {pos.end <- i-1; flag <- TRUE}
-      }
-      if(letter %in% c('+','-') & i != pos) {pos.end <- i-1; flag <- TRUE}
-    }
-
-    # get and return our word, correctly typed
-    word <- substr(compound,pos,pos.end)
-    if(word=='+') return(list(word=1,length=1))
-    if(word=='-') return(list(word=-1,length=1))
-    if(pos.is.value) return(list(word=as.numeric(word),length=nchar(word)))
-    else return(list(word=word,length=nchar(word)))
-  }
-
-  # if the first argument is character and the second is missing
-  # return the makeup -- a dataframe with the elemental coefficients
-  # of the formula (with names of elements on rows)
-  # call the formula string fcomp
-  if(is.character(compound) & missing(component)) {
-    fcomp <- compound
-    # split formula at asterisk or colon
-    # as in K2(Al2Si5)O14*5H2O, or C6H14N2O2:HCl
-    makeup.dot <- data.frame()
-    fcomp.c <- s2c(fcomp)
-    is.dot <- fcomp.c == '*' | fcomp.c == ':'
-    if(TRUE %in% is.dot) {
-      idot <- match(TRUE,is.dot)
-      notdotcomp <- substr(fcomp,1,idot-1)
-      dotcomp <- substr(fcomp,idot+1,nchar(fcomp))
-      fcomp <- notdotcomp
-      # does the dot stuff have a coefficient
-      dotcoeff <- 1
-      dotfirstword <- formula.word(dotcomp,1)
-      if(can.be.numeric(dotfirstword$word)) {
-        dotcoeff <- dotfirstword$word
-        dotcomp <- substr(dotcomp,1+dotfirstword$length,nchar(dotcomp))
-      }
-      makeup.dot <- makeup(dotcomp) * dotcoeff
-    }
-    # remove parentheses, if necessary multiplying the stuff
-    # inside by some coefficient
-    # look for a closing paren (grep doesn't like an opening one)
-    makeup.par <- data.frame()
-    if(length(grep(')',fcomp))>0) {
-      par.ends <- which(fcomp.c == ')')
-      par.starts <- which(fcomp.c == '(')
-      # we can deal with multiple pairs (but not nested) parenthesis
-      # unpaired parens will give wacky results
-      for(i in 1:length(par.ends)) { 
-        fcomp.c <- s2c(fcomp)
-        # extract the parenthetical and (maybe) coefficient
-        par.end <- par.ends[i]
-        par.start <- par.starts[i]
-        fcomp.par <- substr(fcomp,par.start+1,par.end-1)
-        coeff <- formula.word(fcomp,par.end+1)
-        par.coeff <- 1
-        if(can.be.numeric(coeff$word) & !( substr(fcomp,par.end,par.end) %in% c('-','+') ) ) {
-          if(!substr(fcomp,par.end+1,par.end+1) %in% c('+','-')) {
-            par.end <- par.end + coeff$length
-            par.coeff <- coeff$word
-          }
-        } 
-        makeup.par <- makeup(makeup.par,(makeup(fcomp.par)*par.coeff))
-        # rewrite the formula, without parenthetical
-        fcomp.start <- fcomp.end <- ''
-        if( (par.start) > 1 ) fcomp.start <- substr(fcomp,1,par.start-1)
-        if( (par.end) < nchar(fcomp) ) fcomp.end <- substr(fcomp,par.end+1,nchar(fcomp))
-        # a workaround for compounds with only charge after substituting parens
-        if(can.be.numeric(fcomp.end) & fcomp.start=='') fcomp.start <- 'C0'
-        fcomp <- paste(fcomp.start,fcomp.end,sep='')
-        # recalculate our positions
-        par.starts <- par.starts - (par.end - par.start + 1)
-        par.ends <- par.ends - (par.end - par.start + 1)
-      }
-    }
-    # quick calc: NULL value
-    if(identical(fcomp,'')) {
-      e <- data.frame()
-    } else {
-      # count the elements
-      elements <- character(0); count <- numeric(0)
-      ie <- 0; j <- 0; Z <- 0
-      for(i in 1:nchar(fcomp)) {
-        if(j > 0) {j <- j - 1; next()}
-        letter <- substr(fcomp,i,i)
-        # get the word
-        cw <- formula.word(fcomp,i)
-        if(!can.be.numeric(letter)) {
-          ie <- ie + 1; elements[ie] <- cw$word
-          j <- cw$length - 1; count[ie] <- 1
-        }
-        # 20070923 charge only if it's the last word
-        if(i+cw$length-1==nchar(fcomp)) can.be.charge <- TRUE else can.be.charge <- FALSE
-        # 20071128 and if it's not preceded by 'Z'
-        if(can.be.charge) if(formula.word(fcomp,i-1)$word=='Z') can.be.charge <- FALSE
-        if(letter %in% c('+','-') & can.be.charge) {
-          Z <- cw$word; j <- cw$length - 1
-        } else {
-          if(can.be.numeric(letter)) {
-            count[ie] <- cw$word; j <- cw$length - 1
-          }
-        }
-      }
-      # build the formula by successively summing it
-      e <- data.frame()
-      for(i in 1:ie) {
-        f <- data.frame(count=count[i])
-        rownames(f) <- elements[i]
-        # it seems like these should be counted
-        #if(rownames(f)=='Z') f$count <- 0 
-        e <- makeup(e,f)
-      }
-      # charge as an element
-      if(Z!=0) {
-        z <- data.frame(count=Z)
-        rownames(z) <- 'Z'
-        e <- makeup(e,z)
-      }
-    }
-    # if there were parenthesis or dots, add those compositions
-    if(length(makeup.dot)>0) e <- makeup(e,makeup.dot)
-    if(length(makeup.par)>0) e <- makeup(e,makeup.par)
-    # complain if there are any lower-case element symbols
-    ilc <- !(rownames(e) %in% thermo$element$element)
-    if(length(which(ilc))>1) p <- 's' else p <- ''
-    if(length(which(ilc))>1) p2 <- 'are not recognized elements.' 
-      else p2 <- 'is not a recognized element.'
-    if(any(ilc)) warning(paste('\'',
-      c2s(rownames(e)[ilc],sep='\' \''),'\' ',p2,sep=''))
-    return(e)
-  }
-
-  # if component is logical, return the basis,
-  # or eliminate small numbers in the given basis
-  if(is.logical(component)) {
-    # FALSE: cutoff to eliminate small numbers
-    if(!component) {
-      for(j in 1:ncol(compound)) if(abs(compound[,j]) < thermo$opt$cutoff) compound[,j] <- 0
-      # this might also be the best place to make sure we keep
-      # pluses and minuses in the colnames (anti-R behavior)
-      #colnames(compound) <- rownames(thermo$basis)[1:nrow(thermo$basis)]
-      return(compound)
-    # TRUE: return the basis (coefficients of the formation reaction)
-    } else {
-      if(is.null(thermo$basis)) stop("makeup: missing basis species; load with basis() function")
-      basis.elements <- colnames(basis())
-      if(!is.data.frame(compound)) compound.makeup <- makeup(compound) else compound.makeup <- compound
-      compound.elements <- makeup(compound.makeup,'')
-      okayelements <- TRUE
-      iselement <- colnames(compound.elements) %in% basis.elements
-      for(i in 1:length(iselement)) {
-        if(!iselement[i]) {
-          cat(paste('basis:',colnames(compound.elements)[i],'of',compound,'is not contained by the basis species\n'))
-          okayelements <- FALSE
-        }
-      }
-      if(!okayelements) stop('makeup: one or more elements not contained by the basis species.')
-      nelements <- numeric(0)
-      for(i in 1:length(basis.elements)) {
-        ielement <- match(basis.elements[i],colnames(compound.elements))
-        if(!is.na(ielement)) nelements[i] <- compound.elements[,ielement] 
-        else nelements[i] <- 0
-      }
-      nbasis <- solve(t(thermo$basis[,1:nrow(thermo$basis)]),nelements)
-      t <- data.frame(matrix(nbasis,nrow=1))
-      colnames(t) <- rownames(thermo$basis)
-      # basis species in the formation reaction: the negative of composition
-      # send it through this function again to get rid of small numbers
-      return(makeup(-t,FALSE))
-    }
-  }
-
-  # if second argument is character,
-  # return either a dataframe (elements on columns) or formula string
-  # (with selected or default elements)
-  #if(is.data.frame(compound) & is.character(component)) {
-  if(is.character(component)) {
-    # get a makeup if it appears a formula was supplied
-    if(!is.data.frame(compound)) compound <- makeup(compound)
-    # formula data frame to string
-    #if(ncol(compound)>1) {
-    if(is.data.frame(compound) & colnames(compound)[1]!='count') {
-      f <- character()
-      if(identical(component,'')) component <- colnames(compound)
-      for(i in 1:ncol(compound)) {
-        element <- colnames(compound)[i]
-        #if(! element %in% component | element=='Z') {
-        if(! element %in% component ) {
-          element <- ''
-          next
-        }
-        numcoeff <- compound[1,i]
-        coeff <- as.character(numcoeff)
-        if(i==ncol(compound) & element=='Z') {
-          # discard a final Z
-          element <- ''
-          if(as.numeric(coeff) > 0) coeff <- paste('+',coeff,sep='')
-          if(coeff=='1') coeff <- '+'
-          if(coeff=='-1') coeff <- '-'
-        } else {
-          if(coeff=='1') coeff <- ''
-          else coeff <- format(numcoeff,scientific=FALSE,digits=16)
-        }
-        f <- paste(f,element,coeff,sep='')
-      }
-      # 20081103: if we only have charge, explicitly write the Z
-      if(identical(colnames(compound),'Z')) f <- paste('Z',f,sep="")
-      return(f)
-    # makeup to formula data frame (elements)
-    } else {
-      # character = '': default to all elements in compound
-      if(identical(component,'')) component <- rownames(compound)
-      g <- as.data.frame(matrix(rep(0,length(component)),nrow=1))
-      colnames(g) <- component
-      #e <- makeup(compound)
-      for(i in 1:length(g)) {
-        h <- match(colnames(g)[i],rownames(compound))
-        if(!is.na(h)) g[1,i] <- compound[h,1] else g[1,i] <- 0
-      }
-      # strip zeros
-      if(ncol(g)>1) {
-        notzero <- g[1,]!=0
-        g <- as.data.frame(g[,notzero])
-        colnames(g) <- rownames(compound)[notzero]
-      }
-      rownames(g) <- ''
-      return(g)
-    }
-  }
-
-  # if more than one compound specified
-  # (either list of dataframes or character of length > 1),
-  # return the names of the unique elements
-  if(length(compound>1) & (is.list(compound) | is.character(compound))) {
-    elements <- character(0)
-    for(i in 1:length(compound)) {
-      if(is.list(compound)) c <- compound[[i]] else c <- makeup(compound[i])
-      elements <- c(elements,row.names(c))
-    }
-    return(unique(elements))
-  }
-
+  # assemble the output
+  out <- list(Z=Z, uncharged=uncharged)
+  return(out)
 }
-  
+
+count.formulas <- function(formula) {
+  # count the subformulas in a chemical formula   20120112 jmd
+  # the formula may include multiple unnested parenthetical subformulas
+  # and/or one suffixed subformula (separated by * or :, with no parentheses in suffix)
+  # e.g. formula for sepiolite, Mg4Si6O15(OH)2(H2O)2*4H2O gives
+  #           count
+  # OH            2
+  # H2O           6
+  # Mg4Si6O15     1
+  # other formulas that are able to be parsed
+  # NaCa2(Al5Si13)O36*14H2O   # multiple-digit coefficient on suffix
+                              # and no explicit coefficient on parenthetical term
+  # C6H14N2O2:HCl             # a suffix with no numbers at all
+  # where to keep the output
+  subform <- character()
+  count <- numeric()
+  # deal with parentheses if we have them
+  # first split the characters
+  fsplit <- strsplit(formula, "")[[1]]
+  # then identify the positions of the parentheses
+  iopen <- grep("\\(", fsplit)
+  iclose <- grep("\\)", fsplit)
+  # do we have parentheses?
+  if(length(iopen) > 0 | length(iclose) > 0) {
+    # are all parentheses paired?
+    if(length(iopen) != length(iclose)) stop("formula has unpaired parentheses")
+    # are the parentheses unnested?
+    iparen <- as.numeric(matrix(c(iopen, iclose), nrow=2, byrow=TRUE))
+    if(any(diff(iparen) < 0)) stop("formula has nested parentheses")
+    # iend will be the last position including coefficients
+    # (e.g. the position of 2 in (OH)2)
+    iend <- iclose
+    # inum are all the positions with any part of a number
+    # (including sign and decimal point)
+    inum <- grep("\\+|-|\\.|[0-9]", fsplit)
+    # ichar are all other positions
+    nf <- nchar(formula)
+    ichar <- (1:nf)[-inum]
+    # loop over the parentheses
+    for(i in seq_along(iopen)) {
+      # if the position after close paren is a number, parse it
+      if((iclose[i]+1) %in% inum) {
+        # iend is the position of the next character, minus one
+        ic <- head(ichar[ichar-iclose[i] > 0], 1)
+        # if it's not present, then we're at the end of the formula
+        if(length(ic)==0) iend[i] <- nf else iend[i] <- ic - 1
+        # all the stuff after the iclose up to iend is the coefficient
+        count <- c(count, as.numeric(substr(formula,iclose[i]+1, iend[i])))
+      } else count <- c(count, 1)
+      # everything between iopen and iclose is the subformula
+      subform <- c(subform, substr(formula,iopen[i]+1, iclose[i]-1))
+    }
+    # we can remove all of the paranthetical terms and their coefficients
+    for(i in seq_along(iopen)) fsplit[iopen[i]:iend[i]] <- ""
+    formula <- paste(fsplit, collapse="")
+  }
+  # deal with a suffixed subformula if we have one
+  # we assume that there is at most one suffix, so
+  # at most two strings after both of these splitting tests
+  fsplit <- unlist(strsplit(formula, "*", fixed=TRUE))
+  fsplit <- unlist(strsplit(fsplit, ":", fixed=TRUE))
+  formula <- fsplit[1]
+  if(length(fsplit) > 1) {
+    # parse the coefficient; this time it's in front
+    f2 <- fsplit[2]
+    f2split <- unlist(strsplit(f2, ""))
+    # the positions of the numbers
+    inum <- grep("\\+|-|\\.|[0-9]", f2split)
+    if(length(inum)==0) {
+      # no numbers, we have one of the subformula
+      mycount <- 1
+      mysub <- f2
+    } else {
+      # the position of the first character
+      ic <- head((seq_along(f2split))[-inum], 1)
+      # if the first character is before the first number,
+      # the coefficient is one
+      if(ic < inum[1]) mycount <- 1
+      else mycount <- as.numeric(substr(f2, inum[1], ic-1))
+      # we also have the subformula
+      mysub <- substr(f2, ic, nchar(f2))
+    }
+    # add to existing subformula (as with H2O in sepiolite)
+    # or append the coefficient and subformula
+    subform <- c(subform, mysub)
+    count <- c(count, mycount)
+  }
+  # add in the remaining formula, if there is any left
+  if(!is.null(formula)) {
+    subform <- c(subform, formula)
+    count <- c(count, 1)
+  }
+  # assemble the counts 
+  out <- tapply(count, subform, sum)
+  return(out)
+}
+
+count.elements <- function(formula) {
+  # count the elements in a chemical formula   20120111 jmd
+  # this function expects a simple formula,
+  # no charge or parenthetical or suffixed subformulas
+  # regular expressions inspired by an answer on
+  # http://stackoverflow.com/questions/4116786/parsing-a-chemical-formula-from-a-string-in-c
+  #elementRegex <- "([A-Z][a-z]*)([0-9]*)"
+  elementSymbol <- "([A-Z][a-z]*)"
+  # here, element coefficients can be signed (+ or -) and have a decimal point
+  elementCoeff <- "((\\+|-|\\.|[0-9])*)"
+  elementRegex <- paste(elementSymbol, elementCoeff, sep="")
+  # stop if it doesn't look like a chemical formula 
+  validateRegex <- paste("^(", elementRegex, ")+$", sep="")
+  if(length(grep(validateRegex, formula)) == 0)
+    stop(paste("'",formula,"' is not a simple chemical formula; ",
+    "the formula must start with an elemental symbol, and ",
+    "all elemental symbols must start with an uppercase letter ",
+    "and be followed by another elemental symbol, a number ",
+    "(possibly fractional, possibly signed), or nothing. ",
+    sep="", collapse=""))
+  # where to put the output
+  element <- character()
+  count <- numeric()
+  # from now use "f" for formula to make writing the code easier
+  f <- formula
+  # we want to find the starting positions of all the elemental symbols
+  # make substrings, starting at every position in the formula
+  fsub <- sapply(1:nchar(f), function(i) substr(f, i, nchar(f)))
+  # get the numbers (positions) that start with an elemental symbol
+  # i.e. an uppercase letter
+  ielem <- grep("^[A-Z]", fsub)
+  # for each elemental symbol, j is the position before the start of the next 
+  # symbol (or the position of the last character of the formula)
+  jelem <- c(tail(ielem - 1, -1), nchar(f))
+  # assemble the stuff: each symbol-coefficient combination
+  ec <- sapply(seq_along(ielem), function(i) substr(f, ielem[i], jelem[i]))
+  # get the individual element symbols and coefficients
+  myelement <- gsub(elementCoeff, "", ec)
+  mycount <- as.numeric(gsub(elementSymbol, "", ec))
+  # any missing coefficients are unity
+  mycount[is.na(mycount)] <- 1
+  # append to the output
+  element <- c(element, myelement)
+  count <- c(count, mycount)
+  # in case there are repeated elements, sum all of their counts
+  # (tapply hint from https://stat.ethz.ch/pipermail/r-help/2011-January/265341.html)
+  out <- tapply(count, element, sum)
+  # tapply returns alphabetical sorted list. keep the order appearing in the formula
+  out <- out[match(unique(element), names(out))]
+  return(out)
+}
+
+makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
+  # return the elemental makeup (counts) of a chemical formula
+  # that may contain suffixed and/or parenthetical subformulas and/or charge
+  # and negative or positive, fractional coefficients
+  # a matrix is processed by rows
+  if(is.matrix(formula)) 
+    return(lapply(seq_len(nrow(formula)), 
+      function(i) makeup(formula[i, ])))
+  # a named object or list of named objects is returned untouched
+  if(!is.null(names(formula))) return(formula)
+  if(is.list(formula) & !is.null(names(formula[[1]]))) return(formula)
+  # prepare to multiply the formula by the multiplier, if given
+  if(length(multiplier) > 1 & length(multiplier) != length(formula))
+    stop("multiplier does not have length = 1 or length = number of formulas")
+  multiplier <- rep(multiplier, length(formula))
+  # if the formula argument has length > 1, apply the function over each formula
+  if(length(formula) > 1) {
+    # get formulas for any species indices in the argument
+    formula <- get.formula(formula)
+    out <- lapply(seq_along(formula), function(i) {
+      makeup(formula[i], multiplier[i])
+    })
+    # if sum is TRUE, take the sum of all formulas
+    if(sum) {
+      out <- unlist(out)
+      out <- tapply(out, names(out), sum)
+    } else if(count.zero) {
+      # if count.zero is TRUE, all elements appearing in any 
+      # of the formulas are counted for each species
+      # first construct elemental makeup showing zero of each element
+      em0 <- unlist(out)
+      em0 <- tapply(em0, names(em0), sum)
+      em0[] <- 0
+      # then sum each formula and the zero vector,
+      # using tapply to group the elements
+      out <- lapply(out, function(x) {
+        xem <- c(x, em0)
+        tapply(xem, names(xem), sum)
+      })
+    }
+    return(out)
+  }
+  # if the formula argument is numeric, get the formula
+  # of that species number in thermo$obigt
+  if(is.numeric(formula)) formula <- thermo$obigt$formula[formula]
+  # first deal with charge
+  cc <- count.charge(formula)
+  # count.elements doesn't know about charge so we need
+  # to explicate the elemental symbol for it
+  formula <- cc$uncharged
+  if(cc$Z != 0 ) formula <- paste(formula, "Z", cc$Z, sep="")
+  # now "Z" will be counted
+  # if there are no subformulas, just use count.elements
+  if(length(grep("(\\(|\\)|\\*|\\:)", formula))==0) {
+    out <- count.elements(formula)
+  } else {
+    # count the subformulas
+    cf <- count.formulas(formula)
+    # count the elements in each subformula
+    ce <- lapply(names(cf), count.elements)
+    # multiply elemental counts by respective subformula counts
+    mcc <- lapply(seq_along(cf), function(i) ce[[i]]*cf[i])
+    # unlist the subformula counts and sum them together by element
+    um <- unlist(mcc)
+    out <- tapply(um, names(um), sum)
+  }
+  # all done with the counting, now apply the multiplier
+  out <- out * multiplier
+  # complain if there are any elements that look strange
+  are.elements <- names(out) %in% thermo$element$element
+  if(!all(are.elements)) warning(paste("element(s) not in thermo$element:", 
+    paste(rownames(out)[!are.elements], collapse=" ") ))
+  # done!
+  return(out)
+}

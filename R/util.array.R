@@ -64,3 +64,5 @@ dimSums <- function(arr,d=1,i=NULL) {
   }
   return(out)
 }
+
+

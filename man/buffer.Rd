@@ -36,7 +36,7 @@
 
   To view the available buffers, print the \code{\link{thermo}$buffer} object. Buffer definitions can be added to this dataframe with \code{mod.buffer}. It is possible to set the logarithms of activities of the species in the buffer through the \code{logact} argument; if this is missing unit activity is assigned to crystalline species in buffer, otherwise (for aqueous species) the default value of activity is 10\eqn{^{-3}}{^-3}. If \code{name} identifies an already defined buffer, this function modifies the logarithms of activities or states of species in that buffer, optionally restricted to only those species given in \code{species}.
 
-  It is possible to assign different buffers to different basis species, in which case the order of their calculation depends on their order in \code{thermo$buffers}. This function is compatible with systems of proteins, including \code{\link{ionize}}d ones, but note that for buffers \emph{made} of proteins the buffer calculations presently use whole protein formulas (instead of residue equivalents) and consider nonionized proteins only (i.e., calculating values of pH buffered by proteins is so far not implemented).
+  It is possible to assign different buffers to different basis species, in which case the order of their calculation depends on their order in \code{thermo$buffers}. This function is compatible with systems of proteins, but note that for buffers \emph{made} of proteins the buffer calculations presently use whole protein formulas (instead of residue equivalents) and consider nonionized proteins only (i.e., calculating values of pH buffered by proteins is so far not implemented).
 
 }
 
@@ -46,152 +46,99 @@
 }
 
 \seealso{
-  The function \code{\link{change}} is a wrapper around \code{mod.buffer}. See \code{\link{ionize}} for examples using protein buffers.
+  \code{\link{protein}} for an example using a buffer made of proteins.
 }
 
 \examples{
-  \dontshow{data(thermo)}
-  ## list the buffers
-  thermo$buffers
-  # another way to do it, for a specific buffer
-  print(mod.buffer("PPM"))
-  
-  ## buffer made of one species
-  # calculate the activity of CO2 in equilibrium with
-  # (a buffer made of) acetic acid at a given activity
-  basis("CHNOS")
-  basis("CO2","AC")
-  # what activity of acetic acid are we using?
-  print(mod.buffer("AC"))
-  # return the activity of CO2
-  affinity(return.buffer=TRUE)
-  # as a function of oxygen fugacity
-  affinity(O2=c(-85,-70,4),return.buffer=TRUE)
-  # as a function of logfO2 and temperature
-  affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
-  # change the activity of species in the buffer
-  mod.buffer("AC",logact=-10)
-  affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
-  # see longex('co2ac') for a different strategy using the
-  # 'what' argument of diagram
+\dontshow{data(thermo)}
+## list the buffers
+thermo$buffers
+# another way to do it, for a specific buffer
+print(mod.buffer("PPM"))
 
-  ## buffer made of three species
-  ## Pyrite-Pyrrhotite-Magnetite (PPM)
-  # specify basis species and initial activities
-  basis(c("FeS2","H2S","O2","H2O"),c(0,-10,-50,0))
-  # note that the affinity of formation of pyrite,
-  # which corresponds to FeS2 in the basis, is zero
-  species(c("pyrite","pyrrhotite","magnetite"))
-  affinity(T=c(200,400,11),P=2000)$values
-  # attach basis species H2S and O2 to the PPM buffer
-  basis(c("FeS2","H2S","O2","H2O"),c(0,"PPM","PPM",0))
-  # inspect values of H2S activity and O2 fugacity
-  affinity(T=c(200,400,11),P=2000,return.buffer=TRUE)
-  # now, the affinities of formation reactions of 
-  # species in the buffer are all equal to zero
-  print(a <- affinity(T=c(200,400,11),P=2000)$values)
-  for(i in 1:length(a)) stopifnot(isTRUE(
-    all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
-  \donttest{
-  ## buffer made of one species: show values of logfO2 on an 
-  ## Eh-pH diagram; after Garrels, 1960, Figure 6
-  basis("CHNOSe")
-  # here we will buffer the activity of the electron by O2
-  mod.buffer("O2","O2","gas",999)
-  basis("e-","O2")
-  # start our plot, then loop over values of logfO2
-  thermo.plot.new(xlim=c(0,14),ylim=c(-0.8,1.2),
-    xlab="pH",ylab=axis.label("Eh"))
-  # the upper and lower lines correspond to the upper
-  # and lower stability limits of water
-  logfO2 <- c(0,-20,-40,-60,-83.1)
-  for(i in 1:5) {
-    # update the logarithm of fugacity (logact) of O2 in the buffer
-    mod.buffer("O2","O2","gas",logfO2[i])
-    # get the values of the logarithm of activity of the electron
-    a <- affinity(pH=c(0,14,15),return.buffer=TRUE)
-    # convert values of pe (-logact of the electron) to Eh
-    Eh <- convert(-as.numeric(a[[1]]),"Eh")
-    lines(seq(0,14,length.out=15),Eh)
-    # add some labels
-    text(seq(0,14,length.out=15)[i*2+2],Eh[i*2+2],
-      paste("logfO2=",logfO2[i],sep=""))
-  }
-  title(main=paste("Relation between logfO2(g), Eh and pH at\n",
-    "25 degC and 1 bar. After Garrels, 1960"))
+## buffer made of one species
+# calculate the activity of CO2 in equilibrium with
+# (a buffer made of) acetic acid at a given activity
+basis("CHNOS")
+basis("CO2","AC")
+# what activity of acetic acid are we using?
+print(mod.buffer("AC"))
+# return the activity of CO2
+(logaCO2 <- affinity(return.buffer=TRUE)$CO2)
+stopifnot(all.equal(logaCO2, -7.05752136))
+# as a function of oxygen fugacity
+affinity(O2=c(-85,-70,4),return.buffer=TRUE)
+# as a function of logfO2 and temperature
+affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
+# change the activity of species in the buffer
+mod.buffer("AC",logact=-10)
+affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
+# see demos('CO2Ac') for a different strategy using the
+# 'what' argument of diagram
 
-  ## buffer made of two species
-  # conditions for metastable equilibrium among 
-  # CO2 and acetic acid. note their starting activities:
-  print(mod.buffer("CO2-AC")) 
-  basis("CHNOS")
-  basis("O2","CO2-AC")
-  affinity(return.buffer=TRUE)  # logfO2 = -75.94248
-  basis("CO2",123)  # what the buffer reactions are balanced on
-  affinity(return.buffer=TRUE)  # unchanged
-  # consider more oxidizing conditions
-  mod.buffer("CO2-AC",logact=c(0,-10))
-  affinity(return.buffer=TRUE)
-  
-  ## log fH2 - temperature diagram for mineral buffers
-  ## and for given activities of aqueous CH2O and HCN
-  ## After Schulte and Shock, 1995, Fig. 6: 
-  ## 300 bars, log fCO2=1, log fN2=0, log aH2O=0
-  # the mineral buffers FeFeO, QFM, PPM and HM are already
-  # included in the thermo$buffers table so let's plot them.
-  basis.logacts <- c(999,1,0,0,999,999,999)
-  basis(c("Fe","CO2","H2O","nitrogen","hydrogen",
-    "H2S","SiO2"),basis.logacts)
-  basis(c("CO2","N2"),"gas")
-  # initialize the plot
-  xlim <- c(0,350)
-  thermo.plot.new(xlim=xlim,ylim=c(-4,4),
-    xlab=axis.label("T"),ylab=axis.label("H2"))
-  res <- 50
-  Tseq <- seq(xlim[1],xlim[2],length.out=res) 
-  # a function to plot the log fH2 of buffers and label the lines
-  logfH2plot <- function(buffer,lty,where) {
-    basis("H2",buffer)
-    a <- as.numeric(affinity(T=c(xlim,res),P=300,return.buffer=TRUE)$H2)
-    lines(Tseq,a,lty=lty)
-    # "where" is the percent distance along the x-axis to plot the label
-    wherethis <- seq(xlim[1],xlim[2],length.out=100)[where]
-    if(length(grep("_",buffer)) > 0) tt <- 
-      thermo$buffers$logact[thermo$buffers$name==buffer] else tt <- buffer
-    text(wherethis,splinefun(Tseq,a)(wherethis),tt)
-  }
-  # plot log fH2 of each mineral buffer
-  logfH2plot("FeFeO",1,16)
-  logfH2plot("QFM",1,30)
-  logfH2plot("PPM",1,80)
-  logfH2plot("HM",1,40)
-  anotherplotfunction <- function(mybuff,lty,logact,where) {
-    for(i in 1:length(logact)) {
-      # update the species activity
-      mod.buffer(mybuff,logact=logact[i])
-      logfH2plot(mybuff,lty,where[i])
-    }
-  }
-  # add and plot new buffers (formaldehyde and HCN)
-  mod.buffer("mybuffer_1","formaldehyde","aq")
-  logact <- c(-6,-10,-15); where <- c(10,10,25)
-  anotherplotfunction("mybuffer_1",3,logact,where)
-  mod.buffer("mybuffer_2","HCN","aq")
-  where <- c(20,73,50)
-  anotherplotfunction("mybuffer_2",2,logact,where)
-  # title
-  title(main=paste("Mineral buffers (solid), HCN (dashed), formaldehyde",
-    "(dotted)\n",describe(thermo$basis[c(2,4),],T=NULL,P=300),
-    "After Schulte and Shock, 1995"),cex.main=0.9)
-  }
+## buffer made of three species
+## Pyrite-Pyrrhotite-Magnetite (PPM)
+# specify basis species and initial activities
+basis(c("FeS2","H2S","O2","H2O"),c(0,-10,-50,0))
+# note that the affinity of formation of pyrite,
+# which corresponds to FeS2 in the basis, is zero
+species(c("pyrite","pyrrhotite","magnetite"))
+affinity(T=c(200,400,11),P=2000)$values
+# setup H2S and O2 to be buffered by PPM
+basis(c("H2S","O2"),c("PPM","PPM"))
+# inspect values of H2S activity and O2 fugacity
+affinity(T=c(200, 400, 11), P=2000, return.buffer=TRUE, exceed.Ttr=TRUE)
+# now, the affinities of formation reactions of 
+# species in the buffer are all equal to zero
+print(a <- affinity(T=c(200, 400, 11), P=2000, 
+  exceed.Ttr=TRUE)$values)
+for(i in 1:length(a)) stopifnot(isTRUE(
+  all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
+
+\donttest{## buffer made of one species: show values of logfO2 on an 
+## Eh-pH diagram; after Garrels, 1960, Figure 6
+basis("CHNOSe")
+# here we will buffer the activity of the electron by O2
+mod.buffer("O2","O2","gas",999)
+basis("e-","O2")
+# start our plot, then loop over values of logfO2
+thermo.plot.new(xlim=c(0,14),ylim=c(-0.8,1.2),
+  xlab="pH",ylab=axis.label("Eh"))
+# the upper and lower lines correspond to the upper
+# and lower stability limits of water
+logfO2 <- c(0,-20,-40,-60,-83.1)
+for(i in 1:5) {
+  # update the logarithm of fugacity (logact) of O2 in the buffer
+  mod.buffer("O2","O2","gas",logfO2[i])
+  # get the values of the logarithm of activity of the electron
+  a <- affinity(pH=c(0,14,15),return.buffer=TRUE)
+  # convert values of pe (-logact of the electron) to Eh
+  Eh <- convert(-as.numeric(a$`e-`),"Eh")
+  lines(seq(0,14,length.out=15),Eh)
+  # add some labels
+  text(seq(0,14,length.out=15)[i*2+2],Eh[i*2+2],
+    paste("logfO2=",logfO2[i],sep=""))
+}
+title(main=paste("Relation between logfO2(g), Eh and pH at\n",
+  "25 degC and 1 bar. After Garrels, 1960"))
+
+## buffer made of two species
+# conditions for metastable equilibrium among 
+# CO2 and acetic acid. note their starting activities:
+print(mod.buffer("CO2-AC")) 
+basis("CHNOS")
+basis("O2","CO2-AC")
+affinity(return.buffer=TRUE)  # logfO2 = -75.94248
+basis("CO2",123)  # what the buffer reactions are balanced on
+affinity(return.buffer=TRUE)  # unchanged
+# consider more oxidizing conditions
+mod.buffer("CO2-AC",logact=c(0,-10))
+affinity(return.buffer=TRUE)
+}
 }
 
 \references{
-
   Garrels, R. M. (1960) \emph{Mineral Equilibria}. Harper & Brothers, New York, 254 p. \url{http://www.worldcat.org/oclc/552690}
-
-  Schulte, M. D. and Shock, E. L. (1995) Thermodynamics of Strecker synthesis in hydrothermal systems. \emph{Orig. Life Evol. Biosph.} \bold{25}, 161--173. \url{http://dx.doi.org/10.1007/BF01581580}
-
 }
 
 \keyword{secondary}

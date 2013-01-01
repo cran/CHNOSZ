@@ -1,110 +1,87 @@
 # CHNOSZ/util.data.R
 # add or change entries in the thermodynamic database
 
-mod.obigt <- function(species,...,missingvalues=NA) {
-  # add or modify species in thermo$obigt
-  args <- list(...)
-  for(i in 1:length(args)) {
-    args[[i]] <- rep(args[[i]],length(species))
-  }
-  # a function to write dates in a specific format
-  mydate <- function() {
-    t <- date()
-    tt <- s2c(t,sep=" ",keep.sep=FALSE)
-    # for single-digit days there is an extra space
-    tt <- tt[!tt==""]
-    tday <- tt[3]
-    tmonth <- tt[2]
-    tyear <- substr(tt[5],start=3,stop=4)
-    return(paste(tday,tmonth,tyear,sep='.'))
-  }
-  inew <- numeric()
-  for(i in 1:length(species)) {
-    is <- NULL
-    sp <- species[i]
-    if(is.factor(sp)) sp <- as.character(sp)
-    if(!is.numeric(sp)) {
-      if('state' %in% names(args)) ii <- info(sp,args$state,quiet=TRUE,return.approx=FALSE)
-      else ii <- info(sp,quiet=TRUE,return.approx=FALSE)
-    } else ii <- sp
-    # 20090203 use return.approx in info calls above, so
-    # the test is if length of return is zero
-    #if(!is.na(ii) & !is.list(ii)) {
-    if(length(ii) != 0) {
-      #is <- which(species[i]==thermo$obigt$name)
-      is <- ii
-      if('state' %in% names(args)) mystate <- args$state[i] else mystate <- thermo$opt$state
-      if(mystate %in% thermo$obigt$state[is]) is <- is[match(mystate,thermo$obigt$state[is])]
-      else {if('state' %in% names(args)) is <- NULL else is <- is[1]}
-    }
-    if(!is.null(is)) {
-      # to modify a species
-      newrow <- thermo$obigt[is,]
-      #return(newrow)
-      for(j in 1:ncol(newrow)) {
-        cnames <- s2c(colnames(newrow)[j],sep='.',keep.sep=FALSE)
-        if(any(tolower(cnames) %in% tolower(names(args)))) {
-          # use a provided value
-          newrow[,j] <- args[[which(tolower(names(args)) %in% tolower(cnames))]][i]
-        } else {
-          # use default values
-          if(any(cnames %in% c('name','formula'))) next
-          #else if(is.na(missingvalues)) newrow[,j] <- missingvalues
-          #else if(!missingvalues=='') newrow[,j] <- missingvalues
-          if(!missing(missingvalues) & !any(cnames %in% c('state','ref1','ref2'))) 
-            newrow[,j] <- missingvalues
-          if(any(cnames %in% 'ref1')) newrow[,j] <- 'USER'
-          if(any(cnames %in% 'ref2')) newrow[,j] <- NA
-        }
-      }
-      newrow$date <- mydate()
-      r1 <- as.character(newrow)
-      r2 <- as.character(thermo$obigt[is,])
-      r2[is.na(r2)] <- 'NA'
-      r1[is.na(r1)] <- 'NA'
-      if(!identical(r1,r2)) {
-        cat(paste('mod.obigt: updating ',newrow$name,' ',newrow$state,' (',is,').\n',sep=''))
-      } else cat(paste('mod.obigt: no change for ',newrow$name,' ',newrow$state,' (',is,').\n',sep=''))
-      thermo$obigt[is,] <<- newrow
-      inew <- c(inew,is)
-    } else {
-      # add a species
-      newrow <- thermo$obigt[1,]
-      for(j in 1:ncol(newrow)) {
-        cnames <- s2c(colnames(newrow)[j],sep='.',keep.sep=FALSE)
-        if(any(cnames %in% names(args))) {
-          # use a provided value
-          newrow[,j] <- args[[which(names(args) %in% cnames)]][i]
-        } else {
-          # use default values
-          if(any(cnames %in% c('name'))) newrow[,j] <- sp
-          else if(any(cnames=='date')) newrow[,j] <- mydate()
-          else if(is.na(missingvalues) & colnames(newrow)[j]=='state')
-            newrow[,j] <- thermo$opt$state
-          else if(!is.na(missingvalues)) newrow[,j] <- missingvalues
-          #else if(!any(cnames=='formula')) newrow[,j] <- missingvalues
-          else if(any(cnames=='ref1')) newrow[,j] <- 'USER'
-          else newrow[,j] <- NA
-        }
-      }
-      if(is.na(newrow$formula)) warning(paste('mod.obigt: formula of ',newrow$name,
-        ' ',newrow$state,' is NA.',sep=''),call.=FALSE)
-      cat(paste('mod.obigt: adding ',newrow$name,' ',newrow$state,' (',nrow(thermo$obigt)+1,').\n',sep=''))
-      thermo$obigt <<- rbind(thermo$obigt,newrow)
-      inew <- c(inew,nrow(thermo$obigt))
-    }
-  }
-  return(invisible(inew))
+today <- function() {
+  # write today's date in the format used in SUPCRT data files
+  # e.g. 13.May.12 for 2012-05-13
+  t <- date()
+  tt <- unlist(strsplit(t, " "))
+  # for single-digit days there is an extra space
+  tt <- tt[!tt==""]
+  tday <- tt[3]
+  tmonth <- tt[2]
+  tyear <- substr(tt[5], start=3, stop=4)
+  return(paste(tday, tmonth, tyear, sep="."))
 }
 
-change <- function(name,...) {
-  # a wrapper for mod.obigt and mod.buffer
-  if(substr(name[1],1,1)=='_') {
-    name <- substr(name,2,nchar(name))
-    return(mod.buffer(name,...))
+mod.obigt <- function(...) {
+  # add or modify species in thermo$obigt
+  # the names and values are in the arguments
+  # this works for providing arguments via do.call
+  args <- list(...)
+  # this is needed if we are called with a list as the actual argument
+  if(is.list(args[[1]])) args <- args[[1]]
+  if(length(args) < 2) stop("please supply at least a species name and a property to update")
+  if(is.null(names(args))) stop("please supply named arguments")
+  # if the first argument is numeric, it's the species index
+  if(is.numeric(args[[1]][1])) {
+    ispecies <- args[[1]]
   } else {
-    return(mod.obigt(species=name,...))
+    # if the name of the first argument is missing, assume it's the species name
+    if(names(args)[1]=="") names(args)[1] <- "name"
+    # search for this species, use check.protein=FALSE to avoid infinite loop when adding proteins
+    # and suppressMessages to not show messages about matches of this name to other states
+    if("state" %in% names(args)) ispecies <- suppressMessages(mapply(info.character, 
+      species=args$name, state=args$state, check.protein=FALSE, SIMPLIFY=TRUE, USE.NAMES=FALSE))
+    else ispecies <- suppressMessages(mapply(info.character, 
+      species=args$name, check.protein=FALSE, SIMPLIFY=TRUE, USE.NAMES=FALSE))
   }
+  # the column names of thermo$obigt, split at the "."
+  cnames <- c(do.call(rbind, strsplit(colnames(thermo$obigt), ".", fixed=TRUE)), colnames(thermo$obigt))
+  # the columns we are updating
+  icol <- match(names(args), cnames)
+  if(any(is.na(icol))) stop(paste("properties not in thermo$obigt:", paste(names(args)[is.na(icol)], collapse=" ")) )
+  # the column numbers for properties that matched after the split
+  icol[icol > 40] <- icol[icol > 40] - 40
+  icol[icol > 20] <- icol[icol > 20] - 20
+  # which species are new and which are old
+  inew <- which(is.na(ispecies))
+  iold <- which(!is.na(ispecies))
+  # the arguments as data frame
+  args <- data.frame(args, stringsAsFactors=FALSE)
+  if(length(inew) > 0) {
+    # the right number of blank rows of thermo$obigt
+    newrows <- thermo$obigt[1:length(inew), ]
+    # if we don't know something it's NA
+    newrows[] <- NA
+    # put in a default state
+    newrows$state <- thermo$opt$state
+    # fill in the columns
+    newrows[, icol] <- args[inew, ]
+    # assign to thermo$obigt
+    thermo$obigt <<- rbind(thermo$obigt, newrows)
+    rownames(thermo$obigt) <<- NULL
+    # update ispecies
+    ntotal <- nrow(thermo$obigt)
+    ispecies[inew] <- (ntotal-length(inew)+1):ntotal
+    # inform user
+    msgout(paste("mod.obigt: added ", newrows$name, "(", newrows$state, ")", sep="", collapse="\n"), "\n")
+  }
+  if(length(iold) > 0) {
+    # loop over species
+    for(i in 1:length(iold)) {
+      # the old values
+      oldprop <- thermo$obigt[ispecies[iold[i]], icol]
+      # tell user if they're the same, otherwise update the data entry
+      if(isTRUE(all.equal(oldprop, args[iold[i], ], check.attributes=FALSE))) 
+        msgout("mod.obigt: no change for ", args$name[iold[i]], "(", args$state[iold[i]], ")\n")
+      else {
+        thermo$obigt[ispecies[iold[i]], icol] <<- args[iold[i], ]
+        msgout("mod.obigt: updated ", args$name[iold[i]], "(", args$state[iold[i]], ")\n")
+      }
+    }
+  }
+  return(ispecies)
 }
 
 add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHNOSZ"),
@@ -122,56 +99,64 @@ add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHN
   # check if the file is compatible with thermo$obigt
   tr <- try(rbind(to1,to2),silent=TRUE)
   if(identical(class(tr),'try-error')) stop(paste(file,"is not compatible with thermo$obigt data table."))
-  # identify duplicated
-  idup1 <- which(id1 %in% id2)
-  idup2 <- which(id2 %in% id1)
-  ndup <- length(idup2)
-  nnew <- nrow(to2) - ndup
-  iadd <- 1:nrow(to2)
+  # match the new species to existing ones
+  does.exist <- id2 %in% id1
+  ispecies.exist <- na.omit(match(id2, id1))
+  nexist <- sum(does.exist)
   # convert from J if necessary
   if(tolower(E.units)=="j") {
     # loop over each row
     for(i in 1:nrow(to2)) {
       # GHS and EOS parameters
-      # don't touch volume (in column 12)
-      icol <- (8:18)[-12]
+      icol <- (8:18)
       # if it's aqueous, also include omega
-      if(to2$state[i]=="aq") icol <-( 8:19)[-12]
+      if(to2$state[i]=="aq") icol <-(8:19)
+      # don't touch volume (in column 12)
+      icol <- icol[icol!=12]
       # convert to calories
       to2[i,icol] <- convert(to2[i,icol],"cal")
     }
   }
-  if(force) {
-    # drop entries from original
-    if(length(idup1) > 0) to1 <- to1[-idup1,]
-  } else {
-    if(length(idup2) > 0) iadd <- iadd[-idup2]
-    ndup <- 0
-  }
+  # keep track of the species we've added
   inew <- numeric()
-  if(length(iadd) > 0) {
-    inew <- nrow(to1) + 1:length(iadd)
-    to1 <- rbind(to1,to2[iadd,])
+  if(force) {
+    # replace existing entries
+    if(nexist > 0) {
+      to1[ispecies.exist, ] <- to2[does.exist, ]
+      to2 <- to2[!does.exist, ]
+      inew <- c(inew, ispecies.exist)
+    }
+  } else {
+    # ignore any new entries that already exist
+    to2 <- to2[!does.exist, ]
+    nexist <- 0
   }
+  # add new entries
+  if(nrow(to2) > 0) {
+    to1 <- rbind(to1, to2)
+    inew <- c(inew, (length(id1)+1):nrow(to1))
+  }
+  # commit the change
   thermo$obigt <<- to1
-  cat(paste("add.obigt: from",file,"added",length(iadd),"of",nrow(to2),
-    "species","(",ndup,"replacements,",nnew,"new, units =",E.units,")\n"))
-  cat("add.obigt: to restore default database, use data(thermo)\n")
+  rownames(thermo$obigt) <<- 1:nrow(thermo$obigt)
+  msgout("add.obigt: file has ", length(does.exist), " rows; made ", 
+    nexist, " replacements, ", nrow(to2), " additions, units = ", E.units, "\n")
+  msgout("add.obigt: file was ", file, "\n")
+  msgout("add.obigt: use data(thermo) to restore default database\n")
   return(invisible(inew))
 }
 
 browse.refs <- function(key=NULL) {
-  # browse to web page associated with a given source
-  # of thermodynamic data. first version: 20110615
+  ## browse to web page associated with a given source
+  ## of thermodynamic data. first version: 20110615
   # 'key' can be
   # NULL: show a table of all sources in a browser
   # character: open a web page for each listed source
   # numeric: open one or two web pages for each listed species
   # list: the output of subcrt()
-
-  # retrieve the sources table
+  ## first retrieve the sources table
   x <- thermo$refs
-  
+  ## show a table in the browser if 'key' is NULL 
   if(is.null(key)) {
     # create the html links
     cite <- x$citation
@@ -196,7 +181,9 @@ browse.refs <- function(key=NULL) {
     npr <- sapply(x$key, function(x) length(which(thermo$protein$ref==x)) )
     npr[npr==0] <- ""
     # count the times each source is listed in stress.csv
-    nst <- sapply(x$key, function(x) length(which(thermo$stress[2,]==x)) )
+    stressfile <- system.file("extdata/abundance/stress.csv", package="CHNOSZ")
+    stressdat <- read.csv(stressfile, check.names=FALSE, as.is=TRUE)
+    nst <- sapply(x$key, function(x) length(which(stressdat[2,]==x)) )
     nst[nst==0] <- ""
     # append the counts to the table to be shown
     x <- c(x,list(ns1=ns1,ns2=ns2,npr=npr,nst=nst))
@@ -265,7 +252,7 @@ browse.refs <- function(key=NULL) {
     return(invisible(URL))
   } else if(is.numeric(key)) {
     # open the URL(s) of sources associated with the indicated species
-    sinfo <- info(key,quiet=TRUE)
+    sinfo <- suppressMessages(info(key))
     mysources <- unique(c(sinfo$ref1,sinfo$ref2))
     mysources <- mysources[!is.na(mysources)]
     return(browse.refs(mysources))
@@ -281,7 +268,7 @@ browse.refs <- function(key=NULL) {
 obigt2eos <- function(obigt,state,fixGHS=FALSE) {
   # remove scaling factors from EOS parameters
   # and apply column names depending on the EOS
-  if(state=="aq") {
+  if(identical(state, "aq")) {
     obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(-1,2,0,4,0,4,5,0))
     colnames(obigt)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
   } else {
@@ -298,9 +285,9 @@ obigt2eos <- function(obigt,state,fixGHS=FALSE) {
       for(i in 1:length(imiss)) {
         # calculate the missing value from the others
         ii <- imiss[i]
-        GHS <- GHS(as.character(obigt$formula[ii]),DG=obigt[ii,8],DH=obigt[ii,9],S=obigt[ii,10])
-        icol <- which(is.na(obigt[ii,8:10]))+7
-        obigt[ii,icol] <- GHS
+        GHS <- as.numeric(GHS(as.character(obigt$formula[ii]),G=obigt[ii,8],H=obigt[ii,9],S=obigt[ii,10]))
+        icol <- which(is.na(obigt[ii,8:10]))
+        obigt[ii,icol+7] <- GHS[icol]
       }
     }
   }
@@ -315,7 +302,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
   # or NA if the difference is within the tolerance
   # 20110808 jmd
   # get calculated value based on EOS
-  if(state=="aq") {
+  if(identical(state, "aq")) {
     if(prop=="Cp") {
       # value of X consistent with IAPWS95
       X <- -2.773788E-7
@@ -323,7 +310,8 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       X <- -3.055586E-7
       refval <- eos$Cp
       calcval <- eos$c1 + eos$c2/(298.15-228)^2 + eos$omega*298.15*X
-      tol <- 1
+      tol <- thermo$opt$Cp.tol
+      units <- "cal K-1 mol-1"
     } else if(prop=="V") {
       # value of Q consistent with IAPWS95
       Q <- 0.00002483137
@@ -332,7 +320,8 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       refval <- eos$V
       calcval <- 41.84*eos$a1 + 41.84*eos$a2/2601 + 
         (41.84*eos$a3 + 41.84*eos$a4/2601) / (298.15-228) - Q * eos$omega
-      tol <- 1
+      tol <- thermo$opt$V.tol
+      units <- "cm3 mol-1"
     }
   } else {
     # all other states
@@ -340,7 +329,8 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       refval <- eos$Cp
       Tr <- thermo$opt$Tr
       calcval <- eos$a + eos$b*Tr + eos$c*Tr^-2 + eos$d*Tr^-0.5 + eos$e*Tr^2 + eos$f*Tr^eos$lambda
-      tol <- 1
+      tol <- thermo$opt$Cp.tol
+      units <- "cal K-1 mol-1"
     }
   }
   # calculate the difference
@@ -352,8 +342,8 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
     if(!is.na(calcval)) {
       if(!is.na(refval)) {
         if(abs(diff) > tol) {
-          cat(paste('checkEOS:',prop,'of', eos$name, eos$state,
-            'differs by', round(diff,2), 'from tabulated value\n'))
+          msgout(paste("checkEOS: ", prop, " of ", eos$name, " ", eos$state, " (", rownames(eos),
+            ") differs by ", round(diff,2), " ", units, " from tabulated value\n", sep=""))
           return(calcval)
         }
       } else return(calcval)
@@ -363,21 +353,21 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
   return(NA)
 }
 
-checkGHS <- function(ghs,ret.diff=FALSE) {
-  # compare calculated G from H and S
-  # with reference (tabulated) values
-  # print message and return the calculated value
-  # if tolerance is exceeded
+checkGHS <- function(ghs, ret.diff=FALSE) {
+  # compare calculated G from H and S with reference (tabulated) values
+  # print message and return the calculated value if tolerance is exceeded
   # or NA if the difference is within the tolerance
   # 20110808 jmd
-  # get calculated value based on EOS
+  # get calculated value based on H and S
+  ina <- is.na(ghs$formula)
+  if(any(ina)) {
+    msgout("checkGHS: formula of ", ghs$name[ina], "(", ghs$state[ina], ") is NA\n")
+    Se <- NA
+  } else Se <- entropy(as.character(ghs$formula))
   refval <- ghs[,8]
-  #calcval <- GHS(as.character(ghs$formula),DG=ghs[,8],DH=ghs[,9],S=ghs[,10])
-  Se <- element(as.character(ghs$formula),'entropy')[,1]
   DH <- ghs[,9]
   S <- ghs[,10]
   calcval <- DH - thermo$opt$Tr * (S - Se)
-  tol <- 500
   # now on to the comparison
   # calculate the difference
   diff <- calcval - refval
@@ -385,9 +375,9 @@ checkGHS <- function(ghs,ret.diff=FALSE) {
   else if(!is.na(calcval)) {
     if(!is.na(refval)) {
       diff <- calcval - refval
-      if(abs(diff) > tol) {
-        cat(paste('checkGHS: G of', ghs$name, ghs$state,
-          'differs by', round(diff), 'from tabulated value\n'))
+      if(abs(diff) > thermo$opt$G.tol) {
+        msgout(paste("checkGHS: G of ", ghs$name, " ", ghs$state, " (", rownames(ghs),
+          ") differs by ", round(diff), " cal mol-1 from tabulated value\n", sep=""))
         return(calcval)
       }
     } else return(calcval)
@@ -443,9 +433,9 @@ check.obigt <- function() {
   out2 <- checkfun("OBIGT-2")
   out <- rbind(out1,out2)
   # set differences within a tolerance to NA
-  out$DCp[out$DCp < 1] <- NA
-  out$DV[out$DV < 1] <- NA
-  out$DG[out$DG < 500] <- NA
+  out$DCp[abs(out$DCp) < 1] <- NA
+  out$DV[abs(out$DV) < 1] <- NA
+  out$DG[abs(out$DG) < 500] <- NA
   # take out species where all reported differences are NA
   ina <- is.na(out$DCp) & is.na(out$DV) & is.na(out$DG)
   out <- out[!ina,]
@@ -459,3 +449,50 @@ check.obigt <- function() {
   return(out)
 }
 
+RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo/RH98_Table15.csv", package="CHNOSZ")) {
+  # get thermodynamic properties and equations of state parameters using 
+  # group contributions from Richard and Helgeson, 1998   20120609 jmd
+  # read the compound names, physical states, chemical formulas and group stoichiometry from the file
+  # we use check.names=FALSE because the column names are the names of the groups,
+  # and are not syntactically valid R names, and stringsAsFactors=FALSE
+  # so that formulas are read as characters (for checking with as.chemical.formula)
+  dat <- read.csv(file, check.names=FALSE, stringsAsFactors=FALSE)
+  # "compound" the compound names and states from the file
+  comate.arg <- comate.dat <- paste(dat$compound, "(", dat$state, ")", sep="")
+  # "compound" the compound names and states from the arguments
+  if(!is.null(compound)) comate.arg <- paste(compound, "(", state, ")", sep="")
+  # identify the compounds
+  icomp <- match(comate.arg, comate.dat)
+  # check if all compounds were found
+  ina <- is.na(icomp)
+  if(any(ina)) stop(paste("compound(s)", paste(comate.arg[ina], collapse=" "), "not found in", file))
+  # initialize output data frame
+  out <- thermo$obigt[0, ]
+  # loop over the compounds
+  for(i in icomp) {
+    # the group stoichiometry for this compound
+    thisdat <- dat[i, ]
+    # take out groups that are NA or 0
+    thisdat <- thisdat[, !is.na(thisdat)]
+    thisdat <- thisdat[, thisdat!=0]
+    # identify the groups in this compound
+    igroup <- 4:ncol(thisdat)
+    ispecies <- info(colnames(thisdat)[igroup], state=thisdat$state)
+    # check if all groups were found
+    ina <- is.na(ispecies)
+    if(any(ina)) stop(paste("group(s)", paste(colnames(thisdat)[igroup][ina], collapse=" "), "not found in", thisdat$state, "state"))
+    # group additivity of properties and parameters: add contributions from all groups
+    thiseos <- t(colSums(thermo$obigt[ispecies, 8:20] * as.numeric(thisdat[, igroup])))
+    # group additivity of chemical formula
+    formula <- as.chemical.formula(colSums(i2A(ispecies) * as.numeric(thisdat[, igroup])))
+    # check if the formula is the same as in the file
+    if(!identical(formula, thisdat$formula)) 
+      stop(paste("formula", formula, "of", comate.dat[i], "(from groups) is not identical to", thisdat$formula, "(listed in file)" ))
+    # build the front part of obigt data frame
+    thishead <- data.frame(name=thisdat$compound, abbrv=NA, formula=formula, state=thisdat$state, 
+      ref1=NA, ref2=NA, date=today(), stringsAsFactors=FALSE)
+    # insert the result into the output
+    out <- rbind(out, cbind(thishead, thiseos))
+  }
+  return(out)
+}

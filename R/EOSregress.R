@@ -14,6 +14,8 @@ EOSvar <- function(var,T,P) {
     "invTTheta" = (T-thermo$opt$Theta)^-1,         # 1/(T-Theta)
     "TTheta2" = (T-thermo$opt$Theta)^2,            # (T-Theta)^2
     "invTTheta2" = (T-thermo$opt$Theta)^-2,        # 1/(T-Theta)^2
+    "invPPsi" = (P+thermo$opt$Psi)^-1,             # 1/(P-Psi)
+    "invPPsiTTheta" = (P+thermo$opt$Psi)^-1 * (T-thermo$opt$Theta)^-1,  # 1/[(P-Psi)(T-Theta)]
     "V" = water(var,T=T,P=P)[,1],
     "E" = water(var,T=T,P=P)[,1],
     "kT" = water(var,T=T,P=P)[,1],
@@ -109,7 +111,7 @@ EOSplot <- function(exptdata,var=NULL,T.max=9999,T.plot=NULL,
   ylim <- extendrange(expt[iexpt,iX],f=0.1)
   xlim <- extendrange(expt$T[iexpt],f=0.1)
   # start plot
-  thermo.plot.new(xlim=xlim,ylim=ylim,xlab=axis.label("T","K"),
+  thermo.plot.new(xlim=xlim,ylim=ylim,xlab=axis.label("T", units="K"),
     ylab=axis.label(paste(prop,"0",sep="")),yline=2,mar=NULL)
   # we group the data by pressure ranges;
   # assume increasing temperatures are in the

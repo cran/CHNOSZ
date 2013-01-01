@@ -1,6 +1,7 @@
 \name{util.seq}
 \alias{util.seq}
 \alias{aminoacids}
+\alias{count.aa}
 \alias{nucleicacids}
 
 \title{Functions to Work with Sequence Data}
@@ -10,47 +11,48 @@
 }
 
 \usage{
-  aminoacids(seq, nchar=1)
+  aminoacids(nchar=1, which=NULL)
+  count.aa(seq)
   nucleicacids(seq, type = "DNA", comp = NULL, comp2 = NULL)
 }
 
 \arguments{
-  \item{seq}{character, amino acid sequence of a protein (\code{aminoacids}) or base sequence of a nucleic acid (\code{nucleicacids}).}
-  \item{nchar}{numeric, \eqn{1} to return one-letter, \eqn{3} to return three-letter abbreviations for amino acids (\code{aminoacids}).}
-  \item{type}{character, type of nucleic acid sequence (DNA or RNA) (\code{nucleicads}).}
-  \item{comp}{character, type of complement sequence.}
-  \item{comp2}{character, type of second complement sequence.}
+  \item{nchar}{numeric, \eqn{1} to return one-letter, \eqn{3} to return three-letter abbreviations for amino acids}
+  \item{which}{character, which amino acids to name}
+  \item{seq}{character, amino acid sequence of a protein (\code{count.aa}) or base sequence of a nucleic acid (\code{nucleicacids})}
+  \item{type}{character, type of nucleic acid sequence (DNA or RNA) (\code{nucleicads})}
+  \item{comp}{character, type of complement sequence}
+  \item{comp2}{character, type of second complement sequence}
 }
 
 \details{
 
-  \code{aminoacids} takes a character argument containing a protein sequence and counts the number of occurrences of each type of amino acid. The output is a dataframe with 20 columns, each corresponding to an amino acid, ordered in the same way as \code{thermo$protein}. If the first argument is NULL, the function returns the one-letter abbreviations (for \code{nchar} equal to 1) or the three-letter ones (if \code{nchar} is equal to 3) or the names of the amino acids (if \code{nchar} is NA) of twenty amino acids in the order used in \code{thermo$protein}.
+  Depending on the value of \code{nchar}, \code{aminoacids} returns the one-letter abbreviations (\samp{1}) or the three-letter abbreviations (\samp{3}) or the names of the neutral amino acids (\samp{""}) or the names of the amino acids with ionized side chains (\samp{"Z"}). The default includes 20 amino acids in the order used in \code{thermo$protein}, unless \code{which} is provided, indicating the desired amino acids (either as 1- or 3-letter abbreviations or names of the neutral amino acids).
+
+  \code{aminoacids} takes a character value or list of character values containing a protein sequence. The number of occurrences of each type of amino acid is counted and output in a data frame with 20 columns, ordered in the same way as \code{thermo$protein}.
 
   \code{nucleicacids} takes a DNA or RNA sequence and counts the numbers of bases of each type. Whether the sequence is DNA or RNA is specified by \code{type}. Setting \code{comp} to \samp{DNA} or \samp{RNA} tells the function to compute the base composition of that type of complement of the sequence. If \code{comp2} is specified, another complement is taken. The two rounds of complementing can be used in a single function call e.g. to go from a sequence on DNA minus strand (given in \code{seq}) to the plus strand (with \code{comp="DNA"}) and then from the DNA plus strand to RNA (with \code{comp2="RNA"}). The value returned by the function is a dataframe of base composition, which can be passed back to the function to obtain the overall chemical formula for the bases.
 
 }
 
-\value{
-  An object of type character or dataframe.
-}
-
 \examples{
-  \dontshow{data(thermo)}
-  ## count amino acids in a sequence
-  aminoacids("GGSGG")
-  aminoacids("WhatAmIMadeOf?")
+\dontshow{data(thermo)}
+## count amino acids in a sequence
+count.aa("GGSGG")
+# warnings are issued for unrecognized characters
+suppressWarnings(atest <- count.aa("WhatAmIMadeOf?"))
+# there are 3 "A" (alanine, the first amino acid alphabetically)
+stopifnot(atest[,1]==3)
 
-  ## count nucleobases in a sequence
-  nucleicacids("ACCGGGTTT")
-  # the DNA complement of that sequence
-  nucleicacids("ACCGGGTTT",comp="DNA")
-  # the RNA complement of the DNA complement
-  n <- nucleicacids("ACCGGGTTT",comp="DNA",comp2="RNA")
-  # the formula of the RNA complement
-  nucleicacids(n,type="RNA")
+## count nucleobases in a sequence
+nucleicacids("ACCGGGTTT")
+# the DNA complement of that sequence
+nucleicacids("ACCGGGTTT", comp="DNA")
+# the RNA complement of the DNA complement
+n <- nucleicacids("ACCGGGTTT", comp="DNA", comp2="RNA")
+# the formula of the RNA complement
+(nf <- nucleicacids(n, type="RNA"))
+stopifnot(identical(nf, "C40H42N32O11"))
 }
 
 \keyword{util}
-
-
-

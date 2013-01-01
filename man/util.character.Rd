@@ -43,5 +43,3 @@ Convert between strings and character objects. Test for ability to become numeri
 }
 
 \keyword{util}
-
-

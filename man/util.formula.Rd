@@ -1,133 +1,106 @@
+\encoding{UTF-8}
 \name{util.formula}
 \alias{util.formula}
+\alias{as.chemical.formula}
+\alias{get.formula}
+\alias{mass}
+\alias{entropy}
 \alias{GHS}
-\alias{element}
-\alias{expand.formula}
 \alias{ZC}
-\alias{residue.formula}
-\alias{protein.formula}
+\alias{i2A}
 \title{Functions to Work with Chemical Formulas}
 
 \description{
-  Calculate the standard molal entropy of elements in a compound; calculate the standard molal Gibbs energy or enthalpy of formation, or standard molal entropy, from the other two; list coefficients of selected elements in a chemical formula; calculate the average oxidation number of carbon. Also, create a matrix having the chemical formulas of amino acid residues in proteins and calculate the chemical formulas of proteins from their amino acid composition.
+  Calculate the standard molal entropy of elements in a compound; calculate the standard molal Gibbs energy or enthalpy of formation, or standard molal entropy, from the other two; list coefficients of selected elements in a chemical formula; calculate the average oxidation state of carbon. Create a stoichiometric matrix for selected species.
 }
 
 \usage{
-  GHS(species = NULL, DG = NA, DH = NA, S = NA, T = thermo$opt$Tr)
-  element(compound, property = c("mass","entropy"))
-  expand.formula(elements, makeup)
-  ZC(x)
-  residue.formula()
-  protein.formula(proteins, as.residue = FALSE)
+  as.chemical.formula(makeup, drop.zero = TRUE)
+  get.formula(formula)
+  mass(formula)
+  entropy(formula)
+  GHS(formula, G = NA, H = NA, S = NA, T = thermo$opt$Tr)
+  ZC(formula)
+  i2A(formula)
 }
 
 \arguments{
-  \item{species}{character, formula of a compound from which to calculate entropies of the elements.}
-  \item{DG}{numeric, standard molal Gibbs energy of formation.}
-  \item{DH}{numeric, standard molal enthalpy of formation.}
-  \item{S}{numeric, standard molal molal entropy.}
-  \item{T}{numeric, temperature in Kelvin.}
-  \item{compound}{character, name of element(s) or compound(s).}
-  \item{property}{character, name(s) of thermodynamic properties.}
-  \item{elements}{character, name(s) of elements.}
-  \item{makeup}{dataframe, elemental composition of a compound returned by \code{\link{makeup}}.}
-  \item{x}{character, object representing chemical formula.}
-  \item{proteins}{dataframe, amino acid composition of one or more proteins in the same format as \code{\link{thermo}$protein}}.
-  \item{as.residue}{logical, return the per-residue formula of the protein(s)?}
+  \item{makeup}{numeric, object returned by \code{makeup}}
+  \item{drop.zero}{logical, drop elements with a coefficient of zero?}
+  \item{formula}{character, chemical formulas, or numeric, rownumbers in \code{thermo$obigt}}
+  \item{G}{numeric, standard molal Gibbs energy of formation from the elements}
+  \item{H}{numeric, standard molal enthalpy of formation from the elements}
+  \item{S}{numeric, standard molal molal entropy}
+  \item{T}{numeric, temperature in Kelvin}
 }
 
 \details{
 
-  \code{GHS} computes one of the standard molal Gibbs energy or enthalpy of formation from the elements (\code{DG}, \code{DH}) or entropy (\code{S}) at 298.15 K and 1 bar from values of the other two. If the \code{species} argument is present, it is used to calculate the entropies of the elements (\code{Se}) using \code{\link{element}}, otherwise \code{Se} is set to zero. The equation in effect can be written as \eqn{{\Delta}G^{\circ}={\Delta}H^{\circ}-T{\Delta}S^{\circ}}{DG = DH - T * DS}, where \eqn{{\Delta}S^{\circ}=S-S_e}{DS = S - Se} and \eqn{T} denotes the reference temperature of 298.15 K. If two of \code{DG}, \code{DH}, and \code{S} are provided, the value of the third is returned. If three are provided, the value of \code{DG} in the arguments is ignored and the calculated value of \code{DG} is returned. If none of \code{DG}, \code{DH} or \code{S} are provided, the value of \code{Se} is returned. If only one of the values is provided, an error results. Units of cal mol\eqn{^{-1}}{^-1} (\code{DG}, \code{DH}) and cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} (\code{S}) are assumed. It \code{T} is provided, it use used instead of the reference temperature.
+  \code{get.formula} accepts a numeric or character argument; the character argument can be mixed i.e. include quoted numbers. \code{\link{as.numeric}} is tested on every value; numeric values are then interpreted as species indices in the thermodynamic database (rownumbers of \code{\link{thermo}$obigt}) and the chemical formulas for those species are returned. Values that can not be converted to numeric are returned as-is.
 
-  \code{element} returns a dataframe of the mass and entropy of one or more elements or formulas given in \code{compound}. The \code{property} can be \samp{mass} and/or \samp{entropy}.
+  \code{i2A} returns a stoichiometric matrix representing the elemental composition of the \code{formula}s, e.g., those returned by \code{get.formula}. Each column corresponds to an element that is present in at least one of the formulas; some element counts will be zero if not all formula have the same elements.
 
-  \code{expand.formula} converts a 1-column dataframe representing the elemental composition of a compound (see \code{\link{makeup}}) to a numeric vector, each value of which is the coefficient of the \code{elements} given in the argument. If any of these is not present in the makeup dataframe, its coefficient is set to zero. A non-zero coefficient of an element in the makeup dataframe does not appear in the output if that element is not one of \code{elements}.
+  If a matrix is passed to either \code{get.formula} or \code{i2A} it is returned unchanged.
 
-  \code{ZC} returns the nominal carbon oxidation state for the chemical formula represented by \code{x}. (For discussion of nominal carbon oxidation state, see Hendrickson et al., 1970; Buvet, 1983.) If carbon is not present in the formula the result is \code{NaN}.
+  \code{as.chemical.formula} makes a character string representing a chemical formula from a vector of coefficients with names corresponding to the elements (e.g., the output of \code{\link{makeup}}) or from a stoichiometric matrix (output of \code{i2A}). Each elemental symbol is written followed by its coefficient; negative coefficients are signed. Any coefficients equal to 1 are not explicitly written, and any charge (indicated by \code{makeup} as \samp{Z}) is shown as a signed number at the end of the formula. If the formula is uncharged, and the last element has a negative coefficient, +0 is shown at the end of the formula to indicate a charge of zero.
 
-  \code{protein.formula} exists to quickly compute the chemical formulas of many proteins. The \code{proteins} argument contains the amino acid compositions of the proteins in the same format as the \code{\link{thermo}$protein} dataframe. \code{residue.formula} is called to calculate the chemical formulas of each of the 20 common amino acid residues (and the terminal H- and -OH). The amino acid compositions of the proteins and the output of \code{residue.formula} are multiplied using matrix multiplication to generate the result. 
+  The remaining functions documented here accept vectors of chemical formulas, species indices, or a mixture of both, or stoichiometric matrices with elements on the columns. They do so by passing the supplied \code{formula} argument through both \code{get.formula} and \code{i2A}.
+
+  \code{mass} and \code{entropy} return the sums of masses or entropies of elements in each of the \code{formula}s. The masses are calculated using the masses of the elements in their natural isotopic distribution, and the entropies, in cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1}, are calculated using the entropies of the compounds of the pure elements in their stable states at 25 \eqn{^{\circ}}{°}C and 1 bar. The properties of the elements used by this function are taken from \code{\link{thermo}$element}.
+
+  \code{GHS} computes one of the standard molal Gibbs energy or enthalpy of formation from the elements, or standard molal entropy, from values of the other two. The \code{formula}, \code{G}, \code{H} and \code{S} arguments must all have the same length. The entropies of the elements (\code{Se}) in each \code{formula} are calculated using \code{\link{entropy}}. The equation in effect can be written as \eqn{{\Delta}G^{\circ}={\Delta}H^{\circ}-T{\Delta}S^{\circ}}{delta_G = delta_H - T * delta_S}, where \eqn{{\Delta}S^{\circ}=S-S_e}{delta_S = S - Se} and \eqn{T}{T} is the temperature given in \code{T} (defaults to 298.15 K) (note that \code{G} and \code{H} in the arguments correspond respectively to \eqn{{\Delta}G^{\circ}}{delta_G} and \eqn{{\Delta}H^{\circ}}{delta_H} in the equation). For each formula, if one of \code{G}, \code{H}, or \code{S} is NA, its value is calculated from the other two. Otherwise, the values are returned unchanged. Units of cal mol\eqn{^{-1}}{^-1} (\code{DG}, \code{DH}) and cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} (\code{S}) are assumed.
+
+  \code{ZC} returns the average oxidation state of carbon (\eqn{\overline{Z}_{\mathrm{C}}}{Z_C}) calculated from ratios of the elements in the chemical \code{formula}s. The equation used is
+\eqn{\overline{Z}_{\mathrm{C}}=\frac{Z-n_{\mathrm{H}}+2\left(n_{\mathrm{O}}+n_{\mathrm{S}}\right)+3n_{\mathrm{N}}}{n_{\mathrm{C}}}}{Z_C = (Z - nH + 2*(nO + nS) + 3*nN) / nC}, where the \eqn{n}{n} refer to the number of the indicated element in the formula (Dick and Shock, 2011). The result is \code{NaN} for any formula that does not contain carbon. Elements other than those shown in the equation are not included in the calculation, and produce a warning.
 
 }
 
 \value{
-  \code{GHS} and \code{ZC} return numeric values. \code{expand.formula} returns a numeric vector.
+  \code{mass}, \code{entropy}, and \code{ZC} return numeric values. \code{as.chemical.formula} returns a character object. \code{GHS} returns a matrix with column names \samp{G}, \samp{H} and \samp{S}, and \code{i2A} returns a matrix with column names corresponding to the elements in the formulas.
 }
 
 \seealso{
-  \code{\link{makeup}} can be used to count the elements in formulas and display formulas in various formats.
+  \code{\link{makeup}}, used by \code{mass} and \code{entropy}, and \code{ZC} and \code{i2A} for counting the elements in a formula (the latter two make use of the \code{count.zero} argument). \code{\link{group.formulas}} (and by extension \code{\link{protein.formula}}) use the stoichiometric matrices created by \code{i2A}, as does \code{\link{run.wjd}}
 }
 
 \examples{
-  \dontshow{data(thermo)}
-  ## converting among Gibbs, enthalpy, entropy
-  GHS("H") # entropy of H (element)
-  # calculate enthalpy of formation of arsenopyrite 
-  GHS("FeAsS",DG=-33843,S=68.5) 
-  # return the value of DG calculated from DH and S
-  # cf. -56687.71 from subcrt("water")
-  GHS("H2O",DH=-68316.76,S=16.7123)  
+\dontshow{data(thermo)}
+## mass and entropy from chemical formulas
+mass("H2O")
+entropy("H2O")
+mass("-1")  # electron
+entropy("-1")
 
-  ## mass and entropy of compounds of elements
-  element("CH4")
-  element(c("CH4","H2O"),"mass")
-  element("Z")   # charge
-  # same mass, opposite entropy as charge
-  element("Z-1") # i.e., electron
- 
-  ## count selected elements in a formula
-  m <- makeup("H2O")
-  expand.formula(c("H","O"),m)
-  expand.formula(c("C","H","S"),m)
+## three ways to get the formula of alanine
+iA <- info("alanine")
+info(iA)$formula
+as.chemical.formula(makeup(iA))
+get.formula(iA)
 
-  ## calculate the average chemical formula of all of 
-  ## the proteins in CHNOSZ' database
-  ## this is much faster than a for-loop
-  pf <- protein.formula(thermo$protein)
-  colSums(pf)/nrow(pf)
+## converting among Gibbs energy, enthalpy, entropy
+# calculate the value of G from H and S
+GHS("H2O", H=water("H"), S=water("S"))[1, ]
+# that not quite equal to the value from water("G");
+# probably using different entropies of the elements
 
-  ## nominal carbon oxidation states
-  ZC("CO2")  # 4
-  ZC("CH4")  # -4
-  ZC("CHNOSZ") # 7
-  si <- info(info("LYSC_CHICK"))
-  ZC(si$formula)  # 0.01631
+## average oxidation states of carbon
+stopifnot(ZC("CO2") == 4)
+stopifnot(ZC("CH4") == -4)
+stopifnot(ZC("CHNOSZ") == 7)
+si <- info(info("LYSC_CHICK"))
+stopifnot(si$formula == "C613H959N193O185S10")
+stopifnot(all.equal(ZC(si$formula), 0.0163132137031))
 
-  ## plot ZC of reference protein sequence
-  ## for different organisms
-  file <- system.file("extdata/refseq/protein_refseq.csv.xz",package="CHNOSZ")
-  ip <- add.protein(file)
-  # only use those organisms with a certain
-  # number of sequenced bases
-  ip <- ip[as.numeric(thermo$protein$abbrv[ip])>100000]
-  pf <- protein.formula(thermo$protein[ip,])
-  zc <- ZC(pf)
-  # the organism names we search for
-  # "" matches all organisms
-  terms <- c("Streptomyces","Pseudomonas","Salmonella",
-    "Escherichia","Vibrio","Bacteroides","Lactobacillus",
-    "Staphylococcus","Streptococcus","Methano","Bacillus","Thermo","")
-  tps <- thermo$protein$ref[ip]
-  plot(0,0,xlim=c(1,13),ylim=c(-0.3,-0.05),pch="",
-    ylab="average oxidation state of carbon in proteins",
-    xlab="",xaxt="n",mar=c(6,3,1,1))
-  for(i in 1:length(terms)) {
-    it <- grep(terms[i],tps)
-    zct <- zc[it]
-    points(jitter(rep(i,length(zct))),zct,pch=20)
-  }
-  terms[13] <- paste("all organisms")
-  axis(1,1:13,terms,las=2)
-  title(main=paste("Average Oxidation State of Carbon:",
-    "Total Protein per taxID in NCBI RefSeq",sep="\n"))
+## calculate the chemical formulas, then
+## ZC of all of the proteins in CHNOSZ' database
+pf <- protein.formula(thermo$protein)
+range(mass(pf))
+# use na.rm=TRUE because we have a "protein" with a formula of H2O
+range(ZC(pf), na.rm=TRUE)
 }
 
 \references{
-
-  Buvet, R. (1983) General criteria for the fulfillment of redox reactions, in \emph{Bioelectrochemistry I: Biological Redox Reactions}, Milazzo, G. and Blank, M., eds., Plenum Press, New York, p. 15--50. \url{http://www.worldcat.org/oclc/9282370}
- 
-  Hendrickson, J. B., Cram, D. J., and Hammond, G. S. (1970) \emph{Organic Chemistry}, 3rd ed., McGraw-Hill, New York, 1279 p. \url{http://www.worldcat.org/oclc/78308}
-
+  Dick, J. M. and Shock, E. L. (2011) Calculation of the relative chemical stabilities of proteins as a function of temperature and redox chemistry in a hot spring. \emph{PLoS ONE} \bold{6}, e22782. \url{http://dx.doi.org/10.1371/journal.pone.0022782}
 }
 
 \keyword{util}

@@ -40,11 +40,11 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
     # use the system grep
     if(is.null(startswith)) startswith <- "" else startswith <- paste("^",startswith,".*",sep="")
     if(ignore.case) ic <- "-i" else ic <- ""
-    out <- mylapply(1:length(pattern),sysgrep)
+    out <- palply(1:length(pattern),sysgrep)
   } else {
     # use R grep
     if(is.null(lines)) lines <- readLines(file)
-    out <- mylapply(1:length(pattern),Rgrep)
+    out <- palply(1:length(pattern),Rgrep)
   }
   # make numeric (NA for ones that aren't matched)
   out <- as.numeric(sapply(out,as.numeric))
@@ -53,6 +53,7 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
 
 read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE) {
   # read sequences from a fasta file
+  if(file != "") msgout("read.fasta: reading ",basename(file),"\n")
   # all of them or only those indicated by i
   # if aa=TRUE compile a data frame of the amino acid
   # compositions suitable for add.protein
@@ -102,7 +103,7 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
     return(lines[iline])
   }
   seqfun <- function(i) paste(linefun(start[i],end[i]),collapse="")
-  sequences <- mylapply(1:length(i), seqfun)
+  sequences <- palply(1:length(i), seqfun)
   # process the header line for each entry
   # (strip the ">" and go to the first space or underscore)
   nomfun <- function(befund) {
@@ -122,7 +123,7 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
       else f4 <- strsplit(f3,"_")[[1]][2]
       return(f4)
     }
-    noms <- as.character(mylapply(1:length(i),nomnomfun))
+    noms <- as.character(palply(1:length(i),nomnomfun))
     return(noms)
   }
   # process the file name
@@ -139,8 +140,8 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
     organism <- bnf
   }
   if(ret=="count") {
-    aa <- aminoacids(sequences)
-    colnames(aa) <- aminoacids(nchar=3)
+    aa <- count.aa(sequences)
+    colnames(aa) <- aminoacids(3)
     ref <- abbrv <- NA
     chains <- 1
     # 20090507 made stringsAsFactors FALSE

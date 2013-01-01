@@ -26,7 +26,7 @@
 
   \item Chemical affinity - calculate the chemical affinities of the formation reactions of the species of interest at a single point, or as a function of one or more of chemical activities of the basis species, temperature and/or pressure (\code{\link{affinity}}).
 
-  \item Chemical activity - calculate the equilibrium activities of the species of interest as a function of the same variables used in the affinity calculation, using a reference state transformation (either the Boltzmann distribution or a reaction matrix approach). (\code{\link{diagram}}, \code{\link{equil.react}}, \code{\link{equil.boltz}}).
+  \item Chemical activity - calculate the equilibrium activities of the species of interest as a function of the same variables used in the affinity calculation, using a reference state transformation (either the Boltzmann distribution or a reaction matrix approach). (\code{\link{diagram}}, \code{\link{equil.reaction}}, \code{\link{equil.boltzmann}}).
 
   \item Buffer calculations - compute activities of basis species that are determined by a buffer of one or more species (e.g., pyrite-pyrrhotite-magnetite; acetic acid-CO2) (\code{\link{buffer}}).
 
@@ -46,8 +46,9 @@
     \item Install the package from CRAN using \code{\link{install.packages}} or its GUI menu equivalent. 
     \item To begin working with the package after installation, type \code{\link{library}(CHNOSZ)} at the command line (or select the name of the package from the GUI menu).
     \item Running the examples shown in the various help topics is a great way to become more familiar with the usage of the functions. From \code{\link{help.start}}, select \sQuote{Packages} then \sQuote{CHNOSZ} and then select a function of interest. Individual examples can be run by pasting the example block directly into the R console.
-    \item Type the command \code{\link{examples}()} to run all of the examples provided in CHNOSZ. This takes about five to ten minutes depending on your system. You should receive four warning messages when the examples are finished; don't worry, they are an expected result.
+    \item Type the command \code{\link{examples}()} to run all of the examples provided in CHNOSZ. This takes about five to ten minutes depending on your system. If things go as expected, the entire set will run without any warnings or errors.
     \item Some of the examples require internet or file access or user intervention, or are intentionally written to demonstrate conditions that lead to errors. This offensive code is hidden from \R's package checking mechanism using the \code{dontrun} tag. You can experiment with \code{dontrun} examples by pasting the code to the R console.
+    \item A couple of other things to note about the examples: 1) There are some \code{\link{stopifnot}} statements that represent expected outcomes of the calculations; if the expectation is not met, the \code{stopifnot} statement causes an error. These tests are useful for checking the code during package development cycles, but are usually not of critical importance for the set-up of the problem (though they do sometimes employ useful programming tricks). 2) Commands written with an enclosing pair of parentheses \code{(z <- "like this one")} are used to display the result of an assignment operation (\code{\link{<-}}), the value of which is needed later in the calculation. In interactive use, the outermost pair of enclosing parentheses is generally not needed.
     \item To learn how to update the thermodynamic database, look at its documentation in \code{\link{thermo}}.
   }
 
@@ -55,63 +56,80 @@
 
 
 \section{Compatibility}{
-The package depends on \R version 2.10.0 or greater (to read compressed data files). Before version 0.9-6 of the package, the dependency was given as \R version 2.7.0 or greater (major update of the X11 device in 2.7.0). However, without accessing the compressed data files in \code{extdata} it should be possible to run CHNOSZ under \R versions 2.4.0 or greater (availability of the \samp{stringsAsFactors} argument to \code{\link{data.frame}}). 
+  The recommended version of \R is 2.14.0 or greater (to find vignettes in the \code{vignettes} directory).
+  The package depends on \R version 2.12.0 or greater (so useDynLib in the NAMESPACE can find the shared library on Windows).
+  Before version 0.9-9 of the package, the dependency was given as \R version 2.10.0 or greater (to read compressed data files).
+  Before version 0.9-6 of the package, the dependency was given as \R version 2.7.0 or greater (major update of the X11 device in 2.7.0).
+  However, without accessing the compressed data files in \code{extdata} it should be possible to run CHNOSZ on Unix-alikes under \R versions 2.4.0 or greater (availability of the \samp{stringsAsFactors} argument of \code{\link{data.frame}}). 
 }
 
 \section{Acknowledgements}{
-  This package was made possible by the fearless leadership of the late Professor Harold C. Helgeson. He took no heed of disciplinary boundaries, and encouraged the author to pursue unconventional problems. Hal, and those in his research group, are in some way responsible for many parts of this package, such as the aqueous equations of state used here, the thermodynamic parameters for many species, and actual computer code (H2O92D.f, borrowed from the SUPCRT92 program).
-  Work on this project at U.C. Berkeley (through 2008) was supported by research grants from the U.S. National Science Foundation and Department of Energy. In 2009--2011, research projects involving this package were supported by the National Science Foundation under grant EAR-0847616 (\url{http://www.nsf.gov/awardsearch/showAward.do?AwardNumber=0847616}). 
+  This package would not exist without the fearless leadership and encouragement of Professor Harold C. Helgeson. Hal and his associates are in some way responsible for many of the equations and data contained in this package. A direct contribution of code is the file \code{H2O92D.f}, taken from the SUPCRT92 distribution, with only cosmetic modifications (masking of WRITE and STOP statements) made for compatibility with an \R environment. The revised Helgeson-Kirkham-Flowers equations of state are used in this package, together with the thermodynamic properties and parameters for many species taken from numerous papers coauthored by Helgeson.
+
+  Work on this package at U.C. Berkeley from ~2003--2008 was supported by research grants solicited by HCH from the U.S. National Science Foundation and Department of Energy. In 2009--2011, the major research project stimulating development of this package at Arizona State University was funded by the National Science Foundation under grant EAR-0847616. The files in \code{extdata/bison} are excerpts of results of BLAST calculations made on the Saguaro high performance computer at ASU. 
+}
+
+\section{Known Bugs}{
+  The values generated by \code{\link{buffer}} may not be applied correctly by \code{\link{affinity}} in calculating the affinities of the formation reactions. (The values returned by \code{affinity(..., return.buffer=TRUE)} do appear to be correct in the examples).
+
+  \code{\link{subcrt}} does not correctly identify the stable polymorph of some minerals at high temperature.
+
+  \code{\link{diagram}} causes an error while plotting stability field boundaries if the x and y resolutions are not identical. (\code{diagram(..., plot.it=FALSE)} can still be used to retrieve the results of the equilibrium calculation.)
+}
+
+\seealso{
+  The \code{TODO} file in the package installation directory contains a list of changes anticipated or considered for future releases.
 }
 
 \examples{
-  \dontshow{data(thermo)}
-  ### Getting Started
-  
-  ## standard thermodynamic properties of species
-  subcrt("H2O")
-  subcrt("alanine")
-  # names of proteins have an underscore
-  subcrt("LYSC_CHICK")  
-  # custom temperature range
-  T <- seq(0,500,100)
-  subcrt("H2O",T=T,P=1000)
-  # temperature - pressure grid
-  P <- seq(1000,4000,1000)
-  subcrt("H2O",T=T,P=P,grid="P")
-  
-  ## information about species
-  # query the database using formulas
-  info("C6H12O6")
-  info("SiO2")
-  # query using names
-  info("quartz")
-  si <- info(c("glucose","mannose"))
-  # show the equations of state parameters
-  info(si)
-  # approximate matches for names or formulas
-  info("acid ")
-  info("SiO2 ")
+\dontshow{data(thermo)}
+### Getting Started
 
-  ## standard thermodynamic properties of reactions
-  # fermentation example
-  info(c("fructose","ethanol"))
-  subcrt(c("fructose","C2H5OH","CO2"),c(-1,2,2))
-  # weathering example -- also see transfer()
-  subcrt(c("k-feldspar","H2O","H+","kaolinite","K+","SiO2"),
-    c(-2,-1,-2,1,2,4))
-  # partial reaction auto-completion is possible
-  basis(c("SiO2","H2O","K+","H+","O2"))
-  subcrt(c("k-feldspar","kaolinite"),c(-2,1))
- 
-  ## chemical affinities
-  # basis species
-  basis(c("CO2","H2O","O2"))
-  # species of interest
-  species(c("CH4","C2H4O2","CO2"))
-  # chemical affinities of formation reactions
-  # take off $values for complete output
-  affinity()$values
-  affinity(O2=c(-90,-60,5))$values
+## standard thermodynamic properties of species
+subcrt("H2O")
+subcrt("alanine")
+# names of proteins have an underscore
+subcrt("LYSC_CHICK")  
+# custom temperature range
+T <- seq(0, 500, 100)
+subcrt("H2O", T=T, P=1000)
+# temperature - pressure grid
+P <- seq(1000, 4000, 1000)
+subcrt("H2O", T=T, P=P, grid="P")
+
+## information about species
+# query the database using formulas
+info("C6H12O6")
+info("SiO2")
+# query using names
+info("quartz")
+si <- info(c("glucose", "mannose"))
+# show the equations of state parameters
+info(si)
+# approximate matches for names or formulas
+info("acid ")
+info("SiO2 ")
+
+## standard thermodynamic properties of reactions
+# fermentation example
+info(c("fructose", "ethanol"))
+subcrt(c("fructose", "C2H5OH", "CO2"), c(-1, 2, 2))
+# weathering example -- also see transfer()
+subcrt(c("k-feldspar", "H2O", "H+", "kaolinite", "K+", "SiO2"),
+  c(-2, -1, -2, 1, 2, 4))
+# partial reaction auto-completion is possible
+basis(c("SiO2", "H2O", "K+", "H+", "O2"))
+subcrt(c("k-feldspar", "kaolinite"), c(-2, 1))
+
+## chemical affinities
+# basis species and their activities or fugacities
+basis(c("CO2", "H2O", "O2"), c(-3, 0, -80))
+# species of interest
+species(c("CH4", "C2H4O2", "CO2"))
+# chemical affinities of formation reactions
+# take off $values for complete output
+affinity()$values
+affinity(O2=c(-90, -60, 4))$values
 }
 
 \keyword{package}

@@ -34,7 +34,7 @@ eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
 
 TP.args <- function(T=NULL,P=NULL) {
   if(!is.null(P)) {
-    if(P[1]=='Psat') {
+    if(identical(P[1],'Psat')) {
       P <- water('Psat',T,P=NULL)
       P <- P[,1]
       # water.SUPCRT92 issues its own warnings about 
@@ -44,8 +44,8 @@ TP.args <- function(T=NULL,P=NULL) {
           warning('TP.args: NAs in Psat (likely T > Tc where Tc = 647.096 K)',call.=FALSE)
     }
   }
-  if(length(P) < length(T)) P <- rep(P, length.out=length(T))
-  else if(length(T) < length(P)) T <- rep(T, length.out=length(P))
+  if(length(P) < length(T) & !is.null(P)) P <- rep(P, length.out=length(T))
+  else if(length(T) < length(P) & !is.null(T)) T <- rep(T, length.out=length(P))
   # something we do here so the SUPCRT water calculations work
   T[T==273.15] <- 273.16
   return(list(T=T,P=P))

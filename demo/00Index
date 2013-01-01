@@ -1,0 +1,10 @@
+sources         cross-check the reference list with the thermodynamic database
+NaCl            equilibrium constant for aqueous NaCl dissociation
+cordierite      equilibrium constant of hydrous cordierite dehydration
+phosphate       phosphate speciation with pH, temperature and ionic strength
+nucleobase      relative stabilities of nucleobases and some amino acids
+orp             oxidation-reduction potential of redox standards as a function of temperature
+findit          example of findit() using log-normal distribution as an objective
+CO2Ac           activity of CO2 buffered by acetic acid; comparing affinity(return.buffer=TRUE) with diagram(what="CO2")
+nonideal        activity coefficient of charged species, using the IS argument of subcrt
+TPX             Metastablilities of selected ionized bacterial thiol peroxidases as a chemical activity buffer
