@@ -37,4 +37,4 @@ title(main=paste("activity coefficient (gamma) of -1,-2,-3,-4",
   "charged species at 0, 25, 40 deg C, after Alberty, 2003",
   sep="\n"),cex.main=0.95)
 legend("topright", lty=c(NA, 1, 1, 1), col=c(NA, "blue", "black", "red"),
-  legend=c(axis.label("T"), 0, 25, 40))
+  legend=c(as.expression(axis.label("T")), 0, 25, 40))

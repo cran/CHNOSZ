@@ -1,8 +1,6 @@
 \encoding{UTF-8}
 \name{subcrt}
 \alias{subcrt}
-\alias{read.supcrt}
-\alias{write.supcrt}
 \title{Properties of Species and Reactions}
 \description{
   Calculate the standard molal thermodynamic properties of one or more species or a reaction between species as a function of temperature and pressure. Import or export thermodynamic data in \acronym{SUPCRT} format.
@@ -14,25 +12,21 @@
     T = seq(273.15,623.15,25), P = "Psat", grid = NULL, 
     convert = TRUE, exceed.Ttr = FALSE, logact = NULL,
     action.unbalanced = "warn", IS = 0)
-  read.supcrt(file)
-  write.supcrt(file = "supcrt.dat", obigt = thermo$obigt)
 }
 
 \arguments{
-  \item{species}{character, name or formula of species, or numeric, rownumber of species in \code{thermo$obigt}.}
-  \item{coeff}{numeric, reaction coefficients on species.}
-  \item{state}{character, state(s) of species.}
-  \item{property}{character, property(s) to calculate.}
-  \item{T}{numeric, temperature(s) of the calculation.}
-  \item{P}{numeric, pressure(s) of the calculation, or character, \samp{Psat}.}
-  \item{grid}{character, type of \code{P}\eqn{\times}{x}\code{T} grid to produce (NULL, the default, means no gridding).}
+  \item{species}{character, name or formula of species, or numeric, rownumber of species in \code{thermo$obigt}}
+  \item{coeff}{numeric, reaction coefficients on species}
+  \item{state}{character, state(s) of species}
+  \item{property}{character, property(s) to calculate}
+  \item{T}{numeric, temperature(s) of the calculation}
+  \item{P}{numeric, pressure(s) of the calculation, or character, \samp{Psat}}
+  \item{grid}{character, type of \code{P}\eqn{\times}{x}\code{T} grid to produce (NULL, the default, means no gridding)}
   \item{exceed.Ttr}{logical, calculate Gibbs energies of phases of minerals and of other species beyond their transition temperatures?}
-  \item{logact}{numeric, logarithms of activities of species in reaction.}
-  \item{file}{character, name of \acronym{SUPCRT92} data file.}
-  \item{obigt}{dataframe, thermodynamic data.} 
+  \item{logact}{numeric, logarithms of activities of species in reaction}
   \item{convert}{logical, are input and output units of T and P those of the user (\code{TRUE}) (see \code{\link{T.units}}), or are they Kelvin and bar (\code{FALSE})?}
-  \item{action.unbalanced}{character \samp{warn} or NULL, what action to take if unbalanced reaction is provided.}
-  \item{IS}{numeric, ionic strength(s) at which to calculate apparent molal properties, mol kg\eqn{^{-1}}{^-1}.}
+  \item{action.unbalanced}{character \samp{warn} or NULL, what action to take if unbalanced reaction is provided}
+  \item{IS}{numeric, ionic strength(s) at which to calculate apparent molal properties, mol kg\eqn{^{-1}}{^-1}}
 }
 
 \details{
@@ -78,7 +72,8 @@ The informative messages produced by \code{SUPCRT92} when temperature or pressur
 However, \code{NA}s may be produced in the output of \code{subcrt} if the requisite thermodynamic or electrostatic properties of water can not be calculated at given conditions.
 Specifically, \code{NA}s are produced for calculations at \samp{Psat} when the temperature exceeds the critical temperature of H2O.
 
-  \code{read.supcrt} and \code{write.supcrt} are used to read and write thermodynamic data \code{file}s in the format of \acronym{SUPCRT92}. \code{read.supcrt} parses the thermodynamic data contained in a \acronym{SUPCRT92}-format file into a dataframe that is compatible with the format used in CHNOSZ (see \code{\link{thermo}$obigt}). \code{write.supcrt} creates a \acronym{SUPCRT92} \code{file} using the dataframe given in the \code{obigt} argument (if missing the entire species database is processed). An edited version of the \samp{slop98.dat} data file (Shock et al., 1998) that is compatible with \code{read.supcrt} is available at \url{http://chnosz.net/download/} (small formatting quirks in the original version cause glitches with this function).
+
+For calculations below 273.16 K, the pressure should be set to 1, as Psat is not defined in these conditions.
 
 }
 
@@ -95,8 +90,6 @@ It is probably for this reason that there is a noticeable jump in the value of l
 
 \value{
   For \code{subcrt}, a list of length two or three. If the properties of a reaction were calculated, the first element of the list (named \samp{reaction}) contains a dataframe with the reaction parameters; the second element, named \samp{out}, is a dataframe containing the calculated properties. Otherwise, the properties of species (not reactions) are returned: the first element, named \samp{species}, contains a dataframe with the species identification; the second element, named \samp{out}, is itself a list, each element of which is a dataframe of properties for a given species. If minerals with phase transitions are present, a third element (a dataframe) in the list indicates for all such minerals the stable phase at each grid point.
-
-  \code{read.supcrt} returns a dataframe of properties and parameters of species with the same structure as \code{\link{thermo}$obigt}.
 }
 
 \seealso{
@@ -248,6 +241,30 @@ text(0, 5.1, describe.basis(oneline=TRUE, ibasis=c(1, 2, 4, 5)), adj=0)
 # label the plot
 title(main=paste("Reduction of NAD coupled to oxidation of glucose",
  "after LaRowe and Helgeson, 2007", sep="\n"))
+
+## Subzero (degrees C) calculations
+# uncomment the following to try IAPWS95 instead of SUPCRT92
+#thermo$opt$water <<- "IAPWS95"
+# the limit for H2O92D.f (from SUPCRT92) is currently -20 deg C
+# but we go to -30 knowing properties will become NA
+sb <- subcrt(c("H2O", "Na+"), T=seq(-30, 10), P=1)$out
+# start plot with extra room on right
+par(mar=c(5, 4, 4, 4))
+# plot G
+plot(sb$water$T, sb$water$G, ylim=c(-63000, -56000), xlab=axis.label("T"), ylab=axis.label("DG0"))
+points(sb$`Na+`$T, sb$`Na+`$G, pch=2)
+# add Cp
+# change y-axis
+par("usr"=c(par("usr")[1:2], -100, 25))
+axis(4)
+mtext(axis.label("Cp0"), side=4, line=3)
+points(sb$water$T, sb$water$Cp, pch=16)
+points(sb$`Na+`$T, sb$`Na+`$Cp, pch=17)
+legend("topleft", pch=c(16, 1, 17, 2), legend=c("H2O Cp", "H2O G", "Na+ Cp", "Na+ G"))
+H2O <- expr.species("H2O")
+Na <- expr.species("Na+")
+degC <- expr.units("T")
+title(main=substitute(H2O~and~Na~to~-20~degC, list(H2O=H2O, Na=Na, degC=degC)))
 }
 }
 

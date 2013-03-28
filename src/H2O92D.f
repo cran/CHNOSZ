@@ -330,6 +330,8 @@
            IF (P .GE. Ptripl) THEN
                 Plimit = sPli1 * (T-Tli13) + Pli13
                 valTP = (P+FPTOL .GE. Plimit)
+*** a hack?, keep valTP TRUE at temperatures below the 0.01 deg C triple point jmd 20130202
+                valTP = .TRUE.
            ELSE
                 Psubl = Psublm(T)
                 valTP = (P-FPTOL .LE. Psubl)

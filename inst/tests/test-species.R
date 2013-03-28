@@ -1,7 +1,7 @@
 context("species")
 
 # clear out any previous basis definition or database alterations
-suppressPackageStartupMessages(data(thermo))
+suppressMessages(data(thermo))
 
 test_that("species not contained by basis cause errors", {
   expect_error(species("H2O"), "basis species are not defined")

@@ -1,7 +1,7 @@
 context("basis")
 
 # clear out any previous basis definition or database alterations
-suppressPackageStartupMessages(data(thermo))
+suppressMessages(data(thermo))
 
 test_that("invalid basis definitions cause an error", {
   expect_error(basis(character()), "argument is empty")

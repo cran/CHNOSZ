@@ -55,31 +55,70 @@ If \code{normalize} is TRUE, the coefficients on the basis species are divided b
 }
 
 \seealso{
-  \code{\link{ionize.aa}} for an example that compares \code{MP90.cp} with heat capacities calculated in CHNOSZ at different temperatures and pHs. The primary function for interacting with the database of amino acid compositions of proteins is documented separately (\code{\link{iprotein}}) and examples of relative stability calculations can be found on the \code{\link{protein}} help page.
+  \code{\link{ionize.aa}} for an example that compares \code{MP90.cp} with heat capacities calculated in CHNOSZ at different temperatures and pHs. The functions for interacting with the database of amino acid compositions of proteins are documented at \code{\link{iprotein}}, and examples of relative stability calculations can be found on the \code{\link{protein}} help page.
 }
 
 \examples{\dontshow{data(thermo)}
-## protein length and formula
-# first ten proteins in thermo$protein
-protein.length(1:10)
-# these are all the same
+## example for chicken lysozyme C
+# index in thermo$protein
+ip <- iprotein("LYSC_CHICK")
+# amino acid composition
+ip2aa(ip)
+# length and chemical formula
+protein.length(ip)
+protein.formula(ip)
+# formula, Gibbs energy, average oxidation state of carbon
+protein.info(ip)
+# as above, now with charge and Gibbs energy of ionized protein at pH 7
+basis("CHNOS+")
+protein.info(ip)
+# group additivity for thermodynamic properties and HKF equation-of-state
+# parameters of non-ionized protein
+aa2eos(ip2aa(ip))
+# calculation of standard thermodynamic properties
+# (subcrt uses the species name, not ip)
+subcrt("LYSC_CHICK")
+# affinity calculation, protein identified by ip
+affinity(iprotein=ip)
+# affinity calculation, protein loaded as a species
+species("LYSC_CHICK")
+affinity()
+# NB: subcrt() only shows the properties of the non-ionized
+# protein, but affinity() uses the properties of the ionized
+# protein if the basis species have H+
+
+## these are all the same
 protein.formula("P53_PIG")
 protein.formula(iprotein("P53_PIG"))
 protein.formula(ip2aa(iprotein("P53_PIG")))
-# the formula of a pentapeptide, written in a line
-as.chemical.formula(protein.formula(seq2aa("a_test", "ANLSG")))
 
 ## steps in calculation of chemical activities of two proteins
 ## in metastable equilibrium, after Dick and Shock, 2011
 protein <- iprotein(c("CSG_METVO", "CSG_METJA"))
+# clear out amino acid residues loaded by the example above
+# ( in affinity(iprotein=ip) )
+data(thermo)
 # load supplemental database to use "old" [Met] sidechain group
 add.obigt()
 # set up the basis species to those used in DS11
 basis("CHNOS+")
 # note this yields logaH2 = -4.657486
 swap.basis("O2", "H2")
-# show the steps of the equilibrium calculation
+# demonstrate the steps of the equilibrium calculation
 protein.equil(protein, loga.protein=-3)
+## we can also look at the affinities
+# (Reaction 7, Dick and Shock, 2011)
+# A/2.303RT for protein at unit activity (A-star for the protein)
+a <- affinity(iprotein=protein[1], loga.protein=0)
+Astar.protein <- a$values[[1]]
+# divide affinity by protein length (A-star for the residue)
+pl <- protein.length(protein[1])
+Astar.residue <- a$values[[1]]/pl  # 0.1893, Eq. 11
+# A/2.303RT per residue corresponding to protein activity of 10^-3
+loga.residue <- log10(pl*10^-3)
+Aref.residue <- Astar.residue - loga.residue  # 0.446, after Eq. 16
+# A-star of the residue in natural log units (A/RT)
+log(10) * Astar.residue  # 0.4359, after Eq. 23
 
 \donttest{## using protein.formula: average oxidation state of 
 ## carbon of proteins from different organisms
@@ -94,11 +133,11 @@ pf <- protein.formula(thermo$protein[ip, ])
 zc <- ZC(pf)
 # the organism names we search for
 # "" matches all organisms
-terms <- c("Halo", "Streptomyces", "Pseudomonas", "Salmonella",
-  "Escherichia", "Bacteroides", "Lactobacillus", "Staphylococcus",
-  "Streptococcus", "Methano", "Bacillus", "Thermo", "")
+terms <- c("Natr", "Halo", "Rhodo", "Acido", "Methylo",
+  "Nitro", "Desulfo", "Chloro", "Geo", "Methano",
+  "Thermo", "Pyro", "Sulfo", "Buchner", "")
 tps <- thermo$protein$ref[ip]
-plot(0, 0, xlim=c(1, 13), ylim=c(-0.3, -0.05), pch="",
+plot(0, 0, xlim=c(1, 15), ylim=c(-0.3, -0.05), pch="",
   ylab="average oxidation state of carbon in proteins",
   xlab="", xaxt="n", mar=c(6, 3, 1, 1))
 for(i in 1:length(terms)) {
@@ -106,8 +145,8 @@ for(i in 1:length(terms)) {
   zct <- zc[it]
   points(jitter(rep(i, length(zct))), zct, pch=20)
 }
-terms[13] <- paste("all microbial")
-axis(1, 1:13, terms, las=2)
+terms[15] <- paste("all", length(ip))
+axis(1, 1:15, terms, las=2)
 title(main=paste("Average Oxidation State of Carbon:",
   "Total Protein per taxID in NCBI RefSeq", sep="\n"))
 }

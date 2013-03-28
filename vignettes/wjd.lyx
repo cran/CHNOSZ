@@ -67,17 +67,22 @@ sweave
 \branch short
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch long
 \selected 1
 \filename_suffix 0
-\color #101010
+\color #faf0e6
 \end_branch
 \branch stuff
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
+\end_branch
+\branch inactive
+\selected 0
+\filename_suffix 0
+\color #faf0e6
 \end_branch
 \index Index
 \shortcut idx
@@ -240,6 +245,11 @@ library(CHNOSZ)
 
 \begin_layout Chunk
 
+data(thermo)
+\end_layout
+
+\begin_layout Chunk
+
 @
 \end_layout
 
@@ -397,6 +407,11 @@ f2 <- as.chemical.formula(w$A[oX[2],w$A[oX[2],]!=0])
 
 \begin_layout Chunk
 
+f4 <- as.chemical.formula(w$A[oX[4],w$A[oX[4],]!=0])
+\end_layout
+
+\begin_layout Chunk
+
 @
 \end_layout
 
@@ -442,13 +457,26 @@ Sexpr{niter}
 \end_inset
 
  iterations.
- 
+ The fourth most-abundant species, 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{f4}
+\end_layout
+
+\end_inset
+
+, is discussed below.
 \end_layout
 
 \begin_layout Standard
 Let's track their mole fractions through the iterations.
- Write a function that returns the mole fractions of these two species,
- after a specified number of iterations.
+ Write a function that returns the mole fractions of a species, after a
+ specified number of iterations.
 \end_layout
 
 \begin_layout Standard
@@ -462,7 +490,7 @@ status open
 
 \begin_layout Chunk
 
-iterfun <- function(imax) {
+iterfun <- function(imax, i) {
 \end_layout
 
 \begin_layout Chunk
@@ -472,17 +500,12 @@ iterfun <- function(imax) {
 
 \begin_layout Chunk
 
-  x1 <- w$X[oX[1]]/sum(w$X)
+  x <- w$X[i]/sum(w$X)
 \end_layout
 
 \begin_layout Chunk
 
-  x2 <- w$X[oX[2]]/sum(w$X)
-\end_layout
-
-\begin_layout Chunk
-
-  return(list(x1=x1, x2=x2))
+  return(x)
 \end_layout
 
 \begin_layout Chunk
@@ -534,22 +557,27 @@ textwidth}
 
 \begin_layout Chunk
 
-sa <- sapply(0:niter, iterfun)
-\end_layout
-
-\begin_layout Chunk
-
 par(mfrow=c(1, 2))
 \end_layout
 
 \begin_layout Chunk
 
-plot(0:niter, sa[1, ], xlab="iteration", ylab=paste("x", f1))
+sa <- sapply(0:niter, iterfun, i=oX[1])
 \end_layout
 
 \begin_layout Chunk
 
-plot(0:niter, sa[2, ], xlab="iteration", ylab=paste("x", f2))
+plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
+\end_layout
+
+\begin_layout Chunk
+
+sa <- sapply(0:niter, iterfun, i=oX[4])
+\end_layout
+
+\begin_layout Chunk
+
+plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
 \end_layout
 
 \begin_layout Chunk
@@ -572,7 +600,7 @@ textwidth}
 \end_layout
 
 \begin_layout Standard
-A bit of winding: the mole fractions of 
+A bit of winding: the mole fraction of 
 \begin_inset ERT
 status collapsed
 
@@ -585,21 +613,21 @@ Sexpr{f1}
 
 \end_inset
 
- and 
+ generally increases (there is a very slight decrease at the fifth iteration),
+ but the mole fraction of 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 
 \backslash
-Sexpr{f2}
+Sexpr{f4}
 \end_layout
 
 \end_inset
 
- increase up to the third iteration, but at the fourth (and less so for
- the fifth and sixth), their mole fractions decrease.
+ increases in the first two iterations, then decreases in following ones.
  This behavior is consistent with a decrease in Gibbs energy at 
 \emph on
 every
@@ -631,7 +659,7 @@ status open
 
 \begin_layout Chunk
 
-diff(w$F.Y)
+all(diff(w$F.Y) < 0)
 \end_layout
 
 \begin_layout Chunk
@@ -642,7 +670,31 @@ diff(w$F.Y)
 \end_inset
 
 The decrease in Gibbs energy becomes smaller with every iteration, as an
- equilibrium distribution of species is approached.
+ equilibrium distribution of species is approached:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch short
+status open
+
+\begin_layout Chunk
+
+<<Gdownslower>>=
+\end_layout
+
+\begin_layout Chunk
+
+identical(diff(w$F.Y), sort(diff(w$F.Y)))
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -872,8 +924,21 @@ tol
 \family typewriter
 is.near.equil()
 \family default
- does pass only 6-iteration result, but by reducing the tolerance, the tests
- can be made to fail:
+ does pass the 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+Sexpr{niter}
+\end_layout
+
+\end_inset
+
+-iteration result, but by reducing the tolerance, the tests can be made
+ to fail:
 \end_layout
 
 \begin_layout Standard
@@ -887,17 +952,17 @@ status open
 
 \begin_layout Chunk
 
-is.near.equil(w3)
+is.near.equil(w3) # 3 iterations
 \end_layout
 
 \begin_layout Chunk
 
-is.near.equil(w)
+is.near.equil(w)  # 7 iterations
 \end_layout
 
 \begin_layout Chunk
 
-is.near.equil(w, tol=0.0001)
+is.near.equil(w, tol=0.00001)
 \end_layout
 
 \begin_layout Chunk
@@ -1008,12 +1073,12 @@ Y1
 
 \begin_layout Chunk
 
-Y2 <- guess(method="central")
+#Y2 <- guess(method="central")
 \end_layout
 
 \begin_layout Chunk
 
-Y2
+#Y2
 \end_layout
 
 \begin_layout Chunk
@@ -1112,6 +1177,10 @@ wjd()
 \family default
 .
 \end_layout
+
+\begin_layout Standard
+\begin_inset Branch inactive
+status collapsed
 
 \begin_layout Standard
 \begin_inset Branch short
@@ -1214,6 +1283,11 @@ stoich
  guesses to be tested automatically (see below).
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 Do the different initial guesses actually give similar results?
 \end_layout
@@ -1248,7 +1322,7 @@ points(1:10, wY1$X, pch=0)
 
 \begin_layout Chunk
 
-points(1:10, wY2$X, pch=2)
+#points(1:10, wY2$X, pch=2)
 \end_layout
 
 \begin_layout Chunk
@@ -1821,7 +1895,7 @@ text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 \end_layout
 
 \begin_layout Standard
-We triggered a single 
+We triggered some 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1829,7 +1903,19 @@ not near equilibrium
 \begin_inset Quotes erd
 \end_inset
 
- message, but overall it seems well behaved.
+ messages, but overall it seems well behaved (note that using the 
+\begin_inset Quotes eld
+\end_inset
+
+central
+\begin_inset Quotes erd
+\end_inset
+
+ method in 
+\family typewriter
+guess()
+\family default
+ is one way that leads to fewer of these messages).
  And, as expected, it is similar to Fig.
  2 of 
 \begin_inset CommandInset citation
@@ -1997,7 +2083,12 @@ tol
 is.near.equil()
 \family default
 .
- We can make it TRUE by running more iterations:
+ We can make it TRUE by running more iterations and increasing the number
+ of intervals tested for fractional distance change at each step (
+\family typewriter
+nlambda
+\family default
+):
 \end_layout
 
 \begin_layout Standard
@@ -2011,7 +2102,7 @@ status open
 
 \begin_layout Chunk
 
-waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8), imax=12, Gfrac=1e-14)
+waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8), imax=20, Gfrac=1e-14, nlambda=501)
 \end_layout
 
 \begin_layout Chunk

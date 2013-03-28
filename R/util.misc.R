@@ -5,6 +5,7 @@
 dPdTtr <- function(x) {
   # calculate dP/dT for a phase transition
   # (argument is index of the lower-T phase)
+  thermo <- get("thermo")
   t1 <- subcrt(x,P=0,T=thermo$obigt$z.T[x],convert=FALSE,exceed.Ttr=TRUE)
   t2 <- subcrt(x+1,P=0,T=thermo$obigt$z.T[x],convert=FALSE,exceed.Ttr=TRUE)
   # if these aren't the same mineral all we can say is zero
@@ -19,12 +20,13 @@ dPdTtr <- function(x) {
 Ttr <- function(x,P=1,dPdT=NULL) {
   # calculate a phase transition temperature
   # taking account of P (from dP/dT)
-  T <- thermo$obigt$z.T[x]
+  T <- get("thermo")$obigt$z.T[x]
   if(is.null(dPdT)) dPdT <- dPdTtr(x)
   return(T + P / dPdT)
 }
 
 nonideal <- function(species,proptable,IS,T) {
+  thermo <- get("thermo")
   # generate nonideal contributions to thermodynamic properties
   # number of species, same length as proptable list
   # T in Kelvin, same length as nrows of proptables
@@ -115,6 +117,7 @@ unitize <- function(logact=NULL,length=NULL,logact.tot=0) {
   # if loga is NULL, take the logarithms of activities from
   # the current species definition. if any of those species
   # are proteins, get their lengths using protein.length.
+  thermo <- get("thermo")
   if(is.null(logact)) {
     if(is.null(thermo$species)) stop("loga is NULL and no species are defined")
     ts <- thermo$species

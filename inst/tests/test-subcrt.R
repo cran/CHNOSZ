@@ -76,6 +76,17 @@ test_that("standard Gibbs energies of reactions involving aqueous species are co
   E.units("cal")
 })
 
+test_that("subzero degree C calculations are possible", {
+  ## start with H2O
+  s.H2O <- subcrt("H2O", T=c(-20.1, seq(-20, 0)), P=1)$out$water
+  # we shouldn't get anything at -20.1 deg C
+  expect_equal(s.H2O$G[1], NA_real_)
+  # we should get something at -20 deg C
+  expect_equal(floor(s.H2O$G[2]), -56001)
+  # for historical reasons, an input temperature of 0 was converted to 0.01
+  expect_equal(s.H2O$T[22], 0.01)
+})
+
 # references
 
 # Amend, J. P. and Shock, E. L. (2001) 

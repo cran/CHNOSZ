@@ -52,8 +52,12 @@ Reference logarithms of activities, for those objective functions that require t
 Generally, \code{loga2} must be a numeric vector with length equal to that of \code{loga1} (i.e., number of species).
 If a single numeric value is supplied for \code{loga2}, it is recycled to the length of \code{loga1}.
 
+For calculations at a single condition (0-D, no variation), with the \samp{qqr} objective, a quantile-quantile plot (\code{\link{qqnorm}}) is shown.
+For \samp{rmsd} and other objective functions having reference values (\code{loga2}), a scatter plot is shown with a smooth line calculated using \code{\link{loess.smooth}}.
+The line can be suppressed using \code{lwd=NULL}.
+Otherwise, no plot is made for 0-D calculations for the other objective functions.
+
 If \code{plot.it} is TRUE, and \code{eout} is the output from \code{equilibrate}, and the number of variables is 1 or 2, the results are plotted --- a line diagram in 1 dimension or a contour plot in 2 dimensions.
-No plot is made for calculations at a single condition (0-D, no variation), except for the \code{qqr} objective, showing a quantile-quantile plot (\code{\link{qqnorm}}).
 \code{style.2D} can be set to \code{\link{image}} to fill the plot with colors instead of the \code{\link{contour}} plot that is the default.
 
 If \code{plot.optval} is TRUE, the location of the optimum (or optima) is indicated by a dashed vertical line(s) on a 1-D plot or a point(s) marked by an asterisk on a 2-D plot.
@@ -63,7 +67,7 @@ These points follow major ridges or valleys, and are plotted as dashed lines col
 An alternative source for the \code{eout} argument is any list of numeric values, each element of which corresponds to a different observation (such as a single species), all having the same dimensions (as vectors, matrices or higher-dimensional arrays)
 In this case, plotting is disabled, since the names of the variables are not in the input.
 
-\samp{revisit} is a loose anagram of \samp{diversity}, which was the provisional name of the function but was changed in CHNOSZ-0.9.
+\samp{revisit} is a partial anagram of \samp{diversity}, which was the provisional name of the function but was changed in CHNOSZ-0.9.
 While the \code{\link[vegan]{diversity}} function (in \pkg{vegan}) operates on a matrix with (biological) species on the columns, \code{revisit} operates on a list with (chemical) species as the elements of the list.
 The name of the \samp{H} output value is the conventional symbol for the Shannon diversity index, which was the first target statistic to be implemented in \code{revisit}.
 
@@ -87,7 +91,7 @@ The \samp{optimum} attribute of the \code{objective} function indicates whether 
 
 }
 
-\examples{
+\examples{\dontshow{data(thermo)}
 ## example of defining a new objective function
 # count the species with logarithms of activity greater than loga2
 count <- function(loga1, loga2) rowSums(loga1 > loga2)
@@ -130,13 +134,13 @@ t1 <- paste("minimum coeff of variation,", mincv, "at:")
 # the logfO2 that minimized the C.V.
 basis("O2", r$x)
 t2 <- describe.basis(ibasis=5)
-mtitle(c(t1, t2))
+mtitle(c(t1, as.expression(t2)))
 # chemical affinities as a function of two other variables
 a <- affinity(NH3=c(-10, 10, 40), T=c(0, 80, 40))
 diagram(a, fill="heat")
 # show a legend with input constraints
 db <- describe.basis(ibasis=5)
-legend("bottomright", db)
+legend("bottomright", as.expression(db))
 # contour plot of the CV
 e <- equilibrate(a)
 r <- revisit(e)

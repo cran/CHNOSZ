@@ -41,7 +41,7 @@
 
 }
 
-\examples{
+\examples{\dontshow{data(thermo)}
 \dontrun{
 # animate a stability diagram with a high-temperature overlay
 anim.TCA(high.T=TRUE)

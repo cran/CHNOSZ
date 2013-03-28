@@ -61,12 +61,12 @@ sweave
 \branch scrap
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch stuff
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \index Index
 \shortcut idx
@@ -385,6 +385,11 @@ status open
 \begin_layout Chunk
 
 library(CHNOSZ)
+\end_layout
+
+\begin_layout Chunk
+
+data(thermo)
 \end_layout
 
 \begin_layout Chunk

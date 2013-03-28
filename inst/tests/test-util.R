@@ -52,6 +52,3 @@ test_that("describe.property() does not accept NULL values", {
   expect_error(describe.property(), "property or value is NULL")
 })
 
-test_that("count.aa() warns about unrecognized amino acids", {
-  expect_message(count.aa("ABCDEFGHIJ"), "count.aa: unrecognized amino acid code\\(s\\): B J")
-})

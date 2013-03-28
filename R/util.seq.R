@@ -31,32 +31,6 @@ aminoacids <- function(nchar=1, which=NULL) {
   else if(nchar=="Z") return(aacharged[iaa])
 }
 
-count.aa <- function(seq) {
-  # count amino acids in one or more sequences
-  # sequences are given as elements of the list seq
-  aa <- aminoacids(1)
-  countfun <- function(seq) {
-    # count the letters in each sequence, putting them in the same order as aa
-    count <- numeric(20)
-    # the actual counting
-    naa <- table(strsplit(toupper(seq), "")[[1]])
-    iaa <- match(names(naa), aa)
-    # in case any letters don't match some amino acid
-    ina <- is.na(iaa)
-    count[iaa[!ina]] <- naa[!ina]
-    if(any(ina)) msgout("count.aa: unrecognized amino acid code(s): ", 
-      paste(names(naa)[ina], collapse=" "), "\n")
-    return(count)
-  }
-  # count amino acids in each sequence
-  a <- palply(seq, countfun)
-  a <- t(as.data.frame(a, optional=TRUE))
-  # clean up row/column names
-  colnames(a) <- aa
-  rownames(a) <- 1:nrow(a)
-  return(a)
-}
-
 nucleicacids <- function(seq=NULL,type="DNA",comp=NULL,comp2=NULL) {
   # count bases or compute the formula, e.g.
   # n <- nucleicacids(list("AGCT","TTTT"))  # a dataframe of counts
@@ -77,7 +51,7 @@ nucleicacids <- function(seq=NULL,type="DNA",comp=NULL,comp2=NULL) {
       stop(paste("requested type is",type,"but",nabases,"is/are not in the colnames of supplied dataframe"))
     }
     # the formulas of each of the bases
-    f.base <- thermo$obigt$formula[info(na.NA[match(colnames(seq),na)])]
+    f.base <- get("thermo")$obigt$formula[info(na.NA[match(colnames(seq),na)])]
     # loop over the base counts
     f.out <- character()
     for(i in 1:nrow(seq)) {

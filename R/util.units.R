@@ -4,57 +4,58 @@
 P.units <- function(units=NULL) {
   ## change units of pressure or list the current one
   # show the current units, if none is specified
-  if(is.null(units)) return(thermo$opt$P.units)
+  if(is.null(units)) return(get("thermo")$opt$P.units)
   # argument handling
   units <- tolower(units)
   if(!units %in% c("bar","mpa")) stop("units of pressure must be either bar or MPa")
   # set the units and return them
-  if(units=="bar") thermo$opt$P.units <<- "bar"
-  if(units=="mpa") thermo$opt$P.units <<- "MPa"
-  return(thermo$opt$P.units)
+  if(units=="bar") with(as.environment("CHNOSZ"), thermo$opt$P.units <- "bar")
+  if(units=="mpa") with(as.environment("CHNOSZ"), thermo$opt$P.units <- "MPa")
+  return(get("thermo")$opt$P.units)
 }
 
 T.units <- function(units=NULL) {
   ## change units of temperature or list the current one
   # show the current units, if none is specified
-  if(is.null(units)) return(thermo$opt$T.units)
+  if(is.null(units)) return(get("thermo")$opt$T.units)
   # argument handling
   units <- tolower(units)
   if(!units %in% c("c","k")) stop("units of temperature must be either C or K")
   # set the units and return them
-  if(units=="c") thermo$opt$T.units <<- "C"
-  if(units=="k") thermo$opt$T.units <<- "K"
-  return(thermo$opt$T.units)
+  if(units=="c") with(as.environment("CHNOSZ"), thermo$opt$T.units <- "C")
+  if(units=="k") with(as.environment("CHNOSZ"), thermo$opt$T.units <- "K")
+  return(get("thermo")$opt$T.units)
 }
 
 E.units <- function(units=NULL) {
   ## change units of energy or list the current one
   # show the current units, if none is specified
-  if(is.null(units)) return(thermo$opt$E.units)
+  if(is.null(units)) return(get("thermo")$opt$E.units)
   # argument handling
   units <- tolower(units)
   if(!units %in% c("cal","j")) stop("units of energy must be either cal or J")
   # set the units and return them
-  if(units=="cal") thermo$opt$E.units <<- "cal"
-  if(units=="j") thermo$opt$E.units <<- "J"
-  return(thermo$opt$E.units)
+  if(units=="cal") with(as.environment("CHNOSZ"), thermo$opt$E.units <- "cal")
+  if(units=="j") with(as.environment("CHNOSZ"), thermo$opt$E.units <- "J")
+  return(get("thermo")$opt$E.units)
 }
 
 outvert <- function(value,units) {
   # converts the given value from the given units to
   # those specified in thermo$opt
   units <- tolower(units)
+  opt <- get("thermo")$opt
   if(units %in% c('c','k')) {
-    if(units=='c' & thermo$opt$T.units=='K') return(convert(value,'k'))
-    if(units=='k' & thermo$opt$T.units=='C') return(convert(value,'c'))
+    if(units=='c' & opt$T.units=='K') return(convert(value,'k'))
+    if(units=='k' & opt$T.units=='C') return(convert(value,'c'))
   }
   if(units %in% c('j','cal')) {
-    if(units=='j' & thermo$opt$E.units=='Cal') return(convert(value,'cal'))
-    if(units=='cal' & thermo$opt$E.units=='J') return(convert(value,'j'))
+    if(units=='j' & opt$E.units=='Cal') return(convert(value,'cal'))
+    if(units=='cal' & opt$E.units=='J') return(convert(value,'j'))
   }
   if(units %in% c('bar','mpa')) {
-    if(units=='mpa' & thermo$opt$P.units=='bar') return(convert(value,'bar'))
-    if(units=='bar' & thermo$opt$P.units=='MPa') return(convert(value,'mpa'))
+    if(units=='mpa' & opt$P.units=='bar') return(convert(value,'bar'))
+    if(units=='bar' & opt$P.units=='MPa') return(convert(value,'mpa'))
   }
   return(value)
 }
@@ -64,25 +65,24 @@ envert <- function(value,units) {
   # from those given in thermo$opt
   if(!is.numeric(value[1])) return(value)
   units <- tolower(units)
+  opt <- get("thermo")$opt
   if(units %in% c('c','k','t.units')) {
-    if(units=='c' & thermo$opt$T.units=='K') return(convert(value,'c'))
-#    if(units=='t.units' & thermo$opt$T.units=='C') return(convert(value,'c'))
-    if(units=='k' & thermo$opt$T.units=='C') return(convert(value,'k'))
+    if(units=='c' & opt$T.units=='K') return(convert(value,'c'))
+    if(units=='k' & opt$T.units=='C') return(convert(value,'k'))
   }
   if(units %in% c('j','cal','e.units')) {
-    if(units=='j' & thermo$opt$T.units=='Cal') return(convert(value,'j'))
-#    if(units=='e.units' & thermo$opt$T.units=='J') return(convert(value,'j'))
-    if(units=='cal' & thermo$opt$T.units=='J') return(convert(value,'cal'))
+    if(units=='j' & opt$T.units=='Cal') return(convert(value,'j'))
+    if(units=='cal' & opt$T.units=='J') return(convert(value,'cal'))
   }
   if(units %in% c('bar','mpa','p.units')) {
-    if(units=='mpa' & thermo$opt$P.units=='bar') return(convert(value,'mpa'))
-#    if(units=='p.units' & thermo$opt$P.units=='MPa') return(convert(value,'mpa'))
-    if(units=='bar' & thermo$opt$P.units=='MPa') return(convert(value,'bar'))
+    if(units=='mpa' & opt$P.units=='bar') return(convert(value,'mpa'))
+    if(units=='bar' & opt$P.units=='MPa') return(convert(value,'bar'))
   }
   return(value)
 }
 
-convert <- function(value,units,T=thermo$opt$Tr,P=thermo$opt$Pr,pH=7,logaH2O=0) {
+convert <- function(value, units, T=get("thermo")$opt$Tr,
+  P=get("thermo")$opt$Pr, pH=7, logaH2O=0) {
   # converts value(s) to the specified units
 
   if(is.null(value)) return(NULL)
@@ -94,23 +94,6 @@ convert <- function(value,units,T=thermo$opt$Tr,P=thermo$opt$Pr,pH=7,logaH2O=0) 
   Units <- units # for the possible message to user
   units <- tolower(units)
 
-## commented out 20120526 for SC10 example in affinity.Rd;
-## this removes the dims in the conversion of a$values and gets diagram() mixed up
-#  # make everything same length
-#  makesame <- function(x) {
-#    maks <- max(as.numeric(sapply(x,length)))
-#    for(i in 1:length(x)) x[[i]] <- rep(x[[i]],length.out=maks)
-#    return(x)
-#  }
-#  if(!is.matrix(value) & !is.data.frame(value)) {
-#    args <- makesame(list(value=value,units=units,T=T,pH=pH,logaH2O=logaH2O))
-#    # except we only accept one type of destination units
-#    value <- as.numeric(args$value)
-#    units <- args$units[1]
-#    T <- args$T
-#    pH <- args$pH
-#    logaH2O <- args$logaH2O
-#  }
   # tests and calculations for the specified units
   if(units %in% c('c','k')) {
     CK <- 273.15
@@ -123,8 +106,9 @@ convert <- function(value,units,T=thermo$opt$Tr,P=thermo$opt$Pr,pH=7,logaH2O=0) 
     if(units=='cal') value <- value / Jcal
   }
   else if(units %in% c('g','logk')) {
-    if(units=='logk') value <- value / (-log(10) * thermo$opt$R * T)
-    if(units=='g') value <- value * (-log(10) * thermo$opt$R * T)
+    R <- get("thermo")$opt$R
+    if(units=='logk') value <- value / (-log(10) * R * T)
+    if(units=='g') value <- value * (-log(10) * R * T)
   }
   else if(units %in% c('cm3bar','calories')) {
     if(units=='cm3bar') value <- convert(value,'J') * 10

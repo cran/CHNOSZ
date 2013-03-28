@@ -145,12 +145,7 @@ count.elements <- function(formula) {
   # stop if it doesn't look like a chemical formula 
   validateRegex <- paste("^(", elementRegex, ")+$", sep="")
   if(length(grep(validateRegex, formula)) == 0)
-    stop(paste("'",formula,"' is not a simple chemical formula; ",
-    "the formula must start with an elemental symbol, and ",
-    "all elemental symbols must start with an uppercase letter ",
-    "and be followed by another elemental symbol, a number ",
-    "(possibly fractional, possibly signed), or nothing. ",
-    sep="", collapse=""))
+    stop(paste("'",formula,"' is not a simple chemical formula", sep="", collapse="\n"))
   # where to put the output
   element <- character()
   count <- numeric()
@@ -227,6 +222,7 @@ makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
   }
   # if the formula argument is numeric, get the formula
   # of that species number in thermo$obigt
+  thermo <- get("thermo")
   if(is.numeric(formula)) formula <- thermo$obigt$formula[formula]
   # first deal with charge
   cc <- count.charge(formula)

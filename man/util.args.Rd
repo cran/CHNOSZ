@@ -31,11 +31,10 @@ Handle arguments referring to temperature, pressure, states, and equations of st
 A list is return by \code{eos.args} and \code{TP.args}, and character is returned by \code{state.args}.
 }
 
-\examples{
-  \dontshow{data(thermo)}
-  ## argument processing
-  eos.args("hkf",c("g","H","S","cP","V","kT","e"))
-  ## produces an error because "Q" is not allowed in water.SUPCRT92
+\examples{\dontshow{data(thermo)}
+## argument processing
+eos.args("hkf",c("g","H","S","cP","V","kT","e"))
+## produces an error because "Q" is not allowed in water.SUPCRT92
 \dontrun{
   eos.args("hkf",c("G","H","S","Cp","V","kT","E","Q")) }
   thermo$opt$water <<- "IAPWS"  # needed for p and n in next line

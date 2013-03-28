@@ -1,7 +1,7 @@
 context("thermo")
 
 # clear out any previous basis definition or database alterations
-suppressPackageStartupMessages(data(thermo))
+suppressMessages(data(thermo))
 
 test_that("NAs in thermo$obigt propagate to subcrt()", {
   # first of all, water is in thermo$obigt but its properties
@@ -19,18 +19,23 @@ test_that("NAs in thermo$obigt propagate to subcrt()", {
   mod.obigt(name="[Ala]", state="aq", G=NA, S=NA)
   expect_true(all(is.na(subcrt("[Ala]", "aq")$out[[1]]$G)))
   # be nice and restore the database
-  suppressPackageStartupMessages(data(thermo))
+  suppressMessages(data(thermo))
 })
 
 test_that("minimal usage of mod.obigt() creates usable data entries", {
   # we need at least a name and some property
-  expect_error(mod.obigt(list(name="test")))
+  expect_error(mod.obigt("test"), "species name and a property")
+  # a valid formula is needed
+  expect_warning(mod.obigt("test", date=today()), "please supply a valid chemical formula")
   # the default state is aq
-  expect_message(itest <- mod.obigt(list(name="test", date=today())), "added test\\(aq\\)")
+  expect_message(itest <- mod.obigt("test", formula="Z0", date=today()), "added test\\(aq\\)")
   # we should get NA values of G for a species with NA properties 
   expect_true(all(is.na(subcrt(itest)$out[[1]]$G)))
+  # a single value of G comes through to subcrt
+  mod.obigt("test", G=100)
+  expect_equal(subcrt("test", T=25, P=1)$out[[1]]$G, 100)
   # values for Cp and c1 integrate to the same values of G
-  G.Cp <- subcrt(mod.obigt(list(name="test", formula="C0", G=0, S=0, Cp=100)))$out[[1]]$G
-  G.c1 <- subcrt(mod.obigt(list(name="test", formula="C0", G=0, S=0, c1=100)))$out[[1]]$G
+  G.Cp <- subcrt(mod.obigt(list(name="test", S=0, Cp=100)))$out[[1]]$G
+  G.c1 <- subcrt(mod.obigt(list(name="test", S=0, c1=100)))$out[[1]]$G
   expect_equal(G.Cp, G.c1)
 })

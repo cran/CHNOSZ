@@ -52,7 +52,9 @@
 \code{mod.obigt} changes one or more of the properties of species or adds species to the thermodynamic database.
 These changes are lost if you reload the database by calling \code{\link{data}(thermo)} or if you quit the \R session without saving it.
 The name of the species to add or change must be supplied as the first argument of \code{...} or as a named argument (named \samp{name}).
-When adding new species, a \samp{formula} should be included along with the values of any of the thermodynamic properties.
+When adding new species, a chemical formula should be included along with the values of any of the thermodynamic properties.
+The formula is taken from the \samp{formula} argument, or if that is missing, is taken to be the same as the \samp{name} of the species.
+An error results if the formula is not valid (i.e. can not be parsed by\code{\link{makeup}}).
 Additional arguments refer to the name of the property(s) to be updated and are matched to any part of compound column names in \code{\link{thermo}$obigt}, such as \samp{z} or \samp{T} in \samp{z.T}.
 Unless \samp{state} is specified as one of the properties, its value is taken from \code{thermo$opt$state}.
 When adding species, properties that are not specified become NA (except for \samp{state}).
@@ -90,8 +92,7 @@ The values provided should be in the units specifed in the documentation for the
   \code{\link{mod.buffer}} for updating the list of available buffers.
 }
 
-\examples{
-\dontshow{data(thermo)}
+\examples{\dontshow{data(thermo)}
 ## modify an existing species with fake properties
 ialanine <- mod.obigt("alanine", state="cr", G=0, H=0, S=0)
 # we have made the values of G, H, and S inconsistent
@@ -99,8 +100,10 @@ ialanine <- mod.obigt("alanine", state="cr", G=0, H=0, S=0)
 # produces a message about that
 info(ialanine)
 ## add a species
-inew <- mod.obigt("newspecies", formula="CHNOSZ", G=0, H=0, date=today())
-info(inew)
+iCl2O <- mod.obigt("Cl2O", G=20970)
+info(iCl2O)
+# add a species with a name that is distinct from the formula
+mod.obigt("buckminsterfullerene", formula="C60", state="cr")
 \dontrun{
 ## marked dontrun because they open pages in a browser
 # show the contents of thermo$refs

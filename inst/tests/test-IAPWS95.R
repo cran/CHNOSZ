@@ -1,4 +1,4 @@
-context("water.IAPWS95")
+context("IAPWS95")
 
 test_that("calculations of Helmholtz free energy and its derivatives are consistent with reference cases", {
   ## reference values of these terms are listed Table 6.6 of Wagner and Pruss, 2002  
@@ -20,11 +20,11 @@ test_that("calculations of Helmholtz free energy and its derivatives are consist
   delta <- rho / rho.critical
   tau <- T.critical / T
   # calculated ideal gas and residual parts for case 1
-  idealgas.calc.1 <- sapply(p, idealgas.IAPWS95, delta[1], tau[1])
-  residual.calc.1 <- sapply(p, residual.IAPWS95, delta[1], tau[1])
+  idealgas.calc.1 <- sapply(p, IAPWS95.idealgas, delta[1], tau[1])
+  residual.calc.1 <- sapply(p, IAPWS95.residual, delta[1], tau[1])
   # calculated ideal gas and residual parts for case 2
-  idealgas.calc.2 <- sapply(p, idealgas.IAPWS95, delta[2], tau[2])
-  residual.calc.2 <- sapply(p, residual.IAPWS95, delta[2], tau[2])
+  idealgas.calc.2 <- sapply(p, IAPWS95.idealgas, delta[2], tau[2])
+  residual.calc.2 <- sapply(p, IAPWS95.residual, delta[2], tau[2])
   ## perform the tests
   # we almost get away without increasing the tolerance in any test ...
   expect_equal(idealgas.calc.1, idealgas.ref.1, check.attributes=FALSE)
@@ -54,8 +54,8 @@ test_that("calculations of thermodynamic properties are consistent with referenc
   cp.liquid.ref <- c(4.2171, 4.1807, 4.2101, 4.2892, 4.4513, 4.7616, 5.4239, 7.6169, 3905.2)
   cp.vapor.ref <- c(1.8852, 1.9417, 2.0601, 2.3334, 2.8561, 3.7263, 5.4099, 10.805, 5334.1)
   ## calculated values
-  liquid.calc <- water.IAPWS95(p, T, rho.liquid)
-  vapor.calc <- water.IAPWS95(p, T, rho.vapor)
+  liquid.calc <- IAPWS95(p, T, rho.liquid)
+  vapor.calc <- IAPWS95(p, T, rho.vapor)
   ## the tests
   # take P to 5 significant digits but not more than 6 decimals
   expect_equal(round(signif(liquid.calc$p, 5), 6), P.ref, tol=1e-3)

@@ -49,7 +49,6 @@ For both \code{hkf} and \code{cgl}, if at least one equations-of-state parameter
 If all equations-of-state parameters are NA, but values of \samp{Cp} and/or \samp{V} are available, those values are used in the integration of \samp{G}, \samp{H} and \samp{S} as a function of temperature. 
 
 The \code{T} and \code{P} arguments (and \code{rhohat}, \code{Tc}, \code{alpha}, \code{daldT}, \code{beta} for \code{gfun}) should all be the same length; the functions perform no argument validating.
-
 }
 
 \section{Warning}{
@@ -69,24 +68,24 @@ These temperature limits are stored in the thermodynamic database for some miner
 
 
 \examples{
-  \dontshow{data(thermo)}
-  ## aqueous species
-  a <- info(info("methane","aq"))	
-  hkf(property="Cp",ghs=a,eos=a)
-  # the non-solvation heat capacity
-  hkf(property="Cp",ghs=a,eos=a,contrib="n")	
-  # at different temperature and pressure
-  hkf(property="Cp",ghs=a,eos=a,T=c(373.15,473.15),P=1000)
-  
-  ## crystalline, gas, liquid species
-  a <- info(info("methane","gas"))	
-  cgl(property="Cp",ghs=a,eos=a)
-  # melting and vaporization of n-octane
-  a <- info(info(rep("n-octane",3),c("cr","liq","gas")))
-  b <- cgl(property="G",ghs=a,eos=a,T=seq(200,420,10),P=1)
-  which.pmax(b,pmin=TRUE)  # 1 = cr, 2 = liq, 3 = gas
-  # compare that result with the tabulated transition temperatures
-  print(a)
+\dontshow{data(thermo)}
+## aqueous species
+a <- info(info("methane","aq"))	
+hkf(property="Cp",ghs=a,eos=a)
+# the non-solvation heat capacity
+hkf(property="Cp",ghs=a,eos=a,contrib="n")	
+# at different temperature and pressure
+hkf(property="Cp",ghs=a,eos=a,T=c(373.15,473.15),P=1000)
+
+## crystalline, gas, liquid species
+a <- info(info("methane","gas"))	
+cgl(property="Cp",ghs=a,eos=a)
+# melting and vaporization of n-octane
+a <- info(info(rep("n-octane",3),c("cr","liq","gas")))
+b <- cgl(property="G",ghs=a,eos=a,T=seq(200,420,10),P=1)
+which.pmax(b,pmin=TRUE)  # 1 = cr, 2 = liq, 3 = gas
+# compare that result with the tabulated transition temperatures
+print(a)
 }
 
 \references{

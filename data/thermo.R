@@ -1,23 +1,58 @@
 # CHNOSZ/data/thermo.R
-# load the "thermo" data object into an environment named CHNOSZ:thermo
+# create or restore the 'thermo' data object
 
-# data(thermo) can be called multiple times during an interactive session,
-# first call is at package loading (by .onAttach); subsequent calls are from the user
-if("CHNOSZ:thermo" %in% search()) {
-  # the environment already exists; restore the "thermo" object to default values
-  source("xxx.R") 
+# create the CHNOSZ environment if it does not exist
+if(!"CHNOSZ" %in% search()) {
+  attach(NULL, name="CHNOSZ")
+  message("data(thermo): attached environment \"CHNOSZ\"")
+}
+
+if(exists("thermo")) {
+  # scenario 1: thermo object exists ... restore it to default values
+  # (<<- is superassignment to the CHNOSZ environment)
+  thermo <<- list(
+    # as.is: keep character values as character and not factor
+    opt = as.list(read.csv("opt.csv", as.is=TRUE)),
+    element = read.csv("element.csv", as.is=1:3),
+    obigt = read.csv("OBIGT.csv", as.is=1:7),
+    refs = read.csv("refs.csv", as.is=TRUE),
+    buffers = read.csv("buffer.csv", as.is=1:3),
+    protein = read.csv("protein.csv", as.is=1:4),
+    groups = read.csv("groups.csv", row.names=1, check.names=FALSE),
+    basis = NULL,
+    species = NULL,
+    Psat = NULL,
+    # all values are restored, except opar (used for plot parameters in examples)
+    opar = thermo$opar
+  )
 } else {
-  # the environment doesn't exist; create it and the "thermo" object
-  sys.source("yyy.R", attach(NULL, name="CHNOSZ:thermo"))
+  # scenario 2: thermo object does not exist ... create it
+  with(as.environment("CHNOSZ"), 
+    thermo <- list(
+      # as.is: keep character values as character and not factor
+      opt = as.list(read.csv("opt.csv", as.is=TRUE)),
+      element = read.csv("element.csv", as.is=1:3),
+      obigt = read.csv("OBIGT.csv", as.is=1:7),
+      refs = read.csv("refs.csv", as.is=TRUE),
+      buffers = read.csv("buffer.csv", as.is=1:3),
+      protein = read.csv("protein.csv", as.is=1:4),
+      groups = read.csv("groups.csv", row.names=1, check.names=FALSE),
+      basis = NULL,
+      species = NULL,
+      Psat = NULL,
+      opar = NULL
+    )
+  )
 }
 
 # give a summary of some of the data
-packageStartupMessage(paste("thermo$obigt:",
+message(paste("thermo$obigt:",
   nrow(thermo$obigt[thermo$obigt$state=="aq",]),
   "aqueous,", nrow(thermo$obigt), "total species"))
 
 # note if there are duplicated species
-idup <- duplicated(paste(thermo$obigt$name, thermo$obigt$state))
-if(any(idup)) warning("thermo$obigt: duplicated species: ", 
-  paste(thermo$obigt$name[idup], "(", thermo$obigt$state[idup], ")", sep="", collapse=" "))
-rm(idup)
+local({
+  idup <- duplicated(paste(thermo$obigt$name, thermo$obigt$state))
+  if(any(idup)) warning("thermo$obigt: duplicated species: ", 
+    paste(thermo$obigt$name[idup], "(", thermo$obigt$state[idup], ")", sep="", collapse=" "))
+})

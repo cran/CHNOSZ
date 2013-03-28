@@ -3,7 +3,7 @@
 # of species in (metastable) equilibrium
 
 equilibrate <- function(aout, balance=NULL, loga.balance=NULL, 
-  normalize=FALSE, ispecies=1:length(aout$values)) {
+  ispecies=1:length(aout$values), normalize=FALSE, stay.normal=FALSE) {
   ### set up calculation of equilibrium activities of species from the affinities 
   ### of their formation reactions from basis species at known activities
   ### split from diagram() 20120925 jmd
@@ -39,10 +39,8 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
     msgout(paste("equilibrate: logarithm of total", balance$description, "is", loga.balance, "\n"))
   }
   ## normalize -- normalize the molar formula by the balance coefficients
-#  # this is the default for systems of proteins as of 20091119
   m.balance <- n.balance
   isprotein <- grepl("_", as.character(aout$species$name))
-#  if(missing(normalize) & all(isprotein)) normalize <- TRUE
   if(normalize) {
     if(any(n.balance < 0)) stop("one or more negative balancing coefficients prohibit using normalized molar formulas")
     n.balance <- rep(1, nspecies)
@@ -59,7 +57,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   if(all(n.balance==1)) loga.equil <- equil.boltzmann(Astar, n.balance, loga.balance)
   else loga.equil <- equil.reaction(Astar, n.balance, loga.balance)
   ## if we normalized the formulas, get back to activities to species
-  if(normalize) {
+  if(normalize & !stay.normal) {
     loga.equil <- lapply(1:nspecies, function(i) {
       loga.equil[[i]] - log10(m.balance[i])
     })

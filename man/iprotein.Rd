@@ -3,7 +3,6 @@
 \alias{ip2aa}
 \alias{aa2eos}
 \alias{seq2aa}
-\alias{dl.aa}
 \alias{aasum}
 \alias{read.aa}
 \alias{add.protein}
@@ -15,12 +14,11 @@
 \usage{
   iprotein(protein, organism=NULL)
   ip2aa(protein, organism=NULL, residue=FALSE)
-  aa2eos(aa, state=thermo$opt$state)
+  aa2eos(aa, state=get("thermo")$opt$state)
   seq2aa(protein, sequence)
-  dl.aa(protein)
   aasum(aa, abundance = 1, average = FALSE, protein = NULL, organism = NULL)
   read.aa(file = "protein.csv")
-  add.protein(aa, print.existing=FALSE)
+  add.protein(aa)
 }
 
 \arguments{
@@ -33,7 +31,6 @@
   \item{abundance}{numeric, abundances of proteins}
   \item{average}{logical, return the weighted average of amino acid counts?}
   \item{file}{character, path to file with amino acid compositions}
-  \item{print.existing}{logical, print a message identifying existing proteins that were not added?}
 }
 
 \details{
@@ -53,17 +50,18 @@
 
   \code{seq2aa} returns a data frame of amino acid composition, in the format of \code{thermo$protein}, corresponding to the provided \code{sequence}. Here, the \code{protein} argument indicates the name of the protein with an underscore (e.g. \samp{LYSC_CHICK}).
 
-  \code{dl.aa} returns a data frame of amino acid composition, in the format of \code{thermo$protein}, retrieved from the sequence identified by \code{protein} if it is available from UniProt (\url{http://uniprot.org}; The UniProt Consortium, 2012). The name of the protein corresponds to the \samp{Entry name} on the UniProt search pages.
-
   \code{aasum} returns a data frame representing the sum of amino acid compositions in the rows of the input \code{aa} data frame. The amino acid compositions are multiplied by the indicated \code{abundance}; that argument is recycled to match the number of rows of \code{aa}. If \code{average} is TRUE the final sum is divided by the number of input compositions. The name used in the output is taken from the first row of \code{aa} or from \code{protein} and \code{organism} if they are specified. This function is useful for calculating bulk amino acid compositions in stress response experiments or localization studies; see \code{\link{read.expr}} for examples of its use.
 
-  \code{read.aa} returns a data frame of amino acid composition based on the contents of the indicated \code{file}, which can be either a CSV file with the same column names as \code{thermo$protein}, or a FASTA file, that is read using \code{\link{read.fasta}}.
+\code{read.aa} returns a data frame of amino acid composition based on the contents of the indicated \code{file}, which should be a CSV file with the same column names as \code{thermo$protein}.
 
-  \code{add.protein} completes the loop; any amino acid composition returned by the \code{*aa} functions described above can be added to \code{thermo$protein} using this function to be made available to other functions in the package. Proteins in \code{aa} with the same name as one in \code{thermo$protein} are skipped. The value returned by this function is the rownumbers of \code{thermo$protein} that are added and/or unchanged (having the same protein-organism name).
+\code{add.protein} completes the loop; any amino acid composition returned by the \code{*aa} functions described above can be added to \code{thermo$protein} using this function to be made available to other functions in the package.
+The amino acid compositions of proteins in \code{aa} with the same name as one in \code{thermo$protein} are replaced.
+The value returned by this function is the rownumbers of \code{thermo$protein} that are added and/or replaced.
 
 }
 
 \examples{
+\dontshow{data(thermo)}
 # search by name in thermo$protein
 ip1 <- iprotein("LYSC_CHICK")
 ip2 <- iprotein("LYSC", "CHICK")
@@ -72,9 +70,9 @@ stopifnot(all.equal(ip1, ip2))
 # two organisms with the same protein name
 ip3 <- iprotein("MYG", c("HORSE", "PHYCA"))
 # their amino acid compositions
-print(aa <- ip2aa(ip3))
+ip2aa(ip3)
 # their thermodynamic properties by group additivity
-aa2eos(aa)
+aa2eos(ip2aa(ip3))
 
 # an example of an unrecognized protein name
 ip4 <- iprotein("MYGPHYCA")
@@ -85,19 +83,15 @@ stopifnot(is.na(ip4))
 aa <- seq2aa("GAJU_HUMAN", "LAAGKVEDSD")
 ip <- add.protein(aa)
 stopifnot(protein.length(ip)==10)
+# the chemical formula of this peptide
 stopifnot(as.chemical.formula(protein.formula(ip))=="C41H69N11O18")
-
-\dontrun{
-# downloading information about a protein
-aa <- dl.aa("ALAT1_HUMAN")
-ip6 <- add.protein(aa)
-# now it's possible to calculate some properties ...
-subcrt("ALAT1_HUMAN", c("cr", "aq"), c(-1, 1))$out[[1]]$H} 
+# we can also calculate a formula without using add.protein
+as.chemical.formula(protein.formula(seq2aa("pentapeptide_test", "ANLSG")))
 
 \donttest{# read a fasta file, calculate H/C and O/C for all proteins
 # and averages by polypeptide chain, residue and mass
 ffile <- system.file("extdata/fasta/HTCC1062.faa.xz", package="CHNOSZ")
-aa <- read.aa(ffile)
+aa <- read.fasta(ffile)
 pf <- as.data.frame(protein.formula(aa))
 plot(pf$H/pf$C, pf$O/pf$C, pch=NA)
 points(pf$H/pf$C, pf$O/pf$C, pch=20, cex=0.5, col="grey")
@@ -124,13 +118,16 @@ title(main=paste("O/C vs H/C for HTCC1062 proteins\n",
 }
 
 \seealso{
-  \code{\link{protein}} for examples of calculations using proteins, \code{\link{protein.info}} for higher-level functions (chemical formulas, summaries of reaction coefficients and energies), \code{\link{more.aa}} for getting amino acid compositions for model organisms from additional data files in the \code{\link{extdata}/protein} directory, and \code{\link{read.expr}} for working with protein abundance and localization data.
+\code{\link{read.fasta}} and \code{\link{uniprot.aa}} for getting amino acid compositions from a FASTA file or downloading them from UniProt.
+
+\code{\link{protein.info}} for higher-level functions (chemical formulas, summaries of reaction coefficients and energies), \code{\link{more.aa}} for getting amino acid compositions for model organisms from additional data files in the \code{\link{extdata}/protein} directory, and \code{\link{read.expr}} for working with protein abundance and subcellular localization data.
+
+Examples of stability calculations for proteins are in \code{\link{protein}}.
 }
 
 \references{
   Dick, J. M., LaRowe, D. E. and Helgeson, H. C. (2006) Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences} \bold{3}, 311--336. \url{http://dx.doi.org/10.5194/bg-3-311-2006}
 
-  The UniProt Consortium (2012) Reorganizing the protein space at the Universal Protein Resource (UniProt). \emph{Nucl. Acid Res.} \bold{40}, D71--D75. \url{http://dx.doi.org/10.1093/nar/gkr981}
 }
 
 \keyword{protein}

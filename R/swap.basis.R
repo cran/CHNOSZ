@@ -3,17 +3,17 @@
 # extracted from basis() 20120114 jmd
 
 # return the current basis matrix
-basis.matrix <- function(basis = thermo$basis) {
+basis.matrix <- function(basis = get("thermo")$basis) {
   if(is.null(basis)) stop("basis species are not defined")
   return(as.matrix(basis[, 1:nrow(basis), drop=FALSE]))
 }
 
 # calculate chemical potentials of elements from logarithms of activity of basis species
-element.mu <- function(basis = thermo$basis, T = 25) {
+element.mu <- function(basis = get("thermo")$basis, T = 25) {
   # matrix part of the basis definition
   basis.mat <- basis.matrix(basis)
   # the standard Gibbs energies of the basis species
-  if(T==25) G <- thermo$obigt$G[basis$ispecies]
+  if(T==25) G <- get("thermo")$obigt$G[basis$ispecies]
   else G <- unlist(subcrt(basis$ispecies, T=T, property="G")$out)
   # chemical potentials of the basis species
   species.mu <- G - convert(basis$logact, "G")
@@ -25,7 +25,7 @@ element.mu <- function(basis = thermo$basis, T = 25) {
 }
 
 # calculate logarithms of activity of basis species from chemical potentials of elements
-basis.logact <- function(emu, basis = thermo$basis, T = 25) {
+basis.logact <- function(emu, basis = get("thermo")$basis, T = 25) {
   # matrix part of the basis definition
   basis.mat <- basis.matrix(basis)
   # elements in emu can't be less than the number in the basis
@@ -35,7 +35,7 @@ basis.logact <- function(emu, basis = thermo$basis, T = 25) {
   # check that elements of basis.mat and emu are identical
   if(any(is.na(ielem))) stop(paste("element(s)", paste(names(emu)[is.na(ielem)], collapse=" "), "not found in basis"))
   # the standard Gibbs energies of the basis species
-  if(T==25) G <- thermo$obigt$G[basis$ispecies]
+  if(T==25) G <- get("thermo")$obigt$G[basis$ispecies]
   else G <- unlist(subcrt(basis$ispecies, T=T, property="G")$out)
   # the chemical potentials of the basis species in equilibrium
   # with the chemical potentials of the elements
@@ -50,7 +50,7 @@ basis.logact <- function(emu, basis = thermo$basis, T = 25) {
 # swap in one basis species for another
 swap.basis <- function(species, species2) {
   # before we do anything, remember the old basis definition
-  oldbasis <- thermo$basis
+  oldbasis <- get("thermo")$basis
   # and the species definition
   ts <- species()
   # the delete the species
@@ -85,7 +85,7 @@ swap.basis <- function(species, species2) {
   # restore species if they were defined
   if(!is.null(ts)) {
     suppressMessages(species(ts$ispecies))
-    suppressMessages(species(1:nrow(thermo$species), ts$logact))
+    suppressMessages(species(1:nrow(get("thermo")$species), ts$logact))
   }
   # all done, return the new basis definition
   return(mb)

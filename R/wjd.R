@@ -163,7 +163,7 @@ wjd <- function(
     # second constraint is that the derivative of free energy 
     # doesn't go positive ... Eq. 20
     d.f.Y <- function(lambda,Y,D,C) {
-      d.f.Y <- sum(D * C + log( (Y + lambda * D) / (sum(Y) + lambda * sum(D)) ))
+      d.f.Y <- sum(D * (C + log( (Y + lambda * D) / (sum(Y) + lambda * sum(D)) )))
       return(d.f.Y)
     }
     # what are the free energy derivatives
@@ -249,7 +249,7 @@ guess <- function(
     0,0,0,1,2,1,1,0,0,0,
     0,0,1,0,0,0,1,1,2,1),ncol=3,
     dimnames=list(NULL,c("H","N","O"))),
-  B = c(2,1,1), method=c("central", "stoich"), minX=0.001, iguess=1, ic=NULL
+  B = c(2,1,1), method="stoich", minX=0.001, iguess=1, ic=NULL
 ){
   # given the elemental stoichiometries of a set of species (A)
   # and the number of moles of elements (B)
@@ -260,7 +260,7 @@ guess <- function(
   if(all(B==0)) stop("there are zero moles of all elements")
 
   # if method="central" get central solution using limSolve package  20120919
-  if("central" %in% method) {
+  if(identical(method, "central")) {
     if(!"limSolve" %in% row.names(installed.packages())) {
       msgout("guess: skipping 'central' method as limSolve package is not available\n")
     } else {
@@ -275,7 +275,7 @@ guess <- function(
     }
   }
 
-  if("stoich" %in% method) {
+  if(identical(method, "stoich")) {
     # if method="stoich" use a stoichiometric approach: 20111231 jmd
     # - select one of the (many) species combinations (ic) that
     #   make a square, invertible stoichiometric matrix (the "variable" species)
@@ -360,7 +360,7 @@ run.wjd <- function(ispecies, B=NULL, method="stoich", Y=run.guess(ispecies, B, 
   ## assemble the standard molal Gibbs energies of the species
   s <- subcrt(ispecies, P=P, T=T, property="G", exceed.Ttr=TRUE)
   G0 <- sapply(1:length(s$out), function(i) s$out[[i]]$G)
-  G0.RT <- G0/thermo$opt$R/convert(T, "K")
+  G0.RT <- G0/get("thermo")$opt$R/convert(T, "K")
   ## if Y is provided use that as initial guess
   if(!missing(Y)) {
     # giving both Y and B is not allowed
@@ -418,5 +418,5 @@ run.guess <- function(ispecies, B=NULL, method="stoich", iguess=NULL) {
 equil.potentials <- function(w, tol=0.01, T=25) {
   ## return the average of the element.potentials, only if w is.near.equil  20120613
   if(!is.near.equil(w, tol=tol)) return(NULL)
-  else return(colMeans(element.potentials(w)) * thermo$opt$R * convert(T, "K"))
+  else return(colMeans(element.potentials(w)) * get("thermo")$opt$R * convert(T, "K"))
 }

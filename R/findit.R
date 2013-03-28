@@ -34,7 +34,7 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
   }
 
   # the initial values of the guesses (if midpoint==FALSE)
-  basis <- thermo$basis
+  basis <- get("thermo")$basis
 
   # a hack so that we can use pH as a variable
   if("pH" %in% names(lims)) {
@@ -119,7 +119,7 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
     a <- do.call(affinity,aargs)
     # then calculate the values of the objective function
     e <- equilibrate(a, balance=balance, loga.balance=loga.balance, normalize=normalize)
-    dd <- revisit(e$loga.equil, objective, loga2=loga2)$H
+    dd <- revisit(e, objective, loga2=loga2, plot.it=FALSE)$H
     # coordinates of the extreme value (take only the first set of coords)
     iopt <- optimal.index(dd, objective)[1,, drop=FALSE]
     # the extreme value
@@ -224,7 +224,7 @@ plot.findit <- function(x,which=NULL,mar=c(3.5,5,2,2),xlab="iteration",...) {
   for(i in which) {
     niter <- length(x$value[[i]])
     ylab <- names(x$value)[i]
-    if(ylab %in% c(rownames(thermo$basis),"T","P","pH","Eh")) ylab <- axis.label(ylab)
+    if(ylab %in% c(rownames(get("thermo")$basis),"T","P","pH","Eh")) ylab <- axis.label(ylab)
     # the values
     plot(1:niter,x$value[[i]],xlab=xlab,ylab=ylab,...)
     lines(1:niter,x$value[[i]])

@@ -1,7 +1,7 @@
 context("iprotein")
 
 # clear out any prior database alterations
-suppressPackageStartupMessages(data(thermo))
+suppressMessages(data(thermo))
 
 test_that("basic searches and conversions work as expected", {
   expect_equal(iprotein(c("LYSC_CHICK", "MYGPHYCA")), c(6, NA))
@@ -12,7 +12,7 @@ test_that("errors and messages occur in some circumstances", {
   expect_message(iprotein(c("LYSC_CHICK", "MYGPHYCA")), "1 protein not matched")
   expect_error(seq2aa("LYS_CHICK", "XXX"), "no characters match an amino acid")
   expect_error(add.protein(count.aa("AAA")), "not a data frame with the same columns as thermo\\$protein")
-  expect_message(add.protein(ip2aa(iprotein("CYC_BOVIN"))), "added 0 of 1 proteins")
+  expect_message(add.protein(ip2aa(iprotein("CYC_BOVIN"))), "replaced 1 existing protein\\(s\\)")
 })
 
 test_that("group additivity for proteins gives expected values", {
@@ -35,19 +35,11 @@ test_that("group additivity for proteins gives expected values", {
 
 test_that("amino acid counts taken from a fasta file can be added",{
   ffile <- system.file("extdata/fasta/EF-Tu.aln", package="CHNOSZ")
-  aa <- read.aa(ffile)
-  expect_message(ip1 <- add.protein(aa), "added 8 of 8")
-  expect_message(ip2 <- add.protein(aa), "added 0 of 8")
+  aa <- read.fasta(ffile)
+  expect_message(ip1 <- add.protein(aa), "added 8 new protein\\(s\\)")
+  expect_message(ip2 <- add.protein(aa), "replaced 8 existing protein\\(s\\)")
+  # add.protein should return the correct indices for existing proteins
   expect_equal(ip1, ip2)
-})
-
-test_that("add.protein returns correct indices for existing names", {
-  file <- system.file("data/protein.csv", package="CHNOSZ")
-  aa <- read.aa(file)
-  aa$protein[1] <- "TEST"
-  # only the first one is added, because the others already exist
-  expect_message(ip <- add.protein(aa), "added 1 of")
-  expect_equal(thermo$protein$protein[ip], aa$protein)
 })
 
 # for the future... make info() faster!

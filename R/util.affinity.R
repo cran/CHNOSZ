@@ -1,7 +1,7 @@
 # CHNOSZ/util-affinity.R
 # helper functions for affinity()
 
-energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,transect=FALSE) {
+energy <- function(what,vars,vals,lims,T=get("thermo")$opt$Tr,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,transect=FALSE) {
   # 20090329 extracted from affinity() and made to
   # deal with >2 dimensions (variables)
 
@@ -21,7 +21,7 @@ energy <- function(what,vars,vals,lims,T=thermo$opt$Tr,P="Psat",IS=0,sout=NULL,e
   mybasis <- basis()
   nbasis <- nrow(mybasis)
   ## species definition / number of species
-  myspecies <- thermo$species
+  myspecies <- get("thermo")$species
   if(is.character(what)) {
     if(is.null(myspecies)) stop('species properties requested, but species have not been defined')
     nspecies <- nrow(myspecies)
@@ -222,6 +222,7 @@ energy.args <- function(args) {
   # over which to calculate logQ, logK and affinity
   # the names should be T, P, IS and names of basis species
   # (or pH, pe, Eh)
+  thermo <- get("thermo")
   ## inputs are like c(T1,T2,res)
   # and outputs are like seq(T1,T2,length.out=res)
   # unless transect: do the variables specify a transect? 20090627
@@ -373,7 +374,7 @@ slice.affinity <- function(affinity,d=1,i=1) {
   return(a)
 }
 
-A.ionization <- function(iprotein, vars, vals, T=thermo$opt$Tr, P="Psat", pH=7, transect=FALSE) {
+A.ionization <- function(iprotein, vars, vals, T=get("thermo")$opt$Tr, P="Psat", pH=7, transect=FALSE) {
   # a function to build a list of values of A/2.303RT of protein ionization
   # that can be used by energy(); 20120527 jmd
   # some of the variables might not affect the values (e.g. logfO2)

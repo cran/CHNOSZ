@@ -44,6 +44,7 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
   # 20080925 default quiet=TRUE 20101003 default quiet=FALSE
   # 20120128 remove 'quiet' argument (messages can be hidden with suppressMessages())
   # 20120523 return thermo$species instead of rownumbers therein, and remove message showing thermo$species
+  thermo <- get("thermo")
   ## argument processing
   # we can't deal with NA species
   if(identical(species, NA)) {
@@ -55,7 +56,8 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
   if(delete) {
     # delete the entire definition if requested
     if(is.null(species)) {
-      thermo$species <<- NULL
+      thermo$species <- NULL
+      assign("thermo", thermo, "CHNOSZ")
       return(thermo$species)
     }
     # from here we're trying to delete already defined species
@@ -73,9 +75,10 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
     isp <- isp[!ina]
     # go on to delete this/these species
     if(length(isp) > 0) {
-      thermo$species <<- thermo$species[-isp,]
-      if(nrow(thermo$species)==0) thermo$species <<- NULL
-      else rownames(thermo$species) <<- 1:nrow(thermo$species)
+      thermo$species <- thermo$species[-isp,]
+      if(nrow(thermo$species)==0) thermo$species <- NULL
+      else rownames(thermo$species) <- 1:nrow(thermo$species)
+      assign("thermo", thermo, "CHNOSZ")
     }
     return(thermo$species)
   }
@@ -109,6 +112,8 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
     if(!any(is.na(ispecies)) & !is.null(logact)) return(species(ispecies, state=logact, index.return=index.return))
     # look for species in thermo$obigt
     iobigt <- suppressMessages(info(species, state))
+    # since that could have updated thermo$obigt (with proteins), re-read thermo
+    thermo <- get("thermo", "CHNOSZ")
     # check if we got all the species
     ina <- is.na(iobigt)
     if(any(ina)) stop(paste("species not available:", paste(species[ina], collapse=" ")))
@@ -134,19 +139,19 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
     }
     # create the new species
     newspecies <- data.frame(f, ispecies=iobigt, logact=logact, state=state, name=name, stringsAsFactors=FALSE)
-    # nasty for R, but "H2PO4-" looks better than "H2PO4."
+    # "H2PO4-" looks better than "H2PO4."
     colnames(newspecies)[1:nrow(thermo$basis)] <- rownames(thermo$basis)
     # initialize or add to species data frame
     if(is.null(thermo$species)) {
-      thermo$species <<- newspecies
+      thermo$species <- newspecies
       ispecies <- 1:nrow(thermo$species)
     } else {
       # don't add species that already exist
       idup <- newspecies$ispecies %in% thermo$species$ispecies
-      thermo$species <<- rbind(thermo$species, newspecies[!idup, ])
+      thermo$species <- rbind(thermo$species, newspecies[!idup, ])
       ispecies <- match(newspecies$ispecies, thermo$species$ispecies)
     }
-    rownames(thermo$species) <<- seq(nrow(thermo$species))
+    rownames(thermo$species) <- seq(nrow(thermo$species))
   } else {
     # update activities or states of existing species
     # first get the rownumbers in thermo$species
@@ -160,7 +165,7 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
     } else ispecies <- match(species, thermo$species$name)
     # replace activities?
     if(!is.null(logact)) {
-      thermo$species$logact[ispecies] <<- logact
+      thermo$species$logact[ispecies] <- logact
     } else {
       # change states, checking for availability of the desired state
       for(i in 1:length(ispecies)) {
@@ -182,13 +187,14 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
           warning(paste("can't update state of species", ispecies[i], "to", state[i], "\n"), call.=FALSE)
         else {
           ii <- match(state[i], thermo$obigt$state[iobigt])
-          thermo$species$state[ispecies[i]] <<- state[i]
-          thermo$species$name[ispecies[i]] <<- thermo$obigt$name[iobigt[ii]]
-          thermo$species$ispecies[ispecies[i]] <<- as.numeric(rownames(thermo$obigt)[iobigt[ii]])
+          thermo$species$state[ispecies[i]] <- state[i]
+          thermo$species$name[ispecies[i]] <- thermo$obigt$name[iobigt[ii]]
+          thermo$species$ispecies[ispecies[i]] <- as.numeric(rownames(thermo$obigt)[iobigt[ii]])
         }
       }
     }
   }
+  assign("thermo", thermo, "CHNOSZ")
   # return the new species definition or the index(es) of affected species
   if(index.return) return(ispecies)
   else return(thermo$species)

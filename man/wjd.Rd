@@ -36,7 +36,7 @@
       0,0,0,1,2,1,1,0,0,0,
       0,0,1,0,0,0,1,1,2,1),ncol=3,
       dimnames=list(NULL,c("H","N","O"))),
-    B = c(2,1,1), method=c("central", "stoich"), minX = 0.001, iguess = 1, ic = NULL
+    B = c(2,1,1), method="stoich", minX = 0.001, iguess = 1, ic = NULL
   )
   run.wjd(ispecies, B = NULL, method = "stoich", Y = run.guess(ispecies, B, method),
     P=1, T=25, nlambda=101, imax = 10, Gfrac = 1e-7, tol = 0.01)
@@ -106,7 +106,9 @@ The first accepted guess is returned if \code{iguess} is 1 (the default); other 
 If \code{iguess} is NULL, all results are returned in a list, with non-successful guesses indicated by NA.
 In the first example below, of the 76 combinations of species whose elemental compositions are linearly independent, 32 yield guesses following this method.
 
-  \code{run.wjd} is a wrapper function to run \code{wjd}, provided the \code{ispecies} in the thermodynamic database (\code{\link{thermo}$obigt}), the chemical composition of the system in \code{B}, and the pressure \code{P} and temperature \code{T}; the latter are passed to \code{\link{subcrt}} (with \code{exceed.Ttr = TRUE}) to generate the values of \code{G0.RT} for \code{wjd}. Alternatively to \code{B}, the initial guess of numbers of moles of species can be provided in \code{Y}; otherwise as many combinations of \code{Y} as returned from \code{run.guess} are tested until one is found that \code{is.near.equil}. The function gives an error in none of the guesses in \code{Y} is near equilibrium, within the tolerance set by \code{tol}.
+\code{run.wjd} is a wrapper function to run \code{wjd}, provided the \code{ispecies} in the thermodynamic database (\code{\link{thermo}$obigt}), the chemical composition of the system in \code{B}, and the pressure \code{P} and temperature \code{T}; the latter are passed to \code{\link{subcrt}} (with \code{exceed.Ttr = TRUE}) to generate the values of \code{G0.RT} for \code{wjd}.
+Alternatively to \code{B}, the initial guess of numbers of moles of species can be provided in \code{Y}; otherwise as many combinations of \code{Y} as returned from \code{run.guess} are tested until one is found that \code{is.near.equil}.
+The function gives an error if none of the guesses in \code{Y} is near equilibrium, within the tolerance set by \code{tol}.
 
   \code{run.guess} is a wrapper function to call \code{guess} using the stoichiometric matrix \code{A} built from the \code{ispecies} indices in the thermodynamic database.
 
@@ -123,8 +125,7 @@ The output of this function can be used as the \code{emu} argument for \code{\li
   \code{\link{invertible.combs}}, used by \code{element.potentials} to find combinations of species that are compositionally independent.
 }
 
-\examples{
-\dontshow{opar <- par(no.readonly=TRUE)}
+\examples{\dontshow{data(thermo)}
 ## run the function with default settings to reproduce
 ## the example problem in White et al., 1958
 w <- wjd()

@@ -19,7 +19,7 @@
   get.formula(formula)
   mass(formula)
   entropy(formula)
-  GHS(formula, G = NA, H = NA, S = NA, T = thermo$opt$Tr)
+  GHS(formula, G = NA, H = NA, S = NA, T = get("thermo")$opt$Tr)
   ZC(formula)
   i2A(formula)
 }
@@ -63,8 +63,7 @@
   \code{\link{makeup}}, used by \code{mass} and \code{entropy}, and \code{ZC} and \code{i2A} for counting the elements in a formula (the latter two make use of the \code{count.zero} argument). \code{\link{group.formulas}} (and by extension \code{\link{protein.formula}}) use the stoichiometric matrices created by \code{i2A}, as does \code{\link{run.wjd}}
 }
 
-\examples{
-\dontshow{data(thermo)}
+\examples{\dontshow{data(thermo)}
 ## mass and entropy from chemical formulas
 mass("H2O")
 entropy("H2O")

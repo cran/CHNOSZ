@@ -2,8 +2,9 @@
 # Calculate chemical activities of buffered species
 # 20061102 jmd
 
-mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
+mod.buffer <- function(name,species=NULL,state=get("thermo")$opt$state,logact=-3) {
   # 20071102 add or change a buffer system
+  thermo <- get("thermo")
   if(is.null(species)) {
     iname <- which(name==thermo$buffers$name)
     if(length(iname)>0) species <- thermo$buffers$species[iname]
@@ -19,7 +20,8 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
     imod <- which(thermo$buffers$name %in% name & thermo$buffers$species %in% species)
     if(length(imod)>0) {
       if(state[1]=='') {
-        thermo$buffers <<- thermo$buffers[-imod,]
+        thermo$buffers <- thermo$buffers[-imod,]
+        assign("thermo", thermo, "CHNOSZ")
         msgout(paste('mod.buffer: removed ',c2s(species),' in ',
           c2s(unique(name)),' buffer.\n',sep=''))
       } else {
@@ -29,8 +31,9 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
         if(length(logact)!=ls) logact <- rep(logact,length.out=ls)
         state.old <- thermo$buffers$state[imod]
         logact.old <- thermo$buffers$logact[imod]
-        thermo$buffers$state[imod] <<- state
-        thermo$buffers$logact[imod] <<- logact
+        thermo$buffers$state[imod] <- state
+        thermo$buffers$logact[imod] <- logact
+        assign("thermo", thermo, "CHNOSZ")
         if(identical(state.old,state) & identical(logact.old,logact)) {
           msgout(paste('mod.buffer: nothing changed for ',
             c2s(species),' in ',c2s(unique(name)),' buffer.\n',sep=''))
@@ -46,13 +49,15 @@ mod.buffer <- function(name,species=NULL,state=thermo$opt$state,logact=-3) {
   if(add) {
     if(state[1]=='') state <- rep(thermo$opt$state,length.out=ls)
     t <- data.frame(name=name,species=species,state=state,logact=logact)
-    thermo$buffers <<- rbind(thermo$buffers,t)
+    thermo$buffers <- rbind(thermo$buffers,t)
+    assign("thermo", thermo, "CHNOSZ")
     msgout(paste('mod.buffer: added ',c2s(unique(name)),'.\n',sep=''))
   }
   return(invisible(thermo$buffers[thermo$buffers$name %in% name,]))
 }
 
 buffer <- function(logK=NULL,ibasis=NULL,logact.basis=NULL,is.buffer=NULL,balance='PBB') {
+  thermo <- get("thermo")
   # if logK is NULL load the buffer species
   # otherwise perform buffer calculations.
   if(is.null(logK)) {

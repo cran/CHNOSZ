@@ -62,27 +62,27 @@ sweave
 \branch general
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch ZC
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch stability
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch stability-ext
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch redox
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \index Index
 \shortcut idx
@@ -240,20 +240,7 @@ General Setup
 \end_layout
 
 \begin_layout Standard
-Load CHNOSZ.
- The thermodynamic data for the methionine sidechain group used in the paper
- has been superseded in CHNOSZ_0.9-9 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "LD12"
-
-\end_inset
-
-, but the older dataset is still available using 
-\family typewriter
-add.obigt()
-\family default
-:
+Load CHNOSZ and the thermodynamic database.
 \end_layout
 
 \begin_layout Standard
@@ -279,6 +266,11 @@ library(CHNOSZ)
 
 \begin_layout Chunk
 
+data(thermo)
+\end_layout
+
+\begin_layout Chunk
+
 @
 \end_layout
 
@@ -295,38 +287,19 @@ end{small}
 \end_layout
 
 \begin_layout Standard
-\begin_inset Branch general
-status open
-
-\begin_layout Chunk
-
-<<datathermo,echo=FALSE>>=
-\end_layout
-
-\begin_layout Chunk
-
-# there might be a stale version of thermo from running
-\end_layout
-
-\begin_layout Chunk
-
-# previous vignettes during package build.
- reset it to be safe.
-\end_layout
-
-\begin_layout Chunk
-
-data(thermo)
-\end_layout
-
-\begin_layout Chunk
-
-@
-\end_layout
+The thermodynamic data for the methionine sidechain group used in the paper
+ has been superseded in CHNOSZ_0.9-9 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "LD12"
 
 \end_inset
 
-
+, but the older dataset is still available using 
+\family typewriter
+add.obigt()
+\family default
+:
 \end_layout
 
 \begin_layout Standard

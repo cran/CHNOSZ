@@ -2,9 +2,12 @@
 release checklist for CHNOSZ
 ****************************
 
+- remove all "<<-" from sources (leftover from debugging)
+
 - update list of documentation topics in examples() with any new ones
 
-- run examples() to make sure that all examples can be run (includes \donttest ones)
+- run examples() to make sure that all examples can be run
+  (that includes \donttest ones that aren't run by R CMD check)
 
 - run demos() to run all demos
 
@@ -28,4 +31,12 @@ release checklist for CHNOSZ
 
 - ensure all Rd files have \keyword{...}
 
-- test read.supcrt(), write.supcrt() on e.g. slop98.dat
+- update .Rinstignore with any new/deleted files
+
+- run R CMD check using R compiled without long doubles (as in Solaris checks on CRAN)
+  (CFLAGS=-ffloat-store ./configure --disable-long-double)
+
+- build the package on the source directory:
+  R CMD build --compact-vignettes chnosz/
+    don't use --no-vignettes, that keeps the Rnw files from being copied to inst/doc,
+      causing vignettes to disappear from CRAN webpage

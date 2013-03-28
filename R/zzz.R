@@ -14,6 +14,7 @@
   date <- um[nchar(um)>0][2]
   # identify the program and version
   packageStartupMessage(paste("CHNOSZ version ", version, " (", date, ")", sep=""))
-  # load the 'thermo' data object
-  data(thermo)
+  # ask the user to load the 'thermo' data object
+  packageStartupMessage("Please run data(thermo) to create the \"thermo\" object")
 }
+

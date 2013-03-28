@@ -85,6 +85,7 @@ This attribute is used in \code{\link{optimal.index}} and \code{\link{extremes}}
 }
 
 \examples{
+\dontshow{data(thermo)}
 ## a made-up system: 4 species, 1 condition
 loga1 <- t(-4:-1)
 loga2 <- loga1 + 1

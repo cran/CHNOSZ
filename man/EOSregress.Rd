@@ -8,7 +8,8 @@
 \alias{EOScoeffs}
 \title{Regress Equations-of-State Parameters for Aqueous Species}
 \description{
-  Functions for fitting experimental volume and heat capacities using regression equations. Possible models include the Helgeson-Kirkham-Flowers (HKF) equations of state and other equations defined using any combination of terms derived from the temperature, pressure and thermodynamic and electrostatic properties of water. 
+Fit experimental volumes and heat capacities using regression equations.
+Possible models include the Helgeson-Kirkham-Flowers (HKF) equations of state, or other equations defined using any combination of terms derived from the temperature, pressure and thermodynamic and electrostatic properties of water and/or user-defined functions of temperature and pressure.
 }
 
 \usage{
@@ -16,7 +17,7 @@
   EOSvar(var, T, P)
   EOScalc(coefficients, T, P)
   EOSplot(exptdata, var = NULL, T.max = 9999, T.plot = NULL, 
-    P = NULL, fun.legend = "topleft", coefficients = NULL)
+    fun.legend = "topleft", coefficients = NULL)
   EOSlab(var, coeff = "")
   EOScoeffs(species, property)
 }
@@ -36,7 +37,10 @@
 }
 
 \details{
-  \code{EOSregress} uses \code{\link{lm}} to regress the experimental heat capacity or volume data in \code{exptdata}, which is a data.frame with columns \samp{T} (temperature in degrees Kelvin), \samp{P} (pressure in bars), and \samp{Cp} or \samp{V} (heat capacity in cal/mol.K or volume in cm3/mol). Only data below the temperature of \code{T.max} are included in the regression. The regression formula is specified by a vector of names in \code{var}; these names correspond to variables identified below:
+\code{EOSregress} uses \code{\link{lm}} to regress the experimental heat capacity or volume data in \code{exptdata}, which is a data frame with columns \samp{T} (temperature in degrees Kelvin), \samp{P} (pressure in bars), and \samp{Cp} or \samp{V} (heat capacity in cal/mol.K or volume in cm3/mol).
+Only data below the temperature of \code{T.max} are included in the regression.
+The regression formula is specified by a vector of names in \code{var}.
+The names of the variables can be any combination of the following (listed in the order of search): variables listed in the following table, any available property of \code{\link{water}} (e.g. \samp{V}, \samp{alpha}, \samp{QBorn}), or the name of a function that can be found using \code{\link{get}} in the default environment (e.g. a function defined by the user in the global environment; the arguments of the function should be \code{T} and \code{P}; see example).
 
   \tabular{ll}{
     \code{T}           \tab  \eqn{T}{T} (temperature) \cr
@@ -45,31 +49,34 @@
     \code{invTTheta}   \tab  \eqn{1/(T-\Theta)}{1/(T-Theta)} \cr
     \code{TTheta2}     \tab  \eqn{(T-\Theta)^2}{(T-Theta)^2} \cr
     \code{invTTheta2}  \tab  \eqn{1/(T-\Theta)^2}{1/(T-Theta)^2} \cr
-    \code{invPPsi}     \tab  \eqn{1/(P+\Psi)}{1/(P+Psi)} \cr
+    \code{invPPsi}     \tab  \eqn{1/(P+\Psi)}{1/(P+Psi)} (\eqn{\Psi}{Psi} = 2600 bar) \cr
     \code{invPPsiTTheta}   \tab  \eqn{1/((P+\Psi)(T-\Theta))}{1/((P+Psi)(T-Theta))} \cr
-    \code{V}           \tab  \eqn{V}{V} (volume of water) \cr
-    \code{E}           \tab  \eqn{E}{E} (isobaric expansivity of water) \cr
-    \code{kT}          \tab  \eqn{\kappa_T}{kT} (isothermal compressibility of water) \cr
-    \code{alpha}       \tab  \eqn{\alpha}{alpha} (coefficient of isobaric expansivity of water) \cr
-    \code{beta}        \tab  \eqn{\beta}{beta} (coefficients of isothermal compressibility of water) \cr
-    \code{X}           \tab  \eqn{X}{X} (Born function \eqn{X}{X}) \cr
-    \code{Q}           \tab  \eqn{Q}{Q} (Born function \eqn{Q}{Q}) \cr
-    \code{TX}          \tab  \eqn{TX}{TX} (temperature times \eqn{X}{X}) \cr
+    \code{TXBorn}          \tab  \eqn{TX}{TX} (temperature times \eqn{X}{X} Born function) \cr
     \code{drho.dT}     \tab  \eqn{d\rho/dT}{drho/dT} (temperature derivative of density of water) \cr
     \code{V.kT}        \tab  \eqn{V\kappa_T}{V.kT} (volume times isothermal compressibility of water) 
   }
 
-  \code{EOSvar} takes as input \code{var} (one of the names of the variables listed above), and \code{T} (temperature in degrees Kelvin), \code{P} (pressure in bars). It returns the value of the variable at the specified temperature-pressure condition(s). This function is used by \code{EOSregress} to get the values of the variables used in the regression.
 
-  \code{EOScalc} calculates the predicted heat capacities or volumes using coefficients provided by the result of \code{EOSregress}, at the temperatures and pressures specified by \code{T} and \code{P}.
+\code{EOSvar} calculates the value of the variable named \code{var} (defined as described above) at the specified \code{T} (temperature in degrees Kelvin) and \code{P} (pressure in bars).
+This function is used by \code{EOSregress} to get the values of the variables used in the regression.
 
-  \code{EOSplot} takes a table of data in \code{exptdata}, runs \code{EOSregress} and \code{EOSpred} and plots the results. The experimental data are plotted as points, and the calculated values as a smooth line. The point symbols are filled circles where the calculated value is within 10\% of the experimental value; open circles otherwise.
+\code{EOScalc} calculates the predicted heat capacities or volumes using coefficients provided by the result of \code{EOSregress}, at the temperatures and pressures specified by \code{T} and \code{P}.
 
-  \code{EOSlab} produces labels for the variables listed above that can be used \code{\link{as.expression}}s in plots. The value of \code{coeff} is prefixed (using \code{\link{substitute}}) to the name of the variable.
+\code{EOSplot} takes a table of data in \code{exptdata}, runs \code{EOSregress} and \code{EOScalc} and plots the results.
+The experimental data are plotted as points, and the calculated values as a smooth line.
+The point symbols are filled circles where the calculated value is within 10\% of the experimental value; open circles otherwise.
 
-  \code{EOScoeffs} retrieves coefficients in the Helgeson-Kirkham-Flowers equations from the thermodynamic database (\code{\link{thermo}$obigt}) for the given aqueous \code{species}. If the \code{property} is \samp{Cp}, the resulting dataframe has column names of \samp{(Intercept)}, \samp{invTTheta2} and \samp{TX}, respectively holding the coefficients \eqn{c_1}{c1}, \eqn{c_2}{c2} and \eqn{\omega}{omega} in equation \eqn{Cp^\circ = c_1 + c_2/(T-\Theta)^2 + {\omega}TX}{Cp = c1 + c2/(T-Theta)^2 + omega*TX}. If the \code{property} is \samp{V}, the data frame has column names of \samp{(Intercept)}, \samp{invTTheta} and \samp{Q}, respectively holding the coefficients \eqn{\sigma}{sigma}, \eqn{\xi}{xi} and \eqn{-\omega}{-omega} in \eqn{V^\circ = \sigma + \xi/(T-\Theta) - {\omega}Q}{V = sigma + xi/(T-Theta) - omega*Q}.
+\code{EOSlab} produces labels for the variables listed above that can be used \code{\link{as.expression}}s in plots.
+The value of \code{coeff} is prefixed to the name of the variable (using \code{\link{substitute}}, with a multiplication symbol).
+For the properties listed in the table above, and selected properties listed in \code{\link{water}}, the label is formatted using \code{\link{plotmath}} expressions (e.g., with italicized symbols and Greek letters).
+If \code{var} is a user-defined function, the function can be given a \samp{label} attribute to provide \code{\link{plotmath}}-style formatting; in this case the appropriate multiplication or division symbol should be specified (see example below).
 
-  The motivation for writing these functions is to explore alternatives or possible modifications to the revised Helgeson-Kirkham-Flowers equations applied to aqueous nonelectrolytes. As pointed out by Schulte et al., 2001, the functional forms of the equations do not permit retrieving values of the solvation parameter (\eqn{\omega}{omega}) that closely represent the observed trends in both heat capacity and volume at high temperatures (above ca. 200 \eqn{^{\circ}}{°}C).
+\code{EOScoeffs} retrieves coefficients in the Helgeson-Kirkham-Flowers equations from the thermodynamic database (\code{\link{thermo}$obigt}) for the given aqueous \code{species}.
+If the \code{property} is \samp{Cp}, the resulting data frame has column names of \samp{(Intercept)}, \samp{invTTheta2} and \samp{TX}, respectively holding the coefficients \eqn{c_1}{c1}, \eqn{c_2}{c2} and \eqn{\omega}{omega} in the equation \eqn{Cp^\circ = c_1 + c_2/(T-\Theta)^2 + {\omega}TX}{Cp = c1 + c2/(T-Theta)^2 + omega*TX}.
+If the \code{property} is \samp{V}, the data frame has column names of \samp{(Intercept)}, \samp{invTTheta} and \samp{Q}, respectively holding the coefficients \eqn{\sigma}{sigma}, \eqn{\xi}{xi} and \eqn{-\omega}{-omega} in \eqn{V^\circ = \sigma + \xi/(T-\Theta) - {\omega}Q}{V = sigma + xi/(T-Theta) - omega*Q}.
+
+The motivation for writing these functions is to explore alternatives or possible modifications to the revised Helgeson-Kirkham-Flowers equations applied to aqueous nonelectrolytes.
+As pointed out by Schulte et al., 2001, the functional forms of the equations do not permit retrieving values of the solvation parameter (\eqn{\omega}{omega}) that closely represent the observed trends in both heat capacity and volume at high temperatures (above ca. 200 \eqn{^{\circ}}{°}C).
 
 }
 
@@ -88,40 +95,7 @@
 
 \examples{
 \dontshow{data(thermo)}
-## regress calculated heat capacities and volumes of CH4(aq)
-## to test that regressions return known HKF parameters
-# calculate the properties of CH4 on a T-P grid
-T <- convert(seq(0, 350, 25), "K")
-P <- seq(200, 1000, 100)
-# convert=FALSE means that temperature has units of K
-CH4.prop <- subcrt("CH4", T=T, P=P, grid="T", convert=FALSE)$out[[1]]
-# terms in the HKF equations for Cp
-Cp.var <- c("invTTheta2", "TX")
-# get coefficients in Cp regression
-Cp.lm <- EOSregress(CH4.prop[, c("T", "P", "Cp")], Cp.var)
-Cp.coeff <- Cp.lm$coefficients
-# terms in the HKF equations for V
-V.var <- c("invPPsi", "invTTheta", "invPPsiTTheta", "Q")
-# get coefficients in V regression
-V.lm <- EOSregress(CH4.prop[, c("T", "P", "V")], V.var)
-# use same units as HKF: convert from cm3.bar to calories (divide by 41.84)
-V.coeff <- convert(V.lm$coefficients, "calories")
-## the tests: did we get the HKF parameters that are in the database?
-CH4.par <- info(info("CH4"))
-# c1 and c2
-stopifnot(all.equal(Cp.coeff[1], CH4.par$c1, check.attr=FALSE))
-stopifnot(all.equal(Cp.coeff[2], CH4.par$c2, check.attr=FALSE))
-# omega (from Cp)
-stopifnot(all.equal(Cp.coeff[3], CH4.par$omega, check.attr=FALSE))
-# a1, a2, a3 and a4
-stopifnot(all.equal(V.coeff[1], CH4.par$a1, check.attr=FALSE))
-stopifnot(all.equal(V.coeff[2], CH4.par$a2, check.attr=FALSE))
-stopifnot(all.equal(V.coeff[3], CH4.par$a3, check.attr=FALSE))
-stopifnot(all.equal(V.coeff[4], CH4.par$a4, check.attr=FALSE))
-# omega (from V) - note negative sign
-stopifnot(all.equal(-V.coeff[5], CH4.par$omega, check.attr=FALSE))
-
-## regress experimental heat capacities of CH4
+## fit experimental heat capacities of CH4
 ## using revised Helgeson-Kirkham-Flowers equations
 # read the data from Hnedkovsky and Wood, 1997
 f <- system.file("extdata/cpetc/Cp.CH4.HW97.csv", package="CHNOSZ")
@@ -130,7 +104,7 @@ d <- read.csv(f)
 d$Cp <- convert(d$Cp, "cal")
 d$P <- convert(d$P, "bar")
 # specify the terms in the HKF equations
-var <- c("invTTheta2", "TX")
+var <- c("invTTheta2", "TXBorn")
 # perform regression, with a temperature limit
 EOSlm <- EOSregress(d, var, T.max=600)
 # the result is within 10% of the accepted
@@ -151,13 +125,27 @@ title("Cp fit to 600 K, plot to 600 K")
 EOSplot(d, coefficients=CH4coeffs, T.plot=600)
 title("Cp from EOS parameters in database")
 
+# continuing from above, with user-defined variables
+invTTTheta3 <- function(T, P) (2*T)/(T-T*thermo$opt$Theta)^3
+invTX <- function(T, P) 1/T*water("XBorn", T=T, P=P)[,1]
+# print the calculated values of invTTTheta3
+EOSvar("invTTTheta3", d$T, d$P)
+# use invTTTheta and invTX in a regression
+var <- c("invTTTheta3", "invTX")
+EOSregress(d, var)
+# give them a "label" attribute for use in the legend
+attr(invTTTheta3, "label") <- quote(phantom()\%*\%2*italic(T)/(italic(T)-italic(T)*Theta)^3)
+attr(invTX, "label") <- quote(phantom()/italic(T*X))
+# uncomment the following to make the plot
+#EOSplot(d, var)
+
 ## model experimental volumes of CH4
 ## using HKF equation and an exploratory one
 f <- system.file("extdata/cpetc/V.CH4.HWM96.csv", package="CHNOSZ")
 d <- read.csv(f)
 d$P <- convert(d$P, "bar")
 # the HKF equation
-varHKF <- c("invTTheta", "Q")
+varHKF <- c("invTTheta", "QBorn")
 # alpha is the expansivity coefficient of water
 varal <- c("invTTheta", "alpha")
 par(mfrow=c(2,2))

@@ -96,6 +96,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   }
 
   # get species information
+  thermo <- get("thermo")
   # pre-20110808, we sent numeric species argument through info() to
   # get species name and state(s)
   # but why slow things down if we already have a species index?
@@ -115,6 +116,8 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
       mysearch <- species[i]
       if(can.be.numeric(mysearch)) mysearch <- thermo$obigt$name[as.numeric(mysearch)]
       si <- info.character(mysearch, state[i])
+      # that could have the side-effect of adding a protein; re-read thermo
+      thermo <- get("thermo", "CHNOSZ")
       if(is.na(si[1])) stop('no info found for ',species[i],' ',state[i])
       if(!is.null(state[i])) is.cr <- state[i]=='cr' else is.cr <- FALSE
       if(thermo$obigt$state[si[1]]=='cr1' & (is.null(state[i]) | is.cr)) {
@@ -180,6 +183,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   }
   if(length(P)==1) {
     if(can.be.numeric(P)) P.text <- paste(round(as.numeric(P),2),'bar')
+    else P.text <- "P"
   } else P.text <- 'P'
   #} else P.text <- paste(length(P),'values of P')
   if(identical(P[[1]],'Psat')) P.text <- P
@@ -266,16 +270,16 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
     # than possible many times in hkf()).
     wprop.PT <- character()
     wprop.PrTr <- 'rho'
-    dosupcrt <- length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3))!=0
-    if(TRUE %in% (prop %in% c('logk','g','h','s'))) wprop.PrTr <- c(wprop.PrTr,'Y')
-    if(dosupcrt | TRUE %in% (prop %in% c('logk','g','h'))) wprop.PrTr <- c(wprop.PrTr,'epsilon')
+    dosupcrt <- thermo$opt$water != "IAPWS95"
+    if(TRUE %in% (prop %in% c('logk','g','h','s'))) wprop.PrTr <- c(wprop.PrTr,'YBorn')
+    if(dosupcrt | TRUE %in% (prop %in% c('logk','g','h'))) wprop.PrTr <- c(wprop.PrTr,'diel')
     H2O.PrTr <- water(wprop.PrTr,T=thermo$opt$Tr,P=thermo$opt$Pr)
-    if(TRUE %in% (prop %in% c('cp'))) {wprop.PT <- c(wprop.PT,'X','Y')}
-    if(TRUE %in% (prop %in% c('v'))) {wprop.PT <- c(wprop.PT,'Q')}
-    if(TRUE %in% (prop %in% c('kt'))) {wprop.PT <- c(wprop.PT,'N')}
+    if(TRUE %in% (prop %in% c('cp'))) {wprop.PT <- c(wprop.PT,'XBorn','YBorn')}
+    if(TRUE %in% (prop %in% c('v'))) {wprop.PT <- c(wprop.PT,'QBorn')}
+    if(TRUE %in% (prop %in% c('kt'))) {wprop.PT <- c(wprop.PT,'NBorn')}
     if(TRUE %in% (prop %in% c('e'))) {wprop.PT <- c(wprop.PT,'UBorn')}
     # get additional properties required for omega derivatives
-    if(dosupcrt) wprop.PT <- c(wprop.PT,'alpha','daldT','beta','epsilon')
+    if(dosupcrt) wprop.PT <- c(wprop.PT,'alpha','daldT','beta','diel')
     H2O.PT <- water(c(wprop.PrTr,wprop.PT),T=T,P=P)
     if(TRUE %in% isaq) {
       # now the species stuff

@@ -1,3 +1,80 @@
+CHANGES IN CHNOSZ 1.0.0 (2013-03-28)
+------------------------------------
+
+MAJOR USER-VISIBLE CHANGE:
+
+- On attaching the package, the user is asked to load the 'thermo'
+  object, containing thermodynamic data and system settings, using
+  data(thermo). This is required because packages are not permitted to
+  alter the search path (but the user may).
+
+OTHER CHANGES:
+
+- Fix calculation of free energy derivative in wjd().
+
+- Add 'stay.normal' argument to equilibrate().
+
+- If obigt$G is available, hkf() returns this value, not NA, at Tr, Pr.
+
+- mod.obigt() defaults to taking chemical formula from the species name,
+  and checks for validity of formula.
+
+- Add example for LYSC_CHICK to protein.info.Rd.
+
+- Enable DGtr in findit(), 1-D DGtr plot in revisit().
+
+- Disable a check in valTP function of H2O92D.f to allow properties of
+  H2O to be calculated below 0.01 degrees C, to -20 degrees C.
+
+- Remove thermo$water and thermo$water2 storage of previous results;
+  they gave no significant speed gain in running examples.
+
+- Split IAPWS95.Rd out of water.Rd.
+
+- expr.* functions now do not wrap their values in as.expression()
+  (makes compounding expressions, e.g. with substitute(), easier).
+
+- Rename dl.aa() to uniprot.aa().
+
+- Add start and stop arguments to count.aa(), read.fasta(),
+  uniprot.aa().
+
+- add.protein() replaces amino acid compositions for existing
+  proteins with the same name.
+
+- Examples of calculation of affinity of formation of CSG_METVO
+  (following Dick and Shock, 2011) added to protein.info.Rd.
+
+- Use consistent names for water properties (Speed, diel, QBorn, ...).
+
+- Add water.props() to get names of properties of water.
+
+- Remove 'isat' argument from water.SUPCRT92(); function now accepts
+  'Psat' as value for 'P' argument.
+
+- Separate rho.IAPWS95() from water.IAPWS95().
+
+- In addition to the original regression variables, EOSvar() recognizes
+  names for available properties in water(), or can use the name to
+  get a user-defined function of temperature and pressure.
+
+- Simplify EOSplot() somewhat (don't group data by pressure ranges).
+
+- EOSlab() gets label from attribute (if present) of user-defined
+  function.
+
+- Modify test-util.data.R and wjd.Rd to pass R CMD check using R
+  configured with --disable-long-double .
+
+- The name of the environment affected by data(thermo), and used in many
+  functions, is changed from CHNOSZ:thermo to CHNOSZ.
+
+- Remove read.supcrt() and write.supcrt().
+
+- guess() now defaults to "stoich" method, not "central". (Needed since
+  limSolve package is not found during R-Forge checks on Windows.)
+
+
 CHANGES IN CHNOSZ 0.9-9 (2013-01-01)
 ------------------------------------
 

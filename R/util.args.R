@@ -6,10 +6,9 @@ eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
   props <- c('G','H','S','Cp','V','kT','E')
   if(eos=='water') {
     # things we also get with water
-    #props <- c(colnames(thermo$water)[4:length(colnames(thermo$water))])
     props <- c(props,'A','U','Cv','Psat','rho','Q','X','Y','epsilon','w')
     # they keep on coming: things we also get with SUPCRT92
-    if(length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3))>0)
+    if(get("thermo")$opt$water == "SUPCRT92")
       props <- c(props,'Z','visc','tcond','tdiff','Prndtl','visck','albe','daldT','alpha','beta')
     else 
       props <- c(props,'P','N','UBorn','de.dT','de.dP')
@@ -32,23 +31,21 @@ eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
   return(list(props=props,prop=prop,Prop=Prop))
 }
 
-TP.args <- function(T=NULL,P=NULL) {
-  if(!is.null(P)) {
-    if(identical(P[1],'Psat')) {
-      P <- water('Psat',T,P=NULL)
-      P <- P[,1]
-      # water.SUPCRT92 issues its own warnings about 
-      # exceeding Psat's temperature limit
-      if(length(agrep(tolower(thermo$opt$water),'supcrt9',max.distance=0.3))==0)
-        if(length(which(is.na(P)))>0) 
-          warning('TP.args: NAs in Psat (likely T > Tc where Tc = 647.096 K)',call.=FALSE)
-    }
+TP.args <- function(T=NULL, P=NULL) {
+  # keep the [1] here because some functions (e.g. subcrt) will repeat "Psat"
+  if(identical(P[1], "Psat")) {
+    P <- water("Psat", T, P="Psat")[, 1]
+    # water.SUPCRT92 issues its own warnings about 
+    # exceeding Psat's temperature limit
+    if(get("thermo")$opt$water == "IAPWS95")
+      if(length(which(is.na(P)))>0) 
+        warning('TP.args: NAs in Psat (likely T > Tc where Tc = 647.096 K)',call.=FALSE)
   }
   if(length(P) < length(T) & !is.null(P)) P <- rep(P, length.out=length(T))
   else if(length(T) < length(P) & !is.null(T)) T <- rep(T, length.out=length(P))
   # something we do here so the SUPCRT water calculations work
   T[T==273.15] <- 273.16
-  return(list(T=T,P=P))
+  return(list(T=T, P=P))
 }
 
 state.args <- function(state=NULL) {

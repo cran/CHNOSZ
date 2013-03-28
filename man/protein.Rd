@@ -16,7 +16,6 @@ species(prot4)
 a <- affinity(T=c(0, 200), O2=c(-80, -40))
 diagram(a)
 
-
 ## one way to calculate the standard Gibbs energy of a 
 ## reaction to form an ionized protein at 100 degrees and pH 8
 basis("CHNOS+")   # do this to auto-balance the formation reaction
@@ -120,7 +119,7 @@ a <- affinity(O2=c(-90, -75))
 e <- equilibrate(a, normalize=TRUE)
 diagram(e, add=TRUE, col="blue")
 legend("bottomleft", col=c(NA, "green", "blue"), lty=1,
-  legend=c(axis.label("H2"), -3, -20))
+  legend=c(as.expression(axis.label("H2")), -3, -20))
 title(main="Equilibrium activities of human plasma proteins")
 
 

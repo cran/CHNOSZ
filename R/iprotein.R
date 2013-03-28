@@ -6,7 +6,6 @@
 # ip2aa - select amino acid counts (data frame) from thermo$protein
 # aa2eos - perform group additivity calculations
 # seq2aa - calculate amino acid counts from a sequence
-# dl.aa - get amino acid counts from SWISS-PROT
 # aasum - combine amino acid counts (sum, average, or weighted sum by abundance)
 # read.aa - read amino acid counts from a file
 # add.protein - add amino acid counts to thermo$protein (returns iprotein)
@@ -16,6 +15,7 @@ iprotein <- function(protein, organism=NULL) {
   # 'protein' numeric (the rownumber itself)
   # 'protein' character, e.g. LYSC_CHICK
   # 'protein' and 'organism', e.g. 'LYSC', 'CHICK'
+  thermo <- get("thermo")
   if(is.numeric(protein)) {
     iproteins <- 1:nrow(thermo$protein)
     protein[!protein %in% iproteins] <- NA
@@ -43,13 +43,13 @@ ip2aa <- function(protein, organism=NULL, residue=FALSE) {
   iprotein <- iprotein(protein, organism)
   # drop NA matches
   iprotein <- iprotein[!is.na(iprotein)]
-  out <- thermo$protein[iprotein, ]
+  out <- get("thermo")$protein[iprotein, ]
   # compute per-residue counts
   if(residue) out[, 5:25] <- out[, 5:25]/rowSums(out[, 6:25])
   return(out)
 }
 
-aa2eos <- function(aa, state=thermo$opt$state) {
+aa2eos <- function(aa, state=get("thermo")$opt$state) {
   # display and return the properties of
   # proteins calculated from amino acid composition
   # the names of the protein backbone groups depend on the state
@@ -61,10 +61,11 @@ aa2eos <- function(aa, state=thermo$opt$state) {
   groups <- paste("[", groups, "]", sep="")
   # the rownumbers of the groups in thermo$obigt
   groups_state <- paste(groups, state)
-  obigt_state <- paste(thermo$obigt$name, thermo$obigt$state)
+  obigt <- get("thermo")$obigt
+  obigt_state <- paste(obigt$name, obigt$state)
   igroup <- match(groups_state, obigt_state)
   # the properties are in columns 8-20 of thermo$obigt
-  groupprops <- thermo$obigt[igroup, 8:20]
+  groupprops <- obigt[igroup, 8:20]
   # the elements in each of the groups
   groupelements <- i2A(igroup)
   # a function to work on a single row of aa
@@ -116,48 +117,6 @@ seq2aa <- function(protein, sequence) {
   return(aa)
 }
 
-dl.aa <- function(protein) {
-  # download protein sequence information from SWISS-PROT
-  iprotein <- numeric()
-  # construct the initial URL
-  proteinURL <- paste("http://www.uniprot.org/uniprot/", protein, sep="")
-  msgout("dl.aa: trying ", proteinURL, " ...")
-  # try loading the URL, hiding any warnings
-  oldopt <- options(warn=-1)
-  URLstuff <- try(readLines(proteinURL),TRUE)
-  options(oldopt)
-  if(class(URLstuff)=="try-error") {
-    msgout(" failed\n")
-    return(NA)
-  }
-  # 20091102: look for a link to a fasta file
-  linkline <- URLstuff[[grep("/uniprot/.*fasta", URLstuff)[1]]]
-  # extract accession number from the link
-  linkhead <- strsplit(linkline, ".fasta", fixed=TRUE)[[1]][1]
-  accession.number <- tail(strsplit(linkhead, "/uniprot/", fixed=TRUE)[[1]], 1)
-  msgout(" accession ", accession.number, " ...\n")
-  # now download the fasta file
-  fastaURL <- paste("http://www.uniprot.org/uniprot/", accession.number, ".fasta", sep="")
-  URLstuff <- readLines(fastaURL)
-  # show the name of the protein to the user
-  header <- URLstuff[[1]]
-  header2 <- strsplit(header, paste(protein, ""))[[1]][2]
-  header3 <- strsplit(header2, " OS=")[[1]]
-  protein.name <- header3[1]
-  header4 <- strsplit(header3[2], " GN=")[[1]][1]
-  header5 <- strsplit(header4[1], " PE=")[[1]]
-  organism.name <- header5[1]
-  msgout("dl.aa: ", protein.name, " from ", organism.name)
-  # get rid of the header before counting amino acid letters
-  URLstuff[[1]] <- ""
-  aa <- count.aa(c2s(URLstuff, sep=""))
-  msgout(" (length ", sum(aa[1,]), ")\n", sep="")
-  colnames(aa) <- colnames(thermo$protein)[6:25]
-  po <- strsplit(protein, "_")[[1]]
-  out <- data.frame(protein=po[1], organism=po[2], ref=NA, abbrv=NA, chains=1, aa)
-  return(out)
-}
-
 aasum <- function(aa, abundance=1, average=FALSE, protein=NULL, organism=NULL) {
   # returns the sum of the amino acid counts in aa,
   # multiplied by the abundances of the proteins
@@ -191,39 +150,34 @@ aasum <- function(aa, abundance=1, average=FALSE, protein=NULL, organism=NULL) {
 }
 
 read.aa <- function(file="protein.csv") {
-  # if its a fasta file, read the sequences
-  if(is.fasta(file)) {
-    aa <- read.fasta(file)
-    msgout("read.aa: first line in FASTA file is\n")
-    msgout(readLines(file, n=1), "\n")
-  } else {
-    # 20090428 added colClasses here
-    aa <- read.csv(file,colClasses=c(rep("character",4),rep("numeric",21)))
-  }
-  if(!identical(colnames(aa), colnames(thermo$protein))) 
-    stop("format of", file, "is incompatible with thermo$protein")
+  # 20090428 added colClasses here
+  aa <- read.csv(file,colClasses=c(rep("character",4),rep("numeric",21)))
+  if(!identical(colnames(aa), colnames(get("thermo")$protein)))
+    stop(paste("format of", file, "is incompatible with thermo$protein"))
   return(aa)
 }
 
-add.protein <- function(aa, print.existing=FALSE) {
+add.protein <- function(aa) {
   # add a properly constructed data frame of 
   # amino acid counts to thermo$protein
-  if(!identical(colnames(aa), colnames(thermo$protein))) 
+  thermo <- get("thermo")
+  if(!identical(colnames(aa), colnames(thermo$protein)))
     stop("the value of 'aa' is not a data frame with the same columns as thermo$protein")
   # find any protein IDs that are duplicated
   po <- paste(aa$protein, aa$organism, sep="_")
   ip <- suppressMessages(iprotein(po))
   ipdup <- !is.na(ip)
   # now we're ready to go
-  thermo$protein <<- rbind(thermo$protein, aa[!ipdup, ])
-  rownames(thermo$protein) <<- NULL
+  tp.new <- thermo$protein
+  if(!all(ipdup)) tp.new <- rbind(tp.new, aa[!ipdup, ])
+  if(any(ipdup)) tp.new[ip[ipdup], ] <- aa[ipdup, ]
+  rownames(tp.new) <- NULL
+  thermo$protein <- tp.new
+  assign("thermo", thermo, "CHNOSZ")
   # return the new rownumbers
   ip <- iprotein(po)
   # make some noise
-  msgout("add.protein: added ", nrow(aa)-sum(ipdup), " of ", nrow(aa), " proteins\n")
-  if(!all(is.na(ipdup)) & print.existing) {
-    potext <- paste(aa$protein[ipdup], aa$organism[ipdup], sep="_", collapse=" ")
-    msgout("add.protein: skipped existing ", potext, "\n")
-  }
+  if(!all(ipdup)) msgout("add.protein: added ", nrow(aa)-sum(ipdup), " new protein(s) to thermo$protein\n")
+  if(any(ipdup)) msgout("add.protein: replaced ", sum(ipdup), " existing protein(s) in thermo$protein\n")
   return(ip)
 }

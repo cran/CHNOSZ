@@ -5,8 +5,12 @@ thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par(
   mgp=c(1.5,0.3,0),cex.axis=par('cex'),col=par('col'),yline=NULL,axs='i',do.box=TRUE,ticks=NULL,
   las=1,xline=NULL) {
   # start a new plot with some customized settings
+  thermo <- get("thermo")
   # 20120523 store the old par in thermo$opar
-  if(is.null(thermo$opar)) thermo$opar <<- par(no.readonly=TRUE)
+  if(is.null(thermo$opar)) {
+    thermo$opar <- par(no.readonly=TRUE)
+    assign("thermo", thermo, "CHNOSZ")
+  }
   # 20091108 changed argument name from 'ticks' to 'side' but
   # keep 'ticks' for backward compatibility
   if(!is.null(ticks)) side <- ticks 

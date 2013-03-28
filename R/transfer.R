@@ -32,6 +32,7 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
   logpresent <- -50
   # the starting (basis0) and current (basis)
   # species and basis conditions
+  thermo <- get("thermo")
   basis <- basis0 <- thermo$basis
   species <- species0 <- thermo$species
   dmode0 <- dmode
@@ -103,7 +104,8 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
         # the slow way, short version
         # we have to use basis species w/o the PBB
         tempbasis <- basis1[rownames(basis1)!="PBB",]
-        thermo$basis <<- tempbasis
+        thermo$basis <- tempbasis
+        assign("thermo", thermo, "CHNOSZ")
         # the slow way, long-winded version
         # (recreating affinity's call to buffer so
         # we can store the intermediate results)
@@ -135,8 +137,9 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
         #ibuf <- buffargs$ibasis
         oldbasis <- thermo$basis
         oldspecies <- thermo$species
-        thermo$basis <<- buffstuff$bufbasis
-        thermo$species <<- buffstuff$bufspecies
+        thermo$basis <- buffstuff$bufbasis
+        thermo$species <- buffstuff$bufspecies
+        assign("thermo", thermo, "CHNOSZ")
         is.buffer <- buffargs$is.buffer
         for(i in 1:length(ibuf)) {
           ib <- is.buffer[[i]]
@@ -147,8 +150,9 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
           if(i==1) br <- bresult else br <- c(br,bresult)
         }
         bresult <- br
-        thermo$basis <<- oldbasis
-        thermo$species <<- oldspecies
+        thermo$basis <- oldbasis
+        thermo$species <- oldspecies
+        assign("thermo", thermo, "CHNOSZ")
       }
       for(i in 1:length(ibuf)) {
         # reference to the moles of species 
@@ -287,9 +291,10 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
     # get the affinities for the first step
     getaff <- function(mybl,sout=NULL) {
       # do it for unit activities of minerals (and proteins?)
-      thermo$species$logact <<- 0
+      thermo$species$logact <- 0
       # prevent the PBB from getting in here
-      thermo$basis$logact <<- mybl[1:nrow(basis0)]
+      thermo$basis$logact <- mybl[1:nrow(basis0)]
+      assign("thermo", thermo, "CHNOSZ")
       if(is.null(sout)) {
         # on the first step only, grab the intermediate results
         # they are kept around for reasons of speed
@@ -740,8 +745,9 @@ transfer <- function(nsteps=500,dmode='coupled',devmax=0.1,
   # this is the second place to be careful of PBB
   if('PBB' %in% rownames(basis)) basis$logact <- c(basis0$logact,0)
   else basis$logact <- basis0$logact
-  thermo$basis <<- basis0
-  thermo$species <<- species0
+  thermo$basis <- basis0
+  thermo$species <- species0
+  assign("thermo", thermo, "CHNOSZ")
 
   # report the success rate and total progress
   aaa <- alphas
@@ -800,7 +806,7 @@ feldspar <- function(which="closed",plot.it=FALSE) {
   # or feldspar("open")
   # setup conditions for feldspar reaction
   #basis(c('Al+3','SiO2','K+','H2O','H+','O2'))
-  thermo$basis <<- NULL
+  basis(delete=TRUE)
   # SLS89 use H4SiO4 instead of SiO2
   basis(c('Al+3','H4SiO4','K+','H2O','H+','O2'))
   # some of SLS89's initial conditions
@@ -849,7 +855,7 @@ apc <- function(which="open",basis="CO2",plot.it=FALSE) {
   # apc("many")
   # apc("buffer")
   # assign basis species
-  thermo$basis <<- NULL
+  basis(delete=TRUE)
   if(basis=="CO2") basis(c("CO2","H2O","NH3","H2","H2S"),c(-10,0,-4,-10,-7))
   else if(basis=="acetic") basis(c("acetic acid","H2O","NH3","H2","H2S"),c(-5.5,0,-4,-10,-7))
   basis("H2","aq")

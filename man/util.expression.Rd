@@ -14,8 +14,8 @@
   expr.species(species, state = "", log = "", value=NULL)
   expr.property(property)
   expr.units(property, prefix = "", per = "mol")
-  axis.label(label, units = NULL, basis = thermo$basis, prefix = "")
-  describe.basis(basis = thermo$basis, ibasis = 1:nrow(basis), digits = 1, oneline = FALSE)
+  axis.label(label, units = NULL, basis = get("thermo")$basis, prefix = "")
+  describe.basis(basis = get("thermo")$basis, ibasis = 1:nrow(basis), digits = 1, oneline = FALSE)
   describe.property(property, value, digits = 1, oneline = FALSE, ret.val = FALSE)
   describe.reaction(reaction, iname = numeric(), states = NULL)
 }
@@ -85,8 +85,7 @@ If none of those characters appears in the property, the expression is an empty 
 
 }
 
-\examples{
-\dontshow{data(thermo)}
+\examples{\dontshow{data(thermo)}
 ## show descriptions of species and properties on a plot
 plot(0, 0, xlim=c(1,5), ylim=c(1,5), xlab="function", ylab="example")
 text0 <- function(...) text(..., adj=0)

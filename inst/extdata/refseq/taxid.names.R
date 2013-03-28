@@ -3,7 +3,7 @@
 # for each of the microbial taxa in RefSeq database
 
 # change this to the location where names.dmp and nodes.dmp are located
-taxdir <- "/home/download/sequences/taxonomy/refseq55"
+taxdir <- "./taxdump"
 
 # get the taxids from protein_refseq.csv
 pr <- read.csv("protein_refseq.csv.xz")

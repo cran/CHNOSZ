@@ -9,7 +9,7 @@
 \usage{
   buffer(logK = NULL, ibasis = NULL, logact.basis = NULL, 
     is.buffer = NULL, balance = "PBB")
-  mod.buffer(name, species = NULL, state = thermo$opt$state, 
+  mod.buffer(name, species = NULL, state = get("thermo")$opt$state, 
     logact = -3)
 }
 

@@ -288,7 +288,7 @@ diagram <- function(
           iy <- which(y1==y2)
           ys[iy*2] <- NA
           # no line segment at a dotted position
-          iyd <- which(ys%%dotted==0)
+          iyd <- rowSums(sapply(dotted, function(y) ys%%y==0)) > 0
           ys[iyd] <- NA
           return(list(xs=xs, ys=ys))
         }
@@ -302,17 +302,17 @@ diagram <- function(
           ix <- which(x1==x2)
           xs[ix*2] <- NA
           # no line segment at a dotted position
-          ixd <- which(xs%%dotted==0)
+          ixd <- rowSums(sapply(dotted, function(x) xs%%x==0)) > 0
           xs[ixd] <- NA
           return(list(xs=xs, ys=ys))
         }
         clipfun <- function(z, zlim) {
           if(zlim[2] > zlim[1]) {
-            z[z>zlim[2]] <- zlim[2]
-            z[z<zlim[1]] <- zlim[1]
+            z[z>zlim[2]] <- NA
+            z[z<zlim[1]] <- NA
           } else {
-            z[z>zlim[1]] <- zlim[1]
-            z[z<zlim[2]] <- zlim[2]
+            z[z>zlim[1]] <- NA
+            z[z<zlim[2]] <- NA
           }
           return(z)
         }
@@ -328,6 +328,7 @@ diagram <- function(
         xs <- xlim[1] + (xs - 0.5) * rx
         ys <- ylim[1] + (ys - 0.5) * ry
         ys <- clipfun(ys, ylim)
+        if(!is.null(xrange)) xs <- clipfun(xs, xrange)
         lines(xs, ys, col=col, lwd=lwd)
         # horizontal lines
         xs <- ys <-NA
@@ -340,7 +341,7 @@ diagram <- function(
         ys <- ylim[2] - (ys - 0.5) * ry
         xs <- clipfun(xs, xlim)
         if(!is.null(xrange)) xs <- clipfun(xs, xrange)
-        lines(xs,ys, col=col, lwd=lwd)
+        lines(xs, ys, col=col, lwd=lwd)
       }
       ## label plot function
       # calculate coordinates for field labels

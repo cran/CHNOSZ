@@ -38,8 +38,7 @@
   Use \code{\link{info}} to search the thermodynamic database without adding species to the system. \code{\link{basis}} is a prerequisite for \code{\link{species}}.
 }
 
-\examples{
-\dontshow{data(thermo)}
+\examples{\dontshow{data(thermo)}
 # set up the basis species
 basis("CHNOS")
 # show the formation reactions of some species

@@ -10,10 +10,11 @@
 }
 
 \usage{
-  energy(what, vars, vals, lims, T=thermo$opt$Tr, P="Psat", IS=0, 
+  energy(what, vars, vals, lims, T=get("thermo")$opt$Tr, P="Psat", IS=0, 
     sout=NULL, exceed.Ttr=FALSE, transect = FALSE)
   energy.args(args)
-  A.ionization(iprotein, vars, vals, T=thermo$opt$Tr, P="Psat", pH=7, transect=FALSE)
+  A.ionization(iprotein, vars, vals, T=get("thermo")$opt$Tr,
+    P="Psat", pH=7, transect=FALSE)
 }
 
 \arguments{
@@ -56,13 +57,11 @@
 }
 
 
-\examples{
-\dontshow{data(thermo)}
-
-  basis("CHNOS")
-  species("acetic acid")
-  eargs <- energy.args(list(O2=c(-90, -60, 5), T=c(0, 100, 5)))
-  ea <- do.call(energy, eargs)
+\examples{\dontshow{data(thermo)}
+basis("CHNOS")
+species("acetic acid")
+eargs <- energy.args(list(O2=c(-90, -60, 5), T=c(0, 100, 5)))
+ea <- do.call(energy, eargs)
 }
 
 \keyword{util}

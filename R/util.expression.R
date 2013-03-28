@@ -36,7 +36,7 @@ expr.species <- function(species, state="", log="", value=NULL) {
   # write a designation of physical state
   # use the state given in log if it's a gas or neutral aqueous species
   if(log %in% c("g", "gas")) state <- "g"
-  if(!"Z" %in% names(elements)) state <- log
+  else if(!"Z" %in% names(elements)) state <- log
   if(state != "") {
     # subscript it if we're not in a log expression
     if(log != "") expr <- substitute(a*group('(',italic(b),')'),list(a=expr, b=state))
@@ -54,8 +54,6 @@ expr.species <- function(species, state="", log="", value=NULL) {
       expr <- substitute(a==b, list(a=expr, b=value))
     }
   }
-  # turn the label into an expression, and we're done!
-  expr <- as.expression(expr)
   return(expr)
 }
 
@@ -66,15 +64,15 @@ expr.property <- function(property) {
   propchar <- s2c(property)
   expr <- ""
   # some special cases
-  if(property=="logK") return(expression(log~italic(K)))
+  if(property=="logK") return(quote(log~italic(K)))
   # grepl here b/c diagram() uses "loga.equil" and "loga.basis"
-  if(grepl("loga", property)) return(expression(log~italic(a)))
-  if(property=="alpha") return(expression(alpha))
-  if(property=="Eh") return(expression(Eh))
-  if(property=="pH") return(expression(pH))
-  if(property=="pe") return(expression(pe))
-  if(property=="IS") return(expression(IS))
-  if(property=="ZC") return(expression(bar(italic(Z))[C]))
+  if(grepl("loga", property)) return(quote(log~italic(a)))
+  if(property=="alpha") return(quote(alpha))
+  if(property=="Eh") return("Eh")
+  if(property=="pH") return("pH")
+  if(property=="pe") return("pe")
+  if(property=="IS") return("IS")
+  if(property=="ZC") return(quote(bar(italic(Z))[C]))
   # process each character in the property abbreviation
   prevchar <- character()
   for(i in 1:length(propchar)) {
@@ -97,7 +95,7 @@ expr.property <- function(property) {
     # put it together
     expr <- substitute(a*b, list(a=expr, b=thisexpr))
   }
-  return(as.expression(expr))
+  return(expr)
 }
 
 expr.units <- function(property, prefix="", per="mol") {
@@ -135,10 +133,10 @@ expr.units <- function(property, prefix="", per="mol") {
     if(!any(sapply(c("P", "T", "Eh", "IS"), function(x) grepl(x, property))))
       expr <- substitute(a~b^-1, list(a=expr, b=per))
   }
-  return(as.expression(expr))
+  return(expr)
 }
 
-axis.label <- function(label, units=NULL, basis=thermo$basis, prefix="") {
+axis.label <- function(label, units=NULL, basis=get("thermo")$basis, prefix="") {
   # make a formatted axis label from a generic description
   # it can be a chemical property, condition, or chemical activity in the system
   # if the label matches one of the basis species
@@ -154,17 +152,17 @@ axis.label <- function(label, units=NULL, basis=thermo$basis, prefix="") {
   } else {
     # the label is for a chemical property or condition
     # make the label by putting a comma between the property and the units
-    property <- expr.property(label)[[1]]
-    if(is.null(units)) units <- expr.units(label, prefix=prefix)[[1]]
+    property <- expr.property(label)
+    if(is.null(units)) units <- expr.units(label, prefix=prefix)
     # no comma needed if there are no units
     if(units=="") desc <- substitute(a, list(a=property))
     else desc <- substitute(list(a, b), list(a=property, b=units))
   }
   # done!
-  return(as.expression(desc))
+  return(desc)
 }
 
-describe.basis <- function(basis=thermo$basis, ibasis=1:nrow(basis), digits=1, oneline=FALSE) {
+describe.basis <- function(basis=get("thermo")$basis, ibasis=1:nrow(basis), digits=1, oneline=FALSE) {
   # make expressions for the chemical activities/fugacities of the basis species
   propexpr <- valexpr <- character()
   for(i in ibasis) {
@@ -194,7 +192,7 @@ describe.property <- function(property=NULL, value=NULL, digits=1, oneline=FALSE
   for(i in 1:length(property)) {
     propexpr <- c(propexpr, expr.property(property[i]))
     thisvalue <- format(round(value[i], digits), nsmall=digits)
-    thisunits <- expr.units(property[i])[[1]]
+    thisunits <- expr.units(property[i])
     thisvalexpr <- substitute(a~b, list(a=thisvalue, b=thisunits))
     valexpr <- c(valexpr, as.expression(thisvalexpr))
   } 
@@ -223,8 +221,8 @@ describe.reaction <- function(reaction, iname=numeric(), states=NULL) {
     if(i %in% iname) species <- reaction$name[i]
     else {
       # should the chemical formula have a state?
-      if(identical(states,"all")) species <- expr.species(reaction$formula[i], state=reaction$state[i])[[1]]
-      else species <- expr.species(reaction$formula[i])[[1]]
+      if(identical(states,"all")) species <- expr.species(reaction$formula[i], state=reaction$state[i])
+      else species <- expr.species(reaction$formula[i])
     }
     # get the absolute value of the reaction coefficient
     abscoeff <- abs(reaction$coeff[i])

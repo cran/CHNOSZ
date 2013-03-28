@@ -55,8 +55,7 @@
   For some of the functions on which these utilities depend or were modeled, see \code{\link{paste}}, \code{\link{substr}}, \code{\link{tolower}}, \code{\link{par}} and \code{\link{text}}.
 }
 
-\examples{
-\dontshow{data(thermo)}
+\examples{\dontshow{data(thermo)}
 ## properties of phase transitions
 si <- info("enstatite")
 # (dP/dT) of transitions

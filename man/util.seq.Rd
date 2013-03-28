@@ -1,25 +1,24 @@
 \name{util.seq}
 \alias{util.seq}
 \alias{aminoacids}
-\alias{count.aa}
+
 \alias{nucleicacids}
 
 \title{Functions to Work with Sequence Data}
 
 \description{
-  Count amino acids in protein sequences, return one- or three-letter abbreviations of amino acids; count nucleotides in nucleic acid sequences, calculate DNA and RNA complements of nucleic acid sequences.
+  Return one- or three-letter abbreviations of amino acids; count nucleotides in nucleic acid sequences, calculate DNA and RNA complements of nucleic acid sequences.
 }
 
 \usage{
   aminoacids(nchar=1, which=NULL)
-  count.aa(seq)
   nucleicacids(seq, type = "DNA", comp = NULL, comp2 = NULL)
 }
 
 \arguments{
   \item{nchar}{numeric, \eqn{1} to return one-letter, \eqn{3} to return three-letter abbreviations for amino acids}
   \item{which}{character, which amino acids to name}
-  \item{seq}{character, amino acid sequence of a protein (\code{count.aa}) or base sequence of a nucleic acid (\code{nucleicacids})}
+  \item{seq}{character, base sequence of a nucleic acid (\code{nucleicacids})}
   \item{type}{character, type of nucleic acid sequence (DNA or RNA) (\code{nucleicads})}
   \item{comp}{character, type of complement sequence}
   \item{comp2}{character, type of second complement sequence}
@@ -35,15 +34,7 @@
 
 }
 
-\examples{
-\dontshow{data(thermo)}
-## count amino acids in a sequence
-count.aa("GGSGG")
-# warnings are issued for unrecognized characters
-suppressWarnings(atest <- count.aa("WhatAmIMadeOf?"))
-# there are 3 "A" (alanine, the first amino acid alphabetically)
-stopifnot(atest[,1]==3)
-
+\examples{\dontshow{data(thermo)}
 ## count nucleobases in a sequence
 nucleicacids("ACCGGGTTT")
 # the DNA complement of that sequence

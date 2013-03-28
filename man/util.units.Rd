@@ -16,8 +16,8 @@
   P.units(units = NULL)
   T.units(units = NULL)
   E.units(units = NULL)
-  convert(value, units, T = thermo$opt$Tr,
-    P = thermo$opt$Pr, pH = 7, logaH2O = 0)
+  convert(value, units, T = get("thermo")$opt$Tr,
+    P = get("thermo")$opt$Pr, pH = 7, logaH2O = 0)
   envert(value, units)
   outvert(value, units)
 }
@@ -59,8 +59,7 @@ Note that \samp{Eh} and \samp{E0} both stand for the value of Eh (oxidation-redu
 }
 
 
-\examples{
-\dontshow{data(thermo)}
+\examples{\dontshow{data(thermo)}
 ## examples using convert
 # temperature (Kelvin) to degrees C
 convert(273.15, "C")

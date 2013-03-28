@@ -16,6 +16,7 @@ today <- function() {
 
 mod.obigt <- function(...) {
   # add or modify species in thermo$obigt
+  thermo <- get("thermo")
   # the names and values are in the arguments
   # this works for providing arguments via do.call
   args <- list(...)
@@ -56,11 +57,21 @@ mod.obigt <- function(...) {
     newrows[] <- NA
     # put in a default state
     newrows$state <- thermo$opt$state
+    # the formula defaults to the name
+    newrows$formula <- args$name[inew]
     # fill in the columns
     newrows[, icol] <- args[inew, ]
+    # now check the formulas
+    e <- tryCatch(makeup(newrows$formula), error=function(e) e)
+    if(inherits(e, "error")) {
+      warning("please supply a valid chemical formula as the species name or in the 'formula' argument")
+      # transmit the error from makeup
+      stop(e)
+    }
     # assign to thermo$obigt
-    thermo$obigt <<- rbind(thermo$obigt, newrows)
-    rownames(thermo$obigt) <<- NULL
+    thermo$obigt <- rbind(thermo$obigt, newrows)
+    rownames(thermo$obigt) <- NULL
+    assign("thermo", thermo, "CHNOSZ")
     # update ispecies
     ntotal <- nrow(thermo$obigt)
     ispecies[inew] <- (ntotal-length(inew)+1):ntotal
@@ -70,14 +81,16 @@ mod.obigt <- function(...) {
   if(length(iold) > 0) {
     # loop over species
     for(i in 1:length(iold)) {
-      # the old values
+      # the old values and the state
       oldprop <- thermo$obigt[ispecies[iold[i]], icol]
+      state <- thermo$obigt$state[ispecies[iold[i]]]
       # tell user if they're the same, otherwise update the data entry
       if(isTRUE(all.equal(oldprop, args[iold[i], ], check.attributes=FALSE))) 
-        msgout("mod.obigt: no change for ", args$name[iold[i]], "(", args$state[iold[i]], ")\n")
+        msgout("mod.obigt: no change for ", args$name[iold[i]], "(", state, ")\n")
       else {
-        thermo$obigt[ispecies[iold[i]], icol] <<- args[iold[i], ]
-        msgout("mod.obigt: updated ", args$name[iold[i]], "(", args$state[iold[i]], ")\n")
+        thermo$obigt[ispecies[iold[i]], icol] <- args[iold[i], ]
+        assign("thermo", thermo, "CHNOSZ")
+        msgout("mod.obigt: updated ", args$name[iold[i]], "(", state, ")\n")
       }
     }
   }
@@ -92,6 +105,7 @@ add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHN
     # we use force=TRUE for the default data file
     if(missing(force)) force <- TRUE
   }
+  thermo <- get("thermo")
   to1 <- thermo$obigt
   id1 <- paste(to1$name,to1$state)
   to2 <- read.csv(file,as.is=TRUE)
@@ -137,8 +151,9 @@ add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHN
     inew <- c(inew, (length(id1)+1):nrow(to1))
   }
   # commit the change
-  thermo$obigt <<- to1
-  rownames(thermo$obigt) <<- 1:nrow(thermo$obigt)
+  thermo$obigt <- to1
+  rownames(thermo$obigt) <- 1:nrow(thermo$obigt)
+  assign("thermo", thermo, "CHNOSZ")
   msgout("add.obigt: file has ", length(does.exist), " rows; made ", 
     nexist, " replacements, ", nrow(to2), " additions, units = ", E.units, "\n")
   msgout("add.obigt: file was ", file, "\n")
@@ -155,6 +170,7 @@ browse.refs <- function(key=NULL) {
   # numeric: open one or two web pages for each listed species
   # list: the output of subcrt()
   ## first retrieve the sources table
+  thermo <- get("thermo")
   x <- thermo$refs
   ## show a table in the browser if 'key' is NULL 
   if(is.null(key)) {
@@ -301,6 +317,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
   # if tolerance is exceeded
   # or NA if the difference is within the tolerance
   # 20110808 jmd
+  thermo <- get("thermo")
   # get calculated value based on EOS
   if(identical(state, "aq")) {
     if(prop=="Cp") {
@@ -309,7 +326,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       # we use the value of X consistent with SUPCRT
       X <- -3.055586E-7
       refval <- eos$Cp
-      calcval <- eos$c1 + eos$c2/(298.15-228)^2 + eos$omega*298.15*X
+      calcval <- eos$c1 + eos$c2/(298.15-thermo$opt$Theta)^2 + eos$omega*298.15*X
       tol <- thermo$opt$Cp.tol
       units <- "cal K-1 mol-1"
     } else if(prop=="V") {
@@ -319,7 +336,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       Q <- 0.00002775729
       refval <- eos$V
       calcval <- 41.84*eos$a1 + 41.84*eos$a2/2601 + 
-        (41.84*eos$a3 + 41.84*eos$a4/2601) / (298.15-228) - Q * eos$omega
+        (41.84*eos$a3 + 41.84*eos$a4/2601) / (298.15-thermo$opt$Theta) - Q * eos$omega
       tol <- thermo$opt$V.tol
       units <- "cm3 mol-1"
     }
@@ -358,6 +375,7 @@ checkGHS <- function(ghs, ret.diff=FALSE) {
   # print message and return the calculated value if tolerance is exceeded
   # or NA if the difference is within the tolerance
   # 20110808 jmd
+  thermo <- get("thermo")
   # get calculated value based on H and S
   ina <- is.na(ghs$formula)
   if(any(ina)) {
@@ -396,7 +414,7 @@ check.obigt <- function() {
   # 20110808 jmd replaces 'check=TRUE' argument of info()
   checkfun <- function(what) {
     # looking at thermo$obigt or OBIGT-2.csv
-    if(what=="OBIGT") to <- thermo$obigt
+    if(what=="OBIGT") to <- get("thermo")$obigt
     else if(what=="OBIGT-2") {
       file <- system.file("extdata/thermo/OBIGT-2.csv",package="CHNOSZ")
       to <- read.csv(file,as.is=1:7)
@@ -467,7 +485,7 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
   ina <- is.na(icomp)
   if(any(ina)) stop(paste("compound(s)", paste(comate.arg[ina], collapse=" "), "not found in", file))
   # initialize output data frame
-  out <- thermo$obigt[0, ]
+  out <- get("thermo")$obigt[0, ]
   # loop over the compounds
   for(i in icomp) {
     # the group stoichiometry for this compound
@@ -482,7 +500,7 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
     ina <- is.na(ispecies)
     if(any(ina)) stop(paste("group(s)", paste(colnames(thisdat)[igroup][ina], collapse=" "), "not found in", thisdat$state, "state"))
     # group additivity of properties and parameters: add contributions from all groups
-    thiseos <- t(colSums(thermo$obigt[ispecies, 8:20] * as.numeric(thisdat[, igroup])))
+    thiseos <- t(colSums(get("thermo")$obigt[ispecies, 8:20] * as.numeric(thisdat[, igroup])))
     # group additivity of chemical formula
     formula <- as.chemical.formula(colSums(i2A(ispecies) * as.numeric(thisdat[, igroup])))
     # check if the formula is the same as in the file

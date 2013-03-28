@@ -1,6 +1,6 @@
 # send the contents of all the .faa.gz files to a single file ("OUTFILE")
 
-OUTFILE="refseq55.faa"
+OUTFILE="refseq57.faa"
 FILELIST="filelist"
 
 # start with an empty file

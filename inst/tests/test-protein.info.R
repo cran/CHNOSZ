@@ -1,7 +1,7 @@
 context("protein.info")
 
 # clear out any alterations to the database
-suppressPackageStartupMessages(data(thermo))
+suppressMessages(data(thermo))
 
 # test_that somehow affects capture.output so we set up the problem here
 protein <- iprotein(c("CSG_METVO", "CSG_METJA"))

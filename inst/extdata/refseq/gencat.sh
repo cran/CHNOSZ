@@ -1,6 +1,6 @@
 #/bin/sh
 # extract microbial, genomic records from the RefSeq catalog
-RELEASE=55
+RELEASE=57
 ORG=microbial
 MOL=protein
 BASENAME=RefSeq-release$RELEASE.catalog 
@@ -12,20 +12,16 @@ grep \|$ORG $BASENAME  > $BASENAME.$ORG
 # alternatively, could use egrep:
 #egrep "[[:space:]]AP_ | [[:space:]]NP_ | [[:space:]]XP_ | \
 #  [[:space:]]YP_ | [[:space:]]ZP_" $BASENAME.$ORG  > $BASENAME.$ORG.$MOL
-grep "[[:space:]]AP_" $BASENAME.$ORG  > $BASENAME.$ORG.$MOL
-grep "[[:space:]]NP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL
-grep "[[:space:]]XP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL
-grep "[[:space:]]YP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL
-grep "[[:space:]]ZP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL
+grep "[[:space:]]AP_" $BASENAME.$ORG  > $BASENAME.$ORG.$MOL  # 0 records
+grep "[[:space:]]NP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL  # 450218 records
+grep "[[:space:]]XP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL  # 0 records
+grep "[[:space:]]YP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL  # 6786156 records
+grep "[[:space:]]ZP_" $BASENAME.$ORG >> $BASENAME.$ORG.$MOL  # 17252153 records
 
-# to save only the gi, taxid and sequence length columns
-cat $BASENAME.$ORG.$MOL | awk '{FS="\t"} {print $4,$1,$7}' > gi.taxid.unsrt
-
-# for some reason the first line in gi.taxid.unsrt needs to be corrected manually
-# (found using both RefSeq 45 and 47)
-# str. 316407 W3110 --> 89106885 316407 21
-# (using RefSeq 49 and 55)
-# NP_047184.1 9 PROVISIONAL --> 10954455 9 280
+# to save only the gi, taxid and sequence length columns, in that order
+# the field separator (tab) is defined in command line, not in awk program,
+#   otherwise the first line gets processed incorrectly
+cat $BASENAME.$ORG.$MOL | awk -F\\t '{print $4,$1,$7}' > gi.taxid.unsrt
 
 # sort the file on gi so that it can be used with e.g. the unix 'join' command
 cat gi.taxid.unsrt | sort > gi.taxid.txt

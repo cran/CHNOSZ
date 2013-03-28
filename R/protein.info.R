@@ -96,6 +96,7 @@ protein.info <- function(protein, T=25, residue=FALSE, round.it=FALSE) {
   G.Z <- rep(NA, length(pname))
   ZC <- ZC(pf)
   # run ionization calculations if we have H+
+  thermo <- get("thermo")
   if(!is.null(thermo$basis)) {
     iHplus <- match("H+", rownames(thermo$basis))
     if(!is.na(iHplus)) {
@@ -143,6 +144,7 @@ protein.basis <- function(protein, T=25, normalize=FALSE) {
   # what are the coefficients of the basis species in the formation reactions
   sb <- species.basis(pf)
   # calculate ionization states if H+ is a basis species
+  thermo <- get("thermo")
   iHplus <- match("H+", rownames(thermo$basis))
   if(!is.na(iHplus)) {
     pH <- -thermo$basis$logact[iHplus]
@@ -169,6 +171,7 @@ protein.equil <- function(protein, T=25, loga.protein=0) {
   pname <- paste(aa$protein, aa$organism, sep="_")
   plength <- protein.length(aa)
   # use thermo$basis to decide whether to ionize the proteins
+  thermo <- get("thermo")
   ionize.it <- FALSE
   iword <- "nonionized"
   bmat <- basis.matrix()

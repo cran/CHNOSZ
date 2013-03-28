@@ -1,13 +1,6 @@
 # CHNOSZ/util.fasta.R
 # read and manipulate FASTA sequence files
 
-is.fasta <- function(file) {
-  # check if the file is in FASTA format
-  # read two lines in case the first one is blank
-  l <- readLines(file,n=2)
-  if(length(grep("^>",l)) == 0) return(FALSE) else return(TRUE)
-}
-
 grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lines=NULL,grep="grep") {
   # return the line numbers of the file that contain
   # the search term x and optionally don't contain y
@@ -51,7 +44,8 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
   return(as.numeric(out))
 }
 
-read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE) {
+read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
+  pnff=FALSE, start=NULL, stop=NULL) {
   # read sequences from a fasta file
   if(file != "") msgout("read.fasta: reading ",basename(file),"\n")
   # all of them or only those indicated by i
@@ -83,13 +77,14 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
     if(is.null(ihead)) ihead <- which(substr(lines,1,1)==">")
     linefun <- function(i1,i2) lines[i1:i2]
   }
+  # identify the lines that begin and end each sequence
   if(is.null(i)) {
     i <- ihead
-    start <- i + 1
+    begin <- i + 1
     end <- i - 1
     end <- c(end[-1], nlines)
   } else {
-    start <- i + 1
+    begin <- i + 1
     iend <- match(i,ihead)
     # we have to be careful about the last record
     iend[iend==ihead[length(ihead)]] <- NA
@@ -99,11 +94,12 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
   # just return the lines from the file
   if(ret=="fas") {
     iline <- numeric()
-    for(i in 1:length(start)) iline <- c(iline,(start[i]-1):end[i])
+    for(i in 1:length(begin)) iline <- c(iline,(begin[i]-1):end[i])
     return(lines[iline])
   }
-  seqfun <- function(i) paste(linefun(start[i],end[i]),collapse="")
-  sequences <- palply(1:length(i), seqfun)
+  # get each sequences from the begin to end lines
+  seqfun <- function(i) paste(linefun(begin[i],end[i]),collapse="")
+  sequences <- lapply(1:length(i), seqfun)
   # process the header line for each entry
   # (strip the ">" and go to the first space or underscore)
   nomfun <- function(befund) {
@@ -140,7 +136,7 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
     organism <- bnf
   }
   if(ret=="count") {
-    aa <- count.aa(sequences)
+    aa <- count.aa(sequences, start, stop)
     colnames(aa) <- aminoacids(3)
     ref <- abbrv <- NA
     chains <- 1
@@ -150,33 +146,79 @@ read.fasta <- function(file,i=NULL,ret="count",lines=NULL,ihead=NULL,pnff=FALSE)
   } else return(sequences)
 }
 
-splitline <- function(line,length) {
-  # to split a line into multiple lines with a specified length
-  out <- character()
-  count <- 0
-  n <- nchar(line)
-  while(count < n) {
-    split <- substr(line,count+1,count+length)
-    out <- c(out,split)
-    count <- count + length
+uniprot.aa <- function(protein, start=NULL, stop=NULL) {
+  # download protein sequence information from UniProt
+  iprotein <- numeric()
+  # construct the initial URL
+  proteinURL <- paste("http://www.uniprot.org/uniprot/", protein, sep="")
+  msgout("uniprot.aa: trying ", proteinURL, " ...")
+  # try loading the URL, hiding any warnings
+  oldopt <- options(warn=-1)
+  URLstuff <- try(readLines(proteinURL),TRUE)
+  options(oldopt)
+  if(class(URLstuff)=="try-error") {
+    msgout(" failed\n")
+    return(NA)
   }
-  return(out)
+  # 20091102: look for a link to a fasta file
+  linkline <- URLstuff[[grep("/uniprot/.*fasta", URLstuff)[1]]]
+  # extract accession number from the link
+  linkhead <- strsplit(linkline, ".fasta", fixed=TRUE)[[1]][1]
+  accession.number <- tail(strsplit(linkhead, "/uniprot/", fixed=TRUE)[[1]], 1)
+  msgout(" accession ", accession.number, " ...\n")
+  # now download the fasta file
+  fastaURL <- paste("http://www.uniprot.org/uniprot/", accession.number, ".fasta", sep="")
+  URLstuff <- readLines(fastaURL)
+  # show the name of the protein to the user
+  header <- URLstuff[[1]]
+  header2 <- strsplit(header, paste(protein, ""))[[1]][2]
+  header3 <- strsplit(header2, " OS=")[[1]]
+  protein.name <- header3[1]
+  header4 <- strsplit(header3[2], " GN=")[[1]][1]
+  header5 <- strsplit(header4[1], " PE=")[[1]]
+  organism.name <- header5[1]
+  msgout("uniprot.aa: ", protein.name, " from ", organism.name)
+  # 20130206 use read.fasta with lines, start, stop arguments
+  aa <- read.fasta(file="", lines=URLstuff, start=start, stop=stop)
+  msgout(" (length ", sum(aa[1, 6:25]), ")\n", sep="")
+  po <- strsplit(protein, "_")[[1]]
+  aa$protein <- po[1]
+  aa$organism <- po[2]
+  return(aa)
 }
 
-trimfas <- function(file,start,stop) {
-  # to extract certain positions from an (aligned) fasta file
-  lines <- readLines(file)
-  fas <- read.fasta(file="",lines=lines,ret="seq")
-  # the length of lines to use
-  ll <- nchar(lines[2])
-  ihead <- grep("^>",lines)
-  head <- lines[ihead]
-  out <- character()
-  for(i in 1:length(head)) {
-    extract <- substr(fas[i],start,stop)
-    out <- c(out,head[i],splitline(extract,ll),"")
+count.aa <- function(seq, start=NULL, stop=NULL) {
+  # count amino acids in one or more sequences
+  # sequences are given as elements of the list seq
+  aa <- aminoacids(1)
+  # to count the letters in each sequence
+  countfun <- function(seq, start, stop) {
+    count <- numeric(20)
+    # get a substring if one or both of start or stop are given
+    # if only one of start or stop is given, get a default value for the other
+    if(!is.null(start)) {
+      if(is.null(stop)) stop <- nchar(seq)
+      seq <- substr(seq, start, stop)
+    } else if(!is.null(stop)) {
+      seq <- substr(seq, 1, stop)
+    }
+    # the actual counting
+    naa <- table(strsplit(toupper(seq), "")[[1]])
+    # put them in the same order as in aa (i.e. thermo$protein)
+    iaa <- match(names(naa), aa)
+    # in case any letters don't match some amino acid
+    ina <- is.na(iaa)
+    count[iaa[!ina]] <- naa[!ina]
+    if(any(ina)) msgout("count.aa: unrecognized amino acid code(s): ", 
+      paste(names(naa)[ina], collapse=" "), "\n")
+    return(count)
   }
-  #write.table(out,paste(file,"trim",sep="."),row.names=FALSE,col.names=FALSE,quote=FALSE)
-  return(out)
+  # count amino acids in each sequence
+  a <- palply(seq, countfun, start, stop)
+  a <- t(as.data.frame(a, optional=TRUE))
+  # clean up row/column names
+  colnames(a) <- aa
+  rownames(a) <- 1:nrow(a)
+  return(a)
 }
 

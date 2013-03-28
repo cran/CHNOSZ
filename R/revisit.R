@@ -41,6 +41,9 @@ extremes <- function(z, objective) {
     for(i in 1:xres) y <- c(y, which.max(z[i,]))
     for(i in 1:yres) x <- c(x, which.max(z[,i]))
   }
+  # stop if we missed some
+  if(length(x)!=xres) stop("optima not found for all y")
+  if(length(y)!=yres) stop("optima not found for all x")
   return(list(x=x, y=y))
 }
 
@@ -120,11 +123,14 @@ revisit <- function(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
   # construct array of values: Astar (for DGtr)
   if(any(grepl("Astar", objargs))) {
     Astar <- eout$Astar[ispecies]
+    # one row for each condition
     Astar <- sapply(Astar, as.vector)
+    # for 0-D case we want a 1-row matrix (sapply simplifies to vector)
+    if(nd==0) Astar <- t(Astar)
   }
 
   # calculation of the objective function
-  # "H" is a remnant of the first target, shannon entropy
+  # the symbol "H" is reminiscent of the first implemented target, shannon entropy
   if(length(objargs) == 1) H <- objfun(a1)
   else if(length(objargs) == 2) H <- objfun(a1, a2)
   else if(length(objargs) == 3) H <- objfun(a1, a2, Astar)
@@ -157,12 +163,14 @@ revisit <- function(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
         # plot the points for a referenced objective
         ylab <- "loga1"
         xlab <- "loga2"
-        plot(loga2, loga1, xlab=xlab, ylab=ylab, pch=pch, col=col)
+        plot(loga2, loga1, xlab=xlab, ylab=ylab, pch=pch, col=col, xlim=xlim, ylim=ylim)
         # add a 1:1 line
         lines(range(loga2), range(loga2), col="grey")
         # add a lowess line
-        ls <- loess.smooth(loga2, loga1)
-        lines(ls$x, ls$y, col="red")
+        if(!is.null(lwd)) {
+          ls <- loess.smooth(loga2, loga1, family="gaussian")
+          lines(ls$x, ls$y, col="red", lwd=lwd)
+        }
       } else plot.it <- FALSE
       # add a title
       if(missing(main)) main <- paste(objective, "=", round(H,3)) 

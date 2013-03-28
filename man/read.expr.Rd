@@ -51,9 +51,7 @@ For \code{yeastgfp}, if \code{location} is NULL, the function returns the names 
   \code{\link{more.aa}} for getting the amino acid compositions of proteins whose names are returned by these functions.
 }
 
-\examples{
-\dontshow{data(thermo)}
-
+\examples{\dontshow{data(thermo)}
 ## overall oxidation state of proteins exclusively localized 
 ## to cytoplasm of S. cerevisiae with/without abundance weighting
 y <- yeastgfp("cytoplasm")

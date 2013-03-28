@@ -9,8 +9,8 @@ Calculate equilibrium chemical activities of species from the affinities of form
 }
 
 \usage{
-  equilibrate(aout, balance=NULL, loga.balance=NULL, normalize=FALSE,
-    ispecies=1:length(aout$values))
+  equilibrate(aout, balance=NULL, loga.balance=NULL,
+    ispecies=1:length(aout$values), normalize=FALSE, stay.normal=FALSE)
   balance(aout, balance=NULL)
   equil.boltzmann(Astar, n.balance, loga.balance)
   equil.reaction(Astar, n.balance, loga.balance)
@@ -19,8 +19,9 @@ Calculate equilibrium chemical activities of species from the affinities of form
 \arguments{
   \item{aout}{list, output from \code{\link{affinity}}}
   \item{balance}{character or numeric, how to balance the transformations}
-  \item{normalize}{logical, normalize the molar formulas of species by the balancing coefficients?}
   \item{ispecies}{numeric, which species to include}
+  \item{normalize}{logical, normalize the molar formulas of species by the balancing coefficients?}
+  \item{stay.normal}{logical, report results for the normalized formulas?}
   \item{Astar}{numeric, affinities of formation reactions excluding species contribution}
   \item{n.balance}{numeric, number of moles of conserved component in the formation reactions of the species of interest}
   \item{loga.balance}{numeric, logarithm of total activity of balanced quantity}
@@ -53,6 +54,7 @@ If \code{loga.balance} is missing, its value is taken from the activities of spe
 This operation is intended for systems of polymers, such as proteins, whose conventional formulas are much larger than the basis speices.
 The normalization also applies to the balancing coefficients, which as a result consist of \samp{1}s.
 \code{normalize} has the same effect as did \code{diagram(..., residue=TRUE)} in versions of CHNOSZ before 0.9-9.
+After normalization and equilibration, the equilibrium activities are then un-normalized (for the original formulas of the species), unless \code{stay.normal} is TRUE.
 
 \code{ispecies} can be supplied to identify a subset of the species to include in the calculation.
 

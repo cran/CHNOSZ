@@ -7,13 +7,23 @@
 }
 
 \details{
-  When the package is loaded, \code{\link{sys.source}} is used to create a \code{\link{list}} object named \code{\link{thermo}} that is placed in an \code{\link{environment}} named \samp{CHNOSZ:thermo}. Because that environment is \code{\link{attach}ed}, the \code{thermo} object, including all of its components, is accessible in the \code{\link{search}} path. Some functions in CHNOSZ have side effects that modify the contents of \code{thermo}; all such changes can be reverted, and the object restored to its original state, by calling \code{\link{data}(thermo)}.
+When the package is loaded, \code{\link{.onAttach}} creates a \code{\link{list}} object named \code{\link{thermo}} that is placed in an \code{\link{environment}} named \samp{CHNOSZ}.
+Some functions in CHNOSZ have side effects that modify the contents of \code{thermo}; all such changes can be reverted, and the object restored to its original state, by calling \code{\link{data}(thermo)}.
 
-  In the functions in the package, the greatest number of accessions are to the thermodynamic database (\code{thermo$obigt}), followed by the basis and species definitions (\code{thermo$basis} and \code{thermo$species}). For example, \code{\link{info}} can be used to look up thermodynamic data in \code{thermo$obigt} by the name or chemical formula of a species. As another example, \code{\link{subcrt}} attempts to balance unbalanced chemical reactions with the user-defined basis species in \code{thermo$basis}.
+The \samp{CHNOSZ} environment is \emph{not} (as of CHNOSZ 1.0.0) \code{\link{attach}ed}, rather the \code{thermo} object is accessed in functions using \code{\link{get}} (as in \code{get("thermo")}), \code{\link{assign}} (\code{assign("thermo", thermo, "CHNOSZ")}) and occasionally \code{\link{with}} (\code{with(as.environment("CHNOSZ"), ...)}).
 
-  Some functions modify the thermodynamic database or system definition in \code{thermo}. These are examples of \dQuote{side effects}, since the functions have an effect on the state of the program that persists beyond the lifetime of the objects returned by the functions. In the code, side effects can be recognized by the presence of the \dQuote{superassignment} operator \code{\link{<<-}}. 
+In the functions in the package, the greatest number of accessions are to the thermodynamic database (\code{thermo$obigt}), followed by the basis and species definitions (\code{thermo$basis} and \code{thermo$species}).
+For example, \code{\link{info}} can be used to look up thermodynamic data in \code{thermo$obigt} by the name or chemical formula of a species.
+As another example, \code{\link{subcrt}} attempts to balance unbalanced chemical reactions with the user-defined basis species in \code{thermo$basis}.
 
-  Side effects are not highly desirable in functional programming languages such as \R. The reason this design is adopted in CHNOSZ is that interactive use of \code{\link{basis}} and \code{\link{species}} appeared to the author, in the early stages of developing the package and of learning \R, to be facilitated by not requiring users to assign the results of these functions to objects. Instead, using side effects, the program \dQuote{remembers} the results of these function calls. Experience has shown that this design is usable (especially for new users), and is adaptable to many usage scenarios, but the dependence on side effects probably should be eliminated in the future.
+Some functions modify the thermodynamic database or system definition in \code{thermo}.
+These are \dQuote{side effects}, since the functions have an effect on the state of the program that persists beyond the lifetime of the objects returned by the functions.
+In the code, side effects can be recognized by assignment to the \samp{thermo} object in the \samp{CHNOSZ} environment, i.e. \code{assign("thermo", thermo, "CHNOSZ")} (the unquoted \code{thermo} here refers to the object that was manipulated internally by a function and is now being assigned to the environment).
+
+Side effects are not highly desirable in functional programming languages such as \R.
+The reason this design is adopted in CHNOSZ is that interactive use of \code{\link{basis}} and \code{\link{species}} appeared to the author, in the early stages of developing the package and of learning \R, to be facilitated by not requiring users to assign the results of these functions to objects.
+Instead, using side effects, the program \dQuote{remembers} the results of these function calls.
+Experience has shown that this design is usable (especially for new users), and is adaptable to many usage scenarios, but the dependence on side effects probably should be eliminated in the future.
 
  The two \emph{major} side effects, that most users will encounter, are the basis and species definitions. These functions and a few other modifications (writing) and accessions (reading) of data objects are listed below. The names of objects in this table refer to the components of the \code{thermo} object; for example, one can type \code{thermo$opt} at the command line to access all of the contents of the \code{opt} component, including those not listed in the table.
 
@@ -29,8 +39,10 @@
     \code{opar} \tab \code{\link{thermo.plot.new}} \tab -- \tab graphical parameters \cr
   }
 
-  Beginning with CHNOSZ version 0.9-9, instances of \code{\link{<<-}} in the code have the effect of \dQuote{superassignment} to an enclosing environment (\samp{CHNOSZ:thermo} on the search path), instead of the \emph{very} highly discouraged assignment to the global environment (user's workspace) used in previous versions of the package. This convention means that if, from the command line, \emph{you} wish to alter something in \code{thermo}, you also should use the \code{\link{<<-}} operator; examples of changing \code{thermo$opt$water} in this manner can found in the help page for \code{\link{water}}.
-  
+Beginning with CHNOSZ version 1.0.0, the \dQuote{superassignment} operator (\code{\link{<<-}}) is no longer used in functions. 
+However, if \emph{you} wish to alter something in \code{thermo} in an interactive session, it is recommended to use the \code{\link{<<-}} operator, instead of \code{\link{<-}}.
+This way, your changes to the \code{thermo} object occur in the \samp{CHNOSZ} environment, which is where the functions in CHNOSZ expect to find it, rather than being saved to the global environment.
+An example of changing \code{thermo$opt$water} in this manner can found in the help page for \code{\link{water}}.
 }
 
 \seealso{

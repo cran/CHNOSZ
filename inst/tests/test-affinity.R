@@ -1,7 +1,7 @@
 context("affinity")
 
 # clear out any previous basis definition or database alterations
-suppressPackageStartupMessages(data(thermo))
+suppressMessages(data(thermo))
 
 test_that("errors come as expected, and output gives T and P in user's units", {
   expect_error(affinity(iprotein=7), "basis species are not defined")

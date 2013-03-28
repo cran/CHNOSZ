@@ -79,12 +79,12 @@ id.blast <- function(blast, gi.taxid, taxid.names, min.taxon=0,
   it <- which(nt/sum(nt) >= min.taxon)
   itt <- which(blast$taxid %in% names(nt)[it])
   blast <- blast[itt,]
-  cat(paste("  min taxon abundance filtering leaves",length(unique(blast$query)),
+  cat(paste("  min taxon abundance filtering leaves",length(unique(blast$queryId)),
     "query sequences,",length(unique(blast$phylum)),"phyla,",length(unique(blast$taxid)),"taxa\n"))
   # only take phylum assignments that make up at least a certain 
   # fraction ('amin') of hits to the query sequence
-  uquery <- unique(blast$query)
-  iquery <- match(uquery,blast$query)
+  uquery <- unique(blast$queryId)
+  iquery <- match(uquery,blast$queryId)
   # function to select the (highest) represented phylum for each query
   iqfun <- function(i) {
     if((i-1)%%1000==0) cat(paste(i,""))

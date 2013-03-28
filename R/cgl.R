@@ -5,7 +5,9 @@
 cgl <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL) {
   # calculate properties of crystalline, liquid (except H2O) and gas species
   # argument handling
-  Tr <- thermo$opt$Tr; Pr <- thermo$opt$Pr
+  thermo <- get("thermo")
+  Tr <- thermo$opt$Tr
+  Pr <- thermo$opt$Pr
   eargs <- eos.args('mk',property=property)
   prop <- eargs$prop
   props <- eargs$props

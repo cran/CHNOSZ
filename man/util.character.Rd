@@ -31,15 +31,14 @@ Convert between strings and character objects. Test for ability to become numeri
 \code{s2c}, \code{c2s} and \code{axis.label} return character values. \code{can.be.numeric} returns logical.
 }
 
-\examples{
-  \dontshow{data(thermo)}
-  ## string to character
-  s2c("hello world")
-  s2c("hello world",sep=" ",keep.sep=FALSE)
-  s2c("3.141592",sep=c(".","9"))
-  # character to string
-  c2s(aminoacids())
-  c2s(aminoacids(),sep=".")
+\examples{\dontshow{data(thermo)}
+## string to character
+s2c("hello world")
+s2c("hello world",sep=" ",keep.sep=FALSE)
+s2c("3.141592",sep=c(".","9"))
+# character to string
+c2s(aminoacids())
+c2s(aminoacids(),sep=".")
 }
 
 \keyword{util}

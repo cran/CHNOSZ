@@ -5,6 +5,7 @@
 
 # to add the basis to thermo$obigt
 put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
+  thermo <- get("thermo")
   state <- thermo$obigt$state[ispecies]
   # make the basis matrix, revised 20120114
   # get the elemental makeup of each species,
@@ -30,8 +31,9 @@ put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
   # store the basis definition in thermo$basis, including
   # both numeric and character data, so we need to use a data frame
   comp <- cbind(as.data.frame(comp), ispecies, logact, state, stringsAsFactors=FALSE)
-  # assign to the global thermo object
-  thermo$basis <<- comp
+  # ready to assign to the global thermo object
+  thermo$basis <- comp
+  assign("thermo", thermo, "CHNOSZ")
   # remove the species since there's no guarantee the
   # new basis includes all their elements
   species(delete=TRUE)
@@ -40,6 +42,7 @@ put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
 
 # modify the states or logact values in the existing basis definition
 mod.basis <- function(species, state=NULL, logact=NULL) {
+  thermo <- get("thermo")
   # the basis must be defined
   if(is.null(thermo$basis)) stop("basis is not defined")
   # loop over each species to modify
@@ -70,18 +73,20 @@ mod.basis <- function(species, state=NULL, logact=NULL) {
               "' are not in the basis\n",sep=""))
           }
         }
-        thermo$basis$logact[ib] <<- state[i]
+        thermo$basis$logact[ib] <- state[i]
       } else {
         # look for a species with this name in the requested state
         ispecies <- suppressMessages(info(thermo$obigt$name[thermo$basis$ispecies[ib]], state[i], check.it=FALSE))
         if(is.na(ispecies) | is.list(ispecies)) 
           stop(paste("state or buffer '", state[i], "' not found for ", thermo$obigt$name[thermo$basis$ispecies[ib]], "\n", sep=""))
-        thermo$basis$ispecies[ib] <<- ispecies
-        thermo$basis$state[ib] <<- state[i]
+        thermo$basis$ispecies[ib] <- ispecies
+        thermo$basis$state[ib] <- state[i]
       }
     } 
     # then modify the logact
-    if(!is.null(logact)) thermo$basis$logact[ib] <<- as.numeric(logact[i])
+    if(!is.null(logact)) thermo$basis$logact[ib] <- as.numeric(logact[i])
+    # assign the result to the CHNOSZ environment
+    assign("thermo", thermo, "CHNOSZ")
   }
   return(thermo$basis)
 } 
@@ -124,9 +129,13 @@ preset.logact <- function(species) {
 ## the actual basis() function
 ## delete, retrieve, define or modify the basis species of a thermodynamic system
 basis <- function(species=NULL, state=NULL, logact=NULL, delete=FALSE) {
+  thermo <- get("thermo")
   ## delete the basis species if requested
   oldbasis <- thermo$basis
-  if(delete) thermo$basis <<- NULL
+  if(delete) {
+    thermo$basis <- NULL
+    assign("thermo", thermo, "CHNOSZ")
+  }
   ## return the basis definition if requested
   if(is.null(species)) return(oldbasis)
   ## from now on we need something to work with

@@ -64,17 +64,17 @@ sweave
 \branch load
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch stuff
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \branch more
 \selected 1
 \filename_suffix 0
-\color #000000
+\color #faf0e6
 \end_branch
 \index Index
 \shortcut idx
@@ -357,13 +357,13 @@ install.packages("CHNOSZ")
 \end_layout
 
 \begin_layout Standard
-Then load the CHNOSZ package to make its functions and data available in
- your working session.
+Then load the CHNOSZ package to make its functions available in your working
+ session.
 \end_layout
 
 \begin_layout Standard
 \begin_inset Branch stuff
-status open
+status collapsed
 
 \begin_layout Chunk
 
@@ -386,7 +386,40 @@ library(CHNOSZ)
 \end_layout
 
 \begin_layout Standard
-The rest of this document assumes that the CHNOSZ package is loaded.
+Then load the 
+\family typewriter
+thermo
+\family default
+ object, which contains the thermodynamic database and is also where your
+ system settings will be stored.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Chunk
+
+<<data_thermo>>=
+\end_layout
+
+\begin_layout Chunk
+
+data(thermo)
+\end_layout
+
+\begin_layout Chunk
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The rest of this document assumes that the CHNOSZ package and data are loaded.
 \end_layout
 
 \end_inset

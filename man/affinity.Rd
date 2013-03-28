@@ -38,7 +38,7 @@ It is possible to use the results of \code{affinity} to generate equilibrium act
 The \code{iprotein} and \code{loga.protein} arguments can be used to compute the chemical affinities of formation reactions of proteins that are not in the current \code{\link{species}} definition.
 This approach can be utilized in order to calculate the properties of many proteins in a fraction of the time it would take to calculate them individually.
 The appropriate \code{\link{basis}} species still must be defined prior to calling \code{affinity}.
-\code{iprotein} contains indices of desired proteins in \code{\link{thermo}$protein}; \code{affinity} adds to the species list the amino acid residues and protein backbone group then calculate the properties of the reactions for the residues (including ionization effects), and adds them together to get those of the indicated proteins.
+\code{iprotein} contains indices of desired proteins in \code{\link{thermo}$protein}; \code{affinity} adds to the species list the amino acid residues and and terminal H2O group (indicated by \dQuote{RESIDUE} in \code{thermo$protein}) then calculates the properties of the reactions for the residues and terminal group, including ionization effects, and adds them together to get those of the indicated proteins.
 
   In CHNOSZ version 0.9, \code{energy} gained a new argument \samp{transect} which is set to TRUE by \code{energy.args} when the length(s) of the variables is(are) greater than three. In this mode of operation, instead of performing the calculations on an \eqn{n}{n}-dimensional grid, the affinities are calculated on an \eqn{n}{n}-dimensional transect through chemical potential (possibly including T and/or P) space. 
 

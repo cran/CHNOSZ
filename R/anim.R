@@ -7,10 +7,8 @@ anim.TCA <- function(redox=list(O2=c(-95,-60)),high.T=FALSE,
   # we depend on an empty png directory
   if(!"png" %in% dir()) stop("directory 'png' not present")
   else if(length(dir("png")) > 0) stop("directory 'png' not empty")
-  # initialize the system
   # add supplementary data (from default location of data/OBIGT-2.csv)
-  # which includes properties from 
-  data(thermo)
+  # which includes properties for the metabolites
   add.obigt()
   # expand default logfO2 range if we're at high temperature
   if(high.T & missing(redox)) redox <- list(O2=c(-100,-40))
@@ -95,7 +93,6 @@ anim.plasma <- function(width=480, height=480) {
   notna <- !is.na(pdata$name)
   pname <- pdata$name[notna]
   # set up the system; use O2 aq instead of gas
-  data(thermo)
   basis(c("CO2","NH3","H2S","H2","O2","H+"))
   basis("O2","aq")
   basis(c("CO2","NH3","H2S","H+"),c(-3,-3,-10,-7))
@@ -180,7 +177,6 @@ anim.carboxylase <- function(T=25:125,ntop=5,lcex=0.8,width=420,height=320) {
     ido <- c(rep(1,15),1:res,rep(res,20))
   }
   # set up system
-  data(thermo)
   basis(c("CO2","H2O","NH3","H2","H2S","H+"),
     c("aq","liq","aq","aq","aq","aq"),c(-3,0,-4,-6,-7,-7))
   species(c(rubisco,accoaco))

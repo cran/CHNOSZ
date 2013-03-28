@@ -83,7 +83,7 @@ On 2-D diagrams, the fields represent the species with the highest equilibrium a
 By default, \code{\link{heat.colors}} are used to fill the predominance fields in diagrams on the screen plot device.
 The style of the boundary lines on 2-D diagrams can be altered by supplying one or more non-zero integers in \code{dotted}, which indicates the fraction of line segments to omit; a value of \samp{1} or NULL for \code{dotted} has the effect of not drawing the boundary lines.
 
-For all diagrams, the \code{names} of the species and theirs colors in \code{col.names} can be changed, as can \code{cex}, \code{cex.names}, and \code{cex.axis} to adjust the overall character expansion factors (see \code{\link{par}}) and those of the species names and axis labels.
+For all diagrams, the \code{names} of the species and their colors in \code{col.names} can be changed, as can \code{cex}, \code{cex.names}, and \code{cex.axis} to adjust the overall character expansion factors (see \code{\link{par}}) and those of the species names and axis labels.
 The x- and y-axis labels are automatically generated unless they are supplied in \code{xlab} and \code{ylab}. 
 A new plot is started unless \code{add} is TRUE.
 If \code{plot.it} is FALSE, no plot will be generated but all the intermediate computations will be performed and the results returned.

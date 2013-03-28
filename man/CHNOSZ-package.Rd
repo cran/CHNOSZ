@@ -74,7 +74,7 @@
 
   \code{\link{subcrt}} does not correctly identify the stable polymorph of some minerals at high temperature.
 
-  \code{\link{diagram}} causes an error while plotting stability field boundaries if the x and y resolutions are not identical. (\code{diagram(..., plot.it=FALSE)} can still be used to retrieve the results of the equilibrium calculation.)
+  \code{\link{diagram}} causes an error while plotting stability field boundaries if the x and y resolutions are not identical.
 }
 
 \seealso{
@@ -82,8 +82,10 @@
 }
 
 \examples{
-\dontshow{data(thermo)}
 ### Getting Started
+## the 'thermo' object contains thermodynamic data and is also where
+## user's settings (definition of chemical system) are stored
+data(thermo)
 
 ## standard thermodynamic properties of species
 subcrt("H2O")
@@ -122,9 +124,9 @@ basis(c("SiO2", "H2O", "K+", "H+", "O2"))
 subcrt(c("k-feldspar", "kaolinite"), c(-2, 1))
 
 ## chemical affinities
-# basis species and their activities or fugacities
+# set basis species and their activities or fugacities
 basis(c("CO2", "H2O", "O2"), c(-3, 0, -80))
-# species of interest
+# set species of interest
 species(c("CH4", "C2H4O2", "CO2"))
 # chemical affinities of formation reactions
 # take off $values for complete output
