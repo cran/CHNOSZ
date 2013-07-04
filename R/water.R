@@ -22,9 +22,9 @@ water.AW90 <- function(T=298.15,rho=1000,P=0.1) {
   rho.0 <- 1000 # kg m-3
   # Equation 1
   epsilon.0 <- 8.8541878E-12 # permittivity of vacuum, C^2 J-1 m-1
-  epsfun.lhs <- function(e) (e-1)*(2*e+1)/(9*e)
+  #epsfun.lhs <- function(e) (e-1)*(2*e+1)/(9*e)
   epsfun.rhs <- function(T,V.m) N.A*(alpha+mufun()/(3*epsilon.0*k*T))/(3*V.m)
-  epsfun <- function(e,T,V.m) epsfun.lhs(e) - epsfun.rhs(T,V.m)
+  #epsfun <- function(e,T,V.m) epsfun.lhs(e) - epsfun.rhs(T,V.m)
   mufun <- function() gfun()*mu^2
   gfun <- function() rhofun()*rho/rho.0 + 1
   # Equation 3
@@ -32,7 +32,9 @@ water.AW90 <- function(T=298.15,rho=1000,P=0.1) {
     b[4]*(T-215)^-0.5 + b[5]*(T-215)^-0.25 +
     exp(b[6]*T^-1 + b[7]*T^-2 + b[8]*P*T^-1 + b[9]*P*T^-2)
   epsilon <- function(T,rho) {
-    tu <- try(uniroot(epsfun,c(1E-1,1E3),T=T,V.m=M/rho)$root,TRUE)
+    #tu <- try(uniroot(epsfun,c(1E-1,1E3),T=T,V.m=M/rho)$root,TRUE)
+    epspoly <- function() epsfun.rhs(T,V.m=M/rho)
+    tu <- (9*epspoly() + 1 + ((9*epspoly()+1)*(9*epspoly()+1) + 8)^0.5) / 4 #Marc Neveu added 4/24/2013
     if(!is.numeric(tu)) {
       warning('water.AW90: no root for density at ',T,' K and ',rho,' kg m-3.',call.=FALSE,immediate.=TRUE)
       tu <- NA
@@ -71,7 +73,9 @@ water <- function(property = NULL, T = get("thermo")$opt$Tr, P = "Psat") {
   } else {
     # here we get properties using IAPWS-95 
     w.out <- water.IAPWS95(property, T, P)
-    colnames(w.out) <- property
+    # normalize the names to use upper case (expected by subcrt())
+    iprop <- match(tolower(property), tolower(water.props("IAPWS95")))
+    colnames(w.out) <- water.props("IAPWS95")[iprop]
     return(w.out)
   }
 }
@@ -87,6 +91,7 @@ water.props <- function(formulation=get("thermo")$opt$water) {
     "V", "rho", "Psat", "E", "kT")
   else if(formulation=="IAPWS95")
     props <- c("A", "G", "S", "U", "H", "Cv", "Cp",
+    "Speed", "diel",
     "YBorn", "QBorn", "XBorn", "NBorn", "UBorn",
     "V", "rho", "Psat", "de.dT", "de.dP", "P")
   return(props)
@@ -198,11 +203,17 @@ rho.IAPWS95 <- function(T=298.15, P=1) {
   rho <- numeric() 
   for(i in 1:length(T)) {
     if(T[i] < 647.096) {
-      rho.lower <- WP02.auxiliary("rho.liquid", T=T[i]) - 2
+      rho.lower <- WP02.auxiliary('rho.liquid',T=T[i])-2
       rho.upper <- rho.lower + 400
       if(P[i] < 5000) rho.upper <- rho.lower + 300
       if(P[i] < 1000) rho.upper <- rho.lower + 200
-      if(P[i] < 300) rho.upper <- rho.lower + 30
+      if(P[i] < 300) {
+        rho.upper <- rho.lower + 30
+        if(T[i] < 250) { #Marc Neveu added 4/23/2013
+          rho.lower <- rho.lower - 10
+          rho.upper <- rho.lower + 40
+        }
+      }
     } else {
       rho.lower <- 0.01
       rho.upper <- 1200
@@ -259,10 +270,10 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     return(convert(IAPWS95('cv',T=T,rho=my.rho)$cv*M,'cal')) 
   cp <- function() 
     return(convert(IAPWS95('cp',T=T,rho=my.rho)$cp*M,'cal')) 
-  w <- function()
+  speed <- function()
     return(IAPWS95('w',T=T,rho=my.rho)$w*100) # to cm/s
   ## electrostatic properties
-  epsilon <- function() return(water.AW90(T=T,rho=my.rho,P=convert(P,'MPa')))
+  diel <- function() return(water.AW90(T=T,rho=my.rho,P=convert(P,'MPa')))
   de.dt <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
@@ -378,6 +389,5 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     if(i > 1) w.out <- cbind(w.out, wnew) else w.out <- wnew
   }  
   msgout("\n")
-  names(w.out) <- property
   return(w.out)
 }

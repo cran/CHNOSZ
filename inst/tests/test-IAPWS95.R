@@ -75,6 +75,13 @@ test_that("calculations of thermodynamic properties are consistent with referenc
   expect_equal(round(signif(vapor.calc$cp, 5), 4), cp.vapor.ref, tol=1e-1)
 })
 
+test_that("calculations are possible at low temperatures", {
+  # the sequences start at the lowest whole-number temperature (K) 
+  # where the function returns a value of density at the given pressure
+  expect_that(any(is.na(water.IAPWS95("rho", T=seq(234, 274, 3), P=rep(1, 14)))), is_false())
+  expect_that(any(is.na(water.IAPWS95("rho", T=seq(227, 272, 3), P=rep(1000, 16)))), is_false())
+})
+
 # reference
 
 # Wagner, W. and Pruss, A. (2002)

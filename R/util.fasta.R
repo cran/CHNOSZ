@@ -45,22 +45,19 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
 }
 
 read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
-  pnff=FALSE, start=NULL, stop=NULL) {
+  start=NULL, stop=NULL, type="protein") {
   # read sequences from a fasta file
-  if(file != "") msgout("read.fasta: reading ",basename(file),"\n")
-  # all of them or only those indicated by i
-  # if aa=TRUE compile a data frame of the amino acid
-  # compositions suitable for add.protein
   # some of the following code was adapted from 
   # read.fasta in package seqinR
-  # TODO: better test for type of system
+  # value of 'i' is what sequences to read 
   # value of 'ret' determines format of return value:
-  # aa: amino acid composition (same columns as thermo$protein)
+  # count: amino acid composition (same columns as thermo$protein, can be used by add.protein)
+  #        or nucleic acid base composition (A-C-G-T)
   # seq: amino acid sequence
   # fas: fasta entry
-  # pnff: take the protein name from filename (TRUE) or entry name (FALSE)
   is.nix <- Sys.info()[[1]]=="Linux"
   if(is.nix & is.null(lines)) {
+    msgout("read.fasta: reading ",basename(file),"\n")
     # figure out whether to use 'cat', 'zcat' or 'xzcat'
     suffix <- substr(file,nchar(file)-2,nchar(file))
     if(suffix==".gz") mycat <- "zcat"
@@ -72,7 +69,10 @@ read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
     lines <- system(paste(mycat,' "',file,'"',sep=""),intern=TRUE)
     linefun <- function(i1,i2) lines[i1:i2]
   } else {
-    if(is.null(lines)) lines <- readLines(file)
+    if(is.null(lines)) {
+      lines <- readLines(file)
+      msgout("read.fasta: reading ",basename(file),"\n")
+    }
     nlines <- length(lines)
     if(is.null(ihead)) ihead <- which(substr(lines,1,1)==">")
     linefun <- function(i1,i2) lines[i1:i2]
@@ -97,52 +97,42 @@ read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
     for(i in 1:length(begin)) iline <- c(iline,(begin[i]-1):end[i])
     return(lines[iline])
   }
-  # get each sequences from the begin to end lines
+  # get each sequence from the begin to end lines
   seqfun <- function(i) paste(linefun(begin[i],end[i]),collapse="")
   sequences <- lapply(1:length(i), seqfun)
-  # process the header line for each entry
-  # (strip the ">" and go to the first space or underscore)
-  nomfun <- function(befund) {
-    nomnomfun <- function(j,pnff) {
-      # get the text of the line
-      f1 <- linefun(i[j],i[j])
-      # stop if the first character is not ">"
-      # or the first two charaters are "> "
-      if(substr(f1,1,1)!=">" | length(grep("^> ",f1)>0))
-        stop(paste("file",basename(file),"line",j,"doesn't begin with FASTA header '>'."))
-      # discard the leading '>'
-      f2 <- substr(f1, 2, nchar(f1))
-      # keep everything before the first space
-      f3 <- strsplit(f2," ")[[1]][1]
-      # then before or after the first underscore
-      if(befund) f4 <- strsplit(f3,"_")[[1]][1]
-      else f4 <- strsplit(f3,"_")[[1]][2]
-      return(f4)
-    }
-    noms <- as.character(palply(1:length(i),nomnomfun))
-    return(noms)
-  }
-  # process the file name
+  # organism name is from file name
   # (basename minus extension)
   bnf <- strsplit(basename(file),split=".",fixed=TRUE)[[1]][1]
-  if(pnff) {
-    # protein name is from file name
-    # organism name is from entry
-    protein <- bnf
-    organism <- nomfun(befund=FALSE)
-  } else {
-    # vice versa
-    protein <- nomfun(befund=TRUE)
-    organism <- bnf
-  }
+  organism <- bnf
+  # protein/gene name is from header line for entry
+  # (strip the ">" and go to the first space or underscore)
+  id <- as.character(palply(1:length(i), function(j) {
+    # get the text of the line
+    f1 <- linefun(i[j],i[j])
+    # stop if the first character is not ">"
+    # or the first two charaters are "> "
+    if(substr(f1,1,1)!=">" | length(grep("^> ",f1)>0))
+      stop(paste("file",basename(file),"line",j,"doesn't begin with FASTA header '>'."))
+    # discard the leading '>'
+    f2 <- substr(f1, 2, nchar(f1))
+    # keep everything before the first space
+    f3 <- strsplit(f2," ")[[1]][1]
+    # then before or after the first underscore
+    return(strsplit(f3,"_")[[1]][1])
+  } ))
   if(ret=="count") {
-    aa <- count.aa(sequences, start, stop)
-    colnames(aa) <- aminoacids(3)
+    counts <- count.aa(sequences, start, stop, type)
     ref <- abbrv <- NA
     chains <- 1
-    # 20090507 made stringsAsFactors FALSE
-    return(cbind(data.frame(protein=protein,organism=organism,
-      ref=ref,abbrv=abbrv,chains=chains,stringsAsFactors=FALSE),aa))
+    if(type=="protein") {
+      colnames(counts) <- aminoacids(3)
+      # 20090507 made stringsAsFactors FALSE
+      out <- cbind(data.frame(protein=id, organism=organism,
+        ref=ref, abbrv=abbrv, chains=chains, stringsAsFactors=FALSE), counts)
+    } else if(type %in% c("DNA", "RNA")) {
+      out <- cbind(data.frame(gene=id, organism=organism,
+        ref=ref, abbrv=abbrv, chains=chains, stringsAsFactors=FALSE), counts)
+    }
   } else return(sequences)
 }
 
@@ -187,13 +177,14 @@ uniprot.aa <- function(protein, start=NULL, stop=NULL) {
   return(aa)
 }
 
-count.aa <- function(seq, start=NULL, stop=NULL) {
-  # count amino acids in one or more sequences
-  # sequences are given as elements of the list seq
-  aa <- aminoacids(1)
+count.aa <- function(seq, start=NULL, stop=NULL, type="protein") {
+  # count amino acids or DNA bases in one or more sequences given as elements of the list seq
+  # put them in alphabetical order (amino acids: same order as in thermo$protein)
+  if(type=="protein") letts <- aminoacids(1)
+  else if(type=="DNA") letts <- c("A", "C", "G", "T")
+  else stop(paste("unknown sequence type", type))
   # to count the letters in each sequence
   countfun <- function(seq, start, stop) {
-    count <- numeric(20)
     # get a substring if one or both of start or stop are given
     # if only one of start or stop is given, get a default value for the other
     if(!is.null(start)) {
@@ -203,21 +194,22 @@ count.aa <- function(seq, start=NULL, stop=NULL) {
       seq <- substr(seq, 1, stop)
     }
     # the actual counting
-    naa <- table(strsplit(toupper(seq), "")[[1]])
-    # put them in the same order as in aa (i.e. thermo$protein)
-    iaa <- match(names(naa), aa)
-    # in case any letters don't match some amino acid
-    ina <- is.na(iaa)
-    count[iaa[!ina]] <- naa[!ina]
-    if(any(ina)) msgout("count.aa: unrecognized amino acid code(s): ", 
-      paste(names(naa)[ina], collapse=" "), "\n")
+    nnn <- table(strsplit(toupper(seq), "")[[1]])
+    # get them in alphabetical order
+    ilett <- match(names(nnn), letts)
+    # in case any letters aren't in our alphabet
+    ina <- is.na(ilett)
+    if(any(ina)) msgout(paste("count.aa: unrecognized letter(s) in", type, "sequence:",
+      paste(names(nnn)[ina], collapse=" "), "\n"))
+    count <- numeric(length(letts))
+    count[ilett[!ina]] <- nnn[!ina]
     return(count)
   }
-  # count amino acids in each sequence
+  # counts for each sequence
   a <- palply(seq, countfun, start, stop)
   a <- t(as.data.frame(a, optional=TRUE))
   # clean up row/column names
-  colnames(a) <- aa
+  colnames(a) <- letts
   rownames(a) <- 1:nrow(a)
   return(a)
 }

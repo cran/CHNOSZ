@@ -31,63 +31,45 @@ aminoacids <- function(nchar=1, which=NULL) {
   else if(nchar=="Z") return(aacharged[iaa])
 }
 
-nucleicacids <- function(seq=NULL,type="DNA",comp=NULL,comp2=NULL) {
-  # count bases or compute the formula, e.g.
-  # n <- nucleicacids(list("AGCT","TTTT"))  # a dataframe of counts
-  # f <- nucleicacids(n)  # a series of formulas
+nucleic.formula <- function(nucleic=NULL) {
+  # compute the formula, e.g.
+  # DNA <- count.aa(list("AGCT", "TTTT"), type="DNA")  # a dataframe of counts
+  # nf <- nucleic.formula(DNA)  # a series of formulas
+  # !!! this only adds the formulas of the nucleobases; dehydration and phosphorylation are not yet accounted for !!!
   # 20090926 jmd
-  if(is.null(seq)) stop("please provide a sequence")
-  if(type=="DNA") {
-    na <- c("A","C","G","T")
-    na.NA <- c("adenine","cytosine","guanine","thymine")
-  } else if(type=="RNA") {
-    na <- c("U","G","C","A")
-    na.NA <- c("uracil","guanine","cytosine","adenine")
-  } else stop(paste("invalid type:",type))
-  if(is.data.frame(seq)) {
-    # compute the chemical formula of bases
-    if(!all(na %in% colnames(seq))) {
-      nabases <- c2s(na[which(!na %in% colnames(seq))],sep=" ")
-      stop(paste("requested type is",type,"but",nabases,"is/are not in the colnames of supplied dataframe"))
-    }
-    # the formulas of each of the bases
-    f.base <- get("thermo")$obigt$formula[info(na.NA[match(colnames(seq),na)])]
-    # loop over the base counts
-    f.out <- character()
-    for(i in 1:nrow(seq)) {
-      # use makeup() with multipliers and sum=TRUE  20120119 jmd
-      f <- as.chemical.formula(makeup(f.base, multiplier=as.numeric(seq[i,]), sum=TRUE))
-      f.out <- c(f.out,f)
-    }
-    return(f.out)
-  } else {
-    # count the numbers of nucleic acid bases in a sequence
-    # sequences are given as elements of the list seq
-    # to count the number of each amino acids in a sequence
-    count.na <- function(na,seq) sum(seq==na)
-    count.i <- function(i,seq) as.numeric(lapply(na,count.na,strsplit(toupper(seq[i]),"")[[1]]))
-    # count bases in each sequence
-    n <- t(as.data.frame(palply(1:length(seq),count.i,seq),optional=TRUE))
-    n <- as.data.frame(n)
-    # clean up row/column names
-    colnames(n) <- na
-    rownames(n) <- 1:nrow(n)
-    # return the complement if requested e.g.
-    # nucleicacids(x,type,"DNA")  # DNA complement
-    # nucleicacids(x,type,"RNA")  # RNA complement
-    # nucleicacids(x,type,"DNA","RNA")  # DNA, then RNA complement
-    if(!is.null(comp)) {
-      if(comp=="DNA") colnames(n) <- c("T","G","C","A")
-      else if(comp=="RNA") colnames(n) <- c("U","G","C","A")
-      else stop(paste("invalid complement request:",comp))
-    }
-    if(!is.null(comp2)) {
-      if(comp2=="DNA") colnames(n) <- c("A","C","G","T")
-      else if(comp2=="RNA") colnames(n) <- c("A","C","G","U")
-      else stop(paste("invalid complement request:",comp))
-    }
-    return(n)
+  letts <- c("A", "C", "G", "T", "U")
+  names <- c("adenine", "cytosine", "guanine", "thymine", "uracil")
+  # the locations of the letters in the data frame
+  i.lett <- match(letts, colnames(nucleic))
+  # we'll normally have at least one NA (U or A for DNA or RNA)
+  ina <- is.na(i.lett)
+  # the species indices of the bases, in the order appearing above
+  i.base <- suppressMessages(info(names[!ina], check.it=FALSE))
+  # the chemical formula of bases
+  f.base <- get("thermo")$obigt$formula[i.base]
+  # loop over the base counts
+  f.out <- character()
+  for(i in 1:nrow(nucleic)) {
+    # use makeup() with multipliers and sum=TRUE  20120119 jmd
+    f <- as.chemical.formula(makeup(f.base, multiplier=as.numeric(nucleic[i, i.lett[!ina]]), sum=TRUE))
+    f.out <- c(f.out, f)
   }
+  return(f.out)
 }
 
-
+nucleic.complement <- function(nucleic=NULL, type="DNA") {
+  # return the nucleobase complement
+  # nucleic.complement(nucleic, "DNA")  # DNA complement
+  # nucleic.complement(nucleic, "RNA")  # RNA complement
+  # the reference sequence, and its DNA and RNA complements
+  ref <- c("A", "C", "G", "T", "U")
+  DNA <- c("T", "G", "C", "A", "A")
+  RNA <- c("U", "G", "C", "A", "A")
+  iref <- match(colnames(nucleic), ref)
+  i.base <- which(!is.na(iref))
+  colnames(nucleic)[i.base] <- get(type)[iref[i.base]]
+  # be nice and re-alphabetize the columns
+  o.base <- order(colnames(nucleic)[i.base])
+  nucleic <- nucleic[, i.base[o.base], drop=FALSE]
+  return(nucleic)
+}

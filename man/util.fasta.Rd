@@ -14,8 +14,8 @@
   grep.file(file, pattern = "", y = NULL, ignore.case = TRUE, 
     startswith = ">", lines = NULL, grep = "grep")
   read.fasta(file, i = NULL, ret = "count", lines = NULL, 
-    ihead = NULL, pnff = FALSE, start=NULL, stop=NULL)
-  count.aa(seq, start=NULL, stop=NULL)
+    ihead = NULL, start=NULL, stop=NULL, type="protein")
+  count.aa(seq, start=NULL, stop=NULL, type="protein")
   uniprot.aa(protein, start=NULL, stop=NULL)
 }
 
@@ -30,9 +30,9 @@
   \item{i}{numeric, line numbers of sequence headers to read}
   \item{ret}{character, specification for type of return (count, sequence, or FASTA format)}
   \item{ihead}{numeric, which lines are headers}
-  \item{pnff}{logical, get the protein name from the filename?}
   \item{start}{numeric, position in sequence to start counting}
   \item{stop}{numeric, position in sequence to stop counting}
+  \item{type}{character, sequence type (protein or DNA)}
   \item{seq}{character, amino acid sequence of a protein}
   \item{protein}{character, entry name for protein in UniProt}
 }
@@ -53,10 +53,11 @@ Similarly to \code{grep.file}, this function utilizes the OS's \samp{grep} on su
 If the line numbers of the header lines were previously determined, they can be supplied in \code{ihead}. 
 Optionally, the lines of a previously read file may be supplied in \code{lines} (in this case no file is needed so \code{file} should be set to "").
 
-\code{count.aa} counts the occurrences of each amino acid in a sequence (\code{seq}), returning a data frame with amino acids in the same order as \code{thermo$protein}.
-It is not case-sensitive.
-A warning is generated if any character in \code{seq}, excluding spaces, is not one of the single-letter amino acid abbreviations.
-\code{start} and/or \code{stop} can be provided to count amino acids in a fragment of the sequence (extracted using \code{\link{substr}}).
+\code{count.aa} counts the occurrences of each amino acid or nucleic-acid base in a sequence (\code{seq}).
+For amino acids, the columns in the returned data frame are in the same order as \code{thermo$protein}.
+Letters are matched without regard for case.
+A warning is generated if any character in \code{seq}, excluding spaces, is not one of the single-letter amino acid or nucleobase abbreviations.
+\code{start} and/or \code{stop} can be provided to count a fragment of the sequence (extracted using \code{\link{substr}}).
 If only one of \code{start} or \code{stop} is present, the other defaults to 1 (\code{start}) or the length of the sequence (\code{stop}).
 
 \code{uniprot.aa} returns a data frame of amino acid composition, in the format of \code{thermo$protein}, retrieved from the protein sequence if it is available from UniProt (\url{http://uniprot.org}; The UniProt Consortium, 2012).
@@ -71,7 +72,7 @@ The \code{protein} argument corresponds to the \samp{Entry name} on the UniProt 
 }
 
 \seealso{
-\code{\link{nucleicacids}} for counting occurrences of bases in a DNA or RNA sequence.
+\code{\link{nucleic.formula}} for an example of counting nucleobases in a DNA sequence.
 When computing relative abundances of many proteins that might be found with \code{grep.file} and \code{read.fasta}, consider using the \code{iprotein} arugment of \code{\link{affinity}} to speed things up; for an example see the help page for \code{\link{revisit}}. 
 }
 

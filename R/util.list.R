@@ -4,6 +4,7 @@
 which.pmax <- function (elts, na.rm = FALSE, pmin=FALSE) {
   # adapted from R's pmax. elts is a list of numeric vectors
   if(!is.numeric(elts[[1]])[1]) {
+    if(is.data.frame(elts[[1]])) elts[[1]] <- as.matrix(elts[[1]])
     if(is.list(elts[[1]])) elts[[1]] <- elts[[1]][[1]]
     else elts[[1]] <- as.numeric(elts[[1]])
   }

@@ -363,6 +363,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   # logK
   if('logk' %in% prop) {
     for(i in 1:length(out)) {
+      # NOTE: the following depends on the water function renaming g to G
       out[[i]] <- cbind(out[[i]],data.frame(logK=convert(out[[i]]$G,'logK',T=T)))
       colnames(out[[i]][ncol(out[[i]])]) <- 'logK'
     }

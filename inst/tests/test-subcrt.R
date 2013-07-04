@@ -87,6 +87,15 @@ test_that("subzero degree C calculations are possible", {
   expect_equal(s.H2O$T[22], 0.01)
 })
 
+test_that("calculations using IAPWS-95 are possible", {
+  thermo$opt$water <<- "IAPWS95"
+  sb <- subcrt(c("H2O", "Na+"), T=c(-30, -20, 0, 10), P=1)$out
+  # the test is not a demanding numerical comparison, more that we got numbers and no error
+  expect_that(all(sb$`Na+`$G < sb$water$G), is_true())
+  # clean up
+  suppressMessages(data(thermo))
+})
+
 # references
 
 # Amend, J. P. and Shock, E. L. (2001) 

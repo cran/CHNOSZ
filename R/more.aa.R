@@ -1,6 +1,5 @@
 # CHNOSZ/more.aa.R
-# get amino acid compositions of proteins from 
-# model organisms really exciting!
+# get amino acid compositions of proteins from model organisms
 # (Eco.csv or Sce.csv)
 
 more.aa <- function(protein=NULL, organism) {
@@ -16,17 +15,13 @@ more.aa <- function(protein=NULL, organism) {
     msgout("more.aa: ", datapath, " has data for ", nrow(mydata), " proteins\n")
     return(invisible())
   }
-  if(organism=="Sce") {
-    # which columns to search for matches
-    searchcols <- c("OLN", "OLN")
-    # which columns have the amino acids in the order of thermo$protein 
-    iaa <- c(1,5,4,7,14,8,9,10,12,11,13,3,15,6,2,16,17,20,18,19) + 2
-  } else if(organism=="Eco") {
-    # which columns to search for matches
-    searchcols <- c("protein", "abbrv")
-    # which columns have the amino acids in the order of thermo$protein 
-    iaa <- 1:20 + 5
-  }
+  # which columns to search for matches
+  # include "OLN" (Sce.csv dated 2008-08-04)
+  # and "ORF" (Sce.csv dated 2013-06-04)
+  if(organism=="Sce") searchcols <- c("OLN", "ORF", "SGDID")
+  else if(organism=="Eco") searchcols <- c("protein", "abbrv")
+  # which columns have the amino acids, in the order of thermo$protein 
+  iaa <- match(toupper(aminoacids(3)), toupper(colnames(mydata)))
   # iterate over a list
   waslist <- TRUE
   out <- list()
@@ -36,11 +31,13 @@ more.aa <- function(protein=NULL, organism) {
   }
   for(i in 1:length(protein)) {
     # find the matches
-    icols <- match(searchcols, colnames(mydata))
-    imatch <- match(protein[[i]], mydata[, icols[1]])
-    imatch2 <- match(protein[[i]], mydata[, icols[2]])
-    # use not-NA matches for "abbrv" in Eco.csv
-    imatch[!is.na(imatch2)] <- imatch2[!is.na(imatch2)]
+    imatch <- rep(NA, length(protein[[i]]))
+    for(cname in searchcols) {
+      icol <- match(cname, colnames(mydata))
+      if(is.na(icol)) next
+      iimatch <- match(protein[[i]], mydata[, icol])
+      imatch[!is.na(iimatch)] <- iimatch[!is.na(iimatch)]
+    }
     # report and remember the unsuccessful matches
     if(all(is.na(imatch))) stop("no proteins found!")
     inotmatch <- which(is.na(imatch)) 

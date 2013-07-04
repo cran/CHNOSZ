@@ -2,7 +2,7 @@
 ### Encoding: ISO8859-1
 
 ###################################################
-### code chunk number 1: wjd.Rnw:22-23
+### code chunk number 1: wjd.Rnw:23-24
 ###################################################
   if(exists(".orig.enc")) options(encoding = .orig.enc)
 

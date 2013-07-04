@@ -79,8 +79,8 @@ protein.formula <- function(protein, organism=NULL, residue=FALSE) {
 protein.length <- function(protein, organism=NULL) {
   # calculate the length(s) of proteins
   aa <- ip2aa(protein, organism)
-  # loop over the proteins
-  pl <- sapply(1:nrow(aa), function(i) sum(aa[i, 6:25]))
+  # use rowSums on the columns containing amino acid counts
+  pl <- as.numeric(rowSums(aa[, 6:25]))
   return(pl)
 }
 
