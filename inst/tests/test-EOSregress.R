@@ -34,15 +34,15 @@ test_that("regressions return known HKF parameters", {
   ## the tests: did we get the HKF parameters that are in the database?
   CH4.par <- info(info("CH4"))
   # c1 and c2
-  expect_equal(Cp.coeff[1], CH4.par$c1, check.attr=FALSE)
-  expect_equal(Cp.coeff[2], CH4.par$c2, check.attr=FALSE)
+  expect_equal(Cp.coeff[1], CH4.par$c1, check.attributes=FALSE)
+  expect_equal(Cp.coeff[2], CH4.par$c2, check.attributes=FALSE)
   # omega (from Cp)
-  expect_equal(Cp.coeff[3], CH4.par$omega, check.attr=FALSE)
+  expect_equal(Cp.coeff[3], CH4.par$omega, check.attributes=FALSE)
   # a1, a2, a3 and a4
-  expect_equal(V.coeff[1], CH4.par$a1, check.attr=FALSE)
-  expect_equal(V.coeff[2], CH4.par$a2, check.attr=FALSE)
-  expect_equal(V.coeff[3], CH4.par$a3, check.attr=FALSE)
-  expect_equal(V.coeff[4], CH4.par$a4, check.attr=FALSE)
+  expect_equal(V.coeff[1], CH4.par$a1, check.attributes=FALSE)
+  expect_equal(V.coeff[2], CH4.par$a2, check.attributes=FALSE)
+  expect_equal(V.coeff[3], CH4.par$a3, check.attributes=FALSE)
+  expect_equal(V.coeff[4], CH4.par$a4, check.attributes=FALSE)
   # omega (from V) - note negative sign
-  expect_equal(-V.coeff[5], CH4.par$omega, check.attr=FALSE)
+  expect_equal(-V.coeff[5], CH4.par$omega, check.attributes=FALSE)
 })

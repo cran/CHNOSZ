@@ -1,4 +1,4 @@
-b84453c890099769a107c9058b27e15c *DESCRIPTION
+e11b06d2cc9b272eaf1a114d6990027a *DESCRIPTION
 d1ed4061161e010423837902b1833754 *NAMESPACE
 7784b48fb6915f0ade961b7f090837cf *R/EOSregress.R
 efe6f7c17f9ca289379830884af3e804 *R/IAPWS95.R
@@ -122,7 +122,7 @@ d4c902570e5c669a16aa10ae3209d5ff *inst/extdata/thermo/OBIGT-2.csv
 41b06642aff03f1a69e9af2645f49775 *inst/extdata/thermo/groups_big.csv
 b83d6a93304369fb0353ade5d148bf18 *inst/extdata/thermo/groups_small.csv
 c6c3d7f0ce7ab02437688a5eb7ef400b *inst/extdata/thermo/obigt_check.csv
-96907a39162f6a9217a39e6fe7805da8 *inst/tests/test-EOSregress.R
+b8cb6496124ba85d32cae57420139ef5 *inst/tests/test-EOSregress.R
 6445e7d14d547b61b7770e4b18dc0567 *inst/tests/test-IAPWS95.R
 3cd375a3924a27666f7fb3a392d2d419 *inst/tests/test-affinity.R
 36dc88567b00afb4e4229f13a44a21b1 *inst/tests/test-basis.R
