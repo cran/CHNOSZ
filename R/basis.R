@@ -94,21 +94,21 @@ mod.basis <- function(species, state=NULL, logact=NULL) {
 # to load a preset basis definition by keyword
 preset.basis <- function(key=NULL) {
   # the available keywords
-  basis.key <- c('CHNOS','CHNOS+','CHNOSe','CHNOPS+','MgCHNOPS+','FeCHNOS','FeCHNOS+')
+  basis.key <- c("CHNOS", "CHNOS+", "CHNOSe", "CHNOPS+", "MgCHNOPS+", "FeCHNOS", "FeCHNOS+")
   # just list the keywords if none is specified
   if(is.null(key)) return(basis.key)
   # delete any previous basis definition
   basis(delete=TRUE)
   # match the keyword to the available ones
   ibase <- match(key, basis.key)
-  if(is.na(ibase)) stop(paste(key,"is not a keyword for preset basis species"))
-  if(ibase==1) species <- c('CO2','H2O','NH3','H2S','O2')
-  else if(ibase==2) species <- c('CO2','H2O','NH3','H2S','O2','H+')
-  else if(ibase==3) species <- c('CO2','H2O','NH3','H2S','e-','H+')
-  else if(ibase==4) species <- c('CO2','H2O','NH3','H3PO4','H2S','e-','H+')
-  else if(ibase==5) species <- c('Mg+2','CO2','H2O','NH3','H3PO4','H2S','e-','H+')
-  else if(ibase==6) species <- c('Fe2O3','CO2','H2O','NH3','H2S','O2')
-  else if(ibase==7) species <- c('Fe2O3','CO2','H2O','NH3','H2S','O2','H+')
+  if(is.na(ibase)) stop(paste(key, "is not a keyword for preset basis species"))
+  if(ibase==1) species <- c("CO2", "H2O", "NH3", "H2S", "oxygen")
+  else if(ibase==2) species <- c("CO2", "H2O", "NH3", "H2S", "oxygen", "H+")
+  else if(ibase==3) species <- c("CO2", "H2O", "NH3", "H2S", "e-", "H+")
+  else if(ibase==4) species <- c("CO2", "H2O", "NH3", "H3PO4", "H2S", "e-", "H+")
+  else if(ibase==5) species <- c("Mg+2", "CO2", "H2O", "NH3", "H3PO4", "H2S", "e-", "H+")
+  else if(ibase==6) species <- c("Fe2O3", "CO2", "H2O", "NH3", "H2S", "oxygen")
+  else if(ibase==7) species <- c("Fe2O3", "CO2", "H2O", "NH3", "H2S", "oxygen", "H+")
   # get the preset logact
   logact <- preset.logact(species)
   # load the species and return the result
@@ -117,7 +117,7 @@ preset.basis <- function(key=NULL) {
 
 # logarithms of activities for preset basis definitions
 preset.logact <- function(species) {
-  bases <- c('H2O','CO2','NH3','H2S','O2','H+','e-','Fe2O3')
+  bases <- c('H2O','CO2','NH3','H2S','oxygen','H+','e-','Fe2O3')
   logact <- c(0,-3,-4,-7,-80,-7,-7,0)
   ibase <- match(species, bases)
   logact <- logact[ibase]

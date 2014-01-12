@@ -26,7 +26,8 @@ test_that("minimal usage of mod.obigt() creates usable data entries", {
   # we need at least a name and some property
   expect_error(mod.obigt("test"), "species name and a property")
   # a valid formula is needed
-  expect_warning(mod.obigt("test", date=today()), "please supply a valid chemical formula")
+  expect_warning(expect_error(mod.obigt("test", date=today()), "is not a simple chemical formula"),
+               "please supply a valid chemical formula")
   # the default state is aq
   expect_message(itest <- mod.obigt("test", formula="Z0", date=today()), "added test\\(aq\\)")
   # we should get NA values of G for a species with NA properties 

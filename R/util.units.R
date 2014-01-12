@@ -127,7 +127,7 @@ convert <- function(value, units, T=get("thermo")$opt$Tr,
   }
   else if(units %in% c('e0','logfo2')) {
     # convert between Eh and logfO2
-    supcrt.out <- subcrt(c('H2O','O2','H+','e-'),c(-1,0.5,2,2),T=T,P=P,convert=FALSE)
+    supcrt.out <- subcrt(c("H2O", "oxygen", "H+", "e-"), c(-1, 0.5, 2, 2), T=T, P=P, convert=FALSE)
     if(units=='logfo2') value <- 2*(supcrt.out$out$logK + logaH2O + 2*pH + 2*(convert(value,'pe',T=T)))
     if(units=='e0') value <- convert(( -supcrt.out$out$logK - 2*pH + value/2 - logaH2O )/2, 'Eh',T=T)
   }

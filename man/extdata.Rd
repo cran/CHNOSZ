@@ -43,25 +43,34 @@
     \item \code{EF-Tu.aln} consists of aligned sequences (394 amino acids) of elongation factor Tu (EF-Tu). The sequences correspond to those taken from UniProtKB for ECOLI (\emph{Escherichia coli}), THETH (\emph{Thermus thermophilus}) and THEMA (\emph{Thermotoga maritima}), and reconstructed ancestral sequences taken from Gaucher et al., 2003 (maximum likelihood bacterial stem and mesophilic bacterial stem, and alternative bacterial stem). See the \sQuote{formation} vignette for an example that uses this file.
   }
 
-  Files in \code{protein} contain protein composition data for model organisms:
+  Files in \code{protein} contain protein composition data for model organisms.
+  See \code{\link{more.aa}} and \code{\link{read.expr}} for examples that use these files.
   \itemize{
-    \item \code{Sce.csv.xz} Data frame of amino acid composition of proteins from the \emph{Saccharomyces} Genome Database. Contains twenty-two columns. Values in the first column are the rownumbers, the second column (\code{OLN}) has the ordered locus names of proteins, and the remaining twenty columns (\code{Ala}..\code{Val}) contain the numbers of the respective amino acids in each protein; the columns are arranged in alphabetical order based on the three-letter abbreviations for the amino acids. The source of data for \samp{Sce.csv} is the file \samp{protein_properties.tab} found on the FTP site of the SGD project on 2008-08-04. Blank entries were replaced with "NA" and column headings were added. See \code{\link{read.expr}} for examples that use this file.
-    \item \code{Eco.csv.xz} Contains 24 columns. Values in the first column correspond to rownumbers, the second column {\code{AC}} holds the accession numbers of the proteins, the third column (\code{Name}) has the names of the corresponding genes, and the fourth column {\code{OLN}} lists the ordered locus names of the proteins. The remaining twenty columns (\code{A}..\code{Y}) give the numbers of the respective amino acids in each protein and are ordered alphabetically by the one-letter abbreviations of the amino acids. The sources of data for \samp{Eco.csv} are the files \samp{ECOLI.dat} \url{ftp://ftp.expasy.org/databases/hamap/complete_proteomes/entries/bacteria} and \samp{ECOLI.fas} \url{ftp://ftp.expasy.org/databases/hamap/complete_proteomes/fasta/bacteria} downloaded from the HAMAP (High-quality Automated and Manual Annotation of microbial Proteomes system) FTP site (Gattiker et al., 2003) on 2007-12-20. The proteins can be included in calculations using \code{\link{more.aa}} as well as \code{\link{read.expr}}.
-%%    \item \code{HUM.csv.xz} Downloaded the file \code{uniprot_sprot_human.dat.gz}, dated 2010-08-10, from \url{ftp://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/taxonomic_divisions/}, converted from UniProt to FASTA format using the \code{seqret} tool from EMBOSS (\url{http://emboss.sourceforge.net/}). Counted amino acid frequencies using \code{\link{read.fasta}}. Columns are as described in \code{thermo$protein}, except column \code{protein} and \code{abbrv} contain Swiss-Prot name and accession number, respectively (both taken from the header lines in the FASTA file).
+    \item \code{Sce.csv.xz}
+      Data frame of amino acid composition of 6716 proteins from the \emph{Saccharomyces} Genome Database (SGD).
+      Values in the first three columns are the \code{ORF} names of proteins, \code{SGDID}, and \code{GENE} names. The remaining twenty columns (\code{ALA}..\code{VAL}) contain the numbers of the respective amino acids in each protein.
+      The sources of data for \samp{Sce.csv} are the files \samp{protein_properties.tab} and \samp{SGD_features.tab} (for the gene names), downloaded from \url{http://www.yeastgenome.org} on 2013-08-24.
+    \item \code{Eco.csv.xz}
+      Amino acid compositions of 4407 proteins in \emph{Escherichia coli} strain K12.
+      Format is the one used \code{\link{thermo}$protein}, with columns \samp{protein} holding the gene name, \samp{organism} set to \samp{ECOLI}, and \code{abbrv} holding the UniProt ID.
+      The source of data is the file \samp{ECOLI.fas} downloaded from the HAMAP (High-quality Automated and Manual Annotation of microbial Proteomes system) FTP site (Gattiker et al., 2003) (\url{ftp://ftp.expasy.org/databases/hamap/complete_proteomes/fasta/bacteria}) on 2010-09-25.
   }
 
 
-  Files in \code{refseq} contain code and results of processing NCBI Reference Sequences (RefSeq) for microbial proteins, using RefSeq release 57 of 2013-01-08:
+  Files in \code{refseq} contain code and results of processing NCBI Reference Sequences (RefSeq) for microbial proteins, using RefSeq release 61 of 2013-09-09:
   \itemize{
     \item \code{README.txt} Instructions for producing the data files.
     \item \code{gencat.sh} Bash script to extract microbial protein records from the RefSeq catalog.
-    \item \code{gi.taxid.txt} Output from above. The complete file is too large to distribute with CHNOSZ, but a portion is included in \code{extdata/bison} to support processing example BLAST files for the Bison Pool metagenome.
+    \item \code{gi.taxid.txt} Output from above. The complete file is too large to distribute with CHNOSZ, but a portion is included in \code{extdata/bison} to support processing example BLAST files for the Bison Pool metagenome (based on RefSeq 57, 2013-01-08).
     \item \code{mkfaa.sh} Combine the contents of .faa.gz files into a single FASTA file (to use e.g. for making a BLAST database).
     \item \code{protein.refseq.R} Calculate average amino acid composition of all proteins for each organism identified by a taxonomic ID.
-    \item \code{trim_refseq.R} Remove some entries with commonly occurring names (e.g. many different strains of Escherichia coli) to reduce size of \code{protein_refseq.csv} (to keep package size down).
-    \item \code{protein_refseq.csv.xz} Output from above. See example for \code{\link{ZC}}.
+    \item \code{trim_refseq.R} Keep only selected organism names (reduces number of taxa from 6758 to 779, helps to control package size).
+    \item \code{protein_refseq.csv.xz} Output from above. See example in \code{\link{protein.info}}.
     \item \code{taxid.names.R} Generate a table of scientific names for the provided taxids. Requires the complete \code{names.dmp} and \code{nodes.dmp} from NCBI taxonomy files.
-    \item \code{taxid_names.csv.xz} Output from above. See example for \code{\link{id.blast}}.
+    \item \code{taxid_names.csv.xz} Output from above.
+      NOTE: For backward compatibility with the example BLAST files for the Bison Pool metagenome, the packaged file merges records for taxids found in either RefSeq 57 or 61.
+      Certain taxids in release 57 were not located in the current RefSeq catalog, probably related to the transition to the \dQuote{WP} multispecies accessions (\url{ftp://ftp.ncbi.nlm.nih.gov/refseq/release/announcements/WP-proteins-06.10.2013.pdf}).
+      See example for \code{\link{id.blast}}.
   }
 
   Files in \code{taxonomy} contain example taxonomic data files:

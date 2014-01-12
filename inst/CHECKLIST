@@ -23,7 +23,7 @@ release checklist for CHNOSZ
   data files are uncompressed on installation? (from BuildResaveData: no)
   anim.*() produce pngs / movies (ImageMagick dependency)?
 
-- check that dl.aa() works with current UniProt web pages
+- check that uniprot.aa() works with current UniProt web pages
 
 - check for stale URLs in Rd files
 

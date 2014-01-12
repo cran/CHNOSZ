@@ -38,18 +38,18 @@
 ## swapping basis species
 # start with a preset basis definition
 b1 <- basis("CHNOS+")
-# swap H2 for O2
+# swap H2(aq) for O2(gas)
 (b2 <- swap.basis("O2", "H2"))
 # the logarithm of activity calculated for H2
 # is equal to the one calculated from the equilibrium constant
 # for H2O = H2 + 0.5O2
-logK <- subcrt(c("O2","H2","H2O"), c(-0.5,-1,1), T=25)$out$logK
+logK <- subcrt(c("oxygen","H2","H2O"), c(-0.5,-1,1), T=25)$out$logK
 # the equilibrium value of logaH2 
 # (for logaH2O = 0 and logfO2 = -80)
 (logaH2 <- -logK + 40)
 stopifnot(all.equal(logaH2, b2$logact[5]))
 # put O2 back in
-b3 <- swap.basis("H2", "O2")
+b3 <- swap.basis("H2", "oxygen")
 # we have returned to starting point
 stopifnot(all.equal(b1$logact, b3$logact))
 

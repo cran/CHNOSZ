@@ -1,7 +1,8 @@
 context("ionize.aa")
 
 test_that("handling of repeated T, P, pH values is correct", {
-  expect_message(ionize.aa(T=c(25, 25, 100, 100, 100), P=c(100, 1000, 1000, 1000, 1000)), "18 species at 3 values of T and P \\(wet\\)")
+  expect_message(expect_error(ionize.aa(T=c(25, 25, 100, 100, 100), P=c(100, 1000, 1000, 1000, 1000))),
+                              "18 species at 3 values of T and P \\(wet\\)")
   expect_message(ia.25x10 <- ionize.aa(T=rep(25,10), ret.val="pK"), "18 species at 298.15 K and 1 bar \\(wet\\)")
   # we have ten rows of the same values
   expect_identical(ia.25x10[1, ], apply(ia.25x10, 2, unique))

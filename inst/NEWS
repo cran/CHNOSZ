@@ -1,3 +1,42 @@
+CHANGES IN CHNOSZ 1.0.3 (2014-01-12)
+------------------------------------
+
+- Updated extdata/protein/Sce.csv.xz using Saccharomyces Genome
+  Database protein_properties.tab and SGD_features.tab dated
+  2013-08-24.
+
+- more.aa() includes SGDID and gene name in the abbrv and ref columns.
+
+- In extdata/refseq, scripts and data files were updated for NCBI
+  Reference Sequence (RefSeq) release 61 (2013-09-09). Code was
+  adapted to deal with WP multispecies accessions.
+
+- read.fasta() gets new argument 'id'; when supplied, it is used for
+  the protein names in the output, in place of those read from the
+  FASTA headers.
+
+- When reading protein names from the FASTA headers, read.fasta()
+  stops only at the first space, not space or underscore as before.
+
+- info() no longer specially sets state of "O2" to gas. The name
+  "oxygen", or the combination ("O2", "gas"), can be used to retrieve
+  data for the gas.
+
+- In thermo$obigt, names of gases (e.g. "oxygen") are used only for
+  the gaseous species; names were removed from dissolved species in
+  rows 63-79. Both gases and aqueous species can continue to be
+  referenced by their chemical formulas.
+
+- In read.expr(), allow multiple filter specifications.
+
+- revisit() has new argument loga0, a single vector of base-10
+  logarithms of activities of species used to calculate the base-2 log
+  ratio ( log2(a1/a0) ).
+
+- Updated tests to be compatible with testthat version 0.8 (in
+  development). Some tests now check for e.g. an error *and* warning
+  produced by a single function call.
+
 CHANGES IN CHNOSZ 1.0.1 (2013-07-04)
 ------------------------------------
 

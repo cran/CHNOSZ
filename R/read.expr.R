@@ -88,9 +88,9 @@ read.expr <- function(file, idcol, abundcol, filter=NULL) {
   edata <- edata[!ina, ]
   # apply a filter if requested
   if(!is.null(filter)) {
-    jfilter <- match(names(filter), colnames(edata))
-    ifilter <- grep(filter[[1]], edata[, jfilter])
-    edata <- edata[ifilter, ]
+    ifilter <- 1:nrow(edata)
+    for(i in 1:length(filter)) ifilter <- intersect(ifilter, grep(filter[[i]], edata[, names(filter)[[i]]]))
+    edata <- edata[unique(ifilter), ]
   }
   # that should be it
   protein <- edata[, iid]

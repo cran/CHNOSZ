@@ -10,11 +10,11 @@ Make line or contour plots showing the values of the objective function and the 
 }
 
 \usage{
-  revisit(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
-    col = par("fg"), yline = 2, ylim = NULL, cex = par("cex"),
-    lwd = par("lwd"), mar = NULL, side = 1:4, xlim = NULL, labcex = 0.6,
-    pch = 1, main = NULL, plot.it = NULL, add = FALSE, plot.optval = TRUE,
-    style.2D = "contour")
+  revisit(eout, objective = "CV", loga2 = NULL, loga0 = NULL,
+    ispecies = NULL, col = par("fg"), yline = 2, ylim = NULL,
+    cex = par("cex"), lwd = par("lwd"), mar = NULL, side = 1:4,
+    xlim = NULL, labcex = 0.6, pch = 1, main = NULL, plot.it = NULL,
+    add = FALSE, plot.optval = TRUE, style.2D = "contour")
   optimal.index(z, objective)
   extremes(z, objective)
 }
@@ -22,7 +22,8 @@ Make line or contour plots showing the values of the objective function and the 
 \arguments{
   \item{eout}{list, output from \code{\link{equilibrate}}, containing logarithms of activities of species}
   \item{objective}{character, name of \code{\link{objective}} function}
-  \item{loga2}{numeric array, reference values of logarithm of activities}
+  \item{loga2}{numeric vector, reference values of logarithm of activities}
+  \item{loga0}{numeric vector, logarithm of activities to calculate activity ratios}
   \item{ispecies}{numeric, which species to consider}
   \item{col}{character, color to use for points or lines}
   \item{yline}{numeric, margin line for y-axis label}
@@ -44,13 +45,16 @@ Make line or contour plots showing the values of the objective function and the 
 
 \details{
 
-Most commonly, the output of \code{\link{equilibrate}} is used as the value for \code{eout}.
+\code{revisit} is used to calculate the variation in the equilibrium logarithms of chemical activity (supplied in \code{eout}) or to compare the calculated values with reference (e.g. measured) values (\code{loga2}).
+Usually, the output of \code{\link{equilibrate}} is used as the value for \code{eout}.
 The type of calculation is indicated by \code{objective}, giving the name of an \code{\link{objective}} function.
-The list of logarithms of chemical activities in \code{eout$loga.equil} is passed as \code{loga1} to the objective function.
-If the objective function has an argument \code{a1} instead of \code{loga1}, the activities instead of their logarithms are passed.
-Reference logarithms of activities, for those objective functions that require them, are supplied in the \code{loga2} argument.
+Generally, \code{loga2} is expressed in base-10 logarithms.
+However, if \code{loga0} (base 10) is supplied, it is used to calculate the base-2 log ratio (log2(a1/a0)); these calculated values are then compared with values in \code{loga2} interpreted as base-2 logarithms.
+
+Internally, the list of logarithms of chemical activities in \code{eout$loga.equil} is passed as \code{loga1} to the objective function.
+If the objective function has an argument \code{a1} instead of \code{loga1}, the activities instead of their logarithms are passed to the function.
 Generally, \code{loga2} must be a numeric vector with length equal to that of \code{loga1} (i.e., number of species).
-If a single numeric value is supplied for \code{loga2}, it is recycled to the length of \code{loga1}.
+However, if a single numeric value is supplied for \code{loga2}, it is recycled to the length of \code{loga1}.
 
 For calculations at a single condition (0-D, no variation), with the \samp{qqr} objective, a quantile-quantile plot (\code{\link{qqnorm}}) is shown.
 For \samp{rmsd} and other objective functions having reference values (\code{loga2}), a scatter plot is shown with a smooth line calculated using \code{\link{loess.smooth}}.
@@ -162,7 +166,7 @@ f <- system.file("extdata/fasta/HTCC1062.faa.xz", package="CHNOSZ")
 w <- "ribosomal"
 # locate entries whose names contain w
 j <- grep.file(f, w)
-# get the amino acid compositions of these protein
+# get the amino acid compositions of these proteins
 aa <- read.fasta(f, j)
 # add these proteins to CHNOSZ's inventory
 ip <- add.protein(aa)

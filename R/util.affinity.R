@@ -389,7 +389,9 @@ A.ionization <- function(iprotein, vars, vals, T=get("thermo")$opt$Tr, P="Psat",
     # make a grid of all combinations
     # put T, P, pH in same order as they show up vars
     egargs <- list(T=T, P=P, pH=pH)
-    TPpHorder <- order(c(iT, iP, iHplus))
+    # order(c(NA, NA, NA)) might segfault in some versions of R (seen in R 2.15.3 on Linux)
+    if(is.na(iT) & is.na(iP) & is.na(iHplus)) TPpHorder <- c(1, 2, 3)
+    else TPpHorder <- order(c(iT, iP, iHplus))
     egargs <- c(egargs[TPpHorder], list(stringsAsFactors=FALSE))
     TPpH <- do.call(expand.grid, egargs)
     # figure out the dimensions of T-P-pH (making sure to drop any that aren't in vars)

@@ -1,12 +1,13 @@
-%% LyX 2.0.5 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.1.0beta2 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
-\documentclass[noae]{article}
+\documentclass[english,noae]{article}
 \usepackage{mathpazo}
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
 \usepackage[letterpaper]{geometry}
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
 \usepackage{color}
+\usepackage{babel}
 \usepackage{amsbsy}
 \usepackage{amssymb}
 \usepackage[numbers]{natbib}
@@ -130,8 +131,6 @@ add.obigt()
 
 
 
-
-
 \section{Reaction-matrix approach}
 
 
@@ -159,7 +158,6 @@ basis("CHNOS+")
 species("CSG",c("METVO", "METJA"))
 @
 
-
 Although the basis species are defined, the temperature is not yet
 specified, so it is not immediately possible to calculate the ionization
 states of the proteins. That is why the coefficient on $\mathrm{H^{+}}$
@@ -171,7 +169,6 @@ try this:
 <<ProteinInfo>>=
 protein.info(species()$name)
 @
-
 
 Note that \texttt{affinity()} is called twice by \texttt{protein.info()};
 this so that both charges and standard Gibbs energies of ionization
@@ -187,7 +184,6 @@ of formation of the ionized proteins:
 a <- affinity()
 a$values
 @
-
 
 Since \texttt{affinity()} returns a list with a lot of information
 (such as the basis species and species definitions) the last command
@@ -267,7 +263,6 @@ e <- equilibrate(a)
 e$loga.equil
 @
 
-
 Those are the logarithms of the equilibrium activities of the proteins.
 Combining these values with either Eqs. (\ref{eq:A_METVO}) or (\ref{eq:A_METJA})
 gives us the same value for affinity of the formation reactions per
@@ -334,7 +329,6 @@ in these reactions:
 <<>>=
 protein.basis(species()$name, normalize=TRUE)
 @
-
 
 Let us denote by $\boldsymbol{A}_{12}$ and $\boldsymbol{A}_{13}$
 the chemical affinities of Reactions \ref{react:CSG_METVO_residue}
@@ -423,6 +417,8 @@ function introduced in version 0.9-9. Below is its output when configured
 for CSG example we have been discussing.
 
 \begin{small}
+
+<<>>=
 <<protein_equil>>=
 # get an error if we don't data(thermo), only in the re-building vignettes of R CMD check
 data(thermo)
@@ -431,8 +427,8 @@ basis("CHNOS+")
 swap.basis("O2", "H2")
 protein.equil(protein, loga.protein=-3)
 @
-\end{small}
 
+\end{small}
 
 The function checks (``check it!'') against the step-by-step calculations
 the values of $\boldsymbol{A}^{*}$ calculated using \texttt{affinity()},
@@ -469,14 +465,13 @@ diagram(e, ylim=c(-5, -1), legend.x=NA)
 title(main="Equilibrium activities of proteins, normalized formulas")
 @
 
-
 The reaction-matrix approach described above can also be applied to
 systems having conservation coefficients that differ from unity, such
 as many mineral and inorganic systems, where the immobile component
 has different molar coefficients in the formulas. For example, consider
 a system like that described in \citep{See96}:
 
-\setkeys{Gin}{width=0.7\textwidth}
+\setkeys{Gin}{width=0.7\textwidth}<<>>=
 <<SulfurSpeciation,fig=T>>=
 basis("CHNOS+")
 basis("pH",5)
@@ -491,8 +486,8 @@ e <- equilibrate(a, loga.balance=-2, normalize=TRUE)
 diagram(e, ylim=c(-30, 0), legend.x="topleft", cex.names=0.8)
 title(main="Aqueous sulfur speciation, normalized formulas")
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 The first diagram is quantitatively very similar to the one shown
 by Seewald, 1997, but if we use the normalized formulas, in this case
@@ -534,10 +529,13 @@ in an identical predominance diagram to one calculated using the equilibrium
 activities (Blood plasma proteins, ``IL'' for interleukin):
 
 \begin{small}
+
 \setkeys{Gin}{width=0.8\textwidth}
+
+<<>>=
 <<Plasma, fig=T, results=hide, width=8, height=4>>=
 data(thermo)  # cleanup from previous plot
-basis(c("CO2", "NH3", "H2S", "H2O", "O2"), c(-3, -3, -10))
+basis(c("CO2", "NH3", "H2S", "H2O", "oxygen"), c(-3, -3, -10))
 f <- system.file("extdata/abundance/AA03.csv", package="CHNOSZ")
 pdat <- read.csv(f, as.is=TRUE)
 iil <- grep("^IL", pdat$name)
@@ -549,9 +547,10 @@ e <- equilibrate(a, normalize=TRUE)
 dE <- diagram(e, main="equilibrium activities")
 stopifnot(identical(dA$predominant, dE$predominant))
 @
-\setkeys{Gin}{width=1.0\textwidth}
-\end{small}
 
+\setkeys{Gin}{width=1.0\textwidth}
+
+\end{small}
 
 Here is an example where the predominant species in the equilibrium
 assemblage are \textbf{\emph{not}} identical to those calculated the
@@ -559,7 +558,10 @@ maximum affinity method, and it is not possible for the maximum affinity
 method to make those curved lines!!
 
 \begin{small}
+
 \setkeys{Gin}{width=0.8\textwidth}
+
+<<>>=
 <<Amino, fig=T, results=hide, width=8, height=4>>=
 basis("CHNOS+")
 species(aminoacids(""))
@@ -569,8 +571,8 @@ dA <- diagram(a, main="maximum affinity")
 e <- equilibrate(a)
 dE <- diagram(e, main="equilibrium activities")
 @
-\end{small}
 
+\end{small}
 
 Take-home: when making predominance diagrams, confidently use the
 maximum affinity method when \texttt{normalize=TRUE} (as done here
@@ -592,7 +594,6 @@ R session information
 <<SessionInfo>>=
 sessionInfo()
 @
-
 
 \bibliographystyle{plainnat}
 \bibliography{vig}

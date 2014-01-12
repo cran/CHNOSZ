@@ -75,11 +75,6 @@ info.character <- function(species, state=NULL, check.protein=TRUE) {
   }
   # all of the species that match
   ispecies <- which(matches.species)
-  # special treatment for O2/oxygen: we prefer the gas
-  if(species %in% c("O2", "oxygen") & is.null(state)) {
-    igas <- match("gas", thermo$obigt$state[ispecies])
-    ispecies <- c(ispecies[igas], ispecies[-igas])
-  }
   # we return only the first species that matches
   # unless they are 'cr1' 'cr2' etc. and we requested state 'cr'
   if(identical(state, "cr")) ispecies.out <- ispecies

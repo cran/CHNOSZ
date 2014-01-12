@@ -47,7 +47,7 @@ extremes <- function(z, objective) {
   return(list(x=x, y=y))
 }
 
-revisit <- function(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
+revisit <- function(eout, objective = "CV", loga2 = NULL, loga0 = NULL, ispecies = NULL,
   col = par("fg"), yline = 2, ylim = NULL, cex = par("cex"),
   lwd = par("lwd"), mar = NULL, side = 1:4, xlim = NULL, labcex = 0.6,
   pch = 1, main = NULL, plot.it = NULL, add = FALSE, plot.optval = TRUE,
@@ -100,13 +100,19 @@ revisit <- function(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
     if(nd==0) loga1 <- t(loga1)
     # convert infinite values to NA
     loga1[is.infinite(loga1)] <- NA
+    # if we have loga0, calculate the base-2 log ratio (loga1/loga0)
+    base <- 10
+    if(!is.null(loga0)) {
+      loga1 <- t(t(loga1) - loga0) * log2(10)
+      base <- 2
+    }
     # remove logarithms if necessary
     if(any(grepl("loga1", objargs))) a1 <- loga1
-    else a1 <- 10^loga1
+    else a1 <- base^loga1
   }
 
   # these objectives also depend on reference activities (a2/loga2):
-  # richness, RMSD, CVRMSD, spearman, pearson, DGtr
+  # RMSD, CVRMSD, spearman, pearson, DGtr
   if(any(grepl("a2", objargs))) {
     # check that all needed arguments are present
     if(is.null(loga2)) stop(paste("loga2 must be supplied for", objective))
@@ -117,8 +123,9 @@ revisit <- function(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
       length(loga2), ") than list in eout (", ncol(loga1), ")", sep=""))
     # remove logarithms if necessary
     if(any(grepl("loga2", objargs))) a2 <- loga2
-    else a2 <- 10^loga2
+    else a2 <- base^loga2
   }
+
 
   # construct array of values: Astar (for DGtr)
   if(any(grepl("Astar", objargs))) {
@@ -163,6 +170,8 @@ revisit <- function(eout, objective = "CV", loga2 = NULL, ispecies = NULL,
         # plot the points for a referenced objective
         ylab <- "loga1"
         xlab <- "loga2"
+        if(is.null(xlim)) xlim <- extendrange(loga2)
+        if(is.null(ylim)) ylim <- extendrange(loga1)
         plot(loga2, loga1, xlab=xlab, ylab=ylab, pch=pch, col=col, xlim=xlim, ylim=ylim)
         # add a 1:1 line
         lines(range(loga2), range(loga2), col="grey")

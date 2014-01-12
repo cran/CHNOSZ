@@ -2,11 +2,14 @@
 # of species,genus,family,order,class,phylum,superkingdom
 # for each of the microbial taxa in RefSeq database
 
+# uses functions in CHNOSZ to process taxonomy files
+require(CHNOSZ)
+
 # change this to the location where names.dmp and nodes.dmp are located
 taxdir <- "./taxdump"
 
 # get the taxids from protein_refseq.csv
-pr <- read.csv("protein_refseq.csv.xz")
+pr <- read.csv("protein_refseq.csv")
 taxid <- pr$organism
 
 # read in the names and nodes
@@ -20,7 +23,7 @@ if(!exists("taxnodes")) {
 }
 
 # what ranks we want to get
-ranks <- c("species","genus","family","order","class","phylum","superkingdom")
+ranks <- c("species", "genus", "family", "order", "class", "phylum", "superkingdom")
 
 # start with an empty list
 out <- rep(list(character()), length(ranks))
@@ -43,14 +46,14 @@ for(i in ii) {
   # get names of these parents
   pnames <- sciname(pids[ip], taxdir, names=taxnames)
   # add results to output list
-  for(j in 1:length(ranks)) out[[j]] <- c(out[[j]],pnames[j])
+  for(j in 1:length(ranks)) out[[j]] <- c(out[[j]], pnames[j])
   # report progress
-  if(i %% 50 == 0) cat(paste(i,".. "))
+  if(i %% 50 == 0) cat(paste(i, ".. "))
 }
 # finish progress report
 cat("done!\n")
 
 # write results to a file
 out <- as.data.frame(out)
-out <- cbind(data.frame(taxid=taxid[ii],out))
-write.csv(out,"taxid_names.csv",row.names=FALSE,quote=FALSE)
+out <- cbind(data.frame(taxid=taxid[ii], out))
+write.csv(out, "taxid_names.csv", row.names=FALSE, quote=FALSE)

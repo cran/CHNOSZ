@@ -45,16 +45,18 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
 }
 
 read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
-  start=NULL, stop=NULL, type="protein") {
+  start=NULL, stop=NULL, type="protein", id=NULL) {
   # read sequences from a fasta file
   # some of the following code was adapted from 
   # read.fasta in package seqinR
   # value of 'i' is what sequences to read 
   # value of 'ret' determines format of return value:
-  # count: amino acid composition (same columns as thermo$protein, can be used by add.protein)
+  #   count: amino acid composition (same columns as thermo$protein, can be used by add.protein)
   #        or nucleic acid base composition (A-C-G-T)
-  # seq: amino acid sequence
-  # fas: fasta entry
+  #   seq: amino acid sequence
+  #   fas: fasta entry
+  # value of 'id' is used for 'protein' in output table,
+  #   otherwise ID is parsed from FASTA header (can take a while)
   is.nix <- Sys.info()[[1]]=="Linux"
   if(is.nix & is.null(lines)) {
     msgout("read.fasta: reading ",basename(file),"\n")
@@ -105,8 +107,8 @@ read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
   bnf <- strsplit(basename(file),split=".",fixed=TRUE)[[1]][1]
   organism <- bnf
   # protein/gene name is from header line for entry
-  # (strip the ">" and go to the first space or underscore)
-  id <- as.character(palply(1:length(i), function(j) {
+  # (strip the ">" and go to the first space)
+  if(is.null(id)) id <- as.character(palply(1:length(i), function(j) {
     # get the text of the line
     f1 <- linefun(i[j],i[j])
     # stop if the first character is not ">"
@@ -116,9 +118,7 @@ read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
     # discard the leading '>'
     f2 <- substr(f1, 2, nchar(f1))
     # keep everything before the first space
-    f3 <- strsplit(f2," ")[[1]][1]
-    # then before or after the first underscore
-    return(strsplit(f3,"_")[[1]][1])
+    return(strsplit(f2," ")[[1]][1])
   } ))
   if(ret=="count") {
     counts <- count.aa(sequences, start, stop, type)

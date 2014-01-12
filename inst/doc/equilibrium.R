@@ -2,7 +2,7 @@
 ### Encoding: ISO8859-1
 
 ###################################################
-### code chunk number 1: equilibrium.Rnw:23-24
+### code chunk number 1: equilibrium.Rnw:24-25
 ###################################################
   if(exists(".orig.enc")) options(encoding = .orig.enc)
 
@@ -43,13 +43,19 @@ e$loga.equil
 
 
 ###################################################
-### code chunk number 7: equilibrium.Rnw:334-335
+### code chunk number 7: equilibrium.Rnw:329-330
 ###################################################
 protein.basis(species()$name, normalize=TRUE)
 
 
 ###################################################
-### code chunk number 8: protein_equil
+### code chunk number 8: equilibrium.Rnw:421-421
+###################################################
+
+
+
+###################################################
+### code chunk number 9: protein_equil
 ###################################################
 # get an error if we don't data(thermo), only in the re-building vignettes of R CMD check
 data(thermo)
@@ -60,7 +66,7 @@ protein.equil(protein, loga.protein=-3)
 
 
 ###################################################
-### code chunk number 9: ProteinSpeciation
+### code chunk number 10: ProteinSpeciation
 ###################################################
 organisms <- c("METSC", "METJA", "METFE", "HALJP",
   "METVO", "METBU", "ACEKI", "GEOSE", "BACLI", "AERSA")
@@ -78,7 +84,7 @@ title(main="Equilibrium activities of proteins, normalized formulas")
 
 
 ###################################################
-### code chunk number 10: SulfurSpeciation
+### code chunk number 11: SulfurSpeciation
 ###################################################
 basis("CHNOS+")
 basis("pH",5)
@@ -95,10 +101,16 @@ title(main="Aqueous sulfur speciation, normalized formulas")
 
 
 ###################################################
-### code chunk number 11: Plasma
+### code chunk number 12: equilibrium.Rnw:535-535
+###################################################
+
+
+
+###################################################
+### code chunk number 13: Plasma
 ###################################################
 data(thermo)  # cleanup from previous plot
-basis(c("CO2", "NH3", "H2S", "H2O", "O2"), c(-3, -3, -10))
+basis(c("CO2", "NH3", "H2S", "H2O", "oxygen"), c(-3, -3, -10))
 f <- system.file("extdata/abundance/AA03.csv", package="CHNOSZ")
 pdat <- read.csv(f, as.is=TRUE)
 iil <- grep("^IL", pdat$name)
@@ -112,7 +124,13 @@ stopifnot(identical(dA$predominant, dE$predominant))
 
 
 ###################################################
-### code chunk number 12: Amino
+### code chunk number 14: equilibrium.Rnw:564-564
+###################################################
+
+
+
+###################################################
+### code chunk number 15: Amino
 ###################################################
 basis("CHNOS+")
 species(aminoacids(""))
@@ -124,7 +142,7 @@ dE <- diagram(e, main="equilibrium activities")
 
 
 ###################################################
-### code chunk number 13: SessionInfo
+### code chunk number 16: SessionInfo
 ###################################################
 sessionInfo()
 

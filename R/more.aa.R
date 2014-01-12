@@ -9,16 +9,14 @@ more.aa <- function(protein=NULL, organism) {
   datapath <- paste("extdata/protein/", organism, ".csv.xz", sep="")
   datafile <- system.file(datapath, package="CHNOSZ")
   if(datafile=="") stop(paste("missing", datapath))
-  mydata <- read.csv(datafile)
+  mydata <- read.csv(datafile, as.is=TRUE)
   # if protein is not supplied, just give some information about the datafile
   if(is.null(protein)) {
     msgout("more.aa: ", datapath, " has data for ", nrow(mydata), " proteins\n")
     return(invisible())
   }
   # which columns to search for matches
-  # include "OLN" (Sce.csv dated 2008-08-04)
-  # and "ORF" (Sce.csv dated 2013-06-04)
-  if(organism=="Sce") searchcols <- c("OLN", "ORF", "SGDID")
+  if(organism=="Sce") searchcols <- c("ORF", "SGDID", "GENE")
   else if(organism=="Eco") searchcols <- c("protein", "abbrv")
   # which columns have the amino acids, in the order of thermo$protein 
   iaa <- match(toupper(aminoacids(3)), toupper(colnames(mydata)))
@@ -47,12 +45,14 @@ more.aa <- function(protein=NULL, organism) {
     }
     aa <- data.frame(mydata[imatch, iaa])
     # add the identifying columns
-    organism <- rep(organism[[1]], length(protein[[i]]))
-    abbrv <- rep(NA, length(protein[[i]]))
-    ref <- rep(NA, length(protein[[i]]))
+    if(organism=="Sce") ref <- mydata$SGDID[imatch]
+    else ref <- rep(NA, length(protein[[i]]))
+    if(organism=="Sce") abbrv <- mydata$GENE[imatch]
+    else abbrv <- rep(NA, length(protein[[i]]))
     chains <- rep(1, length(protein[[i]]))
     chains[inotmatch] <- NA
-    precols <- data.frame(protein[[i]], organism, ref, abbrv, chains, stringsAsFactors=FALSE)
+    org <- rep(organism[[1]], length(protein[[i]]))
+    precols <- data.frame(protein[[i]], organism=org, ref, abbrv, chains, stringsAsFactors=FALSE)
     colnames(precols)[1] <- "protein"
     colnames(aa) <- aminoacids(3)
     aa <- cbind(precols, aa)

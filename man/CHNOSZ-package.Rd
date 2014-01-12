@@ -56,11 +56,11 @@
 
 
 \section{Compatibility}{
-  The recommended version of \R is 2.14.0 or greater (to find vignettes in the \code{vignettes} directory).
-  The package depends on \R version 2.12.0 or greater (so useDynLib in the NAMESPACE can find the shared library on Windows).
-  Before version 0.9-9 of the package, the dependency was given as \R version 2.10.0 or greater (to read compressed data files).
+  The recommended version of \R is 2.14.0 or greater (to find vignettes in the \code{vignettes} directory, and for availability of \pkg{parallel} in the standard library).
+  As of version 0.9-9, the package depends on \R version 2.12.0 or greater (so useDynLib in the NAMESPACE can find the shared library on Windows).
+  Starting with version 0.9-6 of the package, the dependency was given as \R version 2.10.0 or greater (to read compressed data files).
   Before version 0.9-6 of the package, the dependency was given as \R version 2.7.0 or greater (major update of the X11 device in 2.7.0).
-  However, without accessing the compressed data files in \code{extdata} it should be possible to run CHNOSZ on Unix-alikes under \R versions 2.4.0 or greater (availability of the \samp{stringsAsFactors} argument of \code{\link{data.frame}}). 
+  Without accessing the compressed data files in \code{extdata} it should be possible to run CHNOSZ on Unix-alikes under \R versions 2.4.0 or greater (availability of the \samp{stringsAsFactors} argument of \code{\link{data.frame}}). 
 }
 
 \section{Acknowledgements}{
@@ -75,10 +75,6 @@
   \code{\link{subcrt}} does not correctly identify the stable polymorph of some minerals at high temperature.
 
   \code{\link{diagram}} causes an error while plotting stability field boundaries if the x and y resolutions are not identical.
-}
-
-\seealso{
-  The \code{TODO} file in the package installation directory contains a list of changes anticipated or considered for future releases.
 }
 
 \examples{

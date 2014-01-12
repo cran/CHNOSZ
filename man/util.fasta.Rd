@@ -14,7 +14,7 @@
   grep.file(file, pattern = "", y = NULL, ignore.case = TRUE, 
     startswith = ">", lines = NULL, grep = "grep")
   read.fasta(file, i = NULL, ret = "count", lines = NULL, 
-    ihead = NULL, start=NULL, stop=NULL, type="protein")
+    ihead = NULL, start=NULL, stop=NULL, type="protein", id = NULL)
   count.aa(seq, start=NULL, stop=NULL, type="protein")
   uniprot.aa(protein, start=NULL, stop=NULL)
 }
@@ -26,13 +26,14 @@
   \item{ignore.case}{logical, ignore differences between upper- and lower-case?}
   \item{startswith}{character, only lines starting with this expression are matched}
   \item{lines}{list of character, supply the lines here instead of reading them from file}
-  \item{grep}{character, name of system \code{grep} command}
+  \item{grep}{character, name of system \samp{grep} command}
   \item{i}{numeric, line numbers of sequence headers to read}
   \item{ret}{character, specification for type of return (count, sequence, or FASTA format)}
   \item{ihead}{numeric, which lines are headers}
   \item{start}{numeric, position in sequence to start counting}
   \item{stop}{numeric, position in sequence to stop counting}
   \item{type}{character, sequence type (protein or DNA)}
+  \item{id}{character, value to be used for \code{protein} in output table}
   \item{seq}{character, amino acid sequence of a protein}
   \item{protein}{character, entry name for protein in UniProt}
 }
@@ -48,10 +49,12 @@ If the lines from the file were obtained in a preceding operation, they can be s
 
 \code{read.fasta} is used to retrieve entries from a FASTA file.
 To read only selected sequences pass the line numbers of the header lines to the function in \code{i} (they can be identified using e.g. \code{grep.file}).
-The function returns various formats depending on the value of \code{ret}; the default \samp{count} returns a dataframe of amino acid counts (the data frame can be given to \code{\link{add.protein}} in order to add the proteins to \code{\link{thermo}$protein}), \samp{seq} returns a list of sequences, and \samp{fas} returns a list of lines extracted from the FASTA file, including the headers (this can be used e.g. to generate a new FASTA file with only the selected sequences).
+The function returns various formats depending on the value of \code{ret}.
+The default \samp{count} returns a data frame of amino acid counts (the data frame can be given to \code{\link{add.protein}} in order to add the proteins to \code{\link{thermo}$protein}), \samp{seq} returns a list of sequences, and \samp{fas} returns a list of lines extracted from the FASTA file, including the headers (this can be used e.g. to generate a new FASTA file with only the selected sequences).
 Similarly to \code{grep.file}, this function utilizes the OS's \samp{grep} on supported operating systems in order to identify the header lines as well as \samp{cat} to read the file, otherwise \code{\link{readLines}} and \R's \code{\link{substr}} are used to read the file and locate the header lines.
 If the line numbers of the header lines were previously determined, they can be supplied in \code{ihead}. 
 Optionally, the lines of a previously read file may be supplied in \code{lines} (in this case no file is needed so \code{file} should be set to "").
+When \code{ret} is \samp{count}, the names of the proteins in the resulting data frame are parsed from the header lines of the file, unless \code{id} is provided.
 
 \code{count.aa} counts the occurrences of each amino acid or nucleic-acid base in a sequence (\code{seq}).
 For amino acids, the columns in the returned data frame are in the same order as \code{thermo$protein}.
