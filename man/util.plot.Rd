@@ -24,8 +24,8 @@
   label.plot(x, xfrac = 0.95, yfrac = 0.9, cex = 1, paren = TRUE, 
     adj = 1)
   water.lines(xaxis = "pH", yaxis = "Eh", T = 298.15, P = "Psat", 
-    which = c("oxidation","reduction"), logaH2O = 0, lty = 2, 
-    col = par("fg"), xpoints = NULL)
+    which = c("oxidation","reduction"), logaH2O = 0, lty = 2, lwd=1,
+    col = par("fg"), xpoints = NULL, O2state="gas")
   mtitle(main, ...)
   residualsplot(residuals, property = "Cp", model = "big")
 }
@@ -63,6 +63,7 @@
   \item{logaH2O}{numeric, logarithm of the activity of \eqn{\mathrm{H_2O}}{H2O}}
   \item{lty}{numeric, line type}
   \item{xpoints}{numeric, points to plot on \eqn{x}{x} axis}
+  \item{O2state}{character, state of O2}
   \item{main}{character, text for plot title}
   \item{...}{further arguments passed to \code{mtext}}
   \item{residuals}{numeric, named vector of residuals to plot}
@@ -74,7 +75,12 @@
 
   \code{thermo.plot.new} sets parameters for a new plot, creates a new plot using \code{\link{plot.new}}, and adds axes and major and minor ticks to the plot. Plot parameters (see \code{\link{par}}) including \code{cex}, \code{mar}, \code{lwd}, \code{mgp} and \code{axs} can be given, as well as a numeric vector in \code{ticks} identifying which sides of the plot receive tick marks. \code{yline}, if present, denotes the margin line (default \code{\link{par}('mgp')[1]}) where the y-axis name is plotted. The very first time \code{thermo.plot.new} is called, it stores the existing value of \code{par(no.readonly=TRUE)} in \code{thermo$opar} so that the plot device can be reset to the previous state later on.
 
-  \code{water.lines} plots lines representing the oxidation and reduction stability limits of water on \code{yaxis}-\code{xaxis} diagrams, where \code{yaxis} can be \samp{Eh} or \samp{O2}, and \code{xaxis} can be \samp{pH} or \samp{T}. \code{which} controls which lines (\samp{oxidation}, \samp{reduction}, or both (the default)) are drawn, \code{logaH2O} (default 0) denotes the logarithm of the activity of water, \code{lty} (default 2) the line type, \code{col} (default \code{\link{par}('fg')}, the foreground color), and \code{xpoints} an optional list of points on the x axis to which to restrict the plotting (default of \code{NULL} refers to the axis limits).
+\code{water.lines} plots lines representing the oxidation and reduction stability limits of water on \code{yaxis}-\code{xaxis} diagrams, where \code{yaxis} can be \samp{Eh} or \samp{O2}, and \code{xaxis} can be \samp{pH} or \samp{T}.
+\code{which} controls which lines are drawn (\samp{oxidation}, \samp{reduction}, or both (the default)).
+\code{logaH2O} denotes the logarithm of the activity of water.
+With \code{O2state} set to \samp{gas} (the default), the logarithm of oxygen fugacity is plotted.
+Change this to \samp{aq} to plot the logarithm of oxygen activity (do not change it if plotting \samp{Eh}).
+\code{xpoints} is an optional list of points on the x axis to which to restrict the plotting (default of \code{NULL} refers to the axis limits).
 
   \code{label.plot} adds identifying text to the plot; the value given for \code{x} is made into a label like \eqn{(a)}{(a)}. The location of the label is controlled by \code{xfrac} and \code{yfrac} (the fractional locations along the respective axes) as well as \code{adj} (the text alignment parameter, see \code{\link{text}}).
 
@@ -90,4 +96,4 @@
   These functions create or modify a plot.
 }
 
-\keyword{util}
+\keyword{utilities}

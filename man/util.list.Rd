@@ -37,4 +37,4 @@
   \code{lsub}, \code{lsum} and \code{pprod} return lists. 
 }
 
-\keyword{util}
+\keyword{utilities}

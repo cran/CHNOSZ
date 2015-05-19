@@ -15,9 +15,10 @@
   expr.property(property)
   expr.units(property, prefix = "", per = "mol")
   axis.label(label, units = NULL, basis = get("thermo")$basis, prefix = "")
-  describe.basis(basis = get("thermo")$basis, ibasis = 1:nrow(basis), digits = 1,
-    oneline = FALSE)
-  describe.property(property, value, digits = 1, oneline = FALSE, ret.val = FALSE)
+  describe.basis(basis = get("thermo")$basis, ibasis = 1:nrow(basis),
+    digits = 1, oneline = FALSE)
+  describe.property(property, value, digits = 1, oneline = FALSE,
+    ret.val = FALSE)
   describe.reaction(reaction, iname = numeric(), states = NULL)
 }
 
@@ -133,4 +134,4 @@ text(3, 4.5, describe.reaction(reaction, states="all"))
 text(3, 4.75, describe.reaction(reaction, iname=1:4))
 }
 
-\keyword{util}
+\keyword{utilities}

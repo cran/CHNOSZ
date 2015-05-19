@@ -1,3 +1,84 @@
+CHANGES IN CHNOSZ 1.0.5 (2015-05-19)
+------------------------------------
+
+- Following "Writing R Extensions", remove uncommented \donttest{} code
+  from Rd files. Some examples have had \donttest{} markup removed
+  without other modification, some non-representative examples have
+  been deleted, and some longer examples have been moved to demo files.
+
+- Some previous \donttest{} examples have been moved to demos 'findit.R'
+  (replaces old demo), and to new demos 'revisit.R', 'ionize.R',
+  'buffer.R', 'wjd.R', 'yeastgfp.R', 'diagram.R'.
+
+- Rd files now use standard R \keyword{}s ('package' and 'utilities');
+  non-standard keywords have been changed to \concept{}s (see CHECKLIST
+  for description, and CHNOSZ-package.Rd for overview).
+
+CHANGES IN CHNOSZ 1.0.4 (2015-05-18)
+------------------------------------
+
+NEW FEATURES:
+
+- Add mosaic() function for affinity calculations with changing basis
+  species. See also new 'mosaic.R' demo.
+
+- Add thermo$opt$varP option for subcrt() to calculate Gibbs energies
+  of gases using a variable-pressure standard state.
+
+- Add 'solubility.R' demo, and add calcite solubility plot to
+  anintro.Rnw.
+
+DATA CONSISTENCY:
+
+- Move aqueous Ti(OH)4 and H4SiO4 to OBIGT-2.csv.
+
+- Add warning about data consistency and use of examples to
+  CHNOSZ-package.Rd and anintro.Rnw.
+
+OTHER CHANGES:
+
+- When making filled color diagrams, diagram() calls image() with
+  useRaster=TRUE. This speeds up plotting, eliminates artifacts (i.e.
+  blank lines) at some resolutions, and greatly reduces the size
+  of PDF files.
+
+- diagram() returns 'lx', 'ly' and 'is' for calculated positions of
+  labels and indices of those species in predominance diagrams,
+  including when the labels aren't plotted (by setting names=FALSE).
+
+- In energy(), add missing 'IS' argument in call to subcrt(). Thanks to
+  Grayson Boyer for the bug report.
+
+- In nonideal(), skip proton and electron. Add test for calculations
+  at constant and variable IS to test-util.affinity.R.
+
+- Modify hotspring.Rnw to use knitr, and add example calculations of
+  relative abundances of microbial phyla from Dick and Shock, 2013.
+
+- Add files with average amino acid compositions of proteins from Bison
+  Pool hot spring grouped according to annotation keyword (DS11.csv)
+  (moved here from protein.csv) or phylum assignment (DS13.csv).
+
+- water.lines() gets 'O2state' argument to specify state of O2.
+
+- Add 'as.residue' argument to diagram(), to divide reactions by
+  balance coefficients without rescaling to whole species formulas
+  (cf. 'normalize' argument which uses rescaling).
+
+- In equilibrate(), change name of 'stay.normal' argument to
+  'as.residue'.
+
+- In test-diagram.R, test that same diagrams are produced using
+  'normalize' in equilibrate() or diagram().
+
+- In test-diagram.R, test that same diagrams are produced using
+  'as.residue' in equilibrate() or diagram().
+
+- Add 'tplot' argument to diagram() (change to FALSE to use R's default
+  plot set-up).
+
+- R version dependency changed to (>= 3.0.0).
+
 CHANGES IN CHNOSZ 1.0.3 (2014-01-12)
 ------------------------------------
 

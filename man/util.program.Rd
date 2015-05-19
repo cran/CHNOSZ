@@ -49,4 +49,4 @@ bfun()         # "bfun"
 msgout("h3llo w0rld\n")
 }
 
-\keyword{util}
+\keyword{utilities}

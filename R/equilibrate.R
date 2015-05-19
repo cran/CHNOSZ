@@ -3,7 +3,7 @@
 # of species in (metastable) equilibrium
 
 equilibrate <- function(aout, balance=NULL, loga.balance=NULL, 
-  ispecies=1:length(aout$values), normalize=FALSE, stay.normal=FALSE) {
+  ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE) {
   ### set up calculation of equilibrium activities of species from the affinities 
   ### of their formation reactions from basis species at known activities
   ### split from diagram() 20120925 jmd
@@ -41,10 +41,11 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   ## normalize -- normalize the molar formula by the balance coefficients
   m.balance <- n.balance
   isprotein <- grepl("_", as.character(aout$species$name))
-  if(normalize) {
+  if(normalize | as.residue) {
     if(any(n.balance < 0)) stop("one or more negative balancing coefficients prohibit using normalized molar formulas")
     n.balance <- rep(1, nspecies)
-    msgout(paste("equilibrate: normalizing molar formulas by the balancing coefficients\n"))
+    if(as.residue) msgout(paste("equilibrate: using 'as.residue' for molar formulas\n"))
+    else msgout(paste("equilibrate: using 'normalize' for molar formulas\n"))
   } else m.balance <- rep(1, nspecies)
   ## Astar: the affinities/2.303RT of formation reactions with
   ## formed species in their standard-state activities
@@ -57,7 +58,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   if(all(n.balance==1)) loga.equil <- equil.boltzmann(Astar, n.balance, loga.balance)
   else loga.equil <- equil.reaction(Astar, n.balance, loga.balance)
   ## if we normalized the formulas, get back to activities to species
-  if(normalize & !stay.normal) {
+  if(normalize & !as.residue) {
     loga.equil <- lapply(1:nspecies, function(i) {
       loga.equil[[i]] - log10(m.balance[i])
     })
@@ -232,7 +233,8 @@ balance <- function(aout, balance=NULL) {
   #   "length"                   - balanced on sequence length of proteins 
   #                             (default if balance is missing and all species are proteins)
   #   1                       - balanced on one mole of species
-  #   numeric vector          - uesr-defined n.balance
+  #   numeric vector          - user-defined n.balance
+  #   "volume"                - standard-state volume listed in thermo$obigt
   # the index of the basis species that might be balanced
   ibalance <- numeric()
   # deal with proteins
@@ -257,6 +259,10 @@ balance <- function(aout, balance=NULL) {
       if(!all(isprotein)) stop("length was the requested balance, but some species are not proteins")
       n.balance <- protein.length(aout$species$name)
       balance.description <- "protein length"
+      msgout(paste("balance: coefficients are", balance.description, "\n"))
+    } else if(identical(balance, "volume")) {
+      n.balance <- info(aout$species$ispecies, check.it=FALSE)$V
+      balance.description <- "volume"
       msgout(paste("balance: coefficients are", balance.description, "\n"))
     } else {
       # is the balance the name of a basis species?

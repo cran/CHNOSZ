@@ -41,4 +41,4 @@ names(counts) <- aminoacids(1)
 stopifnot(tail(names(sc), 2)==c("C", "M"))
 }
 
-\keyword{util}
+\keyword{utilities}

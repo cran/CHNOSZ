@@ -129,4 +129,4 @@ RH2obigt()
 }
 
 
-\keyword{util}
+\keyword{utilities}

@@ -2302,16 +2302,12 @@ um distribution.
 \end_layout
 
 \begin_layout Section
-Document Information
+Document revision history
 \end_layout
 
 \begin_layout Standard
 \begin_inset Branch stuff
 status open
-
-\begin_layout Standard
-Revision history
-\end_layout
 
 \begin_layout Itemize
 2009-11-29 Initial version containing CSG example (title: Calculating relative
@@ -2328,33 +2324,6 @@ protactiv.Rnw
 \end_inset
 
 : Remove activity comparisons, add maximum affinity method.
-\end_layout
-
-\begin_layout Standard
-R session information
-\end_layout
-
-\begin_layout Standard
-\begin_inset Flex Chunk
-status open
-
-\begin_layout Plain Layout
-
-\begin_inset Argument 1
-status open
-
-\begin_layout Plain Layout
-SessionInfo
-\end_layout
-
-\end_inset
-
-sessionInfo()
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \end_inset

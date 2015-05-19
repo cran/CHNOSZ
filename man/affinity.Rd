@@ -27,20 +27,31 @@
 The calculation of chemical affinities relies on the current definitions of the \code{\link{basis}} species and \code{\link{species}} of interest.
 It is possible to use the results of \code{affinity} to generate equilibrium activity diagrams using \code{\link{diagram}}.
 
-  The equation used to calculate chemical affinity \emph{\bold{A}} is \emph{\bold{A}}=\eqn{RT\ln (K/Q)}{RT*ln(K/Q)} (Kondepudi and Prigogine, 1998), where \eqn{K} denotes the equilibrium constant of the reaction and \eqn{Q} stands for the activity product of the species in the reaction. (The equilibrium constant is related to standard Gibbs energy of reaction, \eqn{\Delta G^{\circ}_r}{DeltaG0r}, by \eqn{\Delta G^{\circ}_r = -2.303RT\log K}{DeltaG0r = -2.303*RT*logK}, where \eqn{R} and \eqn{T} stand for, respectively, the gas constant and temperature). With the approach of a given reaction to a state of equilibrium, the chemical affinity tends toward zero, or \eqn{K = Q}. 
+The equation used to calculate chemical affinity \emph{\bold{A}} is \emph{\bold{A}}=\eqn{RT\ln (K/Q)}{RT*ln(K/Q)} (Kondepudi and Prigogine, 1998), where \eqn{K} denotes the equilibrium constant of the reaction and \eqn{Q} stands for the activity product of the species in the reaction.
+(The equilibrium constant is related to standard Gibbs energy of reaction, \eqn{\Delta G^{\circ}_r}{DeltaG0r}, by \eqn{\Delta G^{\circ}_r = -2.303RT\log K}{DeltaG0r = -2.303*RT*logK}, where \eqn{R} and \eqn{T} stand for, respectively, the gas constant and temperature).
+With the approach of a given reaction to a state of equilibrium, the chemical affinity tends toward zero, or \eqn{K = Q}. 
 
-  Valid properties are \samp{A} or NULL for chemical affinity, \samp{logK} or \samp{logQ} for logarithm of equilibrium constant and reaction activity product, or any of the properties available in \code{\link{subcrt}} except for \samp{rho}. The properties returned are those of the formation reactions of the species of interest from the basis species. It is also possible to calculate the properties of the species of interest themselves (not their formation reactions) by setting the \code{property} to \samp{G.species}, \samp{Cp.species}, etc. Except for \samp{A}, the properties of proteins or their reactions calculated in this manner are restricted to nonionized proteins.
+Valid properties are \samp{A} or NULL for chemical affinity, \samp{logK} or \samp{logQ} for logarithm of equilibrium constant and reaction activity product, or any of the properties available in \code{\link{subcrt}} except for \samp{rho}.
+The properties returned are those of the formation reactions of the species of interest from the basis species.
+It is also possible to calculate the properties of the species of interest themselves (not their formation reactions) by setting the \code{property} to \samp{G.species}, \samp{Cp.species}, etc.
+Except for \samp{A}, the properties of proteins or their reactions calculated in this manner are restricted to nonionized proteins.
 
-  Zero, one, or more leading arguments to the function identify which of the chemical activities of basis species, temperature, pressure and/or ionic strength to vary. The names of each of these arguments may be the formula of any of the basis species of the system, or \samp{T}, \samp{P}, \samp{pe}, \samp{pH}, \samp{Eh}, or \samp{IS} (but names may not be repeated). To use the names of charged basis species such as \samp{K+} and \samp{SO4-2} as the arguments, they should be enclosed in quotes (see the example for aluminum speciation in \code{\link{diagram}}). The value of each argument is of the form \code{c(min,max)} or \code{c(min,max,res)} where \code{min} and \code{max} refer to the minimimum and maximum values of variable identified by the name of the argument, and \code{res} denotes the resolution, or number of points along which to do the calculations (this is assigned a default value of 128 if it is missing). For any arguments that refer to basis species, the numerical values are the logarithms of the activities of that basis species, or logarithms of fugacities if it is a gas. Unlike the \code{energy} function, the units of \samp{T} and \samp{P} in \code{affinity} are those the user has set using \code{\link{T.units}} and \code{\link{P.units} }(on program start-up these are \eqn{^{\circ}}{°}C and bar, respectively). 
+Zero, one, or more leading arguments to the function identify which of the chemical activities of basis species, temperature, pressure and/or ionic strength to vary.
+The names of each of these arguments may be the formula of any of the basis species of the system, or \samp{T}, \samp{P}, \samp{pe}, \samp{pH}, \samp{Eh}, or \samp{IS} (but names may not be repeated).
+To use the names of charged basis species such as \samp{K+} and \samp{SO4-2} as the arguments, they should be enclosed in quotes (see the example for aluminum speciation in \code{\link{diagram}}).
+The value of each argument is of the form \code{c(min,max)} or \code{c(min,max,res)} where \code{min} and \code{max} refer to the minimimum and maximum values of variable identified by the name of the argument, and \code{res} denotes the resolution, or number of points along which to do the calculations (this is assigned a default value of 128 if it is missing).
+For any arguments that refer to basis species, the numerical values are the logarithms of the activities of that basis species, or logarithms of fugacities if it is a gas.
+Unlike the \code{energy} function, the units of \samp{T} and \samp{P} in \code{affinity} are those the user has set using \code{\link{T.units}} and \code{\link{P.units} }(on program start-up these are \eqn{^{\circ}}{°}C and bar, respectively). 
 
-   If one or more buffers are assigned to the definition of \code{\link{basis}} species, \code{affinity} calls \code{\link{buffer}} to calculate the logarithms of activities of these basis species from the buffer.
+If one or more buffers are assigned to the definition of \code{\link{basis}} species, \code{affinity} calls \code{\link{buffer}} to calculate the logarithms of activities of these basis species from the buffer.
 
 The \code{iprotein} and \code{loga.protein} arguments can be used to compute the chemical affinities of formation reactions of proteins that are not in the current \code{\link{species}} definition.
 This approach can be utilized in order to calculate the properties of many proteins in a fraction of the time it would take to calculate them individually.
 The appropriate \code{\link{basis}} species still must be defined prior to calling \code{affinity}.
 \code{iprotein} contains indices of desired proteins in \code{\link{thermo}$protein}; \code{affinity} adds to the species list the amino acid residues and and terminal H2O group (indicated by \dQuote{RESIDUE} in \code{thermo$protein}) then calculates the properties of the reactions for the residues and terminal group, including ionization effects, and adds them together to get those of the indicated proteins.
 
-  In CHNOSZ version 0.9, \code{energy} gained a new argument \samp{transect} which is set to TRUE by \code{energy.args} when the length(s) of the variables is(are) greater than three. In this mode of operation, instead of performing the calculations on an \eqn{n}{n}-dimensional grid, the affinities are calculated on an \eqn{n}{n}-dimensional transect through chemical potential (possibly including T and/or P) space. 
+In CHNOSZ version 0.9, \code{energy} gained a new argument \samp{transect} which is set to TRUE by \code{energy.args} when the length(s) of the variables is(are) greater than three.
+In this mode of operation, instead of performing the calculations on an \eqn{n}{n}-dimensional grid, the affinities are calculated on an \eqn{n}{n}-dimensional transect through chemical potential (possibly including T and/or P) space. 
 
 }
 
@@ -81,7 +92,50 @@ affinity(property="G.species")
 # Standard molal Gibbs energies of reactions
 affinity(property="G")
 
-\donttest{## amino acid synthesis at low and high temperatures
+## affinities of metabolic reactions
+## after Amend and Shock, 2001, Fig. 7
+# use aq state for all basis species (including O2)
+basis(c("CO2", "H2", "NH3", "O2", "H2S", "H+"), "aq")
+# we're going to make H2O
+species("H2O")
+# a function to create the plots
+doplot <- function(T) {
+  res <- 20
+  # calculate affinity/2.303RT as a function of loga(H2) and loga(O2)
+  a <- affinity(H2=c(-10, 0, res), O2=c(-10, 0, res), T=T)
+  T.K <- convert(T, "K")                   # temperature in Kelvin
+  acal <- convert(a$values[[1]], "G", T.K) # affinity (cal/mol)
+  akJ <- convert(acal, "J")/1000           # affinity (kJ/mol)
+  # now contour the values
+  xyvals <- seq(-10, 0, length.out=res)
+  contour(x=xyvals, y=xyvals, z=t(akJ), levels=seq(-150, -250, -20),
+    labcex=1, xlab=axis.label("H2"), ylab=axis.label("O2"))
+  # show the temperature
+  legend("topleft", bg="white", cex=1,
+    legend=describe.property("T", T, digits=0, ret.val=TRUE) )
+}
+# plot layout with space for title at top
+layout(matrix(c(1, 1, 2, 3, 4, 5), ncol=2, byrow=TRUE), heights=c(1, 4, 4))
+par(mar=c(0, 0, 0, 0))
+plot.new()
+# we use subcrt() to generate a reaction for titling the plot
+rxnexpr <- describe.reaction(subcrt("H2O", 1)$reaction, states="all")
+# also in the title is the property with its units
+E.units("J")
+Gexpr <- axis.label("DGr", prefix="k")[[2]]
+text(0.5, 0.6, substitute(paste(G~~"for"~~r), list(G=Gexpr, r=rxnexpr)), cex=2)
+text(0.5, 0.2, "after Amend and Shock, 2001 Figure 7", cex=2)
+# now make the plots
+par(mar=c(3, 3, 0.5, 0.5), cex=1.3, mgp=c(2, 1, 0))
+sapply(c(25, 55, 100, 150), doplot)
+# affinity() can handle the three dimensions simultaneously
+print(affinity(H2=c(-10, 0, 3), O2=c(-10, 0, 3), T=c(25, 150, 4))$values)
+# this is so the plots in the next examples show up OK
+E.units("cal")
+layout(matrix(1))
+par(mar=c(5.1, 4.1, 4.1, 2.1))
+
+## amino acid synthesis at low and high temperatures
 ## after Amend and Shock, 1998
 # select the basis species and species of interest
 # and set their activities, first for the 18 degree C case
@@ -127,49 +181,6 @@ stopifnot(sum(out$G.100 < 0)==9)
 E.units("cal")
 species(delete=TRUE)
 
-## affinities of metabolic reactions
-## after Amend and Shock, 2001, Fig. 7
-# use aq state for all basis species (including O2)
-basis(c("CO2", "H2", "NH3", "O2", "H2S", "H+"), "aq")
-# we're going to make H2O
-species("H2O")
-# a function to create the plots
-doplot <- function(T) {
-  res <- 20
-  # calculate affinity/2.303RT as a function of loga(H2) and loga(O2)
-  a <- affinity(H2=c(-10, 0, res), O2=c(-10, 0, res), T=T)
-  T.K <- convert(T, "K")                   # temperature in Kelvin
-  acal <- convert(a$values[[1]], "G", T.K) # affinity (cal/mol)
-  akJ <- convert(acal, "J")/1000           # affinity (kJ/mol)
-  # now contour the values
-  xyvals <- seq(-10, 0, length.out=res)
-  contour(x=xyvals, y=xyvals, z=t(akJ), levels=seq(-150, -250, -20),
-    labcex=1, xlab=axis.label("H2"), ylab=axis.label("O2"))
-  # show the temperature
-  legend("topleft", bg="white", cex=1,
-    legend=describe.property("T", T, digits=0, ret.val=TRUE) )
-}
-# plot layout with space for title at top
-layout(matrix(c(1, 1, 2, 3, 4, 5), ncol=2, byrow=TRUE), heights=c(1, 4, 4))
-par(mar=c(0, 0, 0, 0))
-plot.new()
-# we use subcrt() to generate a reaction for titling the plot
-rxnexpr <- describe.reaction(subcrt("H2O", 1)$reaction, states="all")
-# also in the title is the property with its units
-E.units("J")
-Gexpr <- axis.label("DGr", prefix="k")[[1]]
-text(0.5, 0.6, substitute(paste(G~~"for"~~r), list(G=Gexpr, r=rxnexpr)), cex=2)
-text(0.5, 0.2, "after Amend and Shock, 2001 Figure 7", cex=2)
-# now make the plots
-par(mar=c(3, 3, 0.5, 0.5), cex=1.3, mgp=c(2, 1, 0))
-sapply(c(25, 55, 100, 150), doplot)
-# affinity() can handle the three dimensions simultaneously
-print(affinity(H2=c(-10, 0, 3), O2=c(-10, 0, 3), T=c(25, 150, 4))$values)
-# this is so the plots in the next examples show up OK
-E.units("cal")
-layout(matrix(1))
-
-
 ## calculations along a transect: methanogenesis and biosynthetic 
 ## reactions in hydrothermal systems, after Shock and Canovas, 2010
 # this file has their mixing path results for Rainbow hydrothermal field
@@ -201,7 +212,6 @@ diagram(a, balance=1, ylim=c(-100000, 100000), ylab=axis.label("A"),
 abline(h=0, lty=2, lwd=2)
 title(main="Affinities of organic synthesis, after Shock and Canovas, 2010")
 }
-}
 
 \references{
   Amend, J. P. and Shock, E. L. (1998) Energetics of amino acid synthesis in hydrothermal ecosystems. \emph{Science} \bold{281}, 1659--1662. \url{http://dx.doi.org/10.1126/science.281.5383.1659}
@@ -216,4 +226,4 @@ title(main="Affinities of organic synthesis, after Shock and Canovas, 2010")
 }
 
 
-\keyword{primary}
+\concept{Primary thermodynamic modeling}

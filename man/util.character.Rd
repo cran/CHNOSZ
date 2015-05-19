@@ -41,4 +41,4 @@ c2s(aminoacids())
 c2s(aminoacids(),sep=".")
 }
 
-\keyword{util}
+\keyword{utilities}

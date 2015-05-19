@@ -10,6 +10,8 @@
 \alias{buffers}
 \title{Thermodynamic Database and System Definition}
 \description{
+
+  Please read the important Warning at \code{\link{CHNOSZ-package}}.
  
   The core data files provided with CHNOSZ are in the \code{data} directory of the package. These \code{*.csv} files are used to build the \code{thermo} data object on loading the package. Additional (extra) data files, supporting the examples and vignettes, are documented separately at \code{\link{extdata}}. 
 
@@ -49,9 +51,10 @@ This is sometimes a useful command to use during an interactive session, when pr
       \code{state} \tab character \tab The default physical state for searching species (\samp{aq} by default)\cr
       \code{water} \tab character \tab Computational option for properties of water (\samp{SUPCRT} (default) or \samp{IAPWS})\cr
       \code{online} \tab logical \tab Allow online searches of protein composition? Default (\code{NA}) is to ask the user.\cr
-      \code{G.tol} \tab numeric \tab Absolute difference between tabulated and calculated value of G above which \code{\link{checkGHS}} produces a message (cal mol\eqn{^{-1}}{^-1}).\cr
-      \code{Cp.tol} \tab numeric \tab Absolute difference between tabulated and calculated value of Cp above which \code{\link{checkEOS}} produces a message (cal K\eqn{^{-1}}{-1} mol\eqn{^{-1}}{^-1}).\cr
-      \code{V.tol} \tab numeric \tab Absolute difference between tabulated and calculated value of V above which \code{\link{checkEOS}} produces a message (cm\eqn{^{3}}{3} mol\eqn{^{-1}}{^-1}).\cr
+      \code{G.tol} \tab numeric \tab Difference in value of G above which \code{\link{checkGHS}} produces a message (cal mol\eqn{^{-1}}{^-1}).\cr
+      \code{Cp.tol} \tab numeric \tab Difference in value of Cp above which \code{\link{checkEOS}} produces a message (cal K\eqn{^{-1}}{-1} mol\eqn{^{-1}}{^-1}).\cr
+      \code{V.tol} \tab numeric \tab Difference in value of V above which \code{\link{checkEOS}} produces a message (cm\eqn{^{3}}{3} mol\eqn{^{-1}}{^-1}).\cr
+      \code{varP} \tab logical \tab Use variable-pressure standard state for gases (default \code{FALSE})? See \code{\link{subcrt}}.\cr
 }
 
     \item \code{thermo$element}
@@ -238,8 +241,8 @@ thermo$obigt$formula[runif(10)*n]
 
   Shock, E. L. et al. {1998} \emph{SLOP98.dat} (computer data file). http://geopig.asu.edu/supcrt92_data/slop98.dat, accessed on 2005-11-05. Current location: \url{http://geopig.asu.edu/sites/default/files/slop98.dat}.
 
-  Wagman, D. D., Evans, W. H., Parker, V. B., Schumm, R. H., Halow, I., Bailey, S. M., Churney, K. L. and Nuttall, R. L. (1982) The NBS tables of chemical thermodynamic properties. Selected values for inorganic and C\eqn{_1}{1} and C\eqn{_2}{2} organic substances in SI units. \emph{J. Phys. Chem. Ref. Data} \bold{11} (supp. 2), 1--392. \url{http://www.nist.gov/srd/PDFfiles/jpcrdS2Vol11.pdf}
+  Wagman, D. D., Evans, W. H., Parker, V. B., Schumm, R. H., Halow, I., Bailey, S. M., Churney, K. L. and Nuttall, R. L. (1982) The NBS tables of chemical thermodynamic properties. Selected values for inorganic and C\eqn{_1}{1} and C\eqn{_2}{2} organic substances in SI units. \emph{J. Phys. Chem. Ref. Data} \bold{11} (supp. 2), 1--392. \url{http://www.nist.gov/data/PDFfiles/jpcrdS2Vol11.pdf}
 
 }
 
-\keyword{datasets}
+\concept{Thermodynamic data}

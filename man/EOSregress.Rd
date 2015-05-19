@@ -134,7 +134,8 @@ EOSvar("invTTTheta3", d$T, d$P)
 var <- c("invTTTheta3", "invTX")
 EOSregress(d, var)
 # give them a "label" attribute for use in the legend
-attr(invTTTheta3, "label") <- quote(phantom()\%*\%2*italic(T)/(italic(T)-italic(T)*Theta)^3)
+attr(invTTTheta3, "label") <-
+  quote(phantom()\%*\%2*italic(T)/(italic(T)-italic(T)*Theta)^3)
 attr(invTX, "label") <- quote(phantom()/italic(T*X))
 # uncomment the following to make the plot
 #EOSplot(d, var)
@@ -165,4 +166,4 @@ title("V of CH4(aq), expansivity equation")
 # not consistent with the high-T heat capacities
 }
 
-\keyword{extra}
+\concept{Extra thermodynamic modeling}

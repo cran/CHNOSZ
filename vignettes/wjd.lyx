@@ -1,5 +1,5 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
 \begin_document
 \begin_header
 \textclass article
@@ -22,13 +22,13 @@ sweave
 \font_roman palatino
 \font_sans default
 \font_typewriter default
+\font_math auto
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -51,15 +51,24 @@ sweave
 \pdf_quoted_options "citecolor=blue"
 \papersize letterpaper
 \use_geometry true
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
-\cite_engine natbib_authoryear
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date false
+\justification true
 \use_refstyle 0
 \branch short
 \selected 1
@@ -230,24 +239,32 @@ Gibbs energy
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<libraryCHNOSZ, echo=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+libraryCHNOSZ, echo=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 library(CHNOSZ)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 data(thermo)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -297,23 +314,35 @@ wjd()
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<wjd>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-w <- wjd()
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+wjd
 \end_layout
 
 \end_inset
 
+w <- wjd()
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 What are the most abundant species, and how many iterations were taken?
 \end_layout
 
@@ -321,102 +350,125 @@ What are the most abundant species, and how many iterations were taken?
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<abundant>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+abundant
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 # the order of species abundance
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 oX <- order(w$X, decreasing=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # the stoichiometries of the two most abundant species
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 w$A[head(oX,2),]
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # the number of iterations
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 niter <- length(w$lambda)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 niter
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<abundantnames,echo=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+abundantnames,echo=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 # the formulas of the two most abundant species
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # use CHNOSZ's as.chemical.formula function, after 
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # dropping elements with zero stoichiometry
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 f1 <- as.chemical.formula(w$A[oX[1],w$A[oX[1],]!=0])
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 f2 <- as.chemical.formula(w$A[oX[2],w$A[oX[2],]!=0])
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 f4 <- as.chemical.formula(w$A[oX[4],w$A[oX[4],]!=0])
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
 We find that 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -429,7 +481,7 @@ Sexpr{f1}
 
  and 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -442,7 +494,7 @@ Sexpr{f2}
 
  are the most abundant species, after 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -456,7 +508,7 @@ Sexpr{niter}
  iterations.
  The fourth most-abundant species, 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -480,47 +532,59 @@ Let's track their mole fractions through the iterations.
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<iterfun>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-iterfun <- function(imax, i) {
-\end_layout
-
-\begin_layout Chunk
-
-  w <- wjd(imax=imax)
-\end_layout
-
-\begin_layout Chunk
-
-  x <- w$X[i]/sum(w$X)
-\end_layout
-
-\begin_layout Chunk
-
-  return(x)
-\end_layout
-
-\begin_layout Chunk
-
-}
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+iterfun
 \end_layout
 
 \end_inset
 
+iterfun <- function(imax, i) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  w <- wjd(imax=imax)
+\end_layout
+
+\begin_layout Plain Layout
+
+  x <- w$X[i]/sum(w$X)
+\end_layout
+
+\begin_layout Plain Layout
+
+  return(x)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Then apply the function over the different numbers of iterations, from 0
  (initial conditions) to 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -538,51 +602,11 @@ Sexpr{niter}
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
 
-
-\backslash
-setkeys{Gin}{width=1.0
-\backslash
-textwidth}
-\end_layout
-
-\begin_layout Chunk
-
-<<iterplot, fig=TRUE, height=3>>=
-\end_layout
-
-\begin_layout Chunk
-
-par(mfrow=c(1, 2))
-\end_layout
-
-\begin_layout Chunk
-
-sa <- sapply(0:niter, iterfun, i=oX[1])
-\end_layout
-
-\begin_layout Chunk
-
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
-\end_layout
-
-\begin_layout Chunk
-
-sa <- sapply(0:niter, iterfun, i=oX[4])
-\end_layout
-
-\begin_layout Chunk
-
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
-\end_layout
-
-\begin_layout Chunk
-
-@
-\end_layout
-
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -597,9 +621,71 @@ textwidth}
 \end_layout
 
 \begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+<<iterplot, fig=TRUE, height=3>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mfrow=c(1, 2))
+\end_layout
+
+\begin_layout Plain Layout
+
+sa <- sapply(0:niter, iterfun, i=oX[1])
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
+\end_layout
+
+\begin_layout Plain Layout
+
+sa <- sapply(0:niter, iterfun, i=oX[4])
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 A bit of winding: the mole fraction of 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -631,7 +717,7 @@ every
 \emph default
  iteration; that can be verified by inspecting the values in the 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -649,23 +735,35 @@ Sexpr{niter}
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<Gdown>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-all(diff(w$F.Y) < 0)
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+Gdown
 \end_layout
 
 \end_inset
 
+all(diff(w$F.Y) < 0)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 The decrease in Gibbs energy becomes smaller with every iteration, as an
  equilibrium distribution of species is approached:
 \end_layout
@@ -674,19 +772,27 @@ The decrease in Gibbs energy becomes smaller with every iteration, as an
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<Gdownslower>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+Gdownslower
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 identical(diff(w$F.Y), sort(diff(w$F.Y)))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -736,23 +842,35 @@ Gfrac
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<Gfrac>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-diff(w$F.Y)/w$F.Y[1:6]
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+Gfrac
 \end_layout
 
 \end_inset
 
+diff(w$F.Y)/w$F.Y[1:7]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Only the last value is below the default value of 
 \family typewriter
 Gfrac
@@ -805,7 +923,11 @@ element.potentials()
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -814,33 +936,51 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
 
 <<w3_ep_plot, fig=TRUE>>=
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 w3 <- wjd(imax=3)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 ep3 <- element.potentials(w3, plot.it=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=1.0
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -860,7 +1000,11 @@ wjd()
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -869,28 +1013,46 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
 
 <<w_ep_plot, fig=TRUE>>=
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 ep <- element.potentials(w, plot.it=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=1.0
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -923,7 +1085,7 @@ is.near.equil()
 \family default
  does pass the 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -942,29 +1104,37 @@ Sexpr{niter}
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<w_ep_plot>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+w_ep_plot
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 is.near.equil(w3) # 3 iterations
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 is.near.equil(w)  # 7 iterations
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 is.near.equil(w, tol=0.00001)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1048,39 +1218,47 @@ wjd()
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<guessw12>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+guessw12
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 as.list(args(wjd))$Y
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 Y1 <- guess(method="stoich")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 Y1
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 #Y2 <- guess(method="central")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 #Y2
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1097,46 +1275,11 @@ Now let's run the minimization using the different guesses, count the numbers
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
 
-
-\backslash
-setkeys{Gin}{width=0.6
-\backslash
-textwidth}
-\end_layout
-
-\begin_layout Chunk
-
-<<stoich_guess>>=
-\end_layout
-
-\begin_layout Chunk
-
-wY1 <- wjd(Y=Y1)
-\end_layout
-
-\begin_layout Chunk
-
-niterY1 <- length(wY1$lambda)
-\end_layout
-
-\begin_layout Chunk
-
-niterY1
-\end_layout
-
-\begin_layout Chunk
-
-is.near.equil(wY1, tol=0.0001)
-\end_layout
-
-\begin_layout Chunk
-
-@
-\end_layout
-
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -1147,6 +1290,67 @@ textwidth}
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+<<stoich_guess>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+wY1 <- wjd(Y=Y1)
+\end_layout
+
+\begin_layout Plain Layout
+
+niterY1 <- length(wY1$lambda)
+\end_layout
+
+\begin_layout Plain Layout
+
+niterY1
+\end_layout
+
+\begin_layout Plain Layout
+
+is.near.equil(wY1, tol=0.0001)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=0.6
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Using the first guess generated using the 
 \begin_inset Quotes eld
 \end_inset
@@ -1157,7 +1361,7 @@ stoich
 
  method there were 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -1177,13 +1381,17 @@ wjd()
 
 \begin_layout Standard
 \begin_inset Branch inactive
-status collapsed
+status open
 
 \begin_layout Standard
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -1192,43 +1400,61 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
 
 <<central_guess>>=
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 wY2 <- wjd(Y=Y2)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 niterY2 <- length(wY2$lambda)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 niterY2
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 is.near.equil(wY2, tol=0.0001)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=0.6
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1243,7 +1469,7 @@ central
 
  method lead to 
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -1293,7 +1519,11 @@ Do the different initial guesses actually give similar results?
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -1302,38 +1532,56 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
 
 <<compare_guesses, fig=TRUE>>=
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 plot(1:10, w$X, xlab="species", ylab="mole fraction")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 points(1:10, wY1$X, pch=0)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 #points(1:10, wY2$X, pch=2)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=0.6
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1369,53 +1617,65 @@ guess()
 \begin_inset Branch long
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<allguesses>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-Ys <- guess(iguess=NULL, method="stoich")
-\end_layout
-
-\begin_layout Chunk
-
-# total number of species combinations
-\end_layout
-
-\begin_layout Chunk
-
-length(Ys)
-\end_layout
-
-\begin_layout Chunk
-
-# species combinations that have all-positive mole numbers
-\end_layout
-
-\begin_layout Chunk
-
-iYs <- which(!is.na(Ys))
-\end_layout
-
-\begin_layout Chunk
-
-nguess <- length(iYs)
-\end_layout
-
-\begin_layout Chunk
-
-nguess
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+allguesses
 \end_layout
 
 \end_inset
 
+Ys <- guess(iguess=NULL, method="stoich")
+\end_layout
+
+\begin_layout Plain Layout
+
+# total number of species combinations
+\end_layout
+
+\begin_layout Plain Layout
+
+length(Ys)
+\end_layout
+
+\begin_layout Plain Layout
+
+# species combinations that have all-positive mole numbers
+\end_layout
+
+\begin_layout Plain Layout
+
+iYs <- which(!is.na(Ys))
+\end_layout
+
+\begin_layout Plain Layout
+
+nguess <- length(iYs)
+\end_layout
+
+\begin_layout Plain Layout
+
+nguess
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Now let's run the minimization using each of those guesses, and test if
  each one 
 \family typewriter
@@ -1428,23 +1688,35 @@ is.near.equil()
 \begin_inset Branch long
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<allguess.equil>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]])))
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+allguess.equil
 \end_layout
 
 \end_inset
 
+sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]])))
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Looks like they are.
  What if we're really picky though and want to make sure the chemical potentials
  of the elements are very well-defined? We can decrease the tolerance of
@@ -1459,23 +1731,35 @@ is.near.equil()
 \begin_inset Branch long
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<allguess.equil.2>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]]),tol=0.0001))
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+allguess.equil.2
 \end_layout
 
 \end_inset
 
+sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]]),tol=0.0001))
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Well some of the tests failed.
  But maybe this is because we have stopped iterating too soon.
  Let's iterate until a we have smaller change in Gibbs energy of the system:
@@ -1485,33 +1769,45 @@ Well some of the tests failed.
 \begin_inset Branch long
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<allguess.equil.3>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-sapply(iYs, function(i) {
-\end_layout
-
-\begin_layout Chunk
-
-  is.near.equil(wjd(Y=Ys[[i]], Gfrac=1e-9), tol=0.0001)
-\end_layout
-
-\begin_layout Chunk
-
-})
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+allguess.equil.3
 \end_layout
 
 \end_inset
 
+sapply(iYs, function(i) {
+\end_layout
+
+\begin_layout Plain Layout
+
+  is.near.equil(wjd(Y=Ys[[i]], Gfrac=1e-9), tol=0.0001)
+\end_layout
+
+\begin_layout Plain Layout
+
+})
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 We're back to passing all but one of the equilibrium tests based on uniformity
  of chemical potentials of the elements.
  What are the standard deviations of the resulting species abundances?
@@ -1521,28 +1817,40 @@ We're back to passing all but one of the equilibrium tests based on uniformity
 \begin_inset Branch long
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<sd.species>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-Xs <- sapply(iYs, function(i) wjd(Y=Ys[[i]], Gfrac=1e-9)$X)
-\end_layout
-
-\begin_layout Chunk
-
-apply(Xs, 1, sd)
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+sd.species
 \end_layout
 
 \end_inset
 
+Xs <- sapply(iYs, function(i) wjd(Y=Ys[[i]], Gfrac=1e-9)$X)
+\end_layout
+
+\begin_layout Plain Layout
+
+apply(Xs, 1, sd)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Based on this exercise, starting from different initial species abundances
  for the same bulk composition, and arriving at a similar near-equilibrium
  solution, it seems likely that we are near the global minimum.
@@ -1615,38 +1923,50 @@ key "DLE64"
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<read_dlen>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-# read formulas and Gibbs energies
-\end_layout
-
-\begin_layout Chunk
-
-file <- system.file("extdata/thermo/DLEN67.csv", package="CHNOSZ")
-\end_layout
-
-\begin_layout Chunk
-
-dlen <- read.csv(file, stringsAsFactors=FALSE, row.names=1)
-\end_layout
-
-\begin_layout Chunk
-
-t(dlen[, 1, drop=FALSE])
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+read_dlen
 \end_layout
 
 \end_inset
 
+# read formulas and Gibbs energies
+\end_layout
+
+\begin_layout Plain Layout
+
+file <- system.file("extdata/thermo/DLEN67.csv", package="CHNOSZ")
+\end_layout
+
+\begin_layout Plain Layout
+
+dlen <- read.csv(file, stringsAsFactors=FALSE, row.names=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+t(dlen[, 1, drop=FALSE])
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Now let's write some code to define the system.
  The bulk composition in C:H:O space has 40 percent oxygen, a percentage
  of carbon given by 
@@ -1668,95 +1988,107 @@ key "DLE64"
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<setup_atmos>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+setup_atmos
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 # turn formulas into a stoichiometric matrix
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 A <- i2A(dlen$formula)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # assemble Gibbs energies/RT at 500 K
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 G0.RT <- 1000 * dlen$G500 / thermo$opt$R / thermo$opt$Tr
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # a function to minimize Gibbs energy for system with 
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # given mole fraction of carbon (xC)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 min.atmos <- function(xC) {
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   # the bulk composition C:H:N:O
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   B <- c(xC, 100-40-xC, xC, 40)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   # guess the initial composition
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   Y <- guess(A, B)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   w <- wjd(A=A, G0.RT=G0.RT, Y=Y, P=1, imax=90, Gfrac=1e-14)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   if(!is.near.equil(w)) cat(paste("not near equilibrium for xC=", xC, "
 \backslash
 n"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   return(w)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 }
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
 Notice the increase in 
 \family typewriter
 imax
@@ -1775,23 +2107,35 @@ Gfrac
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<atmos_C15>>=
-\end_layout
+\begin_layout Plain Layout
 
-\begin_layout Chunk
+\begin_inset Argument 1
+status open
 
-sort(min.atmos(15)$X, decreasing=TRUE)
-\end_layout
-
-\begin_layout Chunk
-
-@
+\begin_layout Plain Layout
+atmos_C15
 \end_layout
 
 \end_inset
 
+sort(min.atmos(15)$X, decreasing=TRUE)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Well that's exciting! The order of abundances of 
 \begin_inset Formula $\mathrm{H_{2}O}$
 \end_inset
@@ -1835,55 +2179,63 @@ key "DLE64"
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<atmos_figure, fig=TRUE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+atmos_figure, fig=TRUE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 xCs <- seq(8, 47, 3)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 # normalize the mole numbers to mole fractions
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 Xs <- t(t(Xs)/colSums(Xs))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10
  mole fraction")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1984,34 +2336,42 @@ Let's start by finding the indices in the thermodynamic database of some
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<alkanes_aromatics>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+alkanes_aromatics
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 alkanes <- c("n-hexane", "n-heptane", "n-octane", "n-nonane")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 ialk <- info(alkanes, "liq")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 aromatics <- c("naphthalene", "anthracene", "phenanthrene", "pyrene")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 iaro <- info(aromatics, "liq")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2028,29 +2388,37 @@ Let's find the equilibrium distribution of species for a bulk composition
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<run_aa>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+run_aa
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 waa$elements
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 is.near.equil(waa)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2092,24 +2460,32 @@ nlambda
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<run_aa_equil>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+run_aa_equil
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8), imax=20, Gfrac=1e-14, nlambda=501)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 is.near.equil(waa)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2125,24 +2501,32 @@ Let's plot the abundances of the species:
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<barplot_aa, fig=TRUE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+barplot_aa, fig=TRUE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 bp <- barplot(waa$X, ylab="moles")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2163,24 +2547,32 @@ Now let's calculate the chemical potentials of the elements (dimensionless
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<element_potentials_C84H106>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+element_potentials_C84H106
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 ep <- equil.potentials(waa)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 print(ep)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2198,24 +2590,32 @@ print(ep)
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<basis_potentials_C84H106>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+basis_potentials_C84H106
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 basis(c("graphite", "H2"), c("cr", "gas"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis.logact(ep)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2248,29 +2648,37 @@ s of elements.
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<run_aa_C100H70, fig=TRUE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+run_aa_C100H70, fig=TRUE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 waa <- run.wjd(c(ialk, iaro), B="C100H70")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 bp <- barplot(waa$X, ylab="moles")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2289,24 +2697,32 @@ Compared with the previous example, here the lower H/C = 0.7 defines a more
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<basis_potentials_C84H106>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+basis_potentials_C84H106
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 print(ep <- equil.potentials(waa))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis.logact(ep)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2347,19 +2763,27 @@ R session information
 \begin_inset Branch short
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<sessionInfo>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+sessionInfo
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 sessionInfo()
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset

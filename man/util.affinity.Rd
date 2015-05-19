@@ -64,4 +64,4 @@ eargs <- energy.args(list(O2=c(-90, -60, 5), T=c(0, 100, 5)))
 ea <- do.call(energy, eargs)
 }
 
-\keyword{util}
+\keyword{utilities}

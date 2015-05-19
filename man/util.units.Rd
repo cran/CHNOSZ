@@ -96,4 +96,4 @@ stopifnot(all.equal(T1out, T2out))
 T.units("C")  # return to default
 }
 
-\keyword{util}
+\keyword{utilities}

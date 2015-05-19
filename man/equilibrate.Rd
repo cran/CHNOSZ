@@ -10,7 +10,7 @@ Calculate equilibrium chemical activities of species from the affinities of form
 
 \usage{
   equilibrate(aout, balance=NULL, loga.balance=NULL,
-    ispecies=1:length(aout$values), normalize=FALSE, stay.normal=FALSE)
+    ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE)
   balance(aout, balance=NULL)
   equil.boltzmann(Astar, n.balance, loga.balance)
   equil.reaction(Astar, n.balance, loga.balance)
@@ -21,7 +21,7 @@ Calculate equilibrium chemical activities of species from the affinities of form
   \item{balance}{character or numeric, how to balance the transformations}
   \item{ispecies}{numeric, which species to include}
   \item{normalize}{logical, normalize the molar formulas of species by the balancing coefficients?}
-  \item{stay.normal}{logical, report results for the normalized formulas?}
+  \item{as.residue}{logical, report results for the normalized formulas?}
   \item{Astar}{numeric, affinities of formation reactions excluding species contribution}
   \item{n.balance}{numeric, number of moles of conserved component in the formation reactions of the species of interest}
   \item{loga.balance}{numeric, logarithm of total activity of balanced quantity}
@@ -54,11 +54,11 @@ If \code{loga.balance} is missing, its value is taken from the activities of spe
 This operation is intended for systems of polymers, such as proteins, whose conventional formulas are much larger than the basis speices.
 The normalization also applies to the balancing coefficients, which as a result consist of \samp{1}s.
 \code{normalize} has the same effect as did \code{diagram(..., residue=TRUE)} in versions of CHNOSZ before 0.9-9.
-After normalization and equilibration, the equilibrium activities are then un-normalized (for the original formulas of the species), unless \code{stay.normal} is TRUE.
+After normalization and equilibration, the equilibrium activities are then re-scaled (for the original formulas of the species), unless \code{as.residue} is TRUE.
 
 \code{ispecies} can be supplied to identify a subset of the species to include in the calculation.
 
-\code{equil.boltzmann} is used to calculation the equilibrium activities if \code{balance} is \samp{1} (including the normalized result when \code{normalize} is TRUE), otherwise \code{equil.reaction} is called.
+\code{equil.boltzmann} is used to calculate the equilibrium activities if \code{balance} is \samp{1} (including the normalized result when \code{normalize} is TRUE), otherwise \code{equil.reaction} is called.
 
 }
 
@@ -85,7 +85,7 @@ This calculation is faster than the algorithm of \code{equil.reaction}, but is l
 }
 
 \value{
-\code{equil.reaction} and \code{equil.boltzman} each return a list with dimensions and length equal to those of \code{Astar}, giving the \code{\link{log10}} of the equilibrium activities of the species of interest.
+\code{equil.reaction} and \code{equil.boltzmann} each return a list with dimensions and length equal to those of \code{Astar}, giving the \code{\link{log10}} of the equilibrium activities of the species of interest.
 \code{equilibrate} returns a list, containing first the values in \code{aout}, to which are appended \code{m.balance} (the balancing coefficients if \code{normalize} is TRUE, a vector of \samp{1}s otherwise), \code{n.balance} (the balancing coefficients if \code{normalize} is FALSE, a vector of \samp{1}s otherwise) and \code{loga.equil} (the calculated equilibrium activities of the species).
 \code{balance} returns a list containing the balancing coefficients (\code{n}) and a textual description (\code{description}).
 }
@@ -114,11 +114,11 @@ pKa.equil <- seq(0, 14, length.out=res)[ipKa]
 # calculate logK directly
 logK <- subcrt(c("CO2","H2O","HCO3-","H+"), c(-1, -1, 1, 1), T=25)$out$logK
 # we could decrease tolerance here by increasing res
-stopifnot(all.equal(pKa.equil, -logK, tol=1e-2))
+stopifnot(all.equal(pKa.equil, -logK, tolerance=1e-2))
 }
 
 \references{
   Dick, J. M. (2008) Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.} \bold{9}:10. \url{http://dx.doi.org/10.1186/1467-4866-9-10}
 }
 
-\keyword{secondary}
+\concept{Primary thermodynamic modeling}

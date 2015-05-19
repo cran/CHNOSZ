@@ -73,7 +73,7 @@ affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
 # change the activity of species in the buffer
 mod.buffer("AC",logact=-10)
 affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
-# see demos('CO2Ac') for a different strategy using the
+# see demo('CO2Ac') for a different strategy using the
 # 'what' argument of diagram
 
 ## buffer made of three species
@@ -95,7 +95,7 @@ print(a <- affinity(T=c(200, 400, 11), P=2000,
 for(i in 1:length(a)) stopifnot(isTRUE(
   all.equal(as.numeric(a[[i]]),rep(0,length(a[[i]])))))
 
-\donttest{## buffer made of one species: show values of logfO2 on an 
+## buffer made of one species: show values of logfO2 on an 
 ## Eh-pH diagram; after Garrels, 1960, Figure 6
 basis("CHNOSe")
 # here we will buffer the activity of the electron by O2
@@ -135,10 +135,9 @@ affinity(return.buffer=TRUE)  # unchanged
 mod.buffer("CO2-AC",logact=c(0,-10))
 affinity(return.buffer=TRUE)
 }
-}
 
 \references{
   Garrels, R. M. (1960) \emph{Mineral Equilibria}. Harper & Brothers, New York, 254 p. \url{http://www.worldcat.org/oclc/552690}
 }
 
-\keyword{secondary}
+\concept{Secondary thermodynamic modeling}

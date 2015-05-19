@@ -75,6 +75,7 @@ The \code{protein} argument corresponds to the \samp{Entry name} on the UniProt 
 }
 
 \seealso{
+\code{\link{seq2aa}}, like \code{count.aa}, counts amino acids in a user-input sequence, but returns a data frame in the format of \code{thermo$protein}.
 \code{\link{nucleic.formula}} for an example of counting nucleobases in a DNA sequence.
 When computing relative abundances of many proteins that might be found with \code{grep.file} and \code{read.fasta}, consider using the \code{iprotein} arugment of \code{\link{affinity}} to speed things up; for an example see the help page for \code{\link{revisit}}. 
 }
@@ -119,4 +120,4 @@ stopifnot(atest[, "A"]==3)
   The UniProt Consortium (2012) Reorganizing the protein space at the Universal Protein Resource (UniProt). \emph{Nucleic Acids Res.} \bold{40}, D71--D75. \url{http://dx.doi.org/10.1093/nar/gkr981}
 }
 
-\keyword{util}
+\keyword{utilities}

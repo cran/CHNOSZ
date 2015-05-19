@@ -1,5 +1,5 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
 \begin_document
 \begin_header
 \textclass article
@@ -17,18 +17,18 @@ sweave
 \maintain_unincluded_children false
 \language english
 \language_package default
-\inputencoding auto
+\inputencoding default
 \fontencoding global
 \font_roman palatino
 \font_sans default
 \font_typewriter default
+\font_math auto
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -51,15 +51,24 @@ sweave
 \pdf_quoted_options "citecolor=blue"
 \papersize letterpaper
 \use_geometry true
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
-\cite_engine natbib_authoryear
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date false
+\justification true
 \use_refstyle 0
 \branch load
 \selected 1
@@ -110,16 +119,27 @@ Jeffrey M.
  Dick
 \end_layout
 
-\begin_layout Chunk
-<<echo=FALSE>>=
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+echo=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
+
 options(width=90)
 \end_layout
 
-\begin_layout Chunk
-@
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -173,7 +193,7 @@ The database and functions are flexible in their use, allowing one to model
 
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 Outline of workflow
 \end_layout
 
@@ -254,7 +274,7 @@ diagram()
  under reference (non-equilibrium) conditions, calculate the equilibrium
  chemical activities, and finally plot the results;
 \begin_inset Foot
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -308,7 +328,7 @@ The functions are designed with an interactive setting in mind; you can
 
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 Installing and loading CHNOSZ
 \end_layout
 
@@ -336,19 +356,27 @@ Install packages from CRAN
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<install_CHNOSZ,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+install_CHNOSZ,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 install.packages("CHNOSZ")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -363,21 +391,29 @@ Then load the CHNOSZ package to make its functions available in your working
 
 \begin_layout Standard
 \begin_inset Branch stuff
-status collapsed
+status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<library_CHNOSZ>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+library_CHNOSZ
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 library(CHNOSZ)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -398,19 +434,27 @@ thermo
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<data_thermo>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+data_thermo
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 data(thermo)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -429,6 +473,64 @@ The rest of this document assumes that the CHNOSZ package and data are loaded.
 
 \begin_layout Section
 Thermodynamic database
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Subsection
+Warning about internal consistency of thermodynamic data
+\end_layout
+
+\begin_layout Standard
+All thermodynamic data and examples are provided on an as-is basis.
+ It is up to you to check not only the accuracy of the data, but also 
+\emph on
+the suitability of the data AND computational techniques
+\emph default
+ for your problem.
+ By combining data taken from different sources, it is possible to build
+ an inconsistent and/or nonsensical calculation.
+ An attempt has been made to provide a primary database (OBIGT.csv) that
+ is internally consistent, but no guarantee can be made.
+ Where possible, data with known or suspected inconsistencies have been
+ placed into a secondary database (OBIGT-2.csv) that should be regarded as
+ experimental.
+ If there is any doubt about the accuracy or suitability of data for a particula
+r problem, please 
+\emph on
+consult the primary sources
+\emph default
+ (which can be located using 
+\family typewriter
+browse.refs()
+\family default
+; see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:thermo_refs"
+
+\end_inset
+
+).
+ Do not assume that by adding any species to your calculation (or to any
+ of the examples), you will necessarily obtain a reasonable answer.
+ Do not assume that the examples are correct, or that they can be applied
+ to your problem.
+ As with the data, please 
+\emph on
+compare the construction and output of the examples to the primary sources
+\emph default
+, cited in the reference list in each help page.
+ Examples without a reference (and some with references) demonstrate experimenta
+l features of CHNOSZ.
+ 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -458,19 +560,27 @@ info()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_ethylene>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_ethylene
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 info("ethylene")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -501,19 +611,27 @@ info()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_88>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_88
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 info(88)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -529,19 +647,27 @@ If you were instead interested in the properties of the gas, you could run:
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_ethylene_gas>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_ethylene_gas
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 info("ethylene","gas")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -565,24 +691,32 @@ info()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_acetic>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_acetic
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 aadata <- info(info("acetic acid"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 print(aadata)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -602,6 +736,12 @@ status open
 \begin_layout Subsection
 
 \family typewriter
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:thermo_refs"
+
+\end_inset
+
 thermo$refs
 \end_layout
 
@@ -619,19 +759,27 @@ thermo
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<summary_thermo>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+summary_thermo
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 summary(thermo)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -667,19 +815,27 @@ browse.refs()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<browse.refs,eval=F>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+browse.refs,eval=F
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 browse.refs(88)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -729,19 +885,27 @@ Want to know what acids are in the database?
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_acid>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_acid
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 info("acid")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -797,19 +961,27 @@ _
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_spaceacid>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_spaceacid
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 info(" acid")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -835,19 +1007,27 @@ info()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_OH>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_OH
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 info("(OH)")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -889,29 +1069,37 @@ C and 1 bar of a protein using group additivity.
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<protein_LYSC>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+protein_LYSC
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 ip <- iprotein("LYSC_CHICK")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 aa <- ip2aa(ip)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 aa2eos(aa)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -943,24 +1131,32 @@ key "DLH06"
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<formula_LYSC>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+formula_LYSC
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 pf <- protein.formula(aa)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 as.chemical.formula(pf)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1011,24 +1207,32 @@ target "http://www.uniprot.org"
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<info_LYSC>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+info_LYSC
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 si <- info("LYSC_CHICK")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 info(si)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1107,19 +1311,27 @@ info()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_water>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_water
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt("water")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1204,19 +1416,27 @@ subcrt()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_C2H5OH>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_C2H5OH
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt(c("C2H5OH","O2","CO2","H2O"),c(-1,-3,2,3),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1254,19 +1474,27 @@ key "And05"
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_C2H5OH_O2aq>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_C2H5OH_O2aq
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt(c("C2H5OH","O2","CO2","H2O"),c(-1,-3,2,3),c("aq","aq","aq","liq"),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1283,7 +1511,7 @@ subcrt()
  Let's say you forgot to account for oxygen on the left-hand side of the
  reaction
 \begin_inset Foot
-status collapsed
+status open
 
 \begin_layout Plain Layout
 This example is motivated by the unbalanced reaction found at the 
@@ -1366,19 +1594,27 @@ O+2CO
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_C2H5OH_unbal>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_C2H5OH_unbal
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt(c("C2H5OH","CO2","H2O"),c(-1,2,3),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1444,19 +1680,27 @@ doesn't
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<basis_not,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+basis_not,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 basis(c("CO2","H2O","NH3","H2S","H+"))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1496,19 +1740,27 @@ A limitation of CHNOSZ is that the number of basis species must be equal
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<basis>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+basis
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 basis(c("CO2","H2O","NH3","O2","H2S","H+"))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1542,19 +1794,27 @@ Now that the basis species are defined, try the unbalanced reaction again.
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_C2H5OH_auto>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_C2H5OH_auto
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt(c("C2H5OH","CO2","H2O"),c(-1,2,3),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1588,19 +1848,27 @@ subcrt()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_C2H5OH>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_C2H5OH
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt(c("C2H5OH"),c(-1),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1619,19 +1887,27 @@ What if you were interested in the thermodynamic properties of the reaction
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_ethanol>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_ethanol
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 subcrt(c("ethanol","acetaldehyde"),c(-1,1),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1664,29 +1940,37 @@ thermo
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_acetaldehyde>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_acetaldehyde
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 data(thermo)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis(c("glutamic acid","methionine","isoleucine","lysine","tyrosine","H+"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 subcrt(c("ethanol","acetaldehyde"),c(-1,1),T=37)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1729,29 +2013,37 @@ subcrt()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_LYSC>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_LYSC
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 data(thermo)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis("CHNOS+")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 subcrt("LYSC_CHICK",1,T=25)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -1779,31 +2071,44 @@ subcrt()
 \end_layout
 
 \begin_layout Standard
-If the protein is not found in CHNOSZ's own database, the amino acid composition
- of the protein can be retrieved from the UniProt Knowledge Base using the
- Swiss-Prot name (if the computer is connected to the Internet).
- This is the only time a function in CHNOSZ asks for confirmation from a
- user, in order to give fair warning that an online activity is about to
- be performed.
+If the protein is not available in CHNOSZ's own database, the amino acid
+ composition of the protein can be retrieved from the UniProtKB (if the
+ computer is connected to the internet).
+ N.B.
+ The following example is not evaluated when compiling this vignette in
+ case the R package checks are run without internet access.
 \end_layout
 
 \begin_layout Standard
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<subcrt_ALAT1,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+subcrt_ALAT1,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
+
+aa <- uniprot.aa("ALAT1_HUMAN")
+\end_layout
+
+\begin_layout Plain Layout
+
+add.protein(aa)
+\end_layout
+
+\begin_layout Plain Layout
 
 subcrt("ALAT1_HUMAN",1,T=25)
-\end_layout
-
-\begin_layout Chunk
-
-@
 \end_layout
 
 \end_inset
@@ -1811,93 +2116,8 @@ subcrt("ALAT1_HUMAN",1,T=25)
 
 \end_layout
 
-\begin_layout LyX-Code
-Shall I try an online search for  ALAT1_HUMAN _ SWISS ? y
-\end_layout
+\end_inset
 
-\begin_layout LyX-Code
-protein: trying http://www.uniprot.org/uniprot/ALAT1_HUMAN ...
- got it!
-\end_layout
-
-\begin_layout LyX-Code
-protein: found P24298 ...
-  Alanine aminotransferase 1  (length 496).
-\end_layout
-
-\begin_layout LyX-Code
-protein: found ALAT1_HUMAN (C2429H3866N684O705S22, 496 residues)
-\end_layout
-
-\begin_layout LyX-Code
-subcrt: 1 species at 298.15 K and 1 bar (wet) 
-\end_layout
-
-\begin_layout LyX-Code
-subcrt: reaction is not balanced; it is missing this composition:
-\end_layout
-
-\begin_layout LyX-Code
-     C     H    N    O   S
-\end_layout
-
-\begin_layout LyX-Code
- -2429 -3866 -684 -705 -22
-\end_layout
-
-\begin_layout LyX-Code
-subcrt: adding missing composition from basis definition and restarting...
-\end_layout
-
-\begin_layout LyX-Code
-subcrt: 6 species at 298.15 K and 1 bar (wet) 
-\end_layout
-
-\begin_layout LyX-Code
-$reaction
-\end_layout
-
-\begin_layout LyX-Code
-     coeff        name               formula state ispecies
-\end_layout
-
-\begin_layout LyX-Code
-2926     1 ALAT1_HUMAN C2429H3866N684O705S22    aq     2926
-\end_layout
-
-\begin_layout LyX-Code
-69   -2429         CO2                   CO2    aq       69
-\end_layout
-
-\begin_layout LyX-Code
-1     -885       water                   H2O   liq        1
-\end_layout
-
-\begin_layout LyX-Code
-68    -684         NH3                   NH3    aq       68
-\end_layout
-
-\begin_layout LyX-Code
-70     -22         H2S                   H2S    aq       70
-\end_layout
-
-\begin_layout LyX-Code
-2691  2519      oxygen                    O2   gas     2691
-\end_layout
-
-\begin_layout LyX-Code
-$out
-\end_layout
-
-\begin_layout LyX-Code
-   T P      logK         G         H        S      V        Cp
-\end_layout
-
-\begin_layout LyX-Code
-1 25 1 -191972.3 261897066 273248830 38245.59 -73411 -107650.2
-\end_layout
-
-\begin_layout LyX-Code
 
 \end_layout
 
@@ -1976,9 +2196,13 @@ zooms in
 
 \begin_layout Standard
 \begin_inset Branch stuff
+status collapsed
+
+\begin_layout Standard
+\begin_inset ERT
 status open
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -1987,57 +2211,74 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<Bjerrum_diagram,fig=TRUE,width=4,height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+Bjerrum_diagram,fig=TRUE,width=4,height=4
+\end_layout
+
+\end_inset
 
 basis("CHNOS+")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(c("CO2", "HCO3-", "CO3-2"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(pH=c(4, 12))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 e <- equilibrate(a)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(e, ylim=c(-6, 0))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(pH=c(4, 12), T=150)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 e <- equilibrate(a)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(e, add=TRUE, col="red")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -2049,6 +2290,102 @@ textwidth}
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This just shows the speciation (relative abundances) of the aqueous carbonate
+ species.
+ Calculating the solubility of a carbonate mineral, or of 
+\begin_inset Formula $\mathrm{CO_{2}}$
+\end_inset
+
+ gas, is possible, but more involved; try the following:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch stuff
+status open
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=0.6
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status collapsed
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status collapsed
+
+\begin_layout Plain Layout
+demo_solubility, results=hide, fig=TRUE
+\end_layout
+
+\end_inset
+
+demo("solubility", ask=FALSE)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chunk
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=1.0
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+See the code of the demo (look for 
+\family typewriter
+demo/solubility.R
+\family default
+ in the directory where CHNOSZ is installed) to change the calculation from
+ calcite to 
+\begin_inset Formula $\mathrm{CO_{2}}$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
@@ -2098,24 +2435,32 @@ species of interest
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status collapsed
 
-<<CSG_species>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+CSG_species
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 basis("CHNOS")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(c("SLAP_ACEKI", "CSG_METJA", "CSG_METVO", "CSG_HALJP"))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2188,19 +2533,27 @@ affinity()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<CSG_affinity>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+CSG_affinity
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 a <- affinity(O2=c(-90,-70))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2232,7 +2585,11 @@ normalize=TRUE
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -2241,33 +2598,55 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<CSG_diagram,fig=T,width=4,height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+CSG_diagram,fig=T,width=4,height=4
+\end_layout
+
+\end_inset
 
 e <- equilibrate(a, normalize=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(e, legend.x="bottomleft", ylim=c(-6, -2))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=1.0
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -2316,7 +2695,11 @@ equilibrate()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -2325,43 +2708,65 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<PredominanceDiagram,fig=T,width=4,height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+PredominanceDiagram,fig=T,width=4,height=4
+\end_layout
+
+\end_inset
 
 species(c("SLAP_ACEKI", "SLAP_GEOSE", "SLAP_BACLI", "SLAP_AERSA"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis(c("NH3", "H2S"), c(-1, -10))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(O2=c(-85, -70), H2O=c(-5, 0))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(a, normalize=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=1.0
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -2422,19 +2827,27 @@ normalize=TRUE
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<residue.info>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+residue.info
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 protein.basis(species()$name, normalize=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2466,7 +2879,11 @@ C and 1000 bar.
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -2475,53 +2892,75 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<Bowers,fig=T,width=4,height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+Bowers,fig=T,width=4,height=4
+\end_layout
+
+\end_inset
 
 basis(c("HCl","H2O","Ca+2","CO2","Mg+2","SiO2","O2","H+"),
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   c(999,0,999,999,999,999,999,-7))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(c("quartz","talc","forsterite","tremolite","diopside",
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   "wollastonite","monticellite","merwinite"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity("Mg+2"=c(-12,-4),"Ca+2"=c(-8,0),T=300,P=1000)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(a)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=1.0
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -2662,19 +3101,27 @@ diagram()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<example_diagram,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+example_diagram,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 example(diagram)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2698,19 +3145,27 @@ all
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<examples,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+examples,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 examples()
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2734,19 +3189,27 @@ demos()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<demo,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+demo,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 demo("findit")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2767,19 +3230,27 @@ thermo
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<helpthermo,eval=FALSE>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+helpthermo,eval=FALSE
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 help(thermo)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset
@@ -2822,7 +3293,7 @@ real life
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -2952,7 +3423,7 @@ key "DLH06"
 \end_inset
 
 .
- Finally legends are draws to identify the lines and symbols.
+ Finally legends are drawn to identify the lines and symbols.
  The 
 \family typewriter
 describe.property()
@@ -2969,7 +3440,11 @@ describe.property()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -2978,102 +3453,119 @@ setkeys{Gin}{width=0.5
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<amylaseplot, fig=TRUE, results=hide, width=5, height=5>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+amylaseplot, fig=TRUE, results=hide, width=5, height=5
+\end_layout
+
+\end_inset
 
 basis("CHNOSe")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis(c("NH3", "H2S"), c(-6, -3))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(c("AMY_BACSU", "O08452_PYRFU"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(pH=c(2, 10), Eh=c(-1, 1))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(a, balance="CO2", lwd=2, fill=NULL, cex.names=1.5)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(pH=c(2, 10), Eh=c(-1, 1), T=100)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(a, balance="CO2", lwd=2, fill=NULL, col="red", names=NULL, add=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 water.lines()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 water.lines(T=398.15, col="red")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 BKMdat <- read.csv(system.file("extdata/cpetc/BKM60_Fig7.csv", package="CHNOSZ"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 points(BKMdat$pH, BKMdat$Eh, pch=20)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 points(c(8.5, 6.2, 4.2, 6.7), c(0.018, 0.223, 0.022, 0.067), pch=3, col="red")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 points(c(8.24, 7.17, 8.11), c(-0.44, -0.41, -0.49), pch=17, col="red")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 ltext <- c(describe.property("T", 25), describe.property("T", 100))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 legend("topright", legend=ltext, lty=1, col=c("black", "red"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 ltext <- c("soils [BKM60]", "yellowstone [SWMP05]", "iceland [SA02]")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 legend("bottomleft", legend=ltext, pch=c(20, 3, 17))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3087,9 +3579,14 @@ textwidth}
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -3156,7 +3653,11 @@ key "LD12"
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3165,109 +3666,131 @@ setkeys{Gin}{width=0.7
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<yeastplot, fig=TRUE, results=hide, width=7, height=5>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+yeastplot, fig=TRUE, results=hide, width=7, height=5
+\end_layout
+
+\end_inset
 
 locations <- yeastgfp()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 gfp <- yeastgfp(locations)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 aa <- more.aa(gfp$protein, "Sce")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 for(i in 1:length(locations)) {
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   avgaa <- aasum(aa[[i]], gfp$abundance[[i]], average=TRUE, protein=locations[i]
 )
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   add.protein(avgaa)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 }
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis("CHNOS+")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(locations, "Sce")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(O2=c(-82, -65))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 e <- equilibrate(a, loga.balance=0, normalize=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 mycolor <- topo.colors(length(locations))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 diagram(e, names=locations, ylim=c(-5, -3), legend.x=NA,
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   col=mycolor, lwd=2)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 dp <- describe.property(c("T", "P"), c(25, 1))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 db <- describe.basis(ibasis=(1:6)[-5])
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 legend("topright", legend=c(dp, db), bty="n")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 setkeys{Gin}{width=1.0
 \backslash
 textwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -3286,7 +3809,7 @@ Notable features include: proteins in the early Golgi, endoplasmic reticulum
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -3368,14 +3891,18 @@ key "SS95"
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 begin{small}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3384,154 +3911,171 @@ setkeys{Gin}{width=1.0
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<bufferplot, fig=TRUE, results=hide, width=8, height=3.5>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+bufferplot, fig=TRUE, results=hide, width=8, height=3.5
+\end_layout
+
+\end_inset
 
 layout(matrix(1:2, nrow=1), widths=c(2, 1))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 b.species <- c("Fe", "CO2", "H2O", "N2", "H2", "H2S", "SiO2")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 b.state <- c("cr1", "gas", "liq", "gas", "gas", "aq", "aq")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 b.logact <- c(0, 1, 0, 0, 0, 0, 0)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis(b.species, b.state, b.logact)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 xlim <- c(0, 350)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 thermo.plot.new(xlim=xlim, ylim=c(-4, 4), xlab=axis.label("T"), ylab=axis.label("H2"
 ))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 bufferline <- function(buffer, ixlab) {
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   basis("H2", buffer)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   a <- affinity(T=xlim, P=300, return.buffer=TRUE, exceed.Ttr=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   lines(a$vals[[1]], a$H2)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   text(a$vals[[1]][ixlab], a$H2[ixlab], buffer)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 }
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 bufferline("FeFeO", 20)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 bufferline("QFM", 38)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 bufferline("PPM", 102)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 bufferline("HM", 51)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 basis("H2", 0)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 for(logact in c(-6, -10, -15)) {
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   species(c("formaldehyde", "HCN"), logact)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   a <- affinity(T=xlim, P=300)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   d <- diagram(a, what="H2", lty=c(2, 3), add=TRUE)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   text(a$vals[[1]][13], mean(sapply(d$plotvals, c)[13, ]), logact)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 }
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 plot.new()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 legend("topleft", legend = c(describe.property("P", 300), describe.basis(ibasis=c(
 2,4)),
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   "minerals", "HCN", "formaldehyde"), lty=c(NA, NA, NA, 1, 2, 3), bg="white")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3540,7 +4084,7 @@ setkeys{Gin}{width=1.0
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3552,9 +4096,14 @@ end{small}
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -3608,14 +4157,18 @@ equilibrate()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 begin{small}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3624,48 +4177,65 @@ setkeys{Gin}{width=0.35
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<revisit, fig=T, results=hide, width=4, height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+revisit, fig=T, results=hide, width=4, height=4
+\end_layout
+
+\end_inset
 
 basis("CHNOS")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(c("isoleucine", "tyrosine", "glutamic acid", "methionine", "aspartic
  acid"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity(CO2=c(2, 5), O2=c(-72, -70))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 e <- equilibrate(a, balance=1)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 r <- revisit(e)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 title(main=paste("CV minimum =", round(r$optimum, 2)))
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3674,11 +4244,16 @@ setkeys{Gin}{width=1.0
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
 end{small}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -3712,14 +4287,18 @@ equilibrate()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 begin{small}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3728,52 +4307,69 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<revisit_alpha, fig=T, results=hide, width=6, height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+revisit_alpha, fig=T, results=hide, width=6, height=4
+\end_layout
+
+\end_inset
 
 basis(c("CO2", "O2"), c(r$x, r$y))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 a <- affinity()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 par(mfrow=c(1, 2))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 e <- equilibrate(a, balance=1)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 d <- diagram(e, alpha=TRUE, names=aminoacids(1, species()$name))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 plot.new()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 legend("topleft", describe.basis(basis()), bg="white")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3782,11 +4378,16 @@ setkeys{Gin}{width=1.0
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
 end{small}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -3803,7 +4404,7 @@ This hypothetical metastably equilibrated mixture has very little methionine
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -3864,14 +4465,18 @@ balance=1
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 begin{small}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3880,39 +4485,56 @@ setkeys{Gin}{width=0.4
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<findit, fig=T, results=hide, width=4, height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+findit, fig=T, results=hide, width=4, height=4
+\end_layout
+
+\end_inset
 
 basis("CHNOS")
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 species(c("isoleucine", "tyrosine", "glutamic acid", "methionine", "aspartic
  acid"))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 f <- findit(list(CO2=c(-5, 5), O2=c(-85, -65), H2S=c(-10, 5), H2O=c(-10,
  0)), 
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
   niter=5, res=10, balance=1)
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3921,11 +4543,16 @@ setkeys{Gin}{width=1.0
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
 end{small}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -3947,14 +4574,18 @@ findit()
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
 begin{small}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
@@ -3963,47 +4594,64 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-<<findit_alpha, fig=T, results=hide, width=6, height=4>>=
+
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+findit_alpha, fig=T, results=hide, width=6, height=4
+\end_layout
+
+\end_inset
 
 a <- affinity()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 par(mfrow=c(1, 2))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 e <- equilibrate(a, balance=1)
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 d <- diagram(e, alpha=TRUE, names=aminoacids(1, species()$name))
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 plot.new()
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 legend("topleft", describe.basis(basis()), bg="white")
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \begin_layout Chunk
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
 
 
 \backslash
@@ -4012,11 +4660,16 @@ setkeys{Gin}{width=1.0
 textwidth}
 \end_layout
 
-\begin_layout Chunk
+\begin_layout Plain Layout
 
 
 \backslash
 end{small}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -4097,6 +4750,10 @@ More activity diagrams
 
 \end_layout
 
+\begin_layout Itemize
+2015-05-14 Add warning about internal consistency of thermodynamic data
+\end_layout
+
 \begin_layout Standard
 R session information:
 \end_layout
@@ -4105,19 +4762,27 @@ R session information:
 \begin_inset Branch stuff
 status open
 
-\begin_layout Chunk
+\begin_layout Standard
+\begin_inset Flex Chunk
+status open
 
-<<session_info>>=
+\begin_layout Plain Layout
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+session_info
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
 sessionInfo()
 \end_layout
 
-\begin_layout Chunk
+\end_inset
 
-@
+
 \end_layout
 
 \end_inset

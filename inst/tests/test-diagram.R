@@ -6,10 +6,8 @@ test_that("expected errors are produced for inconsistent arguments", {
   species(c("glycine", "alanine"))
   a <- affinity()
   expect_message(diagram(a, plot.it=FALSE), "coefficients are moles of CO2 in formation reactions")
-  expect_message(diagram(a, normalize=TRUE, plot.it=FALSE), "normalizing formulas in calculation of predominant species")
   e <- equilibrate(a)
   expect_error(diagram(e, "Z"), "Z is not a basis species")
-  expect_error(diagram(e, normalize=TRUE), "normalizing formulas is only possible if 'eout' is the output from affinity\\(\\)")
 })
 
 test_that("expected messages, errors and results arise using output from affinity()", {
@@ -42,7 +40,7 @@ test_that("expected messages, errors and results arise using output from affinit
   expect_equal(a$values[[4]], array(numeric(128)))
 })
 
-test_that("'groups', 'alpha' and 'normalize' work as expected", {
+test_that("'groups' and 'alpha' work as expected", {
   basis("CHNOS+")
   species(c("formic acid", "formate", "acetic acid", "acetate"))
   # 1-D
@@ -57,13 +55,25 @@ test_that("'groups', 'alpha' and 'normalize' work as expected", {
   d <- diagram(e, alpha=TRUE, plot.it=FALSE)
   # we should find that the sum of alphas is one
   expect_equal(Reduce("+", d$plotvals), array(rep(1, 128)))
-#  # normalize multiplies the activities by the balancing coefficients
-#  d <- diagram(e)
-#  d.norm <- diagram(e, normalize=TRUE)
-#  # formic acid, 1 CO2 in formation reaction
-#  expect_equal(d$plotvals[[1]], d.norm$plotvals[[1]])
-#  # acetic acid, 2 CO2 in formation reaction
-#  expect_equal(d$plotvals[[3]], d.norm$plotvals[[3]] - log10(2))
+})
+
+test_that("'normalize' and 'as.residue' work as expected", {
+  basis("CHNOS")
+  species(c("LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN", "CYC_BOVIN"))
+  # 1-D
+  a <- affinity(O2=c(-80, -70))
+  expect_error(diagram(a, normalize=TRUE), "can be TRUE only for a 2-D \\(predominance\\) diagram")
+  # 2-D
+  a <- affinity(H2O=c(-10, 0), O2=c(-80, -70))
+  d1 <- diagram(a, normalize=TRUE, plot.it=FALSE)
+  e <- equilibrate(a, normalize=TRUE)
+  d2 <- diagram(e, plot.it=FALSE)
+  expect_equal(d1$predominant, d2$predominant)
+  expect_error(diagram(e, normalize=TRUE), "can be TRUE only if 'eout' is the output from affinity\\(\\)")
+  d3 <- diagram(a, as.residue=TRUE, plot.it=FALSE)
+  e <- equilibrate(a, as.residue=TRUE)
+  d4 <- diagram(e, plot.it=FALSE)
+  expect_equal(d3$predominant, d4$predominant)
 })
 
 test_that("diagram() handles 2D plots with different x and y resolution and warns for >1 species in contour plot", {
@@ -72,5 +82,5 @@ test_that("diagram() handles 2D plots with different x and y resolution and warn
   a <- affinity(T=c(0, 200, 6), O2=c(-90, -60, 5))
   # TODO: fix plot.line() function in diagram() so that the plot can be made
   #expect_equal(diagram(a), diagram(a, plot.it=FALSE))
-  expect_warning(diagram(a, what="CO2"), "showing only first species in 2-D property diagram")
+  expect_warning(diagram(a, what="CO2", plot.it=FALSE), "showing only first species in 2-D property diagram")
 })

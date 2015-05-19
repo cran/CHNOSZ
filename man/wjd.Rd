@@ -38,8 +38,9 @@
       dimnames=list(NULL,c("H","N","O"))),
     B = c(2,1,1), method="stoich", minX = 0.001, iguess = 1, ic = NULL
   )
-  run.wjd(ispecies, B = NULL, method = "stoich", Y = run.guess(ispecies, B, method),
-    P=1, T=25, nlambda=101, imax = 10, Gfrac = 1e-7, tol = 0.01)
+  run.wjd(ispecies, B = NULL, method = "stoich",
+    Y = run.guess(ispecies, B, method), P=1, T=25, nlambda=101, imax = 10,
+    Gfrac = 1e-7, tol = 0.01)
   run.guess(ispecies, B = NULL, method = "stoich", iguess = NULL)
   equil.potentials(w, tol=0.01, T=25)
 }
@@ -122,7 +123,7 @@ The output of this function can be used as the \code{emu} argument for \code{\li
 }
 
 \seealso{
-  \code{\link{invertible.combs}}, used by \code{element.potentials} to find combinations of species that are compositionally independent.
+  \code{demo("wjd")} for a longer example, and \code{\link{invertible.combs}}, used by \code{element.potentials} to find combinations of species that are compositionally independent.
 }
 
 \examples{\dontshow{data(thermo)}
@@ -151,7 +152,7 @@ ep <- element.potentials(w, plot.it=TRUE)
 is.near.equil(w)  # FALSE
 \dontshow{par(thermo$opar)}
 
-\donttest{## test all of the guesses of inititial mole quantities
+## test all of the guesses of inititial mole quantities
 ## provided by guess() using default bulk composition (H2NO)
 # 9 of them are not is.near.equil with the tolerance lowered to 0.0001
 sapply( 1:32, function(i) 
@@ -169,39 +170,6 @@ aminoacids()[order(w$X)]
 # because the elements are redistributed among the species,
 # the total number of moles of species does not remain constant
 sum(w$X)  # <20
-
-## run.wjd with proteins: cell periphery of yeast
-# get the proteins in the requested location
-y <- yeastgfp("cell.periphery")
-# get the amino acid compositions of the proteins
-aa <- more.aa(y$protein, "Sce")
-# don't use those with NA abundance or sequence
-ina <- is.na(y$abundance) | is.na(aa$chains)
-aa <- aa[!ina, ]
-# let's try normalizing the proteins to single residues
-# columns 6:25 are the actual amino acid counts
-aa.625 <- aa[, 6:25]
-aa[, 6:25] <- aa.625 / rowSums(aa.625)
-# add proteins to thermo$protein
-add.protein(aa)
-# add proteins to thermo$obigt
-iobigt <- info(paste(aa$protein, aa$organism, sep="_"))
-# use equal initial abundances, with total equal to yeastGFP abundances
-Y <- rep(mean(y$abundance[!ina]), length(y$abundance[!ina]))
-# run the Gibbs energy minimization
-w <- run.wjd(iobigt, Y=Y, imax=100)
-# make a log-log plot
-plot(log10(y$abundance[!ina]), log10(w$X), xlim=c(1.5, 5), ylim=c(1.5, 5))
-# get the element potentials (tolerating "close enough" to equilibrium)
-emu <- equil.potentials(w, tol=1e7)
-# then the logarithms of activities of the basis species
-basis("CHNOS")
-bl <- basis.logact(emu)
-# make a title and legend
-title(main="calculated vs observed abundances: yeast cell periphery")
-basis(names(bl), bl)
-legend("topleft", describe.basis(digits=2))
-}
 }
 
 \references{
@@ -209,4 +177,4 @@ legend("topleft", describe.basis(digits=2))
 }
 
 
-\keyword{extra}
+\concept{Extra thermodynamic modeling}

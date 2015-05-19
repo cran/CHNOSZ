@@ -29,7 +29,7 @@ Gr.ionized <- Gr.nonionized + Gr.ionization
 # in cal/mol ionized residue:
 Gr.ionized_residue <- Gr.ionized/protein.length("LYSC_CHICK")
 
-\donttest{## Standard molal entropy of a protein reaction
+## Standard molal entropy of a protein reaction
 basis("CHNOS")
 # here we provide the reaction coefficients of the 
 # proteins (per protein backbone); 'subcrt' function calculates 
@@ -102,90 +102,6 @@ col[ZC > 0] <- "blue"
 e <- equilibrate(a, normalize=TRUE)
 d <- diagram(e, col=col, legend.x=NA)
 title(main="Bovine proteins, GSH/GSSG redox buffer")
-
-## relative stabilities of plasma proteins,
-## using chemical activities of H2 and O2
-# find that insulin is very stable in oxidizing conditions
-basis(c("CO2", "NH3", "H2S", "H2", "O2"), "aq", c(-3, -3, -10))
-f <- system.file("extdata/abundance/AA03.csv", package="CHNOSZ")
-pdat <- read.csv(f, as.is=TRUE)
-species(pdat$name, "HUMAN")
-basis("H2", -3)
-a <- affinity(O2=c(-90, -75))
-e <- equilibrate(a, normalize=TRUE)
-diagram(e, col="green", legend.x=NA, ylim=c(-10, 1))
-basis("H2", -20)
-a <- affinity(O2=c(-90, -75))
-e <- equilibrate(a, normalize=TRUE)
-diagram(e, add=TRUE, col="blue")
-legend("bottomleft", col=c(NA, "green", "blue"), lty=1,
-  legend=c(as.expression(axis.label("H2")), -3, -20))
-title(main="Equilibrium activities of human plasma proteins")
-
-
-### Calculations showing effects of ionization of proteins
-
-## Eh-pH diagrams for intra/extracellular proteins
-organism <- c("PYRFU", "ECOLI", "YEAST")
-intracellular <- c("AMPM", "AMPM", "AMPM1")
-extracellular <- c("O08452", "AMY1", "PST1")
-basis("CHNOSe")  # for Eh we need electrons
-mycol <- c("red", "green", "blue")
-for(i in 1:3) {
-  species(delete=TRUE)
-  species(c(intracellular[i], extracellular[i]), organism[i])
-  a <- affinity(pH=c(0, 14), Eh=c(-1, 0))
-  diagram(a, add=i>1, fill=NULL, names=species()$name,
-    col=mycol[i], col.names=mycol[i], normalize=TRUE)
-}
-title(main="Intracellular (AMPM) and extracellular proteins")
-text(9, -0.05, describe.basis(ibasis=1:4, oneline=TRUE))
-
-
-## Buffer + ionization: Metastablilities of
-## thiol peroxidases from model bactera
-## (ECOLI, BACSU mesophile; AQUAE thermophile,
-## THIDA acidophile, BACHD alkaliphile)
-basis("CHNOS+")
-organisms <- c("ECOLI", "AQUAE", "BACSU", "BACHD", "THIDA")
-species("TPX", organisms)
-# create a buffer with our proteins in it
-mod.buffer("TPX", paste("TPX", organisms, sep="_"))
-# set up the buffered activities
-basis(c("CO2", "H2O", "NH3", "O2"), "TPX")
-a <- affinity(return.buffer=TRUE, T=50)
-basis(c("CO2", "H2O", "NH3", "O2"), as.numeric(a[1:4]))
-a <- affinity(pH=c(0, 14, 200), T=c(25, 70, 200))
-diagram(a, fill=NULL)
-title(main="Thiol peroxidases from bacteria")
-text(0.5, 66, describe.basis(thermo$basis[-6,], oneline=TRUE), adj=0)
-
-
-## Buffer + ionization: relative stabilities
-## of E. coli sigma factors on a T-pH diagram
-# (sigma factors 24, 32, 38, 54, 70, i.e.
-# RpoE, RpoH, RpoS, RpoN, RpoD)
-proteins <- c("RPOE", "RP32", "RPOS", "RP54", "RPOD")
-basis("CHNOS+")
-basis("pH", 7.4)
-# define and set the buffer
-mod.buffer("sigma", paste(proteins, "ECOLI", sep="_"))
-basis(c("CO2", "NH3", "H2S", "O2"), "sigma")
-logact <- affinity(return.buffer=TRUE, T=25)
-# Set the activities of the basis species to constants 
-# corresponding to the buffer, and diagram the relative
-# stabilities as a function of T and pH
-basis(c("CO2", "NH3", "H2S", "O2"), as.numeric(logact))
-species(paste(proteins, "ECOLI", sep="_"))
-a <- affinity(pH=c(5, 10), T=c(10, 40))
-diagram(a, normalize=FALSE, fill="heat")
-title(main="Relative stabilities of sigma factors in E. coli")
-ptext <- c(describe.property("T", 25), 
-  describe.basis(ibasis=c(2, 6), oneline=TRUE))
-btext <- describe.basis(ibasis=c(1, 3, 4, 5), oneline=TRUE)
-legend("bottomleft", legend=c("preset (input values):",
-  ptext, "buffered (results):", btext), bty="n")
-}
 }
 
 \seealso{
@@ -194,4 +110,4 @@ legend("bottomleft", legend=c("preset (input values):",
 For more examples of metastable equilibrium calculations for proteins, see \code{\link{read.expr}}, \code{\link{more.aa}}, \code{\link{ionize.aa}}, and \code{\link{apc}} for reaction-path calculations.
 }
 
-\keyword{protein}
+\concept{Protein thermodynamic modeling}

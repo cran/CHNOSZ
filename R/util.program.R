@@ -25,11 +25,11 @@ palply <- function(X, FUN, ...) {
     ## Use option mc.cores to choose an appropriate cluster size.
     # or detectCores if that is NULL, and set max at 2 for now
     # (to be nice to CRAN etc.)
-    nCores <- max(getOption("mc.cores", detectCores()), 2)
+    nCores <- max(getOption("mc.cores", parallel::detectCores()), 2)
     # don't load methods package, to save startup time - ?makeCluster
-    cl <- makeCluster(nCores, methods=FALSE)
-    out <- parLapply(cl, X, FUN, ...)
-    stopCluster(cl)
+    cl <- parallel::makeCluster(nCores, methods=FALSE)
+    out <- parallel::parLapply(cl, X, FUN, ...)
+    parallel::stopCluster(cl)
   } else out <- lapply(X, FUN, ...)
   return(out)
 }

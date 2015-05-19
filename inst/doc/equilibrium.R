@@ -43,13 +43,13 @@ e$loga.equil
 
 
 ###################################################
-### code chunk number 7: equilibrium.Rnw:329-330
+### code chunk number 7: equilibrium.Rnw:327-328
 ###################################################
 protein.basis(species()$name, normalize=TRUE)
 
 
 ###################################################
-### code chunk number 8: equilibrium.Rnw:421-421
+### code chunk number 8: equilibrium.Rnw:419-419
 ###################################################
 
 
@@ -101,7 +101,7 @@ title(main="Aqueous sulfur speciation, normalized formulas")
 
 
 ###################################################
-### code chunk number 12: equilibrium.Rnw:535-535
+### code chunk number 12: equilibrium.Rnw:533-533
 ###################################################
 
 
@@ -124,7 +124,7 @@ stopifnot(identical(dA$predominant, dE$predominant))
 
 
 ###################################################
-### code chunk number 14: equilibrium.Rnw:564-564
+### code chunk number 14: equilibrium.Rnw:562-562
 ###################################################
 
 
@@ -139,11 +139,5 @@ par(mfrow=c(1, 2))
 dA <- diagram(a, main="maximum affinity")
 e <- equilibrate(a)
 dE <- diagram(e, main="equilibrium activities")
-
-
-###################################################
-### code chunk number 16: SessionInfo
-###################################################
-sessionInfo()
 
 

@@ -36,7 +36,7 @@ expr.species <- function(species, state="", log="", value=NULL) {
   # write a designation of physical state
   # use the state given in log if it's a gas or neutral aqueous species
   if(log %in% c("g", "gas")) state <- "g"
-  else if(!"Z" %in% names(elements)) state <- log
+  else if(!"Z" %in% names(elements) & !missing(log)) state <- log
   if(state != "") {
     # subscript it if we're not in a log expression
     if(log != "") expr <- substitute(a*group('(',italic(b),')'),list(a=expr, b=state))

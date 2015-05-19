@@ -1,4 +1,4 @@
-%% LyX 2.0.6 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
 \documentclass[english,noae,round]{article}
 \usepackage{mathpazo}
@@ -71,7 +71,6 @@ data(thermo)
 @
 
 
-
 \section{Is it winding?}
 
 The ``winding'' in the title refers to the observation that the
@@ -87,6 +86,7 @@ Let's run \texttt{wjd()} with its default settings and save the output.
 <<wjd>>=
 w <- wjd()
 @
+
 What are the most abundant species, and how many iterations were taken?
 
 <<abundant>>=
@@ -98,6 +98,7 @@ w$A[head(oX,2),]
 niter <- length(w$lambda)
 niter
 @
+
 <<abundantnames,echo=FALSE>>=
 # the formulas of the two most abundant species
 # use CHNOSZ's as.chemical.formula function, after 
@@ -106,6 +107,7 @@ f1 <- as.chemical.formula(w$A[oX[1],w$A[oX[1],]!=0])
 f2 <- as.chemical.formula(w$A[oX[2],w$A[oX[2],]!=0])
 f4 <- as.chemical.formula(w$A[oX[4],w$A[oX[4],]!=0])
 @
+
 We find that \Sexpr{f1} and \Sexpr{f2} are the most abundant species,
 after \Sexpr{niter} iterations. The fourth most-abundant species,
 \Sexpr{f4}, is discussed below.
@@ -121,10 +123,13 @@ iterfun <- function(imax, i) {
   return(x)
 }
 @
+
 Then apply the function over the different numbers of iterations,
 from 0 (initial conditions) to \Sexpr{niter}, and plot the values.
 
 \setkeys{Gin}{width=1.0\textwidth}
+
+<<>>=
 <<iterplot, fig=TRUE, height=3>>=
 par(mfrow=c(1, 2))
 sa <- sapply(0:niter, iterfun, i=oX[1])
@@ -132,8 +137,8 @@ plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
 sa <- sapply(0:niter, iterfun, i=oX[4])
 plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 A bit of winding: the mole fraction of \Sexpr{f1} generally increases
 (there is a very slight decrease at the fifth iteration), but the
@@ -146,13 +151,13 @@ result:
 <<Gdown>>=
 all(diff(w$F.Y) < 0)
 @
+
 The decrease in Gibbs energy becomes smaller with every iteration,
 as an equilibrium distribution of species is approached:
 
 <<Gdownslower>>=
 identical(diff(w$F.Y), sort(diff(w$F.Y)))
 @
-
 
 
 \section{Is it near the bottom? Testing for equilibrium}
@@ -172,8 +177,9 @@ of \texttt{Gfrac} given in the arguments the iterations stop. Here
 are the fractional changes with each iteration:
 
 <<Gfrac>>=
-diff(w$F.Y)/w$F.Y[1:6]
+diff(w$F.Y)/w$F.Y[1:7]
 @
+
 Only the last value is below the default value of \texttt{Gfrac} in
 \texttt{wjd()}.
 
@@ -197,22 +203,26 @@ combinations of species. It has an option to plot the results. Let's
 first look at a plot showing the results after 3 iterations.
 
 \setkeys{Gin}{width=0.6\textwidth}
+
+<<>>=
 <<w3_ep_plot, fig=TRUE>>=
 w3 <- wjd(imax=3)
 ep3 <- element.potentials(w3, plot.it=TRUE)
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 Here's the plot for the default settings of \texttt{wjd()} which takes
 6 iterations:
 
 \setkeys{Gin}{width=0.6\textwidth}
+
+<<>>=
 <<w_ep_plot, fig=TRUE>>=
 ep <- element.potentials(w, plot.it=TRUE)
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 That one shows considerably less deviation than the first plot. The
 differences don't become zero, but perhaps they are small enough to
@@ -230,7 +240,6 @@ is.near.equil(w3) # 3 iterations
 is.near.equil(w)  # 7 iterations
 is.near.equil(w, tol=0.00001)
 @
-
 
 
 \subsection{Different initial solutions yield similar results}
@@ -268,18 +277,21 @@ Y1
 #Y2
 @
 
-
 Now let's run the minimization using the different guesses, count
 the numbers of iterations, and test them for equilibrium.
 
 \setkeys{Gin}{width=0.6\textwidth}
+
+<<>>=
 <<stoich_guess>>=
 wY1 <- wjd(Y=Y1)
 niterY1 <- length(wY1$lambda)
 niterY1
 is.near.equil(wY1, tol=0.0001)
 @
+
 \setkeys{Gin}{width=0.6\textwidth}
+
 Using the first guess generated using the ``stoich'' method there
 were \Sexpr{niterY1-niter} more iterations than using the default
 initial solution in \texttt{wjd()}.
@@ -289,13 +301,15 @@ initial solution in \texttt{wjd()}.
 Do the different initial guesses actually give similar results?
 
 \setkeys{Gin}{width=0.6\textwidth}
+
+<<>>=
 <<compare_guesses, fig=TRUE>>=
 plot(1:10, w$X, xlab="species", ylab="mole fraction")
 points(1:10, wY1$X, pch=0)
 #points(1:10, wY2$X, pch=2)
 @
-\setkeys{Gin}{width=0.6\textwidth}
 
+\setkeys{Gin}{width=0.6\textwidth}
 
 At that scale it's fairly difficult to tell them apart.
 
@@ -317,12 +331,14 @@ iYs <- which(!is.na(Ys))
 nguess <- length(iYs)
 nguess
 @
+
 Now let's run the minimization using each of those guesses, and test
 if each one \texttt{is.near.equil()}:
 
 <<allguess.equil>>=
 sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]])))
 @
+
 Looks like they are. What if we're really picky though and want to
 make sure the chemical potentials of the elements are very well-defined?
 We can decrease the tolerance of \texttt{is.near.equil()}:
@@ -330,6 +346,7 @@ We can decrease the tolerance of \texttt{is.near.equil()}:
 <<allguess.equil.2>>=
 sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]]),tol=0.0001))
 @
+
 Well some of the tests failed. But maybe this is because we have stopped
 iterating too soon. Let's iterate until a we have smaller change in
 Gibbs energy of the system:
@@ -339,6 +356,7 @@ sapply(iYs, function(i) {
   is.near.equil(wjd(Y=Ys[[i]], Gfrac=1e-9), tol=0.0001)
 })
 @
+
 We're back to passing all but one of the equilibrium tests based on
 uniformity of chemical potentials of the elements. What are the standard
 deviations of the resulting species abundances?
@@ -347,6 +365,7 @@ deviations of the resulting species abundances?
 Xs <- sapply(iYs, function(i) wjd(Y=Ys[[i]], Gfrac=1e-9)$X)
 apply(Xs, 1, sd)
 @
+
 Based on this exercise, starting from different initial species abundances
 for the same bulk composition, and arriving at a similar near-equilibrium
 solution, it seems likely that we are near the global minimum.
@@ -372,6 +391,7 @@ file <- system.file("extdata/thermo/DLEN67.csv", package="CHNOSZ")
 dlen <- read.csv(file, stringsAsFactors=FALSE, row.names=1)
 t(dlen[, 1, drop=FALSE])
 @
+
 Now let's write some code to define the system. The bulk composition
 in C:H:O space has 40 percent oxygen, a percentage of carbon given
 by \texttt{xC}, and hydrogen as the remainder; the C:N ratio is taken
@@ -395,6 +415,7 @@ min.atmos <- function(xC) {
   return(w)
 }
 @
+
 Notice the increase in \texttt{imax} and the decrease in \texttt{Gfrac}
 from the defaults! These changes are needed to get closer to equilibrium
 (and we'll know we're not there if a message is shown). What does
@@ -404,6 +425,7 @@ carbon?
 <<atmos_C15>>=
 sort(min.atmos(15)$X, decreasing=TRUE)
 @
+
 Well that's exciting! The order of abundances of $\mathrm{H_{2}O}$,
 $\mathrm{CO_{2}}$, $\mathrm{CH_{4}}$, $\mathrm{NH_{3}}$, $\mathrm{CO}$,
 ethane ($\mathrm{C_{2}H_{6}}$), formic acid ($\mathrm{CH_{2}O_{2}}$)
@@ -420,7 +442,6 @@ for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
 text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
 text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 @
-
 
 We triggered some ``not near equilibrium'' messages, but overall
 it seems well behaved (note that using the ``central'' method in
@@ -457,7 +478,6 @@ aromatics <- c("naphthalene", "anthracene", "phenanthrene", "pyrene")
 iaro <- info(aromatics, "liq")
 @
 
-
 Let's find the equilibrium distribution of species for a bulk composition
 corresponding to a single mole of each species.
 
@@ -466,7 +486,6 @@ waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8))
 waa$elements
 is.near.equil(waa)
 @
-
 
 The \texttt{waa\$elements} shows that the bulk chemical composition
 in the Gibbs energy minimization was $\mathrm{C_{84}H_{106}}$ (H/C
@@ -482,14 +501,12 @@ waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8), imax=20, Gfrac=1e-14, nlambda=501)
 is.near.equil(waa)
 @
 
-
 Let's plot the abundances of the species:
 
 <<barplot_aa, fig=TRUE>>=
 bp <- barplot(waa$X, ylab="moles")
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 @
-
 
 Now let's calculate the chemical potentials of the elements (dimensionless
 values, $\mu/RT$) ...
@@ -499,7 +516,6 @@ ep <- equil.potentials(waa)
 print(ep)
 @
 
-
 ... and the corresponding logarithms of chemical activities of a set
 of basis species:
 
@@ -507,7 +523,6 @@ of basis species:
 basis(c("graphite", "H2"), c("cr", "gas"))
 basis.logact(ep)
 @
-
 
 
 \subsection{Bulk composition instead of moles of species}
@@ -524,7 +539,6 @@ bp <- barplot(waa$X, ylab="moles")
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 @
 
-
 Compared with the previous example, here the lower H/C = 0.7 defines
 a more oxidized system, so the increase in aromatic content is expected.
 As before, we can calculate the chemical potentials of the elements
@@ -534,7 +548,6 @@ and of a corresponding set of basis species:
 print(ep <- equil.potentials(waa))
 basis.logact(ep)
 @
-
 
 
 \section{Document Information}
@@ -550,7 +563,6 @@ R session information
 <<sessionInfo>>=
 sessionInfo()
 @
-
 
 \bibliographystyle{plainnat}
 \bibliography{vig}

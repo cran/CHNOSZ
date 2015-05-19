@@ -115,4 +115,4 @@ title(main=paste("Phylum Classification of Protein Sequences",
   Altschul, S. F., Madden, T. L., Schaffer, A. A., Zhang, J. H., Zhang, Z., Miller, W. and Lipman, D. J. (1997) Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. \emph{Nucleic Acids Res.} \bold{25}, 3389--3402. \url{http://dx.doi.org/doi:10.1093/nar/25.17.3389} 
 }
 
-\keyword{util}
+\keyword{utilities}

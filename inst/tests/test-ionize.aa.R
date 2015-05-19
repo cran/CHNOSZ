@@ -40,10 +40,10 @@ test_that("charge summations for aa compositions are consistent with literature"
   pH <- c(4, 6, 8, 10, 12, 14)
   # the literature values are significantly different at this tolerance (the following is not TRUE)
   # expect_equal(Z.LYSC_CHICK.25, Z.LYSC_CHICK.100, 1e-1)
-  expect_equal(ionize.aa(aa, pH=pH, T=25)[, 1], Z.LYSC_CHICK.25, 1e-1, check.attributes=FALSE)
-  expect_equal(ionize.aa(aa, pH=pH, T=100)[, 1], Z.LYSC_CHICK.100, 1e-1, check.attributes=FALSE)
-  expect_equal(ionize.aa(aa, pH=pH, T=150)[, 1], Z.LYSC_CHICK.150, 1e-1, check.attributes=FALSE)
-  expect_equal(ionize.aa(aa, pH=pH, T=25, suppress.Cys=TRUE)[, 1], Z.LYSC_CHICK.25_oxid, 1e-2, check.attributes=FALSE)
+  expect_equal(ionize.aa(aa, pH=pH, T=25)[, 1], Z.LYSC_CHICK.25, tolerance=1e-1, check.attributes=FALSE)
+  expect_equal(ionize.aa(aa, pH=pH, T=100)[, 1], Z.LYSC_CHICK.100, tolerance=1e-1, check.attributes=FALSE)
+  expect_equal(ionize.aa(aa, pH=pH, T=150)[, 1], Z.LYSC_CHICK.150, tolerance=1e-1, check.attributes=FALSE)
+  expect_equal(ionize.aa(aa, pH=pH, T=25, suppress.Cys=TRUE)[, 1], Z.LYSC_CHICK.25_oxid, tolerance=1e-2, check.attributes=FALSE)
 })
 
 test_that("heat capacity and Gibbs energy of ionization are consistent with literature", {
@@ -58,8 +58,8 @@ test_that("heat capacity and Gibbs energy of ionization are consistent with lite
   Cp.ionization.pH12 <- ionize.aa(aa, "Cp", T=c(60, 80, 100, 120, 140), pH=12)
   # the literature values are significantly different at this tolerance (the following is not TRUE)
   # expect_equal(Cp.AMYA_PYRFU.pH6 - Cp.AMYA_PYRFU.nonion, Cp.AMYA_PYRFU.pH12 - Cp.AMYA_PYRFU.nonion, 1e-2)
-  expect_equal(Cp.ionization.pH6[,1], (Cp.AMYA_PYRFU.pH6 - Cp.AMYA_PYRFU.nonion)*1000, 1e-2, check.attributes=FALSE)
-  expect_equal(Cp.ionization.pH12[,1], (Cp.AMYA_PYRFU.pH12 - Cp.AMYA_PYRFU.nonion)*1000, 1e-2, check.attributes=FALSE)
+  expect_equal(Cp.ionization.pH6[,1], (Cp.AMYA_PYRFU.pH6 - Cp.AMYA_PYRFU.nonion)*1000, tolerance=1e-2, check.attributes=FALSE)
+  expect_equal(Cp.ionization.pH12[,1], (Cp.AMYA_PYRFU.pH12 - Cp.AMYA_PYRFU.nonion)*1000, tolerance=1e-2, check.attributes=FALSE)
   # Gibbs energy (Mcal mol-1) of AMY_BACSU at pH 0, 2, 4, 6, 8, 10, 12, 14 at 25 and 100 degrees
   # digitized from Fig. 12 of Dick et al., 2006
   G.AMY_BACSU.25 <- c(-24.9, -24.9, -24.7, -24.5, -24.4, -23.9, -23.5, -23.2)
@@ -70,8 +70,8 @@ test_that("heat capacity and Gibbs energy of ionization are consistent with lite
   aa <- ip2aa(iprotein("AMY_BACSU"))
   G.ionization.25 <- ionize.aa(aa, "G", T=25, pH=seq(0, 14, 2))[,1]
   G.ionization.100 <- ionize.aa(aa, "G", T=100, pH=seq(0, 14, 2))[,1]
-  expect_equal(G.nonionized[1] + G.ionization.25, G.AMY_BACSU.25 * 1e6, 1e-3, check.attributes=FALSE)
-  expect_equal(G.nonionized[2] + G.ionization.100, G.AMY_BACSU.100 * 1e6, 1e-3, check.attributes=FALSE)
+  expect_equal(G.nonionized[1] + G.ionization.25, G.AMY_BACSU.25 * 1e6, tolerance=1e-3, check.attributes=FALSE)
+  expect_equal(G.nonionized[2] + G.ionization.100, G.AMY_BACSU.100 * 1e6, tolerance=1e-3, check.attributes=FALSE)
   # restore thermo$obigt to original state
   data(thermo)
 })

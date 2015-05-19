@@ -1,2 +1,2 @@
-Tr,Pr,Theta,Psi,R,cutoff,E.units,T.units,P.units,state,water,G.tol,Cp.tol,V.tol
-298.15,1,228,2600,1.9872,1e-10,cal,C,bar,aq,SUPCRT92,100,1,1
+Tr,Pr,Theta,Psi,R,cutoff,E.units,T.units,P.units,state,water,G.tol,Cp.tol,V.tol,varP
+298.15,1,228,2600,1.9872,1e-10,cal,C,bar,aq,SUPCRT92,100,1,1,FALSE

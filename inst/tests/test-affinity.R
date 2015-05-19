@@ -98,8 +98,8 @@ test_that("'iprotein' gives consistent results on a transect", {
   basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"),
     "aq", c(-3, 0, -4, -7, 999, 999))
   sites <- c("N", "S", "R", "Q", "P")
-  proteins <- paste("overall_bison", sites, sep="")
-  ip <- iprotein(proteins)
+  aa <- read.aa(system.file("extdata/protein/DS11.csv", package="CHNOSZ"))
+  ip <- add.protein(aa[1:5, ])
   # to reproduce, we need use the "old" parameters for [Met]
   add.obigt()
   a <- affinity(T=T, pH=pH, H2=H2, iprotein=ip)
@@ -110,7 +110,7 @@ test_that("'iprotein' gives consistent results on a transect", {
   A.2303RT_max <- apply(A.2303RT, 2, max)
   # we're off a bit in the second decimal ... 
   # maybe becuase of rounding of the aa composition?
-  expect_equal(A.2303RT_max, A.2303RT_ref, 1e-3)
+  expect_equal(A.2303RT_max, A.2303RT_ref, tolerance=1e-3)
   # todo: add comparison with results from loading proteins via species()
 })
 
@@ -125,15 +125,15 @@ test_that("affinity() for proteins (with/without 'iprotein') returns same value 
   basis("CHNOS")
   # try it with iprotein
   ip <- iprotein("CSG_HALJP")
-  expect_equal(affinity(iprotein=ip)$values[[1]][1], A.2303RT.nonionized, 1e-6)
+  expect_equal(affinity(iprotein=ip)$values[[1]][1], A.2303RT.nonionized, tolerance=1e-6)
   # then with the protein loaded as a species
   species("CSG_HALJP")
-  expect_equal(affinity()$values[[1]][1], A.2303RT.nonionized, 1e-6)
+  expect_equal(affinity()$values[[1]][1], A.2303RT.nonionized, tolerance=1e-6)
   # now for ionized protein
   basis("CHNOS+")
-  expect_equal(affinity(iprotein=ip)$values[[1]][1], A.2303RT.ionized, 1e-6)
+  expect_equal(affinity(iprotein=ip)$values[[1]][1], A.2303RT.ionized, tolerance=1e-6)
   species("CSG_HALJP")
-  expect_equal(affinity()$values[[1]][1], A.2303RT.ionized, 1e-6)
+  expect_equal(affinity()$values[[1]][1], A.2303RT.ionized, tolerance=1e-6)
 })
 
 test_that("affinity() for proteins keeps track of pH on 2-D calculations", {
@@ -143,4 +143,19 @@ test_that("affinity() for proteins keeps track of pH on 2-D calculations", {
   a1 <- affinity(pH=c(6, 8, 3))
   a2 <- affinity(pH=c(6, 8, 3), T=c(0, 75, 4))
   expect_equal(as.numeric(a1$values[[1]]), a2$values[[1]][, 2])
+})
+
+test_that("IS can be constant or variable", {
+  # inspired by an error from demo("phosphate")
+  # > a25 <- affinity(IS=c(0, 0.14), T=T[1])
+  # ...
+  # Error in subcrt(species = c(1017L, 20L, 19L), property = "logK", T = 298.15,  : 
+  #   formal argument "IS" matched by multiple actual arguments
+  basis("CHNOPS+")
+  species(c("PO4-3", "HPO4-2", "H2PO4-"))
+  a0 <- affinity()
+  a1 <- affinity(IS=0.14)
+  a2 <- affinity(IS=c(0, 0.14))
+  expect_equal(unlist(lapply(a2$values, head, 1)), unlist(a0$values))
+  expect_equal(unlist(lapply(a2$values, tail, 1)), unlist(a1$values))
 })

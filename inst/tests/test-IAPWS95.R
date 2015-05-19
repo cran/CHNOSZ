@@ -31,7 +31,7 @@ test_that("calculations of Helmholtz free energy and its derivatives are consist
   expect_equal(residual.calc.1, residual.ref.1, check.attributes=FALSE)
   expect_equal(idealgas.calc.2, idealgas.ref.2, check.attributes=FALSE)
   # ... however an offset is apparent in the value of the residual phi.delta.delta for case 2
-  expect_equal(residual.calc.2, residual.ref.2, check.attributes=FALSE, tol=1e-5)
+  expect_equal(residual.calc.2, residual.ref.2, check.attributes=FALSE, tolerance=1e-5)
 })
 
 test_that("calculations of thermodynamic properties are consistent with reference values", {
@@ -58,21 +58,21 @@ test_that("calculations of thermodynamic properties are consistent with referenc
   vapor.calc <- IAPWS95(p, T, rho.vapor)
   ## the tests
   # take P to 5 significant digits but not more than 6 decimals
-  expect_equal(round(signif(liquid.calc$p, 5), 6), P.ref, tol=1e-3)
-  expect_equal(round(signif(vapor.calc$p, 5), 6), P.ref, tol=1e-4)
+  expect_equal(round(signif(liquid.calc$p, 5), 6), P.ref, tolerance=1e-3)
+  expect_equal(round(signif(vapor.calc$p, 5), 6), P.ref, tolerance=1e-4)
   # take H to 6 significant digits but not more than 3 decimals
-  expect_equal(round(signif(liquid.calc$h, 6), 3), H.liquid.ref, tol=1e-5)
+  expect_equal(round(signif(liquid.calc$h, 6), 3), H.liquid.ref, tolerance=1e-5)
   expect_that(round(signif(vapor.calc$h, 6), 3), equals(H.vapor.ref))  # spot on!
   # round S to 4 decimals
   expect_that(round(liquid.calc$s, 4), equals(S.liquid.ref))  # spot on!
-  expect_equal(round(vapor.calc$s, 4), S.vapor.ref, tol=1e-4)
+  expect_equal(round(vapor.calc$s, 4), S.vapor.ref, tolerance=1e-4)
   # round cv to 4 decimals
-  expect_equal(round(liquid.calc$cv, 4), cv.liquid.ref, tol=1e-4)
-  expect_equal(round(vapor.calc$cv, 4), cv.vapor.ref, tol=1e-4)
+  expect_equal(round(liquid.calc$cv, 4), cv.liquid.ref, tolerance=1e-4)
+  expect_equal(round(vapor.calc$cv, 4), cv.vapor.ref, tolerance=1e-4)
   # take cp to 5 significant digits but not more than 4 decimals
   # note high tolerance setting: the highest temperature is the challenge
-  expect_equal(round(signif(liquid.calc$cp, 5), 4), cp.liquid.ref, tol=1e0)
-  expect_equal(round(signif(vapor.calc$cp, 5), 4), cp.vapor.ref, tol=1e-1)
+  expect_equal(round(signif(liquid.calc$cp, 5), 4), cp.liquid.ref, tolerance=1e0)
+  expect_equal(round(signif(vapor.calc$cp, 5), 4), cp.vapor.ref, tolerance=1e-1)
 })
 
 test_that("calculations are possible at low temperatures", {

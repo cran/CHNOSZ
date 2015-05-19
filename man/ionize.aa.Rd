@@ -66,7 +66,7 @@ legend("topright", pch=1, legend="Roxby and Tanford, 1971")
 title(main=paste("Ionization of unfolded LYSC_CHICK\n",
   "After Dick et al., 2006"))
 
-\donttest{## Heat capacity of LYSC_CHICK as a function of T
+## Heat capacity of LYSC_CHICK as a function of T
 pH <- c(5, 9, 3)
 T <- seq(0, 100)
 # Cp of non-ionized protein
@@ -91,26 +91,6 @@ legend("bottomright", pch=c(16, 1, NA, NA), lty=c(NA, NA, 1, 2),
   legend=c("PM90 experiment", "MP90 groups", 
   "DLH06 groups no ion", "DLH06 groups ionized"))
 title("Heat capacity of unfolded LYSC_CHICK")
-
-## Contour plots of net charge and ionization properties of LYSC_CHICK
-\dontshow{par(thermo$opar)}
-aa <- ip2aa("LYSC_CHICK")
-pH <- seq(0, 14, 0.2)
-T <- seq(0, 200, 2)
-val <- expand.grid(pH=pH, T=T)
-par(mfrow=c(2, 2))
-for(X in c("Z", "A", "Cp", "V")) {
-  Y <- ionize.aa(aa, property=X,  pH=val$pH, T=val$T)
-  contour(pH, T, matrix(Y[, 1], ncol=length(T)),
-    xlab="pH", ylab=axis.label("T"))
-  title(main=axis.label(X))
-}
-par(mfrow=c(1, 1))
-pu <- par("usr")
-text(mean(pu[1:2]), sum(pu[3:4])*0.45, 
-  "additive properties of ionization of LYSC_CHICK")
-\dontshow{par(thermo$opar)}
-}
 }
 
 \references{
@@ -121,4 +101,4 @@ text(mean(pu[1:2]), sum(pu[3:4])*0.45,
   Privalov, P. L. and Makhatadze, G. I. (1990) Heat capacity of proteins. II. Partial molar heat capacity of the unfolded polypeptide chain of proteins: Protein unfolding effects. \emph{J. Mol. Biol.} \bold{213}, 385--391. \url{http://dx.doi.org/10.1016/S0022-2836(05)80198-6}
 }
 
-\keyword{protein}
+\concept{Protein thermodynamic modeling}

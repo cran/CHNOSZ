@@ -50,4 +50,4 @@ RNA.comp <- nucleic.complement(DNA.comp, type="RNA")
 nucleic.formula(RNA.comp)  # C40H42N32O11
 }
 
-\keyword{util}
+\keyword{utilities}

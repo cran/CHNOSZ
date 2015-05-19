@@ -119,19 +119,9 @@ energy <- function(what,vars,vals,lims,T=get("thermo")$opt$Tr,P="Psat",IS=0,sout
       species <- c(mybasis$ispecies,myspecies$ispecies)
       if("T" %in% vars) T <- vals[[which(vars=="T")]]
       if("P" %in% vars) P <- vals[[which(vars=="P")]]
-      s.args <- list(species=species,property=property,T=T,P=P,grid=grid,convert=FALSE,exceed.Ttr=exceed.Ttr)
-      if("IS" %in% vars) {
-        IS <- vals[[which(vars=="IS")]]
-        # do the calculation in parts: basis species (IS=0)
-        s.args$species <- mybasis$ispecies
-        s.out.basis <- do.call("subcrt",s.args)$out
-        # and species of interest (IS=IS)
-        s.args$species <- myspecies$ispecies
-        s.args <- c(s.args,list(IS=IS))
-        s.out.species <- do.call("subcrt",s.args)$out
-        # put them together
-        return(c(s.out.basis,s.out.species))
-      } else return(do.call("subcrt",s.args)$out)
+      if("IS" %in% vars) IS <- vals[[which(vars=="IS")]]
+      s.args <- list(species=species,property=property,T=T,P=P,IS=IS,grid=grid,convert=FALSE,exceed.Ttr=exceed.Ttr)
+      return(do.call("subcrt",s.args)$out)
     }
   }
 

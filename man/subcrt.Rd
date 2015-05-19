@@ -72,8 +72,10 @@ The informative messages produced by \code{SUPCRT92} when temperature or pressur
 However, \code{NA}s may be produced in the output of \code{subcrt} if the requisite thermodynamic or electrostatic properties of water can not be calculated at given conditions.
 Specifically, \code{NA}s are produced for calculations at \samp{Psat} when the temperature exceeds the critical temperature of H2O.
 
-
 For calculations below 273.16 K, the pressure should be set to 1, as Psat is not defined in these conditions.
+
+If \code{thermo$opt$varP} is \code{TRUE}, standard Gibbs energies of gases will be converted from a standard state at 1 bar (as used in SUPCRT) to a variable pressure standard state (see chapter 12 in Anderson and Crerar, 1993).
+This is useful for constructing e.g. boiling curves for organic compounds.
 
 }
 
@@ -153,7 +155,7 @@ subcrt("alanine", T=seq(0, 5000, by=1000))
 # above the T, P limits for the H2O equations of state
 subcrt("alanine", T=c(2250, 2251), P=c(30000, 30001), grid="T")
 
-\donttest{## heat capacity of Fe(cr)
+## heat capacity of Fe(cr)
 # compare calculated values of heat capacity with
 # values from Robie and Hemingway, 1995, (from which 
 # the parameters in the database were derived)
@@ -251,7 +253,8 @@ sb <- subcrt(c("H2O", "Na+"), T=seq(-30, 10), P=1)$out
 # start plot with extra room on right
 par(mar=c(5, 4, 4, 4))
 # plot G
-plot(sb$water$T, sb$water$G, ylim=c(-63000, -56000), xlab=axis.label("T"), ylab=axis.label("DG0"))
+plot(sb$water$T, sb$water$G, ylim=c(-63000, -56000), xlab=axis.label("T"),
+  ylab=axis.label("DG0"))
 points(sb$`Na+`$T, sb$`Na+`$G, pch=2)
 # add Cp
 # change y-axis
@@ -266,9 +269,10 @@ Na <- expr.species("Na+")
 degC <- expr.units("T")
 title(main=substitute(H2O~and~Na~to~-20~degC, list(H2O=H2O, Na=Na, degC=degC)))
 }
-}
 
 \references{
+  Anderson, G. M. and Crerar, D. A. (1993) \emph{Thermodynamics in Geochemistry: The Equilibrium Model}, Oxford University Press. \url{http://www.worldcat.org/oclc/803272549}
+
   Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\eqn{^{\circ}}{°}C. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{http://dx.doi.org/10.1016/0098-3004(92)90029-Q}
 
   LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \url{http://dx.doi.org/10.1111/j.1472-4669.2007.00099.x}
@@ -280,4 +284,4 @@ title(main=substitute(H2O~and~Na~to~-20~degC, list(H2O=H2O, Na=Na, degC=degC)))
   Shock, E. L. et al. (1998) \emph{SLOP98.dat} (computer data file). \url{http://geopig.asu.edu/sites/default/files/slop98.dat}, accessed on 2005-11-05 (updated URL on 2012-01-08).
 }
 
-\keyword{primary}
+\concept{Primary thermodynamic modeling}

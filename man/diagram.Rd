@@ -9,13 +9,14 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
 
 \usage{
   diagram(eout, what = "loga.equil", alpha = FALSE, normalize = FALSE,
-    balance=NULL, groups=as.list(1:length(eout$values)), xrange=NULL,
-    mar=NULL, yline=par("mgp")[1]+0.7, side=1:4,
+    as.residue = FALSE, balance=NULL, groups=as.list(1:length(eout$values)),
+    xrange=NULL, mar=NULL, yline=par("mgp")[1]+0.7, side=1:4,
     ylog=TRUE, xlim=NULL, ylim=NULL, xlab=NULL, ylab=NULL,
     cex=par("cex"), cex.names=1, cex.axis=par("cex"),
     lty=NULL, lwd=par("lwd"), dotted=0,
     bg=par("bg"), col=par("col"), col.names=par("col"), fill=NULL,
-    names=NULL, main=NULL, legend.x="topright", add=FALSE, plot.it=TRUE)
+    names=NULL, main=NULL, legend.x="topright", add=FALSE, plot.it=TRUE,
+    tplot=TRUE)
   strip(affinity, ispecies = NULL, col = NULL, ns = NULL, 
     xticks = NULL, ymin = -0.2, xpad = 1, cex.names = 0.7)
   find.tp(x)
@@ -25,7 +26,8 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
   \item{eout}{list, object returned by \code{\link{equilibrate}}} or \code{\link{affinity}}
   \item{what}{character, what property to calculate and plot}
   \item{alpha}{logical, for speciation diagrams, plot degree of formation instead of activities?}
-  \item{normalize}{logical, normalize chemical formulas or reaction properties by the balance vector?}
+  \item{normalize}{logical, divide chemical affinities by balance coefficients (rescale to whole formulas)?}
+  \item{as.residue}{logical, divide chemical affinities by balance coefficients (no rescaling)?}
   \item{balance}{character, balancing constraint; see \code{\link{balance}}}
   \item{groups}{list of numeric, groups of species to consider as a single effective species}
   \item{xrange}{numeric, range of x-values between which predominance field boundaries are plotted}
@@ -52,6 +54,7 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
   \item{legend.x}{character, description of legend placement passed to \code{\link{legend}}}
   \item{add}{logical, add to current plot?}
   \item{plot.it}{logical, make a plot?}
+  \item{tplot}{logical, set up plot with \code{\link{thermo.plot.new}}?}
   \item{affinity}{list, object returned by \code{\link{affinity}}}
   \item{ispecies}{numeric, which species to consider (default of \code{NULL} is to consider all species)}
   \item{ns}{numeric, numbers of species, used to make inset plots for strip diagrams}
@@ -78,10 +81,14 @@ A \code{\link{legend}} is placed at the location identified by \code{legend.x}, 
 If \code{legend.x} is NA, instead of a legend, the lines are labeled with the names of the species near the maximum value.
 The line type and line width can be controlled with \code{lty} and \code{lwd}, respectively.
 
-On 2-D diagrams, the fields represent the species with the highest equilibrium activity, after any \code{normalize} or \code{alpha} operations.
+On 2-D diagrams, the fields represent the species with the highest equilibrium activity.
 \code{fill} determines the color of the predominance fields, \code{col} that of the boundary lines.
 By default, \code{\link{heat.colors}} are used to fill the predominance fields in diagrams on the screen plot device.
 The style of the boundary lines on 2-D diagrams can be altered by supplying one or more non-zero integers in \code{dotted}, which indicates the fraction of line segments to omit; a value of \samp{1} or NULL for \code{dotted} has the effect of not drawing the boundary lines.
+
+\code{normalize} and \code{as.residue} apply only to the 2-D diagrams, and only when \code{eout} is the output from \code{affinity}.
+With \code{normalize}, the activity boundaries are calculated as between the residues of the species (the species divided by the balance coefficients), then the activities are rescaled to the whole species formulas.
+With \code{as.residue}, the activity boundaries are calculated as between the residues of the species, and no rescaling is performed.
 
 For all diagrams, the \code{names} of the species and their colors in \code{col.names} can be changed, as can \code{cex}, \code{cex.names}, and \code{cex.axis} to adjust the overall character expansion factors (see \code{\link{par}}) and those of the species names and axis labels.
 The x- and y-axis labels are automatically generated unless they are supplied in \code{xlab} and \code{ylab}. 
@@ -97,7 +104,7 @@ Some of the arguments have different effects when the output from \code{affinity
 If \code{what} is missing, option (1) is selected if the number of dimensions is 0 or 1, and option (3) is selected if the number of dimensions is 2.
 The latter is referred to as the maximum affinity method.
 In cases where it applies (see Warning), the maximum affinity method is much faster than an equilibrium calculation.
-\code{balance} is the option, sent to \code{\link{balance}}, that determines the balancing coefficients used in the normalization (this argument has no effect on the calculations of equilibrium activities.)
+\code{balance} is the option, sent to \code{\link{balance}}, that determines the balancing coefficients (this argument has no effect on the calculations of equilibrium activities.)
 If \code{what} is the name of a basis species, it refers to option (2) above.
 A contour plot is made in the case of 2-D diagrams of the equilibrium activity of a basis species (see \code{\link{demos}("CO2Ac")}, and only the first species of interest is used in the calculation; a warning is produced if there is more than one.
 
@@ -132,6 +139,7 @@ However, if aqueous species are present with different balancing coefficients, t
 
 \seealso{ 
 Other examples are present in the help for \code{\link{protein}} and \code{\link{buffer}}, and even more can be found in \code{\link{demos}}.
+See the vignette hotspring.Rnw for an example of the \code{strip} charts.
 }
 
 \examples{
@@ -151,7 +159,7 @@ title(main=paste("Aqueous sulfur speciation, 325 degC, 350 bar\n",
 # try it with and without the loga.balance argument (total activity of 
 # the balanced quantity, in this case H2S aka sulfur) 
 
-\donttest{## Degrees of formation of ionized forms of glycine
+## Degrees of formation of ionized forms of glycine
 ## After Fig. 1 of Aksu and Doyle, 2001 
 basis("CHNOS+")
 species(ispecies <- info(c("glycinium", "glycine", "glycinate")))
@@ -249,26 +257,6 @@ stopifnot(species()$name[d$predominant[1, 1]]=="andalusite")
 stopifnot(species()$name[d$predominant[1, 101]]=="kyanite")
 stopifnot(species()$name[d$predominant[99, 101]]=="sillimanite")
 
-### other examples
-
-## a case where the maximum affinity method doesn't
-## reproduce an equilibrium predominance diagram
-basis("CHNOS+")
-# this adds data for some metabolites in the TCA cycle
-# from Dalla-Betta and Schulte, 2010
-add.obigt()
-species(c("oxaloacetate-2", "malate-2", "fumarate-2",
-  "a-ketoglutarate-2", "citrate-3"))
-a <- affinity(O2=c(-80, -60), H2O=c(-5, 5))
-diagram(a, dotted=1, fill="heat")
-e <- equilibrate(a)
-diagram(e, add=TRUE, names=NULL, col="purple")
-e <- equilibrate(a, normalize=TRUE)
-diagram(e, add=TRUE, names=NULL)
-title(main=paste("maximum affinity method (fields)\n",
-  "equilibrium calculations (lines)"))
-data(thermo)
-
 ## calculate the equilibrium logarithm of activity of a 
 ## basis species in different reactions
 basis("CHNOS")
@@ -276,25 +264,6 @@ species(c("ethanol", "lactic acid", "deoxyribose", "ribose"))
 a <- affinity(T=c(0, 150))
 diagram(a, what="O2", legend.x="topleft", col=rev(rainbow(4)), lwd=2)
 title(main="equilibrium logfO2 for 1e-3 mol/kg of CO2 and ... ")
-
-## using strip()
-## proteins from different mammals
-organisms <- c("BOVIN", "CANFA", "HUMAN", "MOUSE", "PIG")
-proteins <- c("AQP1", "MYG", "P53")
-basis("CHNOS+")
-species(rep(proteins, each=5), organisms)
-a <- affinity(O2=c(-85, -65, 128))
-ispecies <- list(1:5, 6:10, 11:15)
-desc <- c("(Aquaporin-1)", "(Myoglobin)",
-  "(Cellular tumor antigen p53)")
-names(ispecies) <- paste(proteins, desc)
-col <- rainbow(5)
-strip(a, ispecies=ispecies, ymin=-0.7, col=col)
-legend("bottomright", legend=organisms, col=col,
-  lty=1, lwd=4, bty="n")
-title(main=paste("Equilibrium degrees of formation of",
-  "proteins from different mammals", sep="\n"))
-}
 }
 
 \references{
@@ -309,7 +278,7 @@ title(main=paste("Equilibrium degrees of formation of",
 
   Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N. (2006) Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe2(SO4)3(H2O)5. \emph{Eur. J. Mineral.} \bold{18}, 175--186. \url{http://dx.doi.org/10.1127/0935-1221/2006/0018-0175}
 
-  Seewald, J. S. (1997) Mineral redox buffers and the stability of organic compounds under hydrothermal conditions. \emph{Mat. Res. Soc. Symp. Proc.} \bold{432}, 317--331. \url{http://lucy.mrs.org/meetings/spring96/Program/S.S96.html}
+  Seewald, J. S. (1997) Mineral redox buffers and the stability of organic compounds under hydrothermal conditions. \emph{Mat. Res. Soc. Symp. Proc.} \bold{432}, 317--331. \url{http://dx.doi.org/10.1557/PROC-432-317}
 
   Seewald, J. S. (2001) Aqueous geochemistry of low molecular weight hydrocarbons at elevated temperatures and pressures: Constraints from mineral buffered laboratory experiments \emph{Geochim. Cosmochim. Acta} \bold{65}, 1641--1664. \url{http://dx.doi.org/10.1016/S0016-7037(01)00544-0}
 
@@ -317,4 +286,4 @@ title(main=paste("Equilibrium degrees of formation of",
 
 }
 
-\keyword{primary}
+\concept{Primary thermodynamic modeling}

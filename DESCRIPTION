@@ -1,24 +1,25 @@
-Date: 2014-01-12
+Date: 2015-05-19
 Package: CHNOSZ
-Version: 1.0.3.1
+Version: 1.0.5
 Title: Chemical Thermodynamics and Activity Diagrams
 Author: Jeffrey Dick
 Maintainer: Jeffrey Dick <j3ffdick@gmail.com>
-Depends: R (>= 2.12.0)
-Suggests: limSolve, parallel, testthat
-Description: This package includes functions and data sets to support chemical thermodynamic 
-  modeling in biochemistry and low-temperature geochemistry. The features include calculation
-  of the standard molal thermodynamic properties and chemical affinities of reactions involving 
-  minerals and/or biomolecules; a database of thermodynamic properties of aqueous, crystalline 
-  and gaseous species; amino acid group additivity for the standard molal thermodynamic 
-  properties of neutral and ionized proteins; use of the revised Helgeson-Kirkham-Flowers 
-  equations of state for aqueous species; construction of equilibrium activity diagrams as a
-  function of temperature, pressure, and chemical activities or fugacities of basis species.
+Depends: R (>= 3.0.0)
+Suggests: limSolve, parallel, testthat, knitr
+Description: Functions and data sets to support chemical thermodynamic modeling in biochemistry
+  and low-temperature geochemistry. The features include calculation of the standard molal
+  thermodynamic properties and chemical affinities of reactions involving minerals and/or
+  biomolecules; a database of thermodynamic properties of aqueous, crystalline and gaseous
+  species; amino acid group additivity for the standard molal thermodynamic properties of
+  neutral and ionized proteins; use of the revised Helgeson-Kirkham-Flowers equations of state
+  for aqueous species; construction of equilibrium activity diagrams as a function of
+  temperature, pressure, and chemical activities or fugacities of basis species.
 License: GPL (>= 2)
 BuildResaveData: no
 ZipData: no
+VignetteBuilder: knitr
 URL: http://www.chnosz.net/, http://chnosz.r-forge.r-project.org/
-Packaged: 2014-02-12 08:09:10 UTC; ripley
 NeedsCompilation: yes
+Packaged: 2015-05-19 14:15:56 UTC; jedick
 Repository: CRAN
-Date/Publication: 2014-02-12 09:24:27
+Date/Publication: 2015-05-20 01:11:18

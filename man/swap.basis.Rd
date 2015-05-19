@@ -88,4 +88,4 @@ stopifnot(all.equal(a1$values, a2$values))
 stopifnot(all.equal(a1$values, a3$values))
 }
 
-\keyword{secondary}
+\concept{Secondary thermodynamic modeling}

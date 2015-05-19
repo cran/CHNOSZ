@@ -1,12 +1,12 @@
-%% LyX 2.0.5 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
-\documentclass[noae,round]{article}
+\documentclass[english,noae,round]{article}
 \usepackage{mathpazo}
 \usepackage[T1]{fontenc}
-\usepackage[latin9]{inputenc}
 \usepackage[letterpaper]{geometry}
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
 \usepackage{color}
+\usepackage{babel}
 \usepackage{amsbsy}
 \usepackage{amssymb}
 \usepackage{graphicx}
@@ -82,7 +82,7 @@ species using very similar commands. Examples below are intended to
 demonstrate basic usage to new users.
 
 
-\section{Outline of workflow}
+\subsection{Outline of workflow}
 
 CHNOSZ is made up of a set of functions and supporting datasets. The
 major components of the package are shown in the figure below, which
@@ -102,10 +102,8 @@ that define the dimensions of chemical composition in a system, define
 the species of interest for relative stability calculations, calculate
 the affinities of formation reactions of the species of interest under
 reference (non-equilibrium) conditions, calculate the equilibrium
-chemical activities, and finally plot the results;%
-\footnote{\texttt{equilibrate()} appeared in version 0.9-9 of CHNOSZ. In previous
-versions, the equilibrium calculations were invoked by calls to \texttt{diagram()}.%
-}
+chemical activities, and finally plot the results;\footnote{\texttt{equilibrate()} appeared in version 0.9-9 of CHNOSZ. In previous
+versions, the equilibrium calculations were invoked by calls to \texttt{diagram()}.}
 \item using \texttt{revisit()} to calculate/plot statistics of the chemical
 activities of the species of interest and \texttt{findit()} to search
 for combinations of activities of basis species, temperature and/or
@@ -122,7 +120,7 @@ results. The results can then be reproduced on demand by yourself
 or others with whom you might share your scripts.
 
 
-\section{Installing and loading CHNOSZ}
+\subsection{Installing and loading CHNOSZ}
 
 If you have just installed R, and you are online, installing the CHNOSZ
 package should be as simple as selecting ``Install packages from
@@ -135,14 +133,12 @@ file.)
 install.packages("CHNOSZ")
 @
 
-
 Then load the CHNOSZ package to make its functions available in your
 working session.
 
 <<library_CHNOSZ>>=
 library(CHNOSZ)
 @
-
 
 Then load the \texttt{thermo} object, which contains the thermodynamic
 database and is also where your system settings will be stored.
@@ -151,12 +147,35 @@ database and is also where your system settings will be stored.
 data(thermo)
 @
 
-
 The rest of this document assumes that the CHNOSZ package and data
 are loaded.
 
 
 \section{Thermodynamic database}
+
+
+\subsection{Warning about internal consistency of thermodynamic data}
+
+All thermodynamic data and examples are provided on an as-is basis.
+It is up to you to check not only the accuracy of the data, but also
+\emph{the suitability of the data AND computational techniques} for
+your problem. By combining data taken from different sources, it is
+possible to build an inconsistent and/or nonsensical calculation.
+An attempt has been made to provide a primary database (OBIGT.csv)
+that is internally consistent, but no guarantee can be made. Where
+possible, data with known or suspected inconsistencies have been placed
+into a secondary database (OBIGT-2.csv) that should be regarded as
+experimental. If there is any doubt about the accuracy or suitability
+of data for a particular problem, please \emph{consult the primary
+sources} (which can be located using \texttt{browse.refs()}; see Section
+\ref{sub:thermo_refs}). Do not assume that by adding any species
+to your calculation (or to any of the examples), you will necessarily
+obtain a reasonable answer. Do not assume that the examples are correct,
+or that they can be applied to your problem. As with the data, please
+\emph{compare the construction and output of the examples to the primary
+sources}, cited in the reference list in each help page. Examples
+without a reference (and some with references) demonstrate experimental
+features of CHNOSZ. 
 
 
 \subsection{\texttt{info()} part I}
@@ -171,7 +190,6 @@ CHNOSZ.
 info("ethylene")
 @
 
-
 There are two species named ``ethylene'' in the database. Normally,
 \texttt{info()} gives preference to aqueous species if they exist,
 so in this case we find that aqueous ethylene is species number 88
@@ -182,14 +200,12 @@ index to the function.
 info(88)
 @
 
-
 If you were instead interested in the properties of the gas, you could
 run:
 
 <<info_ethylene_gas>>=
 info("ethylene","gas")
 @
-
 
 \texttt{info()} itself is used by other functions in the package.
 It prints output to the screen, but also returns a numeric value if
@@ -203,8 +219,7 @@ print(aadata)
 @
 
 
-
-\subsection{\texttt{thermo\$refs}}
+\subsection{\texttt{\label{sub:thermo_refs}thermo\$refs}}
 
 The thermodynamic data and other parameters used by the functions,
 as well as system definitions provided by the user in an interactive
@@ -213,7 +228,6 @@ session, are stored in a list object called \texttt{thermo}.
 <<summary_thermo>>=
 summary(thermo)
 @
-
 
 Within this list, the thermodynamic database is contained in a data
 frame (an R object that is like a matrix with named columns), \texttt{thermo\$obigt},
@@ -230,7 +244,6 @@ number to open the URL(s) associated with that entry in the database
 browse.refs(88)
 @
 
-
 \texttt{browse.refs: opening URL for SH90 (E. L. Shock and H. C. Helgeson,
 \citeyear{SH90})}
 
@@ -242,7 +255,6 @@ Want to know what acids are in the database?
 <<info_acid>>=
 info("acid")
 @
-
 
 Here, \texttt{info()} couldn't find an exact match to a name, so it
 performed a fuzzy search. That's why ``uracil'' and ``metacinnabar''
@@ -256,7 +268,6 @@ will do; here we use a space.)
 info(" acid")
 @
 
-
 The names of species other than proteins use (almost) exclusively
 lowercase letters. \texttt{info()} can also be used to search the
 text of the chemical formulas as they are entered in the database;
@@ -267,7 +278,6 @@ that contain the symbol commonly used to represent the hydroxide group.
 <<info_OH>>=
 info("(OH)")
 @
-
 
 
 \section{Proteins}
@@ -287,7 +297,6 @@ aa <- ip2aa(ip)
 aa2eos(aa)
 @
 
-
 What happened there? Well, the first line found the row number (6)
 of \texttt{thermo\$protein} that contains the amino acid composition
 of LYSC\_CHICK. The second line extracted as a data frame. The third
@@ -302,7 +311,6 @@ as.chemical.formula(pf)
 @
 
 
-
 \subsection{\texttt{info()}}
 
 Most of the time you probably won't be using the \texttt{iprotein()}
@@ -315,7 +323,6 @@ in \href{http://www.uniprot.org}{Swiss-Prot/UniProtKB}.
 si <- info("LYSC_CHICK")
 info(si)
 @
-
 
 When CHNOSZ is first loaded, the thermodynamic properties and parameters
 of the proteins are not present in \texttt{thermo\$obigt}. Therefore,
@@ -343,7 +350,6 @@ grid.
 subcrt("water")
 @
 
-
 The columns in the output are temperature ($^{\circ}$C), pressure
 (bar), density of water (g cm$^{-3}$), logarithm of the equilibrium
 constant (only meaningful for reactions; see below), and standard
@@ -368,7 +374,6 @@ The function call below also shows the specification of temperature.
 subcrt(c("C2H5OH","O2","CO2","H2O"),c(-1,-3,2,3),T=37)
 @
 
-
 For historical reasons (i.e., the prevalence of the use of oxygen
 fugacity in geochemical modeling; \citealp{And05}), $\mathrm{O_{2}}$
 breaks the general rule in CHNOSZ that species whose states are not
@@ -382,21 +387,17 @@ form is used in the calculation.
 subcrt(c("C2H5OH","O2","CO2","H2O"),c(-1,-3,2,3),c("aq","aq","aq","liq"),T=37)
 @
 
-
 A useful feature of \texttt{subcrt()} is that it emits a warning if
 the reaction is not balanced. Let's say you forgot to account for
-oxygen on the left-hand side of the reaction%
-\footnote{This example is motivated by the unbalanced reaction found at the
+oxygen on the left-hand side of the reaction\footnote{This example is motivated by the unbalanced reaction found at the
 \href{http://en.wikipedia.org/wiki/Ethanol_metabolism}{Wikipedia entry on ethanol metabolism}
 on 2010-09-23 and still present as of 2011-08-15: ``Complete Reaction:
 C$_{2}$H$_{6}$O(Ethanol)$\rightarrow$C$_{2}$H$_{4}$O(Acetaldehyde)$\rightarrow$C$_{2}$H$_{4}$O$_{2}$(acetic
-Acid) $\rightarrow$Acetyl-CoA$\rightarrow$3H$_{2}$O+2CO$_{2}$''.%
-}.
+Acid) $\rightarrow$Acetyl-CoA$\rightarrow$3H$_{2}$O+2CO$_{2}$''.}.
 
 <<subcrt_C2H5OH_unbal>>=
 subcrt(c("C2H5OH","CO2","H2O"),c(-1,2,3),T=37)
 @
-
 
 The function still reports the results of the calculations, but use
 them very cautiously (only if you have a specific reason for writing
@@ -424,7 +425,6 @@ diagrams. Let's start with an example that \emph{doesn't} work.
 <<basis_not,eval=FALSE>>=
 basis(c("CO2","H2O","NH3","H2S","H+"))
 @
-
 \begin{lyxcode}
 Error~in~put.basis(basis,~mystates)~:~
 
@@ -446,7 +446,6 @@ species. Now let's write a working basis definition.
 basis(c("CO2","H2O","NH3","O2","H2S","H+"))
 @
 
-
 First basis definition! Note the column names, which give CHNOSZ its
 name. These represent the elements in the commonly-occurring amino
 acids, together with charge, denoted by ``Z''.
@@ -461,7 +460,6 @@ again.
 subcrt(c("C2H5OH","CO2","H2O"),c(-1,2,3),T=37)
 @
 
-
 Here, \texttt{subcrt()} detected an unbalanced reaction, but since
 the missing element was among the elements of the basis species, it
 added the appropriate amount of $\mathrm{O_{2}}_{\left(gas\right)}$
@@ -473,7 +471,6 @@ call, but still get the same results.
 subcrt(c("C2H5OH"),c(-1),T=37)
 @
 
-
 What if you were interested in the thermodynamic properties of the
 reaction of ethanol to acetaldehyde, but didn't want to balance the
 reaction yourself (and you also didn't know how the formulas of the
@@ -482,7 +479,6 @@ species are written in the database)?
 <<subcrt_ethanol>>=
 subcrt(c("ethanol","acetaldehyde"),c(-1,1),T=37)
 @
-
 
 Notice how 2 H's needed to be added to the right-hand side of the
 reaction; in our definition of basis species this comes out to $\mathrm{H_{2}O}-0.5\mathrm{O_{2}}$.
@@ -497,7 +493,6 @@ data(thermo)
 basis(c("glutamic acid","methionine","isoleucine","lysine","tyrosine","H+"))
 subcrt(c("ethanol","acetaldehyde"),c(-1,1),T=37)
 @
-
 
 In this case, the function finds that 2 H's are the compositional
 equivalent of $0.5\mathrm{C_{6}H_{13}NO_{2}}-0.125\mathrm{C_{6}H_{14}N_{2}O_{2}}-0.250\mathrm{C_{9}H_{11}NO_{3}}$.
@@ -523,7 +518,6 @@ basis("CHNOS+")
 subcrt("LYSC_CHICK",1,T=25)
 @
 
-
 Note that using the keyword argument in \texttt{basis()} also set
 the logarithms of activities (or fugacity in the case of $\mathrm{O_{2}}_{\left(g\right)}$)
 to nominal values. While these settings do not affect the results
@@ -531,62 +525,17 @@ of the \texttt{subcrt()} calculation (which normally returns only
 the standard molal properties of the reaction), they are essential
 for calculating the relative stabilities of the species of interest.
 
-If the protein is not found in CHNOSZ's own database, the amino acid
-composition of the protein can be retrieved from the UniProt Knowledge
-Base using the Swiss-Prot name (if the computer is connected to the
-Internet). This is the only time a function in CHNOSZ asks for confirmation
-from a user, in order to give fair warning that an online activity
-is about to be performed.
+If the protein is not available in CHNOSZ's own database, the amino
+acid composition of the protein can be retrieved from the UniProtKB
+(if the computer is connected to the internet). N.B. The following
+example is not evaluated when compiling this vignette in case the
+R package checks are run without internet access.
 
 <<subcrt_ALAT1,eval=FALSE>>=
+aa <- uniprot.aa("ALAT1_HUMAN")
+add.protein(aa)
 subcrt("ALAT1_HUMAN",1,T=25)
 @
-
-\begin{lyxcode}
-Shall~I~try~an~online~search~for~~ALAT1\_HUMAN~\_~SWISS~?~y
-
-protein:~trying~http://www.uniprot.org/uniprot/ALAT1\_HUMAN~...~got~it!
-
-protein:~found~P24298~...~~Alanine~aminotransferase~1~~(length~496).
-
-protein:~found~ALAT1\_HUMAN~(C2429H3866N684O705S22,~496~residues)
-
-subcrt:~1~species~at~298.15~K~and~1~bar~(wet)~
-
-subcrt:~reaction~is~not~balanced;~it~is~missing~this~composition:
-
-~~~~~C~~~~~H~~~~N~~~~O~~~S
-
-~-2429~-3866~-684~-705~-22
-
-subcrt:~adding~missing~composition~from~basis~definition~and~restarting...
-
-subcrt:~6~species~at~298.15~K~and~1~bar~(wet)~
-
-\$reaction
-
-~~~~~coeff~~~~~~~~name~~~~~~~~~~~~~~~formula~state~ispecies
-
-2926~~~~~1~ALAT1\_HUMAN~C2429H3866N684O705S22~~~~aq~~~~~2926
-
-69~~~-2429~~~~~~~~~CO2~~~~~~~~~~~~~~~~~~~CO2~~~~aq~~~~~~~69
-
-1~~~~~-885~~~~~~~water~~~~~~~~~~~~~~~~~~~H2O~~~liq~~~~~~~~1
-
-68~~~~-684~~~~~~~~~NH3~~~~~~~~~~~~~~~~~~~NH3~~~~aq~~~~~~~68
-
-70~~~~~-22~~~~~~~~~H2S~~~~~~~~~~~~~~~~~~~H2S~~~~aq~~~~~~~70
-
-2691~~2519~~~~~~oxygen~~~~~~~~~~~~~~~~~~~~O2~~~gas~~~~~2691
-
-\$out
-
-~~~T~P~~~~~~logK~~~~~~~~~G~~~~~~~~~H~~~~~~~~S~~~~~~V~~~~~~~~Cp
-
-1~25~1~-191972.3~261897066~273248830~38245.59~-73411~-107650.2
-
-\end{lyxcode}
-
 
 
 \section{Activity diagrams}
@@ -608,6 +557,7 @@ two lines are optional, unless you really do want to see the effect
 of temperature (I do!)
 
 \setkeys{Gin}{width=0.6\textwidth}
+
 <<Bjerrum_diagram,fig=TRUE,width=4,height=4>>=
 basis("CHNOS+")
 species(c("CO2", "HCO3-", "CO3-2"))
@@ -618,8 +568,25 @@ a <- affinity(pH=c(4, 12), T=150)
 e <- equilibrate(a)
 diagram(e, add=TRUE, col="red")
 @
+
 \setkeys{Gin}{width=1.0\textwidth}
 
+This just shows the speciation (relative abundances) of the aqueous
+carbonate species. Calculating the solubility of a carbonate mineral,
+or of $\mathrm{CO_{2}}$ gas, is possible, but more involved; try
+the following:
+
+\setkeys{Gin}{width=0.6\textwidth}
+
+<<demo_solubility, results=hide, fig=TRUE>>=
+demo("solubility", ask=FALSE)
+@
+
+\setkeys{Gin}{width=1.0\textwidth}
+
+See the code of the demo (look for \texttt{demo/solubility.R} in the
+directory where CHNOSZ is installed) to change the calculation from
+calcite to $\mathrm{CO_{2}}$.
 
 
 \subsection{Stability diagram for proteins}
@@ -640,7 +607,6 @@ to calculate.
 basis("CHNOS")
 species(c("SLAP_ACEKI", "CSG_METJA", "CSG_METVO", "CSG_HALJP"))
 @
-
 
 Note the output: the matrix denotes the coefficients of each of the
 basis species in the formation reaction for one mole of each of the
@@ -669,7 +635,6 @@ taken to be constants equal to the values shown above.
 a <- affinity(O2=c(-90,-70))
 @
 
-
 Now we can use \texttt{equilibrate()} to calculate the equilibrium
 activities of the proteins and \texttt{diagram()} to plot them. \texttt{normalize=TRUE}
 invokes the normalization of the chemical formulas of the proteins
@@ -678,12 +643,13 @@ for calculating equilibrium activities of proteins. We'll also specify
 where the legend should be placed on the plot.
 
 \setkeys{Gin}{width=0.6\textwidth}
+
 <<CSG_diagram,fig=T,width=4,height=4>>=
 e <- equilibrate(a, normalize=TRUE)
 diagram(e, legend.x="bottomleft", ylim=c(-6, -2))
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 Notably, the protein from the organism found at the highest temperatures
 is relatively stable at more reduced conditions.
@@ -700,14 +666,15 @@ order to calculate the equilibrium activities of all the species,
 but the resulting predominance diagram would be identical.
 
 \setkeys{Gin}{width=0.6\textwidth}
+
 <<PredominanceDiagram,fig=T,width=4,height=4>>=
 species(c("SLAP_ACEKI", "SLAP_GEOSE", "SLAP_BACLI", "SLAP_AERSA"))
 basis(c("NH3", "H2S"), c(-1, -10))
 a <- affinity(O2=c(-85, -70), H2O=c(-5, 0))
 diagram(a, normalize=TRUE)
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 Equilibrium predominances for proteins as a function of two chemical
 activities! If you don't like the colors in the plot, don't worry...
@@ -733,7 +700,6 @@ protein.basis(species()$name, normalize=TRUE)
 @
 
 
-
 \subsection{A mineral example}
 
 This example is modeled after a figure on p. 246 of \citet{BJH84}
@@ -741,6 +707,7 @@ for the system HCl-H2O-CaO-CO2-MgO-(SiO2) at 300 $^{\circ}$C and
 1000 bar.
 
 \setkeys{Gin}{width=0.6\textwidth}
+
 <<Bowers,fig=T,width=4,height=4>>=
 basis(c("HCl","H2O","Ca+2","CO2","Mg+2","SiO2","O2","H+"),
   c(999,0,999,999,999,999,999,-7))
@@ -749,8 +716,8 @@ species(c("quartz","talc","forsterite","tremolite","diopside",
 a <- affinity("Mg+2"=c(-12,-4),"Ca+2"=c(-8,0),T=300,P=1000)
 diagram(a)
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 The 999's in the assignment of logarithms of activities of basis species
 could be any number -- these settings do not affect the outcome of
@@ -795,7 +762,6 @@ can run all of the examples there with a single command:
 example(diagram)
 @
 
-
 Or you can use the following to run \emph{all} of the examples provided
 in the documentation for the package. You will see a lot of text fly
 by on the screen, as well as a variety of plots. The examples will
@@ -805,7 +771,6 @@ take about 5--10 minutes to run, depending on your machine.
 examples()
 @
 
-
 There are even more examples that can be accessed by \texttt{demo()}
 (or \texttt{demos()} to run all of them):
 
@@ -813,14 +778,12 @@ There are even more examples that can be accessed by \texttt{demo()}
 demo("findit")
 @
 
-
 If you want to add to or modify the thermodynamic database, read the
 instructions at the top of the help page for \texttt{thermo}:
 
 <<helpthermo,eval=FALSE>>=
 help(thermo)
 @
-
 
 Have fun!
 
@@ -855,11 +818,12 @@ Toward the end of the script, points are added for Eh-pH values from
 soils \citep{BKM60} and hot springs in Yellowstone ($+$) \citep{SWM+05}
 and Iceland ($\blacktriangle$) \citep{SA02}. The symbols identifying
 the latter two sources were swapped in the figure caption of \citet{DLH06}.
-Finally legends are draws to identify the lines and symbols. The \texttt{describe.property()}
+Finally legends are drawn to identify the lines and symbols. The \texttt{describe.property()}
 function of CHNOSZ is used to generate the temperature notation (italic
 $T$, and degree sign in the units).
 
 \setkeys{Gin}{width=0.5\textwidth}
+
 <<amylaseplot, fig=TRUE, results=hide, width=5, height=5>>=
 basis("CHNOSe")
 basis(c("NH3", "H2S"), c(-6, -3))
@@ -879,8 +843,8 @@ legend("topright", legend=ltext, lty=1, col=c("black", "red"))
 ltext <- c("soils [BKM60]", "yellowstone [SWMP05]", "iceland [SA02]")
 legend("bottomleft", legend=ltext, pch=c(20, 3, 17))
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 \clearpage
 
@@ -898,6 +862,7 @@ the methionine sidechain group \citep{LD12} that are used in the
 current version of CHNOSZ.
 
 \setkeys{Gin}{width=0.7\textwidth}
+
 <<yeastplot, fig=TRUE, results=hide, width=7, height=5>>=
 locations <- yeastgfp()
 gfp <- yeastgfp(locations)
@@ -917,8 +882,8 @@ dp <- describe.property(c("T", "P"), c(25, 1))
 db <- describe.basis(ibasis=(1:6)[-5])
 legend("topright", legend=c(dp, db), bty="n")
 @
-\setkeys{Gin}{width=1.0\textwidth}
 
+\setkeys{Gin}{width=1.0\textwidth}
 
 Notable features include: proteins in the early Golgi, endoplasmic
 reticulum (ER) and vacuole are chemically the most stable relative
@@ -949,6 +914,7 @@ of organic species that are calculated using these two methods.
 
 \begin{small}
 \setkeys{Gin}{width=1.0\textwidth}
+
 <<bufferplot, fig=TRUE, results=hide, width=8, height=3.5>>=
 layout(matrix(1:2, nrow=1), widths=c(2, 1))
 b.species <- c("Fe", "CO2", "H2O", "N2", "H2", "H2S", "SiO2")
@@ -978,9 +944,9 @@ plot.new()
 legend("topleft", legend = c(describe.property("P", 300), describe.basis(ibasis=c(2,4)),
   "minerals", "HCN", "formaldehyde"), lty=c(NA, NA, NA, 1, 2, 3), bg="white")
 @
+
 \setkeys{Gin}{width=1.0\textwidth}
 \end{small}
-
 
 \clearpage
 
@@ -996,6 +962,7 @@ and $\log a_{\mathrm{CO_{2}}_{\left(aq\right)}}$.
 
 \begin{small}
 \setkeys{Gin}{width=0.35\textwidth}
+
 <<revisit, fig=T, results=hide, width=4, height=4>>=
 basis("CHNOS")
 species(c("isoleucine", "tyrosine", "glutamic acid", "methionine", "aspartic acid"))
@@ -1004,9 +971,9 @@ e <- equilibrate(a, balance=1)
 r <- revisit(e)
 title(main=paste("CV minimum =", round(r$optimum, 2)))
 @
+
 \setkeys{Gin}{width=1.0\textwidth}
 \end{small}
-
 
 The \texttt{balance=1} in \texttt{equilibrate()} means the relative
 stabilities are calculated using the formation reactions written per
@@ -1018,6 +985,7 @@ these conditions.
 
 \begin{small}
 \setkeys{Gin}{width=0.6\textwidth}
+
 <<revisit_alpha, fig=T, results=hide, width=6, height=4>>=
 basis(c("CO2", "O2"), c(r$x, r$y))
 a <- affinity()
@@ -1027,9 +995,9 @@ d <- diagram(e, alpha=TRUE, names=aminoacids(1, species()$name))
 plot.new()
 legend("topleft", describe.basis(basis()), bg="white")
 @
+
 \setkeys{Gin}{width=1.0\textwidth}
 \end{small}
-
 
 This hypothetical metastably equilibrated mixture has very little
 methionine and aspartic acid. Can we find where the relative abundances
@@ -1053,15 +1021,16 @@ of the basis species with each iteration.
 
 \begin{small}
 \setkeys{Gin}{width=0.4\textwidth}
+
 <<findit, fig=T, results=hide, width=4, height=4>>=
 basis("CHNOS")
 species(c("isoleucine", "tyrosine", "glutamic acid", "methionine", "aspartic acid"))
 f <- findit(list(CO2=c(-5, 5), O2=c(-85, -65), H2S=c(-10, 5), H2O=c(-10, 0)), 
   niter=5, res=10, balance=1)
 @
+
 \setkeys{Gin}{width=1.0\textwidth}
 \end{small}
-
 
 After 5 iterations, what are the fractional equilibrium abundances
 of the amino acids? Note that, during its operation, \texttt{findit()}
@@ -1070,6 +1039,7 @@ them manually.
 
 \begin{small}
 \setkeys{Gin}{width=0.6\textwidth}
+
 <<findit_alpha, fig=T, results=hide, width=6, height=4>>=
 a <- affinity()
 par(mfrow=c(1, 2))
@@ -1078,9 +1048,9 @@ d <- diagram(e, alpha=TRUE, names=aminoacids(1, species()$name))
 plot.new()
 legend("topleft", describe.basis(basis()), bg="white")
 @
+
 \setkeys{Gin}{width=1.0\textwidth}
 \end{small}
-
 
 We found a combination of chemical activities of basis species that
 lowered the variation of the equilibrium activities of the amino acids.
@@ -1104,13 +1074,14 @@ Revision history:
 \item 2011-08-15 Add \texttt{browse.refs()}; modifying database hint changed
 to \texttt{help(thermo)}
 \item 2012-06-16 Add ``More activity diagrams''
+\item 2015-05-14 Add warning about internal consistency of thermodynamic
+data
 \end{itemize}
 R session information:
 
 <<session_info>>=
 sessionInfo()
 @
-
 
 \bibliographystyle{plainnat}
 \bibliography{vig}

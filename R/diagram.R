@@ -9,7 +9,7 @@ diagram <- function(
   # primary input
   eout, 
   # what to plot
-  what="loga.equil", alpha=FALSE, normalize=FALSE, balance=NULL,
+  what="loga.equil", alpha=FALSE, normalize=FALSE, as.residue=FALSE, balance=NULL,
   groups=as.list(1:length(eout$values)), xrange=NULL,
   # plot dimensions
   mar=NULL, yline=par("mgp")[1]+0.7, side=1:4,
@@ -24,7 +24,7 @@ diagram <- function(
   # labels
   names=NULL, main=NULL, legend.x="topright",
   # plotting controls
-  add=FALSE, plot.it=TRUE
+  add=FALSE, plot.it=TRUE, tplot=TRUE
 ) {
 
   ### argument handling ###
@@ -52,12 +52,6 @@ diagram <- function(
   } else if(what=="loga.equil" & !"loga.equil" %in% names(eout)) stop("'eout' is not the output from equil()") 
   else if(what!="loga.equil") stop(what, " is not a basis species or 'loga.equil'")
 
-  ## we only normalize if eout.is.aout
-  if(normalize) {
-    if(!eout.is.aout) stop("normalizing formulas is only possible if 'eout' is the output from affinity()")
-    else msgout("diagram: normalizing formulas in calculation of predominant species\n")
-  }
-
   ## consider a different number of species if we're grouping them together
   ngroups <- length(groups)
 
@@ -79,6 +73,20 @@ diagram <- function(
     # we change 'A' to 'A/2.303RT' so the axis label is made correctly
     if(plotvar=="A") plotvar <- "A/2.303RT"
     msgout(paste("diagram: plotting", plotvar, "from affinity(), divided by balancing coefficients\n"))
+  }
+
+  ## number of dimensions (T, P or chemical potentials that are varied)
+  # length(eout$vars) - the number of variables = the maximum number of dimensions
+  # length(dim(eout$values[[1]])) - nd=1 if it was a transect along multiple variables
+  nd <- min(length(eout$vars), length(dim(eout$values[[1]])))
+
+  ## when can normalize and as.residue be used
+  if(normalize | as.residue) {
+    if(normalize & as.residue) stop("'normalize' and 'as.residue' can not both be TRUE")
+    if(!eout.is.aout) stop("'normalize' or 'as.residue' can be TRUE only if 'eout' is the output from affinity()")
+    if(nd!=2) stop("'normalize' or 'as.residue' can be TRUE only for a 2-D (predominance) diagram")
+    if(normalize) msgout("diagram: using 'normalize' in calculation of predominant species\n")
+    else msgout("diagram: using 'as.residue' in calculation of predominant species\n")
   }
 
   ## sum activities of species together in groups 20090524
@@ -139,21 +147,23 @@ diagram <- function(
       # TODO: see vignette for an explanation for how this is normalizing
       # the formulas in a predominance calculation
       if(normalize & eout.is.aout) pv[[i]] <- (pv[[i]] + eout$species$logact[i] / n.balance[i]) - log10(n.balance[i])
+      else if(as.residue & eout.is.aout) pv[[i]] <- pv[[i]] + eout$species$logact[i] / n.balance[i]
     }
     predominant <- which.pmax(pv)
     dim(predominant) <- dim(pv[[1]])
   }
+
+  # a warning about that we can only show properties of the first species on a 2-D diagram
+  if(nd==2 & length(plotvals) > 1 & identical(predominant, NA)) warning("showing only first species in 2-D property diagram")
+
+  ## where we'll put extra output for predominance diagrams (lx, ly, is)
+  out2D <- list()
 
   ### now on to the plotting ###
 
   if(plot.it) {
 
     ### general plot parameters ###
-
-    ## number of dimensions (T, P or chemical potentials that are varied)
-    # length(eout$vars) - the number of variables = the maximum number of dimensions
-    # length(dim(eout$values[[1]])) - nd=1 if it was a transect along multiple variables
-    nd <- min(length(eout$vars), length(dim(eout$values[[1]])))
 
     ## handle line type/width/color arguments
     if(is.null(lty)) lty <- 1:ngroups
@@ -213,7 +223,8 @@ diagram <- function(
           myval <- sapply(plotvals, xfun)
           ylim <- extendrange(myval)
         }
-        thermo.plot.new(xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, cex=cex, mar=mar, yline=yline, side=side)
+        if(tplot) thermo.plot.new(xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, cex=cex, mar=mar, yline=yline, side=side)
+        else plot(0, 0, type="n", xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab)
       }
       # draw the lines
       for(i in 1:length(plotvals)) lines(xvalues, plotvals[[i]], col=col[i], lty=lty[i], lwd=lwd[i])
@@ -271,7 +282,7 @@ diagram <- function(
         for(i in 1:nrow(zs)) zs[i,] <- out[nrow(zs)+1-i,]
         zs <- t(zs)
         breaks <- c(0,1:nspecies) + 0.5
-        image(x=xs,y=ys,z=zs,col=fill,add=TRUE,breaks=breaks)
+        image(x=xs, y=ys, z=zs, col=fill, add=TRUE, breaks=breaks, useRaster=TRUE)
       }
       ## curve plot function
       # 20091116 replaced plot.curve with plot.line; different
@@ -293,7 +304,7 @@ diagram <- function(
           return(list(xs=xs, ys=ys))
         }
         hline <- function(out, iy) {
-          nx <- nrow(out)
+          nx <- ncol(out)
           ys <- rep(iy, nx*2+1)
           xs <- c(0, rep(1:nx, each=2))
           x1 <- out[iy, ]
@@ -345,7 +356,7 @@ diagram <- function(
       }
       ## label plot function
       # calculate coordinates for field labels
-      plot.names <- function(out,xs,ys,names) {
+      plot.names <- function(out, xs, ys, names) {
         ll <- ngroups
         lx <- numeric(ll); ly <- numeric(ll); n <- numeric(ll)
         for(j in nrow(out):1) {
@@ -367,7 +378,8 @@ diagram <- function(
         # plot field labels
         # the cex argument in this function specifies the character 
         # expansion of the labels relative to the current
-        text(lx,ly,labels=names[is],cex=cex.names,col=col.names[is])
+        if(!is.null(names)) text(lx, ly, labels=names[is], cex=cex.names, col=col.names[is])
+        return(list(lx=lx, ly=ly, is=which(is)))
       }
 
       ### done with predominance diagram functions
@@ -393,27 +405,29 @@ diagram <- function(
       if(!add) {
         if(is.null(xlab)) xlab <- axis.label(eout$vars[1], basis=eout$basis)
         if(is.null(ylab)) ylab <- axis.label(eout$vars[2], basis=eout$basis)
-        thermo.plot.new(xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab,
+        if(tplot) thermo.plot.new(xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab,
           cex=cex, cex.axis=cex.axis, mar=mar, yline=yline, side=side)
+        else plot(0, 0, type="n", xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab)
         # add a title
         if(!is.null(main)) title(main=main)
       }
       # colors and curves (predominance), or contours (properties)
       if(identical(predominant, NA)) {
         zs <- plotvals[[1]]
-        if(length(plotvals) > 1) warning("showing only first species in 2-D property diagram")
         contour(xs, ys, zs, add=TRUE, col=col, lty=lty, lwd=lwd, labcex=cex)
+        pn <- list(lx=NULL, ly=NULL, is=NULL)
       } else {
         # put predominance matrix in the right order for image() etc
         zs <- t(predominant[, ncol(predominant):1])
         if(!is.null(fill)) fill.color(xs, ys, zs, fill, ngroups)
-        if(!is.null(names)) plot.names(zs, xs, ys, names)
+        pn <- plot.names(zs, xs, ys, names)
         if(!is.null(dotted)) plot.line(zs, xlim, ylim, dotted, col, lwd, xrange=xrange)
       } # done with the 2D plot!
+      out2D <- list(lx=pn$lx, ly=pn$ly, is=pn$is)
     } # end if(nd==2)
   } # end if(plot.it)
 
-  out <- c(eout, list(plotvar=plotvar, plotvals=plotvals, names=names, predominant=predominant))
+  out <- c(eout, list(plotvar=plotvar, plotvals=plotvals, names=names, predominant=predominant), out2D)
   return(invisible(out))
 }
 

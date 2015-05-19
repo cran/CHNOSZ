@@ -214,7 +214,7 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
 }
 
 # to plot results from findit()
-plot.findit <- function(x,which=NULL,mar=c(3.5,5,2,2),xlab="iteration",...) {
+plot_findit <- function(x,which=NULL,mar=c(3.5,5,2,2),xlab="iteration",...) {
   # show the values of the test statistic and of the
   # chemical variables at each iteration
   l <- length(x$value)

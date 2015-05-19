@@ -33,9 +33,9 @@ test_that("findit() returns known values encoded in a species distribution", {
   # sanity check: the output values are all the same length
   expect_equal(length(unique(sapply(f$value, length))), 1)
   # -pi, -e and -sqrt(2) were approximately retrieved!
-  expect_equal(tail(f$value[[1]],1), -pi, tol=1e-2)
-  expect_equal(tail(f$value[[2]],1), -exp(1), tol=1e-2)
-  expect_equal(tail(f$value[[3]],1), -sqrt(2), tol=1e-1)
+  expect_equal(tail(f$value[[1]],1), -pi, tolerance=1e-2)
+  expect_equal(tail(f$value[[2]],1), -exp(1), tolerance=1e-2)
+  expect_equal(tail(f$value[[3]],1), -sqrt(2), tolerance=1e-1)
   # we could decrease the tolerance by increasing the resolution and/or iterations in findit()
 })
 

@@ -80,4 +80,4 @@ stopifnot(all(mf==0))
   Many other functions in CHNOSZ rely on \code{makeup} for their operation: \code{\link{mass}} and \code{\link{entropy}} for calculating properties of chemical compounds from their elements; \code{\link{basis}} and \code{\link{i2A}} for constructing stoichiometric matrices (with \code{count.zero=TRUE}); \code{\link{subcrt}} for checking mass balance of chemical reactions; and others.
 }
 
-\keyword{secondary}
+\concept{Secondary thermodynamic modeling}

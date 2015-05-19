@@ -88,4 +88,4 @@ a3 <- slice.affinity(a2,2,4)
 stopifnot(all.equal(a1$values,a3$values))
 }
 
-\keyword{util}
+\keyword{utilities}

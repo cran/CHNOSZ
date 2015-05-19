@@ -151,7 +151,8 @@ aasum <- function(aa, abundance=1, average=FALSE, protein=NULL, organism=NULL) {
 
 read.aa <- function(file="protein.csv") {
   # 20090428 added colClasses here
-  aa <- read.csv(file,colClasses=c(rep("character",4),rep("numeric",21)))
+  # 20140128 added as.is=TRUE (in case numeric values are stored in ref or abbrv column)
+  aa <- read.csv(file, colClasses=c(rep("character", 2), NA, NA, rep("numeric", 21)), as.is=TRUE)
   if(!identical(colnames(aa), colnames(get("thermo")$protein)))
     stop(paste("format of", file, "is incompatible with thermo$protein"))
   return(aa)

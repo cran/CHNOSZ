@@ -50,10 +50,10 @@ test_that("non-referenced objectives give expected results", {
   r1.qqr <- revisit(e1, "qqr", plot.it=FALSE)
   # the tests will alert us to significant numerical changes
   # but so far haven't been independently verified
-  expect_equal(r1.cv$optimum, 0.30576, tol=1e-5) 
-  expect_equal(r1.sd$optimum, 0.000284694, tol=1e-5) 
-  expect_equal(r1.shannon$optimum, 1.066651, tol=1e-5)
-  expect_equal(r1.qqr$optimum, 0.999783, tol=1e-5)
+  expect_equal(r1.cv$optimum, 0.30576, tolerance=1e-5) 
+  expect_equal(r1.sd$optimum, 0.000284694, tolerance=1e-5) 
+  expect_equal(r1.shannon$optimum, 1.066651, tolerance=1e-5)
+  expect_equal(r1.qqr$optimum, 0.999783, tolerance=1e-5)
 })
 
 test_that("referenced objectives give expected results", {

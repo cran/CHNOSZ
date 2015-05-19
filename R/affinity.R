@@ -26,6 +26,11 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
   mybasis <- thermo$basis
   myspecies <- thermo$species
 
+  # stop if Eh or pe is requested but e- isn't in the basis
+  if(any(c("Eh", "pe") %in% names(args$lims))) {
+    if(!"e-" %in% rownames(mybasis)) stop("variable Eh or pe requested but e- isn't in the basis")
+  }
+
   if(!is.null(property)) {
     # the user just wants an energy property
     buffer <- FALSE
@@ -43,6 +48,8 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
     # to ionization calculations in energy() so no explicit accounting
     # is needed here
     if(!is.null(iprotein)) {
+      # check all proteins are available
+      if(!all(iprotein %in% 1:nrow(thermo$protein))) stop("some value(s) in iprotein not in rownumbers of thermo$protein")
       # add protein residues to the species list
       resnames <- c("H2O",aminoacids(3))
       # residue activities set to zero;
@@ -211,7 +218,7 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
     else if(length(Eharg) == 2) Ehvals <- seq(Eharg[1], Eharg[2], length.out=128)
     vals[[iEh]] <- Ehvals
   }
-  # get pe and pH and Eh
+  # get pe and pH
   ipe <- match("pe", names(args.orig))
   if(!is.na(ipe)) {
     ie <- match("e-", names(args$lims))

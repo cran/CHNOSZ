@@ -60,4 +60,4 @@ anim.carboxylase(T=100)
 
 }
 
-\keyword{extra}
+\concept{Extra thermodynamic modeling}

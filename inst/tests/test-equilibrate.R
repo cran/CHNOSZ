@@ -31,7 +31,7 @@ test_that("equilibrate() gives expected messages and errors for balance calculat
   expect_message(equilibrate(aprot), "coefficients are protein length")
   expect_message(equilibrate(aprot), "balancing coefficients are 129 153 124 104")
   expect_message(equilibrate(aprot), "logarithm of total protein length is -0.292429")
-  expect_message(equilibrate(aprot, normalize=TRUE), "normalizing molar formulas by the balancing coefficients")
+  expect_message(equilibrate(aprot, normalize=TRUE), "using 'normalize' for molar formulas")
 })
 
 test_that("equilibrate() gives expected messages and errors for species selection", {

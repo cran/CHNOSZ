@@ -8,14 +8,15 @@
 
 \arguments{
   \item{do.png}{logical, generate PNG files for the plots?}
-  \item{which}{character, which example to run.}
+  \item{which}{character, which example to run}
 }
 
 \usage{
   examples(do.png = FALSE)
   demos(which = c("sources", "NaCl", "cordierite",
-    "phosphate", "nucleobase", "orp", "findit", 
-    "CO2Ac", "nonideal"))
+    "phosphate", "nucleobase", "orp", "diagram", "revisit", "findit", 
+    "CO2Ac", "nonideal", "ionize", "buffer", "yeastgfp", "mosaic",
+    "solubility", "wjd"))
 }
 
 \details{
@@ -36,17 +37,33 @@ See the comments in the source code for more information about each demo.
     \code{phosphate} \tab phosphate speciation with pH, temperature and ionic strength \cr
     \code{nucleobase} \tab relative stabilities of nucleobases and some amino acids \cr
     \code{orp} \tab oxidation-reduction potential of redox standards as a function of temperature \cr
-    \code{findit} \tab detailed example of usage of \code{\link{findit}} using log-normal distribution as an objective \cr
-    \code{CO2Ac} \tab activity of CO2 buffered by acetic acid; comparing \code{\link{affinity}(return.buffer=TRUE)} with \code{\link{diagram}(what="CO2")} \cr
+    \code{diagram} \tab comparison of methods for calculating stability fields \cr
+    \code{revisit} \tab detailed example of usage of \code{\link{revisit}} \cr
+    \code{findit} \tab detailed example of usage of \code{\link{findit}} \cr
+    \code{CO2Ac} \tab activity of CO2 buffered by acetic acid; comparing \code{\link{affinity}} with \code{\link{diagram}} \cr
     \code{nonideal} \tab activity coefficient of charged species (Alberty, 2003), using the \code{IS} argument of \code{subcrt} \cr
+    \code{ionize} \tab ionize.aa(): contour plots of net charge and ionization properties of LYSC_CHICK \cr
+    \code{buffer} \tab ionized proteins as a chemical activity buffer (1. thiol peroxidases 2. sigma factors) \cr
+    \code{yeastgfp} \tab logfO2-logaH2O diagrams for model proteins based on YeastGFP localizations (Dick, 2009) \cr
+    \code{mosaic} \tab Eh-pH diagram with two sets of changing basis species (Garrels and Christ, 1965) \cr
+    \code{solubility} \tab solubility of calcite (cf. Manning et al., 2013) or CO2(gas) (cf. Stumm and Morgan, 1996) \cr
+    \code{wjd} \tab run.wjd() with proteins: cell periphery of yeast \cr
   }
 
 }
 
 \references{
   Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
+
+  Dick, J. M. (2009) Calculation of the relative metastabilities of proteins in subcellular compartments of \emph{Saccharomyces cerevisiae}. \emph{BMC Syst. Biol.} \bold{3}:75. \url{http://dx.doi.org/10.1186/1752-0509-3-75}
+
+  Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{http://www.worldcat.org/oclc/517586}
   
+  Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \url{http://dx.doi.org/10.2138/rmg.2013.75.5}
+
   Shock, E. L., Oelkers, E. H., Johnson, J. W., Sverjensky, D. A. and Helgeson, H. C. (1992) Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 \eqn{^{\circ}}{°}C and 5 kbar. \emph{J. Chem. Soc. Faraday Trans.} \bold{88}, 803--826. \url{http://dx.doi.org/10.1039/FT9928800803}
+
+  Stumm, W. and Morgan, J. J. (1996) \emph{Aquatic Chemistry: Chemical Equilibria and Rates in Natural Waters}, John Wiley & Sons, New York, 1040 p. \url{http://www.worldcat.org/oclc/31754493}
 }
 
 
@@ -60,4 +77,4 @@ examples()}
 }
 
 
-\keyword{extra}
+\concept{Extra thermodynamic modeling}

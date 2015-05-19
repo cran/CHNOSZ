@@ -72,7 +72,7 @@ An alternative source for the \code{eout} argument is any list of numeric values
 In this case, plotting is disabled, since the names of the variables are not in the input.
 
 \samp{revisit} is a partial anagram of \samp{diversity}, which was the provisional name of the function but was changed in CHNOSZ-0.9.
-While the \code{\link[vegan]{diversity}} function (in \pkg{vegan}) operates on a matrix with (biological) species on the columns, \code{revisit} operates on a list with (chemical) species as the elements of the list.
+While the \code{diversity} function (in \pkg{vegan}) operates on a matrix with (biological) species on the columns, \code{revisit} operates on a list with (chemical) species as the elements of the list.
 The name of the \samp{H} output value is the conventional symbol for the Shannon diversity index, which was the first target statistic to be implemented in \code{revisit}.
 
 }
@@ -91,7 +91,7 @@ The \samp{optimum} attribute of the \code{objective} function indicates whether 
 
 \seealso{
 
-\code{\link{findit}} for gridded search of chemical activities, temperature and/or pressure that optimize the objective function.
+\code{demo("revisit")} shows calculations for a system of proteins. \code{\link{findit}} is a related function implementing a gridded search of chemical activities, temperature and/or pressure that optimize the objective function.
 
 }
 
@@ -110,8 +110,8 @@ e <- equilibrate(a)
 r <- revisit(e, "count", -5)
 title(main="amino acids with metastable log activities > -5")
 
-\donttest{# can also make a 2-D plot
-a <- affinity(O2=c(-74, -60), H2O=c(-3, 3))
+# can also make a 2-D plot
+a <- affinity(O2=c(-74, -60, 64), H2O=c(-3, 3, 64))
 e <- equilibrate(a)
 r <- revisit(e, "count", -5, style.2D="image", plot.optval=FALSE)
 title(main="amino acids with metastable log activities > -5")
@@ -158,46 +158,6 @@ dp <- describe.property("T", r$y)
 t2 <- substitute(list(dp, db), list(dp=dp[[1]], db=db[[1]]))
 mtitle(c(t1, as.expression(t2)))
 par(opar)
-
-## calculations for proteins in Pelagibacter ubique
-## using grep.file, read.fasta, add.protein
-f <- system.file("extdata/fasta/HTCC1062.faa.xz", package="CHNOSZ")
-# what proteins to select (set to "" for all proteins)
-w <- "ribosomal"
-# locate entries whose names contain w
-j <- grep.file(f, w)
-# get the amino acid compositions of these proteins
-aa <- read.fasta(f, j)
-# add these proteins to CHNOSZ's inventory
-ip <- add.protein(aa)
-# set up a the chemical system
-basis("CHNOS+")
-# calculate affinities of formation in logfO2 space
-a <- affinity(O2=c(-85, -60), iprotein=ip)
-# show the equilibrium activities
-opar <- par(mfrow=c(2, 2))
-e <- equilibrate(a, loga.balance=0, normalize=TRUE)
-diagram(e, names=NULL)
-# make a title
-expr <- as.expression(substitute(x~y~"proteins in"~
-  italic("P. ubique"), list(x=length(j), y=w)))
-mtitle(c("Equilibrium activities of", expr))
-# show the coefficient of variation
-revisit(e, "CV")
-mtitle(c("CV of equilibrium activities of", expr))
-# calculate affinities in logfO2-logaH2O space
-a <- affinity(O2=c(-85,-65), H2O=c(-10,0), iprotein=ip)
-# show the predominances
-diagram(a, normalize=TRUE, fill="heat")
-# calculate the equilibrium activities
-e <- equilibrate(a, loga.balance=0, normalize=TRUE)
-# show the coefficient of variation
-r <- revisit(e, "CV")
-stopifnot(r$ix==37)
-stopifnot(r$iy==53)
-mtitle(c("CV of equilibrium activities of", expr))
-par(opar)
-}
 }
 
-\keyword{primary}
+\concept{Secondary thermodynamic modeling}

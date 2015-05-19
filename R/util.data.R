@@ -154,9 +154,13 @@ add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHN
   thermo$obigt <- to1
   rownames(thermo$obigt) <- 1:nrow(thermo$obigt)
   assign("thermo", thermo, "CHNOSZ")
-  msgout("add.obigt: file has ", length(does.exist), " rows; made ", 
+  # message about file, if file argument is missing (default)
+  if(missing(file)) {
+    msgout("add.obigt: using default file:\n") 
+    msgout(file, "\n")
+  }
+  msgout("add.obigt: read ", length(does.exist), " rows; made ", 
     nexist, " replacements, ", nrow(to2), " additions, units = ", E.units, "\n")
-  msgout("add.obigt: file was ", file, "\n")
   msgout("add.obigt: use data(thermo) to restore default database\n")
   return(invisible(inew))
 }

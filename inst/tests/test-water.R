@@ -12,8 +12,8 @@ test_that("water.SUPCRT92() gives expected values for E and kT", {
   # now compare with some real data from Tables V and VI of Fine and Millero, 1973
   T <- convert(c(25, 100), "K")
   P <- c(100, 1000)
-  expect_equal(water.SUPCRT92("beta", T, P)[, 1] * 1e6, c(44.100, 37.002), tol=1e-2)
-  expect_equal(water.SUPCRT92("alpha", T, P)[, 1] * 1e6, c(268.06, 625.55), tol=1e-2)
+  expect_equal(water.SUPCRT92("beta", T, P)[, 1] * 1e6, c(44.100, 37.002), tolerance=1e-2)
+  expect_equal(water.SUPCRT92("alpha", T, P)[, 1] * 1e6, c(268.06, 625.55), tolerance=1e-2)
 })
 
 # reference

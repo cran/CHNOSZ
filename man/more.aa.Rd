@@ -44,4 +44,4 @@ protein.formula(at.aa)
 ZC(protein.formula(at.aa))
 }
 
-\keyword{protein}
+\concept{Protein thermodynamic modeling}

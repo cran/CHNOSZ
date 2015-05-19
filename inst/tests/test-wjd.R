@@ -4,7 +4,7 @@ test_that("wjd() gives results similar to White et al., 1958", {
   # the values from last column of Table III in the paper
   X <- c(0.040668, 0.147730, 0.783153, 0.001414, 0.485247, 0.000693, 0.027399, 0.017947, 0.037314, 0.096872)
   w <- wjd()
-  expect_equal(X, w$X, tol=1e-4)
+  expect_equal(X, w$X, tolerance=1e-4)
 })
 
 test_that("guess() operates on intermediate compositions but fails with endmembers", {
@@ -56,7 +56,7 @@ test_that("open-system equilibrium distributions reproduce the results of wjd()"
   e <- equilibrate(a, loga.balance=log10(sum(Y)))
   X.open <- 10^unlist(e$loga.equil)
   # the test: abundances calculated both ways are equal
-  expect_equal(X.closed, X.open, tol=0.019)
+  expect_equal(X.closed, X.open, tolerance=0.019)
   # seems that we could do better than that 1.9% mean difference!
 })
 

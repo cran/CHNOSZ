@@ -61,14 +61,14 @@ test_that("standard Gibbs energies of reactions involving aqueous species are co
   # 4(2-)propanol(aq) + 3CO2(aq) + 2H2O(l) = 3CH4(aq) + 4lactic acid(aq)
   sout.E12 <- subcrt(c("2-propanol", "CO2", "H2O", "CH4", "lactic acid"), c(-4, -3, -2, 3, 4), T=T)$out
   # now the tests, tolerances set to lowest order of magnitute to pass
-  expect_equal(sout.H2O$G/1000, DG0.H2O, 1e-4)
-  expect_equal(sout.A1$G/1000, DG0.A1, 1e-4)
+  expect_equal(sout.H2O$G/1000, DG0.H2O, tolerance=1e-4)
+  expect_equal(sout.A1$G/1000, DG0.A1, tolerance=1e-4)
   # greater tolerance, our values for NO(aq) differ slightly from AS01
-  expect_equal(sout.NO$G/1000, DG0.NO.aq - DG0.NO.g, 1e-2)
-  expect_equal(sout.B10$G/1000, DG0.B10, 1e-3)
+  expect_equal(sout.NO$G/1000, DG0.NO.aq - DG0.NO.g, tolerance=1e-2)
+  expect_equal(sout.B10$G/1000, DG0.B10, tolerance=1e-3)
   # we can check that sulfur has expected phase transitions
   expect_equal(s.C7$state$sulfur, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3))
-  expect_equal(sout.C7$G/1000, DG0.C7, 1e-4)
+  expect_equal(sout.C7$G/1000, DG0.C7, tolerance=1e-4)
   # this one is on hold until the HKF parameters of 2-propanol can be located
   #expect_equal(sout.E12$G/1000, DG0.E12, 1e-4)
   # also todo: COS(g) in Amend and Helgeson, 2001 Table 7.2?

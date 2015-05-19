@@ -1,5 +1,4 @@
 ### R code from vignette source 'anintro.Rnw'
-### Encoding: ISO8859-1
 
 ###################################################
 ### code chunk number 1: anintro.Rnw:25-26
@@ -181,6 +180,8 @@ subcrt("LYSC_CHICK",1,T=25)
 ###################################################
 ### code chunk number 29: subcrt_ALAT1 (eval = FALSE)
 ###################################################
+## aa <- uniprot.aa("ALAT1_HUMAN")
+## add.protein(aa)
 ## subcrt("ALAT1_HUMAN",1,T=25)
 
 
@@ -198,27 +199,33 @@ diagram(e, add=TRUE, col="red")
 
 
 ###################################################
-### code chunk number 31: CSG_species
+### code chunk number 31: demo_solubility
+###################################################
+demo("solubility", ask=FALSE)
+
+
+###################################################
+### code chunk number 32: CSG_species
 ###################################################
 basis("CHNOS")
 species(c("SLAP_ACEKI", "CSG_METJA", "CSG_METVO", "CSG_HALJP"))
 
 
 ###################################################
-### code chunk number 32: CSG_affinity
+### code chunk number 33: CSG_affinity
 ###################################################
 a <- affinity(O2=c(-90,-70))
 
 
 ###################################################
-### code chunk number 33: CSG_diagram
+### code chunk number 34: CSG_diagram
 ###################################################
 e <- equilibrate(a, normalize=TRUE)
 diagram(e, legend.x="bottomleft", ylim=c(-6, -2))
 
 
 ###################################################
-### code chunk number 34: PredominanceDiagram
+### code chunk number 35: PredominanceDiagram
 ###################################################
 species(c("SLAP_ACEKI", "SLAP_GEOSE", "SLAP_BACLI", "SLAP_AERSA"))
 basis(c("NH3", "H2S"), c(-1, -10))
@@ -227,13 +234,13 @@ diagram(a, normalize=TRUE)
 
 
 ###################################################
-### code chunk number 35: residue.info
+### code chunk number 36: residue.info
 ###################################################
 protein.basis(species()$name, normalize=TRUE)
 
 
 ###################################################
-### code chunk number 36: Bowers
+### code chunk number 37: Bowers
 ###################################################
 basis(c("HCl","H2O","Ca+2","CO2","Mg+2","SiO2","O2","H+"),
   c(999,0,999,999,999,999,999,-7))
@@ -244,31 +251,31 @@ diagram(a)
 
 
 ###################################################
-### code chunk number 37: example_diagram (eval = FALSE)
+### code chunk number 38: example_diagram (eval = FALSE)
 ###################################################
 ## example(diagram)
 
 
 ###################################################
-### code chunk number 38: examples (eval = FALSE)
+### code chunk number 39: examples (eval = FALSE)
 ###################################################
 ## examples()
 
 
 ###################################################
-### code chunk number 39: demo (eval = FALSE)
+### code chunk number 40: demo (eval = FALSE)
 ###################################################
 ## demo("findit")
 
 
 ###################################################
-### code chunk number 40: helpthermo (eval = FALSE)
+### code chunk number 41: helpthermo (eval = FALSE)
 ###################################################
 ## help(thermo)
 
 
 ###################################################
-### code chunk number 41: amylaseplot
+### code chunk number 42: amylaseplot
 ###################################################
 basis("CHNOSe")
 basis(c("NH3", "H2S"), c(-6, -3))
@@ -290,7 +297,7 @@ legend("bottomleft", legend=ltext, pch=c(20, 3, 17))
 
 
 ###################################################
-### code chunk number 42: yeastplot
+### code chunk number 43: yeastplot
 ###################################################
 locations <- yeastgfp()
 gfp <- yeastgfp(locations)
@@ -312,7 +319,7 @@ legend("topright", legend=c(dp, db), bty="n")
 
 
 ###################################################
-### code chunk number 43: bufferplot
+### code chunk number 44: bufferplot
 ###################################################
 layout(matrix(1:2, nrow=1), widths=c(2, 1))
 b.species <- c("Fe", "CO2", "H2O", "N2", "H2", "H2S", "SiO2")
@@ -344,7 +351,7 @@ legend("topleft", legend = c(describe.property("P", 300), describe.basis(ibasis=
 
 
 ###################################################
-### code chunk number 44: revisit
+### code chunk number 45: revisit
 ###################################################
 basis("CHNOS")
 species(c("isoleucine", "tyrosine", "glutamic acid", "methionine", "aspartic acid"))
@@ -355,7 +362,7 @@ title(main=paste("CV minimum =", round(r$optimum, 2)))
 
 
 ###################################################
-### code chunk number 45: revisit_alpha
+### code chunk number 46: revisit_alpha
 ###################################################
 basis(c("CO2", "O2"), c(r$x, r$y))
 a <- affinity()
@@ -367,7 +374,7 @@ legend("topleft", describe.basis(basis()), bg="white")
 
 
 ###################################################
-### code chunk number 46: findit
+### code chunk number 47: findit
 ###################################################
 basis("CHNOS")
 species(c("isoleucine", "tyrosine", "glutamic acid", "methionine", "aspartic acid"))
@@ -376,7 +383,7 @@ f <- findit(list(CO2=c(-5, 5), O2=c(-85, -65), H2S=c(-10, 5), H2O=c(-10, 0)),
 
 
 ###################################################
-### code chunk number 47: findit_alpha
+### code chunk number 48: findit_alpha
 ###################################################
 a <- affinity()
 par(mfrow=c(1, 2))
@@ -387,7 +394,7 @@ legend("topleft", describe.basis(basis()), bg="white")
 
 
 ###################################################
-### code chunk number 48: session_info
+### code chunk number 49: session_info
 ###################################################
 sessionInfo()
 

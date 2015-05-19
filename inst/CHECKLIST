@@ -2,26 +2,38 @@
 release checklist for CHNOSZ
 ****************************
 
-- remove all "<<-" from sources (leftover from debugging)
-
-- update list of documentation topics in examples() with any new ones
-
 - run examples() to make sure that all examples can be run
   (that includes \donttest ones that aren't run by R CMD check)
 
 - run demos() to run all demos
 
-- run test_package("CHNOSZ") to run all tests
-
 - check output of demo("sources") to make sure all data sources are cited
+
+- check output of R CMD Rd2pdf: fix lines truncated by page margins
+
+- run R CMD check using R compiled without long doubles (as in Solaris checks on CRAN)
+  (CFLAGS=-ffloat-store ./configure --disable-long-double)
+
+- build the package on the source directory;
+  try both qpdf and ghostscript to compact vignettes:
+  R CMD build --compact-vignettes=both chnosz/
+
+OTHER THINGS TO CHECK:
+
+- remove all "<<-" from sources (leftover from debugging)
+
+- update list of documentation topics in examples() with any new ones
+
+- run test_package("CHNOSZ") to run all tests
 
 - recreate extdata/thermo/obigt_check.csv after all data updates:
   co <- check.obigt()
   write.csv(co, "obigt_check.csv", row.names=FALSE, na="")
 
 - especially on Windows:  
-  data files are uncompressed on installation? (from BuildResaveData: no)
-  anim.*() produce pngs / movies (ImageMagick dependency)?
+  - data files are uncompressed on installation? (from BuildResaveData: no)
+    (so that users can copy and modify the thermodynamic database)
+  - anim.*() produce pngs / movies (ImageMagick dependency)?
 
 - check that uniprot.aa() works with current UniProt web pages
 
@@ -29,14 +41,13 @@ release checklist for CHNOSZ
 
 - clean up all TODO, XXX, etc. in Rd files (and hopefully R files too)
 
-- ensure all Rd files have \keyword{...}
-
 - update .Rinstignore with any new/deleted files
 
-- run R CMD check using R compiled without long doubles (as in Solaris checks on CRAN)
-  (CFLAGS=-ffloat-store ./configure --disable-long-double)
-
-- build the package on the source directory:
-  R CMD build --compact-vignettes chnosz/
-    don't use --no-vignettes, that keeps the Rnw files from being copied to inst/doc,
-      causing vignettes to disappear from CRAN webpage
+- ensure all Rd files have \keyword{...} or \concept{...}
+  - keywords used are standard R keywords: package, utilities
+  - concepts are as follows:
+    - Thermodynamic data (thermo, extdata)
+    - Primary thermodynamic modeling (commonly used functions e.g. subcrt)
+    - Secondary thermodynamic modeling (less often-used functions e.g. revisit)
+    - Extra thermodynamic modeling (out-of-workflow functions e.g. transfer)
+    - Protein thermodynamic modeling (protein-specific functions e.g. ionize.aa)

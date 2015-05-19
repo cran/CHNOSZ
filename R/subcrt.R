@@ -360,6 +360,12 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
     out <- c(out,rep(p.H2O,length(which(isH2O==TRUE))))
   }
 
+  # use variable-pressure standard Gibbs energy for gases
+  isgas <- reaction$state %in% "gas" 
+  if(TRUE %in% isgas & "g" %in% eprop & thermo$opt$varP) {
+    for(i in which(isgas)) out[[i]]$G <- out[[i]]$G - convert(log10(P), "G", T=T)
+  }
+
   # logK
   if('logk' %in% prop) {
     for(i in 1:length(out)) {

@@ -68,8 +68,8 @@ nonideal <- function(species,proptable,IS,T) {
     Z <- mkp[grep("Z", names(mkp))]
     # don't do anything for neutral species
     if(Z==0) next
-    # this would keep unit activity coefficient of the proton and electron
-    #if(species[i] %in% c(info('H+',quiet=TRUE),info('e-',quiet=TRUE))) next
+    # this keeps unit activity coefficient of the proton and electron
+    if(species[i] %in% c(info("H+"), info("e-"))) next
     didit <- FALSE
     for(j in 1:ncol(myprops)) {
       #if(colnames(myprops)[j]=='G') myprops[,j] <- myprops[,j] + thermo$opt$R * T * mlg(Z,IS,convert(T,'C'))
@@ -84,7 +84,7 @@ nonideal <- function(species,proptable,IS,T) {
     proptable[[i]] <- myprops
     if(didit) ndid <- ndid + 1
   }
-  if(ndid > 0) cat(paste('nonideal:',ndid,'species were nonideal\n'))
+  if(ndid > 0) msgout(paste('nonideal:',ndid,'species were nonideal\n'))
   return(proptable)
 }
 

@@ -88,7 +88,7 @@ stopifnot(as.chemical.formula(protein.formula(ip))=="C41H69N11O18")
 # we can also calculate a formula without using add.protein
 as.chemical.formula(protein.formula(seq2aa("pentapeptide_test", "ANLSG")))
 
-\donttest{# read a fasta file, calculate H/C and O/C for all proteins
+# read a fasta file, calculate H/C and O/C for all proteins
 # and averages by polypeptide chain, residue and mass
 ffile <- system.file("extdata/fasta/HTCC1062.faa.xz", package="CHNOSZ")
 aa <- read.fasta(ffile)
@@ -115,7 +115,6 @@ legend("topright", pch=c(20, 15, 16, 17), col=c("grey", rep("red", 3)),
 title(main=paste("O/C vs H/C for HTCC1062 proteins\n",
   "n =", nrow(aa)))
 }
-}
 
 \seealso{
 \code{\link{read.fasta}} and \code{\link{uniprot.aa}} for getting amino acid compositions from a FASTA file or downloading them from UniProt.
@@ -130,4 +129,4 @@ Examples of stability calculations for proteins are in \code{\link{protein}}.
 
 }
 
-\keyword{protein}
+\concept{Protein thermodynamic modeling}

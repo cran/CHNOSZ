@@ -46,4 +46,4 @@ eos.args("hkf",c("g","H","S","cP","V","kT","e"))
   state.args(c("a","l","liq"))
 }
 
-\keyword{util}
+\keyword{utilities}

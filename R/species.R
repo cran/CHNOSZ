@@ -31,7 +31,8 @@ species.basis <- function(species) {
   # can cause problems in situations where zeros are needed
   # (manifests as issue in longex("phosphate"), where which.balance()
   #  identifies H2O as conserved component)
-  out <- zapsmall(nbasis)
+  # 20140201 set digits (to R default) becuase getOption("digits") is changed in knitr
+  out <- zapsmall(nbasis, digits=7)
   # add names of species and basis species
   colnames(out) <- colnames(tbmat)
   # add names of species only if it was a character argument
