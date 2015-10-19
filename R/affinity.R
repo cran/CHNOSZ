@@ -152,15 +152,13 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
       # from those of residues
       loga.protein <- rep(loga.protein,length.out=length(iprotein))
       protein.fun <- function(ip) {
-        if(ip %% 50 == 0) msgout(paste(ip,"..",sep=""))
         tpext <- as.numeric(thermo$protein[iprotein[ip],5:25])
-        return(Reduce("+", pprod(a[ires],tpext)) - loga.protein[ip])
+        return(Reduce("+", CHNOSZ::pprod(a[ires],tpext)) - loga.protein[ip])
       }
       # use another level of indexing to let the function
       # report on its progress
       jprotein <- 1:length(iprotein)
-      protein.affinity <- palply(jprotein,protein.fun)
-      if(length(iprotein) > 49) msgout("\n")
+      protein.affinity <- palply("", jprotein, protein.fun)
       ## update the species list
       # we use negative values for ispecies to denote that
       # they index thermo$protein and not thermo$species

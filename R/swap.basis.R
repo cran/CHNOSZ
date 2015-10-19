@@ -16,7 +16,7 @@ element.mu <- function(basis = get("thermo")$basis, T = 25) {
   if(T==25) G <- get("thermo")$obigt$G[basis$ispecies]
   else G <- unlist(subcrt(basis$ispecies, T=T, property="G")$out)
   # chemical potentials of the basis species
-  species.mu <- G - convert(basis$logact, "G")
+  species.mu <- G - convert(basis$logact, "G", T=convert(T, "K"))
   # chemical potentials of the elements
   element.mu <- solve(basis.mat, species.mu)
   # give them useful names
@@ -41,14 +41,14 @@ basis.logact <- function(emu, basis = get("thermo")$basis, T = 25) {
   # with the chemical potentials of the elements
   basis.mu <- colSums((t(basis.mat)*emu)) - G
   # convert chemical potentials to logarithms of activity
-  basis.logact <- -convert(basis.mu, "logK")
+  basis.logact <- -convert(basis.mu, "logK", T=convert(T, "K"))
   # give them useful names
   names(basis.logact) <- rownames(basis.mat)
   return(basis.logact)
 }
 
 # swap in one basis species for another
-swap.basis <- function(species, species2) {
+swap.basis <- function(species, species2, T = 25) {
   # before we do anything, remember the old basis definition
   oldbasis <- get("thermo")$basis
   # and the species definition
@@ -77,9 +77,9 @@ swap.basis <- function(species, species2) {
   newbasis <- put.basis(ispecies)
   # if put.basis didn't stop with an error, we're good to go!
   # what were the original chemical potentials of the elements?
-  emu <- element.mu(oldbasis)
+  emu <- element.mu(oldbasis, T=T)
   # the corresponding logarithms of activities of the new basis species
-  bl <- basis.logact(emu, newbasis)
+  bl <- basis.logact(emu, newbasis, T=T)
   # update the basis with these logacts
   mb <- mod.basis(ispecies, logact=bl)
   # restore species if they were defined

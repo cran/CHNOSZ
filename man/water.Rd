@@ -4,8 +4,6 @@
 \alias{water.props}
 \alias{water.SUPCRT92}
 \alias{water.IAPWS95}
-\alias{rho.IAPWS95}
-\alias{water.AW90}
 \title{Properties of Water}
 \description{
   Calculate thermodynamic and electrostatic properties of water.
@@ -16,24 +14,21 @@
   water.props(formulation = get("thermo")$opt$water)
   water.SUPCRT92(property, T = 298.15, P = 1)
   water.IAPWS95(property, T = 298.15, P = 1)
-  rho.IAPWS95(T = 298.15, P = 1)
-  water.AW90(T = 298.15, rho = 1000, P = 0.1)
 }
 
 \arguments{
   \item{property}{character, name(s) of property(s) to calculate}
   \item{T}{numeric, temperature (K)}
-  \item{P}{numeric, pressure (units of bar, except MPa for \code{water.AW90}), or \samp{Psat} for vapor-liquid saturation}
+  \item{P}{numeric, pressure (bar), or \samp{Psat} for vapor-liquid saturation}
   \item{formulation}{character, name of formulation for which to return names of available properties}
-  \item{rho}{numeric, density (kg m\eqn{^{-3}}{^-3})}
 }
 
 \details{
 
-These functions compute the thermodynamic (Gibbs energy and it derivatives) and electrostatic (dielectric constant and its derivatives) properties of liquid or supercritical \eqn{\mathrm{H_2O}}{H2O} using equations of state taken from the literature.
-The wrapper function \code{water} accepts two major computational alternatives.
+These functions compute the thermodynamic (Gibbs energy and it derivatives) and electrostatic (dielectric constant and its derivatives) properties of liquid or supercritical \ifelse{latex}{\out{H$_2$O}}{\ifelse{html}{\out{H<sub>2</sub>O}}{H2O}} using equations of state taken from the literature.
+The high-level function \code{water} accepts two major computational alternatives.
 The default option (i.e., \code{\link{thermo}$opt$water} equal to \samp{SUPCRT92}) is retrieve thermodynamic and electrostatic properties as a function of temperature and pressure using a FORTRAN subroutine taken from the \acronym{SUPCRT92} software package (Johnson et al., 1992).
-If \code{thermo$opt$water} is set to \samp{IAPWS95}, the thermodynamic properties are calculated using a (slower) implementation in \R code of the IAPWS-95 formulation (Wagner and Pruss, 2002) and electrostatic properties are calculated using the equations of Archer and Wang, 1990.
+If \code{thermo$opt$water} is set to \samp{IAPWS95}, the thermodynamic properties are calculated using an implementation in \R code of the IAPWS-95 formulation (Wagner and Pruss, 2002), and electrostatic properties are calculated using the equations of Archer and Wang, 1990.
 
 The allowed \code{property}s for \code{water} are one or more of those given below, depending on the computational option; availability is shown by an asterisk.
 The names of properties in the arguments are not case sensitive. Note that some of the properties that can actually be calculated using the different formulations are not implemented here.
@@ -86,14 +81,12 @@ These calculations are based on data and equations of Levelt-Sengers et al., 198
 A value of \code{P} set to \samp{Psat} refers to one bar below 100 \eqn{^{\circ}}{°}C, otherwise to the vapor-liquid saturation pressure at temperatures below the critical point (\samp{Psat} is not available at temperatures above the critical point).
 \code{water.SUPCRT92} provides a limited interface to the FORTRAN subroutine; some functions provided there are not made available here (e.g., using variable density instead of pressure, or calculating the properties of steam).
 The properties of steam in CHNOSZ, as in \acronym{SUPCRT92}, are calculated using general equations for crystalline, gaseous and liquid species (\code{\link{cgl}}).
-The IAPWS-95 formulation also has provisions for computing the properties of steam, but these are currently not used by CHNOSZ.
 
-\code{water.IAPWS95} is a wrapper (a function of temperature and pressure) around \code{\link{IAPWS95}} (a function of temperature and density), \code{rho.IAPWS95} and \code{water.AW90}.
-\code{rho.IAPWS95} implements a root-finding technique (using \code{\link{uniroot}}) to determine the values of density for the given temperature and pressure.
-(Note that the \samp{P} property in \code{water.IAPWS95} is calculated by first computing a density with \code{rho.IAPWS95} for the given \code{T} and \code{P}, then calculating the \code{P} given the \code{T} and \code{rho}.)
-\code{water.AW90} provides values of the static dielectric constant (\code{diel}) calculated using equations given by Archer and Wang, 1990.
-\code{water.IAPWS95} contains routines for calculating the Born functions as finite-difference derivatives of the static dielectric constant with respect to temperature and pressure.
+\code{water.IAPWS95} is a wrapper around \code{\link{IAPWS95}}, \code{\link{rho.IAPWS95}} and \code{\link{water.AW90}}.
+\code{water.IAPWS95} provides for calculations at specific temperature and pressure; density, needed for \code{IAPWS95}, is inverted from pressure using \code{rho.IAPWS95}.
+The function also contains routines for calculating the Born functions as numerical derivatives of the static dielectric constant (from \code{water.AW90}).
 For compatibility with geochemical modeling conventions, the values of Gibbs energy, enthalpy and entropy output by \code{IAPWS95} are converted by \code{water.IAPWS95} to the triple point reference state adopted in \code{SUPCRT92} (Johnson and Norton, 1991; Helgeson and Kirkham, 1974).
+\code{water.IAPWS95} also accepts setting \code{P} to \samp{Psat}, with the saturation pressure calculated from \code{\link{WP02.auxiliary}}; by default the returned properties are for the liquid, but this can be changed to the vapor in \code{\link{thermo}$opt$IAPWS95.Psat.state}.
 
 The stated temperature limits of validity of calculations in \code{water.SUPCRT92} are from the greater of 0 \eqn{^{\circ}}{°}C or the melting temperature at pressure, to 2250 \eqn{^{\circ}}{°}C (Johnson et al., 1992).
 Valid pressures are from the greater of zero bar or the melting pressure at temperature to 30000 bar (\code{water.SUPCRT92}).
@@ -107,12 +100,10 @@ A primary check is still enforced (Tbtm), giving a minimum valid temperature of 
 
 \value{
 For \code{water} and \code{water.SUPCRT92} a data frame the number of rows of which corresponds to the number of input temperature, pressure and/or density values.
-\code{water.AW90} returns a numeric vector with length corresponding to the number of temperature values.
 }
 
 \seealso{
-\code{\link{uniroot}} is the root finder used in \code{water} to back out values of the density (\code{rho}) from those of \code{T} and \code{P} when the \samp{IAPWS} option is set in \code{\link{thermo}$opt$water}.
-Equations of state for species other than water are coded in \code{\link{hkf}} and \code{\link{cgl}}.
+Equations for thermodynamic properties of species other than water are coded in \code{\link{hkf}} and \code{\link{cgl}}.
 }
 
 \examples{\dontshow{data(thermo)}
@@ -135,14 +126,6 @@ water(water.props(), T=T)
 # use SUPCRT92 (the default)
 thermo$opt$water <<- "SUPCRT92"
 water(water.props(), T=T)
-
-## functions of temperature, density
-# calculate density at 500 K, 500 bar
-rho <- rho.IAPWS95(T=500, P=500)
-# calculate pressure (= 50 MPa) at this density
-IAPWS95("P", T=500, rho=rho)
-# calculate dielectric constant 	
-water.AW90(T=500, rho=rho, P=50)
 
 ## calculating Q Born function
 # after Table 22 of Johnson and Norton, 1991

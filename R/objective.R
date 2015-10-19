@@ -186,7 +186,7 @@ DGtr <- structure(
       return(sum(DG))
     }
     # we need to index both loga1 and Astar
-    DGtr <- unlist(palply(seq(nrow(loga1)), function(i) {
+    DGtr <- unlist(lapply(seq(nrow(loga1)), function(i) {
       dgtr(loga1[i, ], loga2, Astar[i, ])
     }))
     return(DGtr)

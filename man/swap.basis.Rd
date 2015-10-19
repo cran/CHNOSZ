@@ -13,7 +13,7 @@
   basis.matrix(basis = get("thermo")$basis)
   element.mu(basis = get("thermo")$basis, T = 25)
   basis.logact(emu, basis = get("thermo")$basis, T = 25)
-  swap.basis(species, species2)
+  swap.basis(species, species2, T = 25)
 }
 
 \arguments{

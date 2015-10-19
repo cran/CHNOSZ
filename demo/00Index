@@ -1,9 +1,9 @@
 sources         cross-check the reference list with the thermodynamic database
 NaCl            equilibrium constant for aqueous NaCl dissociation
-cordierite      equilibrium constant of hydrous cordierite dehydration
+density         density of H2O, inverted from IAPWS-95 equations
 phosphate       phosphate speciation with pH, temperature and ionic strength
 nucleobase      relative stabilities of nucleobases and some amino acids
-orp             oxidation-reduction potential of redox standards as a function of temperature
+ORP             oxidation-reduction potential of redox standards as a function of temperature
 diagram         comparison of methods for calculating stability fields
 revisit         detailed example of usage of revisit()
 findit          detailed example of usage of findit()

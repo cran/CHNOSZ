@@ -3,3 +3,15 @@ exportPattern(".")
 
 # Load shared objects
 useDynLib(CHNOSZ)
+
+# Imports from default packages
+importFrom("grDevices", "dev.cur", "dev.off", "extendrange",
+  "heat.colors", "png", "rainbow")
+importFrom("graphics", "abline", "axTicks", "axis", "barplot", "box",
+  "contour", "image", "legend", "lines", "mtext", "par", "plot",
+  "plot.new", "plot.window", "points", "rect", "text", "title")
+importFrom("stats", "D", "as.formula", "cor", "lm", "loess.smooth",
+  "na.omit", "qqline", "qqnorm", "sd", "splinefun", "uniroot")
+importFrom("utils", "browseURL", "capture.output", "combn", "demo",
+  "example", "head", "installed.packages", "read.csv", "tail",
+  "write.csv", "write.table")

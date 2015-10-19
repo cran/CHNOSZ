@@ -55,6 +55,8 @@ This is sometimes a useful command to use during an interactive session, when pr
       \code{Cp.tol} \tab numeric \tab Difference in value of Cp above which \code{\link{checkEOS}} produces a message (cal K\eqn{^{-1}}{-1} mol\eqn{^{-1}}{^-1}).\cr
       \code{V.tol} \tab numeric \tab Difference in value of V above which \code{\link{checkEOS}} produces a message (cm\eqn{^{3}}{3} mol\eqn{^{-1}}{^-1}).\cr
       \code{varP} \tab logical \tab Use variable-pressure standard state for gases (default \code{FALSE})? See \code{\link{subcrt}}.\cr
+      \code{IAPWS95.Psat.state} \tab character \tab State of H2O (\samp{liquid}, \samp{vapor}, or \samp{} for undefined) for which to calculate properties along saturation curve in \code{\link{water.IAPWS95}}; see also \code{\link{util.water}}. \cr
+      \code{paramin} \tab integer \tab Minimum number of calculations for which to launch parallel processes. See \code{\link{palply}}.
 }
 
     \item \code{thermo$element}

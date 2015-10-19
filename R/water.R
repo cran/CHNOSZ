@@ -2,57 +2,6 @@
 # calculate thermodynamic and electrostatic properties of H2O
 # 20061016 jmd
 
-water.AW90 <- function(T=298.15,rho=1000,P=0.1) {
-  # Equations for the dielectric constant of water
-  # from Archer and Wang, 1990
-  # T in K
-  # rho in kg m-3
-  # p in MPa
-
-  # Table 2
-  b <- c(-4.044525E-2, 103.6180   , 75.32165   ,
-         -23.23778   ,-3.548184   ,-1246.311   ,
-         263307.7    ,-6.928953E-1,-204.4473)
-  alpha <- 18.1458392E-30 # m^3
-  #alpha <- 14.7E-30
-  mu <- 6.1375776E-30 # C m
-  N.A <- 6.0221367E23 # mol-1
-  k <- 1.380658E-23 # Boltzmann constant, J K-1
-  M <- 0.0180153 # kg mol-1
-  rho.0 <- 1000 # kg m-3
-  # Equation 1
-  epsilon.0 <- 8.8541878E-12 # permittivity of vacuum, C^2 J-1 m-1
-  #epsfun.lhs <- function(e) (e-1)*(2*e+1)/(9*e)
-  epsfun.rhs <- function(T,V.m) N.A*(alpha+mufun()/(3*epsilon.0*k*T))/(3*V.m)
-  #epsfun <- function(e,T,V.m) epsfun.lhs(e) - epsfun.rhs(T,V.m)
-  mufun <- function() gfun()*mu^2
-  gfun <- function() rhofun()*rho/rho.0 + 1
-  # Equation 3
-  rhofun <- function() b[1]*P*T^-1 + b[2]*T^-0.5 + b[3]*(T-215)^-1 +
-    b[4]*(T-215)^-0.5 + b[5]*(T-215)^-0.25 +
-    exp(b[6]*T^-1 + b[7]*T^-2 + b[8]*P*T^-1 + b[9]*P*T^-2)
-  epsilon <- function(T,rho) {
-    #tu <- try(uniroot(epsfun,c(1E-1,1E3),T=T,V.m=M/rho)$root,TRUE)
-    epspoly <- function() epsfun.rhs(T,V.m=M/rho)
-    tu <- (9*epspoly() + 1 + ((9*epspoly()+1)*(9*epspoly()+1) + 8)^0.5) / 4 #Marc Neveu added 4/24/2013
-    if(!is.numeric(tu)) {
-      warning('water.AW90: no root for density at ',T,' K and ',rho,' kg m-3.',call.=FALSE,immediate.=TRUE)
-      tu <- NA
-    }
-    return(tu)
-  }
-  # get things the right length
-  our.T <- T; our.rho <- rho; our.P <- P
-  t <- numeric()
-  for(i in 1:length(our.T)) {
-    T <- our.T[i]
-    rho <- our.rho[i]
-    P <- our.P[i]
-    t <- c(t,epsilon(T,rho))
-  }
-  return(t)
-}
-
 water <- function(property = NULL, T = get("thermo")$opt$Tr, P = "Psat") {
   # calculate the properties of liquid H2O as a function of T and P
   # T in Kelvin, P in bar
@@ -190,43 +139,6 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
   }
   # return only the selected properties
   return(w.out[, iprop, drop=FALSE])
-}
-
-rho.IAPWS95 <- function(T=298.15, P=1) {
-  # return a density in kg m-3
-  # corresponding to the given pressure (bar) and temperature (K)
-  if(identical(P, "Psat")) stop("this function doesn't take P='Psat'")
-  dP <- function(rho, T, P) {
-    dP <- IAPWS95("P", rho=rho, T=T)[, 1] - convert(P, "MPa")
-    return(dP)
-  }
-  rho <- numeric() 
-  for(i in 1:length(T)) {
-    if(T[i] < 647.096) {
-      rho.lower <- WP02.auxiliary('rho.liquid',T=T[i])-2
-      rho.upper <- rho.lower + 400
-      if(P[i] < 5000) rho.upper <- rho.lower + 300
-      if(P[i] < 1000) rho.upper <- rho.lower + 200
-      if(P[i] < 300) {
-        rho.upper <- rho.lower + 30
-        if(T[i] < 250) { #Marc Neveu added 4/23/2013
-          rho.lower <- rho.lower - 10
-          rho.upper <- rho.lower + 40
-        }
-      }
-    } else {
-      rho.lower <- 0.01
-      rho.upper <- 1200
-    }
-    this.rho <- try(uniroot(dP, c(rho.lower, rho.upper), T=T[i], P=P[i])$root, TRUE)
-    if(!is.numeric(this.rho)) {
-      warning("rho.IAPWS95: no root for density between ", round(rho.lower, 1),
-      " and ", round(rho.upper, 1), " kg m-3 at ", T[i], " K and ", P[i], " bar", call.=FALSE)
-      this.rho <- NA
-    }
-    rho <- c(rho, this.rho)
-  }
-  return(rho)
 }
 
 water.IAPWS95 <- function(property, T=298.15, P=1) {
@@ -373,7 +285,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     # calculate values of P for Psat
     if(identical(P, "Psat")) P <- psat()
     msgout(" rho")
-    my.rho <- rho.IAPWS95(T, P)
+    my.rho <- rho.IAPWS95(T, P, get("thermo")$opt$IAPWS95.Psat.state)
     rho <- function() my.rho
   }
   for(i in 1:length(property)) {

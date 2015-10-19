@@ -3,7 +3,6 @@
 \alias{IAPWS95}
 \alias{IAPWS95.idealgas}
 \alias{IAPWS95.residual}
-\alias{WP02.auxiliary}
 \title{Properties of Water from IAPWS-95}
 \description{
   Calculate thermodynamic properties of water following the IAPWS-95 formulation.
@@ -13,7 +12,6 @@
   IAPWS95(property, T = 298.15, rho = 1000)
   IAPWS95.idealgas(p, delta, tau)
   IAPWS95.residual(p, delta, tau)
-  WP02.auxiliary(property, T = 298.15)
 }
 
 \arguments{
@@ -32,8 +30,6 @@
 The \code{IAPWS95} function returns values of thermodynamic properties in specific units (per gram).
 The IAPWS-95 formulation follows the triple point convention used in engineering (values of internal energy and entropy are taken to be zero at the triple point).
 
-Auxiliary equations to the IAPWS-95 formulation (Wagner and Pruss, 2002) are provided in \code{WP02.auxiliary}; the \code{property} for this function can be one of \samp{P.sigma} (saturation vapor pressure in MPa), \samp{dP.sigma.dT} (derivative of saturation vapor pressure with respect to temperature), or \samp{rho.liquid} or \samp{rho.vapor} (density of liquid or vapor in kg m\eqn{^{-3}}{^-3}).
-
 \code{IAPWS95.idealgas} and \code{IAPWS95.residual} are supporting functions to \code{IAPWS95} for calculating the ideal-gas and residual parts in the IAPWS-95 formulation.
 The value of \code{p} can be one of \samp{phi}, \samp{phi.delta}, \samp{phi.delta.delta}, \samp{phi.tau}, \samp{phi.tau.tau}, or \samp{phi.delta.tau}, to calculate the specific dimensionless Helmholtz free energy (\samp{phi}) or one of its respective derivatives.
 
@@ -49,17 +45,13 @@ The present functions do not check these limits and will attempt calculations fo
 }
 
 \seealso{
-\code{\link{water.IAPWS95}} for a wrapper that converts the specific units to molar quantities and is a function of pressure instead of density.
+\code{\link{util.water}} for properties along the saturation curve (\code{WP02.auxiliary}) and calculation of density from pressure and temperature (\code{rho.IAPWS92}).
+\code{\link{water.IAPWS95}} is a wrapper around \code{IAPWS95} and the utility functions, which converts the specific units to molar quantities, and is used in higher-level functions (\code{\link{water}}).
 }
 
 \examples{
 ## calculate pressure for given temperature, density
 P <- as.numeric(IAPWS95("P", T=500, rho=838.0235))
-
-## density along saturation curve
-T <- seq(273.15, 623.15, 25)
-WP02.auxiliary(T=T)  # liquid from WP02
-WP02.auxiliary("rho.vapor", T)  # steam from WP02	
 }
 
 \references{

@@ -1,3 +1,48 @@
+CHANGES IN CHNOSZ 1.0.6 (2015-10-19)
+--------------------------------------
+
+- Rewrite rho.IAPWS95() to be able to invert density from IAPWS-95
+  equations for a more extensive range of T,P values.
+
+- Update R dependency to R-3.1.0, needed for 'extendInt' argument
+  of uniroot() (used by rho.IAPWS95()).
+
+- Add demo/density.R to show density of H2O calculated using
+  rho.IAPWS95() (optionally using water.SUPCRT92()).
+
+- Remove the relatively trivial demo/cordierite.R.
+
+- Update wrapper function for parallel calculations palply() (export of
+  variables, used in demo/density.R) and add tests in
+  test-util.program.R.
+
+- Tests that initiate calls to palply() (and therefore makeCluster())
+  failed with 'cannot open file 'startup.Rs': No such file or directory'
+  Fixed by adding Sys.setenv("R_TESTS" = "") to test-all.R.
+  Issue discussed here:
+  https://github.com/hadley/testthat/issues/129
+  https://github.com/hadley/testthat/issues/144
+
+- Fix bugs in which.pmax() that prevented proper assignment of
+  attributes in output, and functionality for lists of length 1.
+
+- mosaic() now multiplies affinities by _relative_ abundances of basis
+  species when blend=TRUE. Also, fix bug where using blend=TRUE gave
+  wrong results due to incorrect calculation of total activity of basis
+  species. Thanks to Grayson Boyer for the bug reports.
+
+- Add grDevices, graphics, stats, utils to Imports: in DESCRIPTION, and
+  add specific importsFrom lines in NAMESPACE.
+
+- Fix incorrect entry for entropy of aqueous methionine and [Met] in
+  OBIGT.csv. Thanks to Apar Prasad for spotting this.
+
+- Some fixes for compatibility with new version of testthat (increase
+  tolerance for one test in test-eos.R because of corrected alignment
+  actual/expected values in equals(); move inst/tests to
+  inst/test/testthat; use test_check instead of test_package in
+  test-all.R (for R CMD check)).
+
 CHANGES IN CHNOSZ 1.0.5 (2015-05-19)
 ------------------------------------
 

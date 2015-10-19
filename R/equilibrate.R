@@ -89,18 +89,18 @@ equil.boltzmann <- function(Astar, n.balance, loga.balance) {
   Astardim <- dim(Astar[[1]])
   Anames <- names(Astar)
   # first loop: make vectors
-  A <- palply(1:length(A), function(i) as.vector(A[[i]]))
+  A <- palply("", 1:length(A), function(i) as.vector(A[[i]]))
   # second loop: get the exponentiated Astars (numerators)
   # need to convert /2.303RT to /RT
   #A[[i]] <- exp(log(10)*Astar[[i]]/n.balance[i])/n.balance[i]
-  A <- palply(1:length(A), function(i) exp(log(10)*Astar[[i]]/n.balance[i]))
+  A <- palply("", 1:length(A), function(i) exp(log(10)*Astar[[i]]/n.balance[i]))
   # third loop: accumulate the denominator
   # initialize variable to hold the sum
   At <- A[[1]]
   At[] <- 0
   for(i in 1:length(A)) At <- At + A[[i]]*n.balance[i]
   # fourth loop: calculate log abundances and replace the dimensions
-  A <- palply(1:length(A), function(i) loga.balance + log10(A[[i]]/At))
+  A <- palply("", 1:length(A), function(i) loga.balance + log10(A[[i]]/At))
   # fifth loop: replace dimensions
   for(i in 1:length(A)) dim(A[[i]]) <- Astardim
   # add names and we're done!
@@ -206,7 +206,7 @@ equil.reaction <- function(Astar, n.balance, loga.balance) {
     return(Abar)
   }
   # calculate the logact(thing) for each condition
-  logact <- palply(1:nrow(Astar), function(i) {
+  logact <- palply("", 1:nrow(Astar), function(i) {
     # get the equilibrium Abar for each condition
     Abar <- Abarfun(i)
     return(logactfun(Abar, i))

@@ -15,10 +15,10 @@ examples <- function(do.png=FALSE) {
     "objective", "revisit", "transfer", "anim", "EOSregress", "wjd")
   plot.it <- FALSE
   if(is.character(do.png))
-    png(paste(do.png,"%d.png",sep=""),width=700,height=700,pointsize=18)
+    png(paste(do.png,"%d.png",sep=""),width=500,height=500,pointsize=12)
   else if(do.png) plot.it <- TRUE
   for(i in 1:length(topics)) {
-    if(plot.it) png(paste(topics[i],"%d.png",sep=""),width=700,height=700,pointsize=18)
+    if(plot.it) png(paste(topics[i],"%d.png",sep=""),width=500,height=500,pointsize=12)
     myargs <- list(topic=topics[i],ask=FALSE)
     do.call(example,myargs)
     if(plot.it) dev.off()
@@ -29,16 +29,18 @@ examples <- function(do.png=FALSE) {
   cat("Time elapsed: ", proc.time() - .ptime, "\n")
 }
 
-demos <- function(which=c("sources", "NaCl", "cordierite", 
-  "phosphate", "nucleobase", "orp", "diagram", "revisit", "findit",
+demos <- function(which=c("sources", "NaCl", "density", 
+  "phosphate", "nucleobase", "ORP", "diagram", "revisit", "findit",
   "CO2Ac", "nonideal", "ionize", "buffer", "yeastgfp", "mosaic",
-  "solubility", "wjd")) {
+  "solubility", "wjd"), do.png=FALSE) {
   # run one or more demos from CHNOSZ with ask=FALSE, and return the value of the last one
   for(i in 1:length(which)) {
     # say something so the user sees where we are
     msgout("------------\n")
     msgout(paste("demos: running '", which[i], "'\n", sep=""))
+    if(do.png) png(paste(which[i],"%d.png",sep=""),width=500,height=500,pointsize=12)
     out <- demo(which[i], package="CHNOSZ", character.only=TRUE, echo=FALSE, ask=FALSE)
+    if(do.png) dev.off()
   }
   return(invisible(out))
 }

@@ -1,6 +1,6 @@
 # yell2010/orp.R 20100715 jmd
 # calculate the temperature dependence of 
-# potentials vs. SHE of various electrodes (Ag/AgCl)
+# potentials vs. standard hydrogen electrode (SHE) of various electrodes (Ag/AgCl)
 # and ORP standards (ZoBell, Light's, (tri)iodide) 
 # CHNOSZ provides functions subcrt() and convert() 
 # used in this example
@@ -154,7 +154,7 @@ figure <- function() {
   # add some labels
   text(c(30,30,30,50),c(0.72,0.5,0.35,0.25),
     c("Light","ZoBell","(Tri)Iodide","Ag/AgCl"))
-  title(main="Potentials vs SHE")
+  title(main="Potentials vs standard hydrogen electrode (SHE)")
 }
 # finally, make the plot
 figure()

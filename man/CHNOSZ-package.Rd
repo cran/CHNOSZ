@@ -82,7 +82,8 @@ Examples without a reference (and some with references) demonstrate experimental
 
 
 \section{Compatibility}{
-  As of version 1.0.4, the package depends on \R version 3.0.0 or greater (previous versions use \code{\link{Stangle}} to extract R code from vignettes when installing the source package, leading to failure processing hotspring.Rnw, which now uses knitr instead of Sweave).
+  Starting with version 1.0.5-1, the package depends on \R version 3.1.0 or greater (for \code{extendInt} argument of \code{\link{uniroot}}, used in code{\link{rho.IAPWS95}}).
+  As of version 1.0.4 (release 1.0.5 on CRAN), the package depends on \R version 3.0.0 or greater (previous versions use \code{\link{Stangle}} to extract R code from vignettes when installing the source package, leading to failure processing hotspring.Rnw, which now uses knitr instead of Sweave).
   Before version 1.0.4, the recommended version of \R was 2.14.0 or greater (to find vignettes in the \code{vignettes} directory, and for availability of \pkg{parallel} in the standard library).
   As of version 0.9-9, the package depends on \R version 2.12.0 or greater (so useDynLib in the NAMESPACE can find the shared library on Windows).
   Starting with version 0.9-6 of the package, the dependency was given as \R version 2.10.0 or greater (to read compressed data files).

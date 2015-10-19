@@ -150,7 +150,6 @@ diagram <- function(
       else if(as.residue & eout.is.aout) pv[[i]] <- pv[[i]] + eout$species$logact[i] / n.balance[i]
     }
     predominant <- which.pmax(pv)
-    dim(predominant) <- dim(pv[[1]])
   }
 
   # a warning about that we can only show properties of the first species on a 2-D diagram
@@ -392,8 +391,8 @@ diagram <- function(
         else if(any(grepl(names(dev.cur()), c("X11cairo", "quartz", "windows")))) fill <- "heat"
       }
       if(is.null(fill)) fill <- "transparent"
-      else if(fill[1]=="rainbow") fill <- rainbow(ngroups)
-      else if(fill[1]=="heat") fill <- heat.colors(ngroups)
+      else if(isTRUE(fill[1]=="rainbow")) fill <- rainbow(ngroups)
+      else if(isTRUE(fill[1]=="heat")) fill <- heat.colors(ngroups)
       fill <- rep(fill, length.out=ngroups)
       # the x and y values 
       xs <- eout$vals[[1]]

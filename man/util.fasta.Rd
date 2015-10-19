@@ -80,7 +80,7 @@ The \code{protein} argument corresponds to the \samp{Entry name} on the UniProt 
 When computing relative abundances of many proteins that might be found with \code{grep.file} and \code{read.fasta}, consider using the \code{iprotein} arugment of \code{\link{affinity}} to speed things up; for an example see the help page for \code{\link{revisit}}. 
 }
 
-\examples{
+\examples{\dontshow{data(thermo)}
 ## reading a protein FASTA file
 # the path to the file
 file <- system.file("extdata/fasta/EF-Tu.aln", package="CHNOSZ")

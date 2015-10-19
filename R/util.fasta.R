@@ -33,11 +33,11 @@ grep.file <- function(file,pattern="",y=NULL,ignore.case=TRUE,startswith=">",lin
     # use the system grep
     if(is.null(startswith)) startswith <- "" else startswith <- paste("^",startswith,".*",sep="")
     if(ignore.case) ic <- "-i" else ic <- ""
-    out <- palply(1:length(pattern),sysgrep)
+    out <- lapply(1:length(pattern), sysgrep)
   } else {
     # use R grep
     if(is.null(lines)) lines <- readLines(file)
-    out <- palply(1:length(pattern),Rgrep)
+    out <- lapply(1:length(pattern), Rgrep)
   }
   # make numeric (NA for ones that aren't matched)
   out <- as.numeric(sapply(out,as.numeric))
@@ -108,7 +108,7 @@ read.fasta <- function(file, i=NULL, ret="count", lines=NULL, ihead=NULL,
   organism <- bnf
   # protein/gene name is from header line for entry
   # (strip the ">" and go to the first space)
-  if(is.null(id)) id <- as.character(palply(1:length(i), function(j) {
+  if(is.null(id)) id <- as.character(palply("", 1:length(i), function(j) {
     # get the text of the line
     f1 <- linefun(i[j],i[j])
     # stop if the first character is not ">"
@@ -206,7 +206,7 @@ count.aa <- function(seq, start=NULL, stop=NULL, type="protein") {
     return(count)
   }
   # counts for each sequence
-  a <- palply(seq, countfun, start, stop)
+  a <- palply("", seq, countfun, start, stop)
   a <- t(as.data.frame(a, optional=TRUE))
   # clean up row/column names
   colnames(a) <- letts
