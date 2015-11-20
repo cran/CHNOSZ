@@ -18,7 +18,7 @@
   protein.length(protein, organism = NULL)
   protein.info(protein, T = 25, residue = FALSE, round.it = FALSE)
   protein.basis(protein, T = 25, normalize = FALSE)
-  protein.equil(protein, T=25, loga.protein = 0)
+  protein.equil(protein, T=25, loga.protein = 0, digits = 4)
   MP90.cp(protein, T)
   group.formulas()
 }
@@ -31,6 +31,7 @@
   \item{T}{numeric, temperature in \eqn{^{\circ}}{°}C}
   \item{round.it}{logical, round the values in the output?}
   \item{loga.protein}{numeric, decimal logarithms of reference activities of proteins}
+  \item{digits}{integer, number of significant digits (see \code{\link{signif}})}
 }
 
 \details{

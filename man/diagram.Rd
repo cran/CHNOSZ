@@ -16,7 +16,7 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
     lty=NULL, lwd=par("lwd"), dotted=0,
     bg=par("bg"), col=par("col"), col.names=par("col"), fill=NULL,
     names=NULL, main=NULL, legend.x="topright", add=FALSE, plot.it=TRUE,
-    tplot=TRUE)
+    tplot=TRUE, ...)
   strip(affinity, ispecies = NULL, col = NULL, ns = NULL, 
     xticks = NULL, ymin = -0.2, xpad = 1, cex.names = 0.7)
   find.tp(x)
@@ -62,12 +62,13 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
   \item{ymin}{numeric, lower limit of y-axis}
   \item{xpad}{numeric, amount to extend x-axis on each side}
   \item{x}{matrix, value of the \code{predominant} list element from \code{diagram}}
+  \item{...}{additional arguments passed to \code{\link{plot}} or \code{\link{barplot}}}
 }
 
 \details{
 
 \code{diagram} takes as its primary input the results from \code{\link{equilibrate}} and displays diagrams representing the equilibrium chemical activities of the species.
-0-D diagrams, at a single point, are shown as barcharts.
+0-D diagrams, at a single point, are shown as \code{\link{barplot}}s.
 1-D diagrams, for a single variable on the x-axis, are plotted as lines.
 2-D diagrams, for two variables, are plotted as predominance fields.
 The allowed variables are any that \code{\link{affinity}} accepts: temperature, pressure, or the chemical activities of the basis species

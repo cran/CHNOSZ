@@ -177,10 +177,12 @@ EOScoeffs <- function(species, property) {
     names(out) <- c("(Intercept)", "invTTheta2", "TXBorn")
   } else if(property=="V") {
     iis <- iis[,c("a1", "a2", "a3", "a4", "omega")]
-    sigma <- ( iis$a1 + iis$a2 / (2600 + 1) ) * 41.84
-    xi <- ( iis$a3 + iis$a4 / (2600 + 1) ) * 41.84
+    # calculate sigma and xi and convert to volumetric units: 1 cal = 41.84 cm^3 bar
+    sigma <- convert( iis$a1 + iis$a2 / (2600 + 1), "cm3bar" )
+    xi <- convert( iis$a3 + iis$a4 / (2600 + 1), "cm3bar" )
+    omega <- convert( iis$omega, "cm3bar" )
     # watch for the negative sign on omega here!
-    out <- data.frame(sigma, xi, -iis$omega)
+    out <- data.frame(sigma, xi, -omega)
     names(out) <- c("(Intercept)", "invTTheta", "QBorn")
   }
   return(out)

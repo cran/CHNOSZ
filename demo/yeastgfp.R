@@ -39,7 +39,7 @@ inames <- 1:length(names)
 for(i in 1:length(nloc)) {
   diagram(a, normalize=TRUE, names=names[inames], groups=as.list(inames),
     fill=fill[inames], cex.axis=0.75, cex.names=1)
-  label.plot(letters[i])
+  label.plot(letters[i], xfrac=0.95, yfrac=0.9, paren=TRUE, italic=TRUE)
   title(main=paste(length(inames), "locations"))
   # take out the stable species
   inames <- inames[-(1:nloc[i])]

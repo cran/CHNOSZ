@@ -1,4 +1,4 @@
-# CHNOSZ/describe.R
+# CHNOSZ/util.expression.R
 # write descriptions of chemical species, properties, reactions, conditions
 # modified from describe(), axis.label()  20120121 jmd
 
@@ -7,8 +7,10 @@ expr.species <- function(species, state="", log="", value=NULL) {
   # that include subscripts, superscripts (if charged)
   # and optionally designations of states +/- loga or logf prefix
   if(length(species) > 1) (stop("more than one species"))
-  # the counts of elements in the species
-  elements <- makeup(species)
+  # the counts of elements in the species:
+  # here we don't care too much if an "element" is a real element
+  # (listed in thermo$element), so we suppress warnings
+  elements <- suppressWarnings(makeup(species))
   # where we'll put the expression
   expr <- ""
   # loop over elements

@@ -3,6 +3,8 @@
 \alias{thermo.plot.new}
 \alias{thermo.axis}
 \alias{label.plot}
+\alias{usrfig}
+\alias{label.figure}
 \alias{water.lines}
 \alias{mtitle}
 \alias{residualsplot}
@@ -21,12 +23,15 @@
     xline = NULL)
   thermo.axis(lab = "x-axis", side = 1, line = 1.5, cex = par("cex"),
     lwd = par("lwd"), T = NULL, col = par("col"))
-  label.plot(x, xfrac = 0.95, yfrac = 0.9, cex = 1, paren = TRUE, 
-    adj = 1)
+  label.plot(x, xfrac = 0.05, yfrac = 0.95, paren = FALSE,
+    italic = FALSE, ...)
+  usrfig()
+  label.figure(x, xfrac = 0.05, yfrac = 0.95, paren = FALSE,
+    italic = FALSE, ...)
   water.lines(xaxis = "pH", yaxis = "Eh", T = 298.15, P = "Psat", 
     which = c("oxidation","reduction"), logaH2O = 0, lty = 2, lwd=1,
     col = par("fg"), xpoints = NULL, O2state="gas")
-  mtitle(main, ...)
+  mtitle(main, line=0, ...)
   residualsplot(residuals, property = "Cp", model = "big")
 }
 
@@ -55,7 +60,7 @@
   \item{xfrac}{numeric, fractional location on \eqn{x}{x}-axis for placement of label}
   \item{yfrac}{numeric, fractional location on \eqn{y}{y}-axis for placement of label}
   \item{paren}{logical, add parentheses around label text?}
-  \item{adj}{numeric, parameter for text alignment}
+  \item{italic}{logical, italicize label text?}
   \item{xaxis}{character, description of \eqn{x}{x}-axis}
   \item{yaxis}{character, description of \eqn{y}{y}-axis}
   \item{P}{numeric, pressure (bar)}
@@ -82,11 +87,19 @@ With \code{O2state} set to \samp{gas} (the default), the logarithm of oxygen fug
 Change this to \samp{aq} to plot the logarithm of oxygen activity (do not change it if plotting \samp{Eh}).
 \code{xpoints} is an optional list of points on the x axis to which to restrict the plotting (default of \code{NULL} refers to the axis limits).
 
-  \code{label.plot} adds identifying text to the plot; the value given for \code{x} is made into a label like \eqn{(a)}{(a)}. The location of the label is controlled by \code{xfrac} and \code{yfrac} (the fractional locations along the respective axes) as well as \code{adj} (the text alignment parameter, see \code{\link{text}}).
+\code{label.plot} and \code{label.figure} add identifying text within the plot region and figure region.
+The value given for \code{x} is made into a label, optionally italicized and with parentheses (like \ifelse{latex}{\eqn{(a)}}{\ifelse{html}{\out{(<i>a</i>)}}{(a)}}).
+The location of the label is controlled by \code{xfrac} and \code{yfrac} (the fractional coordinates of either the plot or figure region), and \code{...} can include other parameters such as \code{cex} and \code{adj} that are passed to \code{\link{text}}.
+
+\code{usrfig} returns the limits of the figure region in \dQuote{user} coordinates (i.e. the limits of the plot region, from \code{\link{par}("usr")}).
+It is a supporting function for \code{label.figure} but is also useful for other circumstances where information must be added at a particular location in a figure.
 
   \code{thermo.axis} is used to add axes and axis labels to plots, with some default style settings (rotation of numeric labels) and conversions between oxidation-reduction scales (called by \code{thermo.plot.new}). It also adds minor tick marks.
 
-  \code{mtitle} can be used to add a multi-line title to a plot. It loops over each element of \code{main} and places it on a separate margin line using \code{\link{mtext}}. This function exists to facilitate using \code{\link{expression}}s in multiline titles (see \code{\link{revisit}} for an example.) 
+\code{mtitle} can be used to add a multi-line title to a plot.
+It loops over each element of \code{main} and places it on a separate margin line using \code{\link{mtext}}.
+The spacing of the last (bottom) line from the edge of the plot is specified by \code{line}.
+This function exists to facilitate using \code{\link{expression}}s in multiline titles (see \code{\link{revisit}} for an example.) 
 
   \code{residualsplot} produces a \code{\link{barchart}} with options useful for plotting residuals of group contribution models for thermodynamic properties. It plots horizontal bars stacked with largest on top. The names of the \code{residuals} argument (i.e., the names of model species) are plotted across from each respective bar. The axis title is taken from the \code{property} (probably \samp{Cp} or \samp{V}), and the plot title includes the \code{model} name. See the \sQuote{xadditivity} vignette for examples of these plots.
 

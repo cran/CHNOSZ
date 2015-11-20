@@ -2,9 +2,9 @@
 # define species of interest 
 
 # to retrieve the coefficients of reactions to form the species from the basis species
-species.basis <- function(species) {
-  # current basis matrix
-  bmat <- basis.matrix()
+species.basis <- function(species=get("thermo")$species$ispecies) {
+  # current basis elements
+  bmat <- basis.elements()
   tbmat <- t(bmat)
   # what are the elements?
   belem <- rownames(tbmat)

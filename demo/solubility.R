@@ -74,10 +74,10 @@ for(pH in pHs) {
 # make plot
 ylim <- c(-10, 4)
 thermo.plot.new(xlim=range(pHs), ylim=ylim, xlab="pH", ylab="log a")
-lines(pHs, loga.tot, lwd=3)
+lines(pHs, loga.tot, lwd=4, col="green2")
 lines(pHs, loga.CO2, lwd=2)
 lines(pHs, loga.HCO3, lty=2, lwd=2)
 lines(pHs, loga.CO3, lty=3, lwd=2)
-legend(ifelse(what=="calcite", "topright", "topleft"), lty=c(1, 1:3), lwd=c(3, 2, 2, 2),
+legend(ifelse(what=="calcite", "topright", "topleft"), lty=c(1, 1:3), lwd=c(4, 2, 2, 2), col=c("green2", rep("black", 3)),
        legend=as.expression(c("total", expr.species("CO2", state="aq"), expr.species("HCO3-"), expr.species("CO3-2"))))
 title(main=substitute(what~"solubility at"~T~degree*"C", list(what=what, T=T)))

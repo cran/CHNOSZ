@@ -11,11 +11,11 @@ mod.buffer("TPX", paste("TPX", organisms, sep="_"))
 basis(c("CO2", "H2O", "NH3", "O2"), "TPX")
 a <- affinity(return.buffer=TRUE, T=50)
 basis(c("CO2", "H2O", "NH3", "O2"), as.numeric(a[1:4]))
-a <- affinity(pH=c(0, 14, 200), T=c(25, 70, 200))
+a <- affinity(pH=c(4, 10, 300), T=c(40, 60, 300))
 e <- equilibrate(a, normalize=TRUE)
 diagram(e, fill=NULL)
 title(main="Thiol peroxidases from bacteria")
-text(0.5, 66, describe.basis(thermo$basis[-6,], oneline=TRUE), adj=0)
+legend("topleft", describe.basis(thermo$basis[-6,]))
 
 ## Buffer + ionization: relative stabilities
 ## of E. coli sigma factors on a T-pH diagram

@@ -19,18 +19,18 @@ aprot <- suppressMessages(affinity())
 test_that("equilibrate() gives expected messages and errors for balance calculation", {
   # the following error is triggered by equil.react, not equil.boltzmann
   expect_error(equilibrate(aone), "at least two species needed")
-  expect_message(equilibrate(aacid), "coefficients are moles of CO2")
-  expect_message(equilibrate(aacid), "balancing coefficients are 2 1 1 2 ")
-  expect_message(equilibrate(aacid), "logarithm of total moles of CO2 is -2.221848")
-  expect_message(equilibrate(aacid, loga.balance=-3), "logarithm of total moles of CO2 \\(from loga.balance\\) is -3")
+  expect_message(equilibrate(aacid), "balance: from moles of CO2")
+  expect_message(equilibrate(aacid), "n.balance is 2 1 1 2 ")
+  expect_message(equilibrate(aacid), "loga.balance is -2.221848")
+  expect_message(equilibrate(aacid, loga.balance=-3), "loga.balance is -3")
   expect_error(equilibrate(aacid, balance="length"), "some species are not proteins")
-  expect_message(equilibrate(aacidS), "coefficients are unity")
-  expect_message(equilibrate(aacidS), "balancing coefficients are 1 1 1 1 1")
-  expect_message(equilibrate(aacidS), "logarithm of total moles of species is -2.301029")
+  expect_message(equilibrate(aacidS), "balance: from numeric argument value")
+  expect_message(equilibrate(aacidS), "n.balance is 1 1 1 1 1")
+  expect_message(equilibrate(aacidS), "loga.balance is -2.301029")
   expect_error(equilibrate(aacidS, balance="CO2"), "some species have no CO2 in the formation reaction")
-  expect_message(equilibrate(aprot), "coefficients are protein length")
-  expect_message(equilibrate(aprot), "balancing coefficients are 129 153 124 104")
-  expect_message(equilibrate(aprot), "logarithm of total protein length is -0.292429")
+  expect_message(equilibrate(aprot), "balance: from protein length")
+  expect_message(equilibrate(aprot), "n.balance is 129 153 124 104")
+  expect_message(equilibrate(aprot), "loga.balance is -0.292429")
   expect_message(equilibrate(aprot, normalize=TRUE), "using 'normalize' for molar formulas")
 })
 
@@ -78,7 +78,50 @@ test_that("equilibrate() reproduces an example from the literature", {
   expect_true(all(abs(loga.equil-loga.ref) < 0.36))
 })
 
-#}
+test_that("equilibrate() can be used for huge values of Astar", {
+  ## working out some bugs and testing new 'method' argument 20151109
+
+  ## first, demonstrate that equil.reaction works where equil.boltzmann doesn't
+  # minimal example: Astar=c(0, 0), n.balance=c(1, 1), loga.balance=0
+  # results in equal activities of two species
+  eb0 <- equil.boltzmann(c(0, 0), c(1, 1), 0)
+  expect_equal(unlist(eb0), rep(log10(0.5), 2))
+  # Astar=c(-330, -330)
+  # result is NaN (we probably get an Inf-Inf somewhere)
+  eb330 <- equil.boltzmann(c(-330, -330), c(1, 1), 0)
+  expect_equal(unlist(eb330), rep(NaN, 2))
+  # (fixed bug: while loop in equil.reaction tested a NaN value)
+  # (dlogadiff.dAbar <- 0 / 0)
+  er330 <- equil.reaction(c(-330, -330), c(1, 1), 0)
+  expect_equal(er330, eb0)
+
+  ## second, set up extreme test case and show boltzmann method produces NaN (is.na)
+  basis("CHNOS")
+  basis("O2", 200)
+  species(c("glycine", "alanine", "proline"))
+  a <- affinity()
+  expect_message(eb <- equilibrate(a, balance=1), "using boltzmann method")
+  expect_true(all(is.na(unlist(eb$loga.equil))))
+
+  ## third, check we can use method="reaction"
+  expect_message(er1 <- equilibrate(a, balance=1, method="reaction"), "using reaction method")
+  expect_false(any(is.na(unlist(er1$loga.equil))))
+  # is it an equilibrium solution?
+  species(1:3, unlist(er1$loga.equil))
+  a1 <- affinity()
+  expect_equal(diff(range(unlist(a1$values))), 0)
+
+  ## third, check that we can use arbitrary numeric balance specification
+  # (balance <> 1 here means equilibrate will call equil.reaction)
+  expect_message(er11 <- equilibrate(a, balance=1.000001), "using reaction method")
+  species(1:3, unlist(er11$loga.equil))
+  a11 <- affinity()
+  expect_equal(unlist(a1$values), unlist(a11$values))
+
+  ## fourth, check that equil.boltzmann won't run for balance <> 1
+  expect_error(equilibrate(a, balance=1.000001, method="boltzmann"), "won't run equil.boltzmann")
+})
+
 
 # references
 

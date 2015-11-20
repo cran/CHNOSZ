@@ -2,7 +2,6 @@
 \alias{util.misc}
 \alias{dPdTtr}
 \alias{Ttr}
-\alias{nonideal}
 \alias{which.balance}
 \alias{unitize}
 \title{Functions for Miscellaneous Tasks}
@@ -13,7 +12,6 @@
 \usage{
   dPdTtr(x)
   Ttr(x, P = 1, dPdT = NULL)
-  nonideal(species, proptable, IS, T)
   which.balance(species)
   unitize(logact = NULL, length = NULL, logact.tot = 0)
 }
@@ -22,10 +20,7 @@
   \item{x}{numeric index of a mineral phase (\code{dPdTtr}, \code{Ttr})}
   \item{P}{numeric, pressure (bar)}
   \item{dPdT}{numeric, values of (\eqn{dP/dT}{dP/dT}) of phase transitions (\code{Ttr})}
-  \item{species}{Names or indices of species for which to calculate nonideal properties (\code{nonideal}), or dataframe, species definition such as that in \code{\link{thermo}$species} (\code{which.balance})}
-  \item{proptable}{list of dataframes of species properties}
-  \item{T}{numeric, temperature (K) (\code{lines.water}, \code{nonideal})}
-  \item{IS}{numeric, ionic strength(s) used in nonideal calculations, mol kg\eqn{^{-1}}{^-1}}
+  \item{species}{dataframe, species definition such as that in \code{\link{thermo}$species}}
   \item{logact}{numeric, logarithms of activity}
   \item{length}{numeric, numbers of residues}
   \item{logact.tot}{numeric, logarithm of total activity}

@@ -5,7 +5,7 @@ test_that("expected errors are produced for inconsistent arguments", {
   basis("CHNOS")
   species(c("glycine", "alanine"))
   a <- affinity()
-  expect_message(diagram(a, plot.it=FALSE), "coefficients are moles of CO2 in formation reactions")
+  expect_message(diagram(a, plot.it=FALSE), "balance: from moles of CO2 in formation reactions")
   e <- equilibrate(a)
   expect_error(diagram(e, "Z"), "Z is not a basis species")
 })
@@ -22,7 +22,7 @@ test_that("expected messages, errors and results arise using output from affinit
   # we can't calculate the equilibrium activity of a basis species if it's externally buffered
   expect_error(diagram(a, "O2"), "is not numeric - was a buffer selected\\?")
   # this one works - a barplot of A/2.303RT
-  expect_message(diagram(a, plot.it=FALSE), "coefficients are moles of CO2 in formation reactions")
+  expect_message(diagram(a, plot.it=FALSE), "balance: from moles of CO2 in formation reactions")
   # if we're plotting A/2.303RT the values can be divided by balancing coefficient or not
   d.1 <- diagram(a, balance=1, plot.it=FALSE)
   d.CO2 <- diagram(a, plot.it=FALSE)
@@ -54,7 +54,7 @@ test_that("'groups' and 'alpha' work as expected", {
   # ask for degrees of formation instead of logarithms of activities
   d <- diagram(e, alpha=TRUE, plot.it=FALSE)
   # we should find that the sum of alphas is one
-  expect_equal(Reduce("+", d$plotvals), array(rep(1, 128)))
+  expect_equal(Reduce("+", d$plotvals), array(rep(1, 128)), check.attributes=FALSE)
 })
 
 test_that("'normalize' and 'as.residue' work as expected", {

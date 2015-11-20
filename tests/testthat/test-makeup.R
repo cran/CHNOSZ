@@ -54,7 +54,7 @@ test_that("makeup has a fall-through mechanism for matrices and named objects", 
   protein <- c("LYSC_CHICK", "RNAS1_BOVIN", "CYC_BOVIN", "MYG_PHYCA", "MYG_HORSE")
   pf <- protein.formula(protein)  # a matrix with elements on the columns
   basis(protein)          # yup, a basis set made of proteins, just for fun
-  bmat <- basis.matrix()  # a matrix with elements on the columns
+  bmat <- basis.elements()  # a matrix with elements on the columns
   expect_equal(as.array(makeup(pf)[[1]]), makeup(as.chemical.formula(pf)[1]))
   expect_equal(makeup(pf), makeup(bmat))
 })

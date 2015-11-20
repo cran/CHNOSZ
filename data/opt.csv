@@ -1,2 +1,2 @@
-Tr,Pr,Theta,Psi,R,cutoff,E.units,T.units,P.units,state,water,G.tol,Cp.tol,V.tol,varP,IAPWS95.Psat.state,paramin
-298.15,1,228,2600,1.9872,1e-10,cal,C,bar,aq,SUPCRT92,100,1,1,FALSE,liquid,1000
+Tr,Pr,Theta,Psi,R,cutoff,E.units,T.units,P.units,state,water,G.tol,Cp.tol,V.tol,varP,IAPWS.sat,paramin,ideal.H,ideal.e
+298.15,1,228,2600,1.9872,1e-10,cal,C,bar,aq,SUPCRT92,100,1,1,FALSE,liquid,1000,TRUE,TRUE

@@ -19,13 +19,15 @@ Y <- rep(mean(y$abundance[!ina]), length(y$abundance[!ina]))
 # run the Gibbs energy minimization
 w <- run.wjd(iobigt, Y=Y, imax=100)
 # make a log-log plot
-plot(log10(y$abundance[!ina]), log10(w$X), xlim=c(1.5, 5), ylim=c(1.5, 5))
+plot(log10(y$abundance[!ina]), log10(w$X), xlim=c(1.5, 5), ylim=c(1.5, 5),
+  xlab="log10(abundance) reported in YeastGFP study",
+  ylab="log10(abundance) calculated using Gibbs energy minimization")
 # get the element potentials (tolerating "close enough" to equilibrium)
 emu <- equil.potentials(w, tol=1e7)
 # then the logarithms of activities of the basis species
 basis("CHNOS")
 bl <- basis.logact(emu)
 # make a title and legend
-title(main="calculated vs observed abundances: yeast cell periphery")
+title(main="relative abundances of proteins: yeast cell periphery")
 basis(names(bl), bl)
 legend("topleft", describe.basis(digits=2))

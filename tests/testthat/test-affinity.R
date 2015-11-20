@@ -31,7 +31,8 @@ test_that("pe, pH and Eh are correctly handled", {
   a.Eh <- affinity(Eh=Eh, T=100)
   a.pe <- affinity(pe=pe, T=100)
   # they should give the same result
-  expect_equal(a.Eh$values, a.pe$values)
+  # ... except for names(dim(.)), so set check.attributes=FALSE
+  expect_equal(a.Eh$values, a.pe$values, check.attributes=FALSE)
   # the variables should have the right names
   expect_equal(c(a.Eh$vars, a.pe$vars), c("Eh", "pe"))
   # now for an Eh-pH example
@@ -72,7 +73,7 @@ test_that("affinity() in 3D returns values consistent with manual calculation", 
   # log_a(O2) = -20, -15, -10, -5, 0
   # first test: the dimensions are correct
   a.logK <- affinity(T=c(0, 125, 6), H2=c(-20, 0, 5), O2=c(-20, 0, 5), property="logK")
-  expect_equal(dim(a.logK$values[[1]]), c(6, 5, 5))
+  expect_equal(dim(a.logK$values[[1]]), c(6, 5, 5), check.names=FALSE)
   # second and third tests: the logK values used by affinity() are correct
   expect_equal(a.logK$values[[1]][2, 3, 3], logK.25)
   expect_equal(a.logK$values[[1]][5, 4, 3], logK.100)

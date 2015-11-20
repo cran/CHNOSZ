@@ -8,7 +8,7 @@
 
 \usage{
   species(species = NULL, state = NULL, delete = FALSE, index.return = FALSE)
-  species.basis(species)
+  species.basis(species = get("thermo")$species$ispecies)
 }
 
 \arguments{

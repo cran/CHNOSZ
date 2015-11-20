@@ -2,8 +2,8 @@
 # functions related to swapping basis species
 # extracted from basis() 20120114 jmd
 
-# return the current basis matrix
-basis.matrix <- function(basis = get("thermo")$basis) {
+# return the current basis elements
+basis.elements <- function(basis = get("thermo")$basis) {
   if(is.null(basis)) stop("basis species are not defined")
   return(as.matrix(basis[, 1:nrow(basis), drop=FALSE]))
 }
@@ -11,7 +11,7 @@ basis.matrix <- function(basis = get("thermo")$basis) {
 # calculate chemical potentials of elements from logarithms of activity of basis species
 element.mu <- function(basis = get("thermo")$basis, T = 25) {
   # matrix part of the basis definition
-  basis.mat <- basis.matrix(basis)
+  basis.mat <- basis.elements(basis)
   # the standard Gibbs energies of the basis species
   if(T==25) G <- get("thermo")$obigt$G[basis$ispecies]
   else G <- unlist(subcrt(basis$ispecies, T=T, property="G")$out)
@@ -27,7 +27,7 @@ element.mu <- function(basis = get("thermo")$basis, T = 25) {
 # calculate logarithms of activity of basis species from chemical potentials of elements
 basis.logact <- function(emu, basis = get("thermo")$basis, T = 25) {
   # matrix part of the basis definition
-  basis.mat <- basis.matrix(basis)
+  basis.mat <- basis.elements(basis)
   # elements in emu can't be less than the number in the basis
   if(length(emu) < ncol(basis.mat)) stop("number of elements in 'emu' is less than those in basis")
   # sort names of emu in order of those in basis.mat
@@ -47,6 +47,19 @@ basis.logact <- function(emu, basis = get("thermo")$basis, T = 25) {
   return(basis.logact)
 }
 
+ibasis <- function(species) {
+  # get the index of a basis species from a species index, name or formula
+  basis <- basis()
+  if(is.numeric(species)) ib <- match(species, basis$ispecies)
+  else {
+    # character: first look for formula of basis species
+    ib <- match(species, rownames(basis))
+    # if that doesn't work, look for name of basis species
+    if(is.na(ib)) ib <- match(species, get("thermo")$obigt$name[basis$ispecies])
+  }
+  return(ib)
+}
+
 # swap in one basis species for another
 swap.basis <- function(species, species2, T = 25) {
   # before we do anything, remember the old basis definition
@@ -63,8 +76,7 @@ swap.basis <- function(species, species2, T = 25) {
   if(length(species) > 1 | length(species2) > 2)
     stop("can only swap one species for one species")
   # arguments are good, now find the basis species to swap out
-  if(is.numeric(species)) ib <- match(species, oldbasis$ispecies)
-  else ib <- match(species, rownames(oldbasis))
+  ib <- ibasis(species)
   if(is.na(ib)) stop(paste("basis species '",species,"' is not defined",sep=""))
   # find species2 in the thermodynamic database
   if(is.numeric(species2)) ispecies2 <- species2

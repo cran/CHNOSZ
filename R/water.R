@@ -285,7 +285,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     # calculate values of P for Psat
     if(identical(P, "Psat")) P <- psat()
     msgout(" rho")
-    my.rho <- rho.IAPWS95(T, P, get("thermo")$opt$IAPWS95.Psat.state)
+    my.rho <- rho.IAPWS95(T, P, get("thermo")$opt$IAPWS.sat)
     rho <- function() my.rho
   }
   for(i in 1:length(property)) {

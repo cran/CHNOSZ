@@ -17,7 +17,7 @@ mosaic <- function(bases, bases2=NULL, blend=FALSE, ...) {
   # (the first one should be present in the starting basis set)
   iswap <- match(bases[1], names(myargs))
   # the log activity of the starting basis species
-  logact.swap <- basis()$logact[match(bases[1], row.names(basis()))]
+  logact.swap <- basis()$logact[ibasis(bases[1])]
   # a list where we'll keep the affinity calculations
   affs <- list()
   for(i in seq_along(bases)) {
@@ -35,11 +35,14 @@ mosaic <- function(bases, bases2=NULL, blend=FALSE, ...) {
     # change the basis species; restore the original at the end of the loop
     if(i < length(bases)) {
       swap.basis(bases[i], bases[i+1]) 
-      basis(bases[i+1], logact.swap)
+      # TODO: basis() requires the formula to identify the basis species,
+      # would be nicer to just use the ibasis here
+      bformula <- rownames(basis())[ibasis(bases[i+1])]
+      basis(bformula, logact.swap)
     } else {
       swap.basis(bases[i], bases[1])
-      basis(bases[1], logact.swap)
-      names <- row.names(basis())
+      bformula <- rownames(basis())[ibasis(bases[1])]
+      basis(bformula, logact.swap)
     }
   }
   # calculate affinities of formation of basis species

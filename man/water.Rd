@@ -86,7 +86,7 @@ The properties of steam in CHNOSZ, as in \acronym{SUPCRT92}, are calculated usin
 \code{water.IAPWS95} provides for calculations at specific temperature and pressure; density, needed for \code{IAPWS95}, is inverted from pressure using \code{rho.IAPWS95}.
 The function also contains routines for calculating the Born functions as numerical derivatives of the static dielectric constant (from \code{water.AW90}).
 For compatibility with geochemical modeling conventions, the values of Gibbs energy, enthalpy and entropy output by \code{IAPWS95} are converted by \code{water.IAPWS95} to the triple point reference state adopted in \code{SUPCRT92} (Johnson and Norton, 1991; Helgeson and Kirkham, 1974).
-\code{water.IAPWS95} also accepts setting \code{P} to \samp{Psat}, with the saturation pressure calculated from \code{\link{WP02.auxiliary}}; by default the returned properties are for the liquid, but this can be changed to the vapor in \code{\link{thermo}$opt$IAPWS95.Psat.state}.
+\code{water.IAPWS95} also accepts setting \code{P} to \samp{Psat}, with the saturation pressure calculated from \code{\link{WP02.auxiliary}}; by default the returned properties are for the liquid, but this can be changed to the vapor in \code{\link{thermo}$opt$IAPWS.sat}.
 
 The stated temperature limits of validity of calculations in \code{water.SUPCRT92} are from the greater of 0 \eqn{^{\circ}}{°}C or the melting temperature at pressure, to 2250 \eqn{^{\circ}}{°}C (Johnson et al., 1992).
 Valid pressures are from the greater of zero bar or the melting pressure at temperature to 30000 bar (\code{water.SUPCRT92}).

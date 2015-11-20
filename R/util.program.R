@@ -27,9 +27,14 @@ palply <- function(varlist, X, FUN, ...) {
     # don't load methods package, to save startup time - ?makeCluster
     cl <- parallel::makeCluster(nCores, methods=FALSE)
     # export the variables and notify the user
-    if(! "" %in% varlist) parallel::clusterExport(cl, varlist)
-    msgout(paste("palply:", caller.name(4), "running", length(X), "calculations on",
-      nCores, "cores with variable(s)", paste(varlist, collapse=", "), "\n"))
+    if(! "" %in% varlist) {
+      parallel::clusterExport(cl, varlist)
+      msgout(paste("palply:", caller.name(4), "running", length(X), "calculations on",
+        nCores, "cores with variable(s)", paste(varlist, collapse=", "), "\n"))
+    } else {
+      msgout(paste("palply:", caller.name(4), "running", length(X), "calculations on",
+        nCores, "cores\n"))
+    }
     # run the calculations
     out <- parallel::parLapply(cl, X, FUN, ...)
     parallel::stopCluster(cl)

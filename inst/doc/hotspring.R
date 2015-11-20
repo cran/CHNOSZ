@@ -1,5 +1,4 @@
-
-## ----setup, include=FALSE, cache=FALSE-----------------------------------
+## ----setup, include=FALSE, cache=FALSE---------------------------------------------
 library(knitr)
 ## set global chunk options
 opts_chunk$set(fig.path='figure/hotspring-', cache.path='cache/hotspring-', fig.align='center', fig.show='hold', par=TRUE)
@@ -12,19 +11,16 @@ knit_hooks$set(par=function(before, options, envir){
 if (before && options$fig.show!='none') par(mar=c(4,4,1,1),cex.lab=.95,cex.axis=.9,mgp=c(2,.7,0),tcl=-.3)
 })
 
-
-## ----libraryCHNOSZ-------------------------------------------------------
+## ----libraryCHNOSZ-----------------------------------------------------------------
 library(CHNOSZ)
 data(thermo)
 add.obigt()
 
-
-## ----TpH-----------------------------------------------------------------
+## ----TpH---------------------------------------------------------------------------
 bison.T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
 bison.pH <- c(7.350, 7.678, 7.933, 7.995, 8.257)
 
-
-## ----TpHplot, fig.width=6, fig.height=3----------------------------------
+## ----TpHplot, fig.width=6, fig.height=3--------------------------------------------
 distance <- c(0, 6, 11, 14, 22)
 par(mfrow=c(1, 2), mar=c(4, 4, 3, 2))
 xpoints <- seq(0, 22, length.out=128)
@@ -38,24 +34,20 @@ plot(distance, bison.pH, xlab="distance, m", ylab="pH")
 pHfun <- splinefun(distance, bison.pH, method="mono")
 lines(xpoints, pHfun(xpoints))
 
-
-## ----proteins------------------------------------------------------------
+## ----proteins----------------------------------------------------------------------
 # read the amino acid compositions
 aa.annot <- read.aa(system.file("extdata/protein/DS11.csv", package="CHNOSZ"))
 aa.phyla <- read.aa(system.file("extdata/protein/DS13.csv", package="CHNOSZ"))
 
-
-## ----sitename------------------------------------------------------------
+## ----sitename----------------------------------------------------------------------
 sites <- c("N", "S", "R", "Q", "P")
 sitenames <- paste("bison", sites, sep="")
 
-
-## ----classes-------------------------------------------------------------
+## ----classes-----------------------------------------------------------------------
 classes <- unique(aa.annot$protein)
 classes
 
-
-## ----names---------------------------------------------------------------
+## ----names-------------------------------------------------------------------------
 # the names of the phyla in alphabetical order (except Deinococcus-Thermus at end)
 phyla.abc <- sort(unique(aa.phyla$organism))[c(1:7,9:11,8)]
 # an abbreviation for Dein.-Thermus
@@ -67,8 +59,7 @@ phyla.cols <- c("#f48ba5", "#f2692f", "#cfdd2a",
 phyla.lty <- c(1:6, 1:5)
 phyla.abbrv
 
-
-## ----ZCplot, fig.width=5, fig.height=5, out.width='.49\\textwidth'-------
+## ----ZCplot, fig.width=5, fig.height=5, out.width='.49\\textwidth'-----------------
 # 2011 plot
 ylab <- expression(bar(italic(Z))[C])
 plot(0, 0, xlim=c(-0.5, 5), ylim=c(-0.27, -0.11), xlab="location", xaxt="n", ylab=ylab)
@@ -104,51 +95,42 @@ for(i in 1:length(phyla.abc)) {
 legend("bottomright", pch=0:10, legend=phyla.abbrv, bg="white", cex=0.9)
 title(main="major phyla")
 
-
-## ----setup.basis---------------------------------------------------------
+## ----setup.basis-------------------------------------------------------------------
 setup.basis <- function() {
   basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
   basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.933))
 }
 
-
-## ----overall-------------------------------------------------------------
+## ----overall-----------------------------------------------------------------------
 setup.basis()
 ip.annot <- add.protein(aa.annot)
 species("overall", sitenames)
 
-
-## ----residue-------------------------------------------------------------
+## ----residue-----------------------------------------------------------------------
 pl <- protein.length(ip.annot[1:5])
 mysp <- species()
 mysp[, 1:6]/pl
 
-
-## ----logaH2--------------------------------------------------------------
+## ----logaH2------------------------------------------------------------------------
 get.logaH2 <- function(T) -11 + T * 3/40
 
-
-## ----affinity------------------------------------------------------------
+## ----affinity----------------------------------------------------------------------
 species(1:5, 0)
 a <- affinity(T=bison.T, pH=bison.pH, H2=get.logaH2(bison.T))
 a.res <- t(as.data.frame(a$values))/pl
 a.res
 
-
-## ----affinitymax---------------------------------------------------------
+## ----affinitymax-------------------------------------------------------------------
 apply(a.res, 2, which.max)
 
-
-## ----affinityadj---------------------------------------------------------
+## ----affinityadj-------------------------------------------------------------------
 a.res <- a.res - log10(pl)
 apply(a.res, 2, which.max)
 
-
-## ----Tlim----------------------------------------------------------------
+## ----Tlim--------------------------------------------------------------------------
 Tlim <- c(50, 100)
 
-
-## ----TlogaH2plot, fig.width=6, fig.height=3, message=FALSE, results='hide'----
+## ----TlogaH2plot, fig.width=6, fig.height=3, message=FALSE, results='hide'---------
 par(mfrow=c(1, 2))
 # first plot
 a <- affinity(T=Tlim, H2=c(-7, -4))
@@ -166,8 +148,7 @@ e <- equilibrate(a, normalize=TRUE)
 diagram(e, legend.x=NULL)
 legend("bottom", lty=1:5, legend=1:5, bty="n", cex=0.6)
 
-
-## ----stripplot, fig.width=6, fig.height=3.5, message=FALSE, results='hide'----
+## ----stripplot, fig.width=6, fig.height=3.5, message=FALSE, results='hide'---------
 loadclass <- function(class) {
   species(delete=TRUE)
   species(rep(class, each=5), rep(sitenames, length(class)))
@@ -184,7 +165,6 @@ for(i in 1:2) {
   names(ispecies) <- xclasses[(1:3)+(i-1)*3]
   strip(a = a, ispecies = ispecies, col = col, xticks = distance, cex.names = 1)
 }
-
 
 ## ----methionine, fig.width=6, fig.height=4, message=FALSE, results='hide', cache=TRUE----
 par(mfrow=c(2, 3))
@@ -208,8 +188,7 @@ for(j in 1:2) {
   }
 }
 
-
-## ----alpha.blast---------------------------------------------------------
+## ----alpha.blast-------------------------------------------------------------------
 alpha.blast <- function() {
   out <- xtabs(ref ~ protein + organism, aa.phyla)
   # put it in correct order, then turn counts into fractions
@@ -218,8 +197,7 @@ alpha.blast <- function() {
   return(out)
 }
 
-
-## ----alpha.equil---------------------------------------------------------
+## ----alpha.equil-------------------------------------------------------------------
 alpha.equil <- function(i=1) {
   # order the names and counts to go with the alphabetical phylum list
   iloc <- which(aa.phyla$protein==sitenames[i])
@@ -241,7 +219,6 @@ alpha.equil <- function(i=1) {
   # return the calculated activities, logaH2 range, DGtr values, and optimal logaH2
   return(list(alpha=a.residue, H2vals=a$vals[[1]], DGtr=r$H, logaH2.opt=r$xopt))
 }
-
 
 ## ----alphaplot, fig.width=8, fig.height=6, tidy=FALSE, message=FALSE, results='hide', cache=TRUE----
 ip.phyla <- add.protein(aa.phyla)
@@ -275,39 +252,33 @@ for(i in 1:5) {
   }
 }
 
-
-## ----E.AgAgCl------------------------------------------------------------
+## ----E.AgAgCl----------------------------------------------------------------------
 E.AgAgCl <- function(T) {
   0.23737 - 5.3783e-4 * T - 2.3728e-6 * T^2 - 2.2671e-9 * (T+273)
 }
 
-
-## ----meters--------------------------------------------------------------
+## ----meters------------------------------------------------------------------------
 T.ORP <- c(93.9, 87.7, 75.7, 70.1, 66.4, 66.2)
 pH.ORP <- c(8.28, 8.31, 7.82, 7.96, 8.76, 8.06)
 ORP <- c(-258, -227, -55, -58, -98, -41)
 
-
-## ----ORP2Eh, message=FALSE, results='hide'-------------------------------
+## ----ORP2Eh, message=FALSE, results='hide'-----------------------------------------
 Eh <- ORP/1000 + E.AgAgCl(T.ORP)
 pe <- convert(Eh, "pe", T=convert(T.ORP, "K"))
 logK.ORP <- subcrt(c("e-", "H+", "H2"), c(-2, -2, 1), T=T.ORP)$out$logK
 logaH2.ORP <- logK.ORP - 2*pe - 2*pH.ORP
 
-
-## ----sulfur, message=FALSE, results='hide'-------------------------------
+## ----sulfur, message=FALSE, results='hide'-----------------------------------------
 loga.HS <- log10(c(4.77e-6, 2.03e-6, 3.12e-7, 4.68e-7, 2.18e-7))
 loga.SO4 <- log10(c(2.10e-4, 2.03e-4, 1.98e-4, 2.01e-4, 1.89e-4))
 logK.S <- subcrt(c("HS-", "H2O", "SO4-2", "H+", "H2"), c(-1, -4, 1, 1, 4), T=bison.T)$out$logK
 logaH2.S <- (logK.S + bison.pH - loga.SO4 + loga.HS) / 4
 
-
-## ----oxygen, message=FALSE, results='hide'-------------------------------
+## ----oxygen, message=FALSE, results='hide'-----------------------------------------
 DO <- c(0.173, 0.776, 0.9, 1.6, 2.8)
 logaO2 <- log10(DO/1000/32)
 logK <- subcrt(c("O2", "H2", "H2O"), c(-0.5, -1, 1), T=bison.T)$out$logK
 logaH2.O <- 0 - 0.5*logaO2 - logK
-
 
 ## ----logaH2plot, fig.width=4, fig.height=4, out.width='.45\\textwidth', cache=TRUE----
 # 2011 plot
@@ -331,7 +302,6 @@ lines(bison.T, sapply(equil.results, "[", "logaH2.opt"), lty=2)
 points(bison.T, sapply(equil.results, "[", "logaH2.opt"), pch=21, bg="white")
 text(90, -5.3, "Equation 2")
 text(66, -9, "optimal parameterization\nfor observed\nphylum abundances", adj=0)
-
 
 ## ----alphaplot5, fig.width=9, fig.height=6, out.width='.88\\textwidth', cache=TRUE----
 layout(matrix(c(1, 2, 3, 4, 5, 6), nrow=2, byrow=TRUE), widths=c(2, 2, 2))
@@ -360,8 +330,7 @@ for(iloc in 1:5) {
   legend("bottomright", bty="n", legend=c(DGexpr, DGval))
 }
 
-
-## ----barchart, fig.width=6, fig.height=3---------------------------------
+## ----barchart, fig.width=6, fig.height=3-------------------------------------------
 par(mar=c(4, 4, 3, 0), mgp=c(1.8, 0.7, 0))
 par(mfrow=c(1, 3), cex=1)
 # make the blast plot
@@ -380,5 +349,4 @@ title(main="metastable\nequilibrium", cex.main=0.8)
 par(mar=c(4, 1, 3, 0))
 plot.new()
 legend("bottomleft", legend=rev(phyla.abbrv), fill=rev(phyla.cols), bty="n", cex=0.7)
-
 

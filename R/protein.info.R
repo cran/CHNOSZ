@@ -121,7 +121,7 @@ protein.info <- function(protein, T=25, residue=FALSE, round.it=FALSE) {
     if(round.it) pf <- round(pf, 3)
   }
   # convert each protein formula to a single line
-  formula <- as.chemical.formula(pf)
+  formula <- as.chemical.formula(round(pf, 3))
   if(round.it) {
     length <- round(length, 1)
     G <- round(G, 3)
@@ -161,7 +161,7 @@ protein.basis <- function(protein, T=25, normalize=FALSE) {
   return(sb)
 }
 
-protein.equil <- function(protein, T=25, loga.protein=0) {
+protein.equil <- function(protein, T=25, loga.protein=0, digits=4) {
   # show the individual steps in calculating metastable equilibrium among proteins
   msgout("protein.equil: temperature from argument is ", T, " degrees C\n")
   TK <- convert(T, "K")
@@ -174,7 +174,7 @@ protein.equil <- function(protein, T=25, loga.protein=0) {
   thermo <- get("thermo")
   ionize.it <- FALSE
   iword <- "nonionized"
-  bmat <- basis.matrix()
+  bmat <- basis.elements()
   if("H+" %in% rownames(bmat)) {
     ionize.it <- TRUE
     iword <- "ionized"
@@ -196,30 +196,30 @@ protein.equil <- function(protein, T=25, loga.protein=0) {
   G0prot <- unlist(suppressMessages(subcrt(pname, T=T, property="G")$out))
   # standard Gibbs energy of formation reaction of nonionized protein, cal/mol
   G0protform <- G0prot - G0basissum
-  msgout("protein.equil [1]: reaction to form nonionized protein from basis species has G0(cal/mol) of ", G0protform[1], "\n")
+  msgout("protein.equil [1]: reaction to form nonionized protein from basis species has G0(cal/mol) of ", signif(G0protform[1], digits), "\n")
   if(ionize.it) {
     # standard Gibbs energy of ionization of protein, cal/mol
     G0ionization <- suppressMessages(ionize.aa(aa, property="G", T=T, pH=pH))[1, ]
-    msgout("protein.equil [1]: ionization reaction of protein has G0(cal/mol) of ", G0ionization[1], "\n")
+    msgout("protein.equil [1]: ionization reaction of protein has G0(cal/mol) of ", signif(G0ionization[1], digits), "\n")
     # standard Gibbs energy of formation reaction of ionized protein, cal/mol
     G0protform <- G0protform + G0ionization
   }
   # standard Gibbs energy of formation reaction of non/ionized residue equivalents, dimensionless
   G0res.RT <- G0protform/thermo$opt$R/TK/plength
-  msgout("protein.equil [1]: per residue, reaction to form ", iword, " protein from basis species has G0/RT of ", G0res.RT[1], "\n")
+  msgout("protein.equil [1]: per residue, reaction to form ", iword, " protein from basis species has G0/RT of ", signif(G0res.RT[1], digits), "\n")
   # coefficients of basis species in formation reactions of residues
   resbasis <- suppressMessages(protein.basis(aa, T=T, normalize=TRUE))
   # logQstar and Astar/RT
   logQstar <- colSums(t(resbasis) * - thermo$basis$logact)
-  msgout("protein.equil [1]: per residue, logQstar is ", logQstar[1], "\n")
+  msgout("protein.equil [1]: per residue, logQstar is ", signif(logQstar[1], digits), "\n")
   Astar.RT <- -G0res.RT - log(10)*logQstar
-  msgout("protein.equil [1]: per residue, Astar/RT = -G0/RT - 2.303logQstar is ", Astar.RT[1], "\n")
+  msgout("protein.equil [1]: per residue, Astar/RT = -G0/RT - 2.303logQstar is ", signif(Astar.RT[1], digits), "\n")
   if(!is.numeric(protein)) msgout("protein.equil [1]: not comparing calculations with affinity() because 'protein' is not numeric\n")
   else {
     # for **Astar** we have to set the activities of the proteins to zero, not loga.protein!
     a <- suppressMessages(affinity(iprotein=protein, T=T, loga.protein=0))
     aAstar.RT <- log(10) * as.numeric(a$values) / plength
-    msgout("check it!       per residue, Astar/RT calculated using affinity() is ", aAstar.RT[1], "\n")
+    msgout("check it!       per residue, Astar/RT calculated using affinity() is ", signif(aAstar.RT[1], digits), "\n")
     if(!isTRUE(all.equal(Astar.RT, aAstar.RT, check.attributes=FALSE)))
       stop("Bug alert! The same value for Astar/RT cannot be calculated manually as by using affinity()")
   }
@@ -227,36 +227,36 @@ protein.equil <- function(protein, T=25, loga.protein=0) {
   else {
     ## next set of output: equilibrium calculations
     msgout("protein.equil [all]: lengths of all proteins are ", paste(plength, collapse=" "), "\n")
-    msgout("protein.equil [all]: Astar/RT of all residue equivalents are ", paste(Astar.RT, collapse=" "), "\n")
+    msgout("protein.equil [all]: Astar/RT of all residue equivalents are ", paste(signif(Astar.RT, digits), collapse=" "), "\n")
     expAstar.RT <- exp(Astar.RT)
     sumexpAstar.RT <- sum(expAstar.RT)
-    msgout("protein.equil [all]: sum of exp(Astar/RT) of all residue equivalents is ", sumexpAstar.RT, "\n")
+    msgout("protein.equil [all]: sum of exp(Astar/RT) of all residue equivalents is ", signif(sumexpAstar.RT, digits), "\n")
     # boltzmann distribution
     alpha <- expAstar.RT / sumexpAstar.RT    
-    msgout("protein.equil [all]: equilibrium degrees of formation (alphas) of residue equivalents are ", paste(alpha, collapse=" "), "\n")
+    msgout("protein.equil [all]: equilibrium degrees of formation (alphas) of residue equivalents are ", paste(signif(alpha, digits), collapse=" "), "\n")
     # check with equilibrate()
     if(is.numeric(protein)) {
       loga.equil.protein <- unlist(suppressMessages(equilibrate(a, normalize=TRUE))$loga.equil)
       # here we do have to convert from logarithms of activities of proteins to degrees of formation of residue equivalents
       a.equil.residue <- plength*10^loga.equil.protein
       ealpha <- a.equil.residue/sum(a.equil.residue)
-      msgout("check it!     alphas of residue equivalents from equilibrate() are ", paste(ealpha, collapse=" "), "\n")
+      msgout("check it!     alphas of residue equivalents from equilibrate() are ", paste(signif(ealpha, digits), collapse=" "), "\n")
       if(!isTRUE(all.equal(alpha, ealpha, check.attributes=FALSE)))
         stop("Bug alert! The same value for alpha cannot be calculated manually as by using equilibrate()")
     }
     # total activity of residues
     loga.residue <- log10(sum(plength * 10^loga.protein))
-    msgout("protein.equil [all]: for activity of proteins equal to 10^", loga.protein, ", total activity of residues is 10^", loga.residue, "\n")
+    msgout("protein.equil [all]: for activity of proteins equal to 10^", signif(loga.protein, digits), ", total activity of residues is 10^", signif(loga.residue, digits), "\n")
     # equilibrium activities of residues
     loga.residue.equil <- log10(alpha*10^loga.residue)
-    msgout("protein.equil [all]: log10 equilibrium activities of residue equivalents are ", paste(loga.residue.equil, collapse=" "), "\n")
+    msgout("protein.equil [all]: log10 equilibrium activities of residue equivalents are ", paste(signif(loga.residue.equil, digits), collapse=" "), "\n")
     # equilibrium activities of proteins
     loga.protein.equil <- log10(10^loga.residue.equil/plength)
-    msgout("protein.equil [all]: log10 equilibrium activities of proteins are ", paste(loga.protein.equil, collapse=" "), "\n")
+    msgout("protein.equil [all]: log10 equilibrium activities of proteins are ", paste(signif(loga.protein.equil, digits), collapse=" "), "\n")
     # check with equilibrate()
     if(is.numeric(protein)) {
       eloga.protein.equil <- unlist(suppressMessages(equilibrate(a, loga.balance=loga.residue, normalize=TRUE))$loga.equil)
-      msgout("check it!    log10 eq'm activities of proteins from equilibrate() are ", paste(eloga.protein.equil, collapse=" "), "\n")
+      msgout("check it!    log10 eq'm activities of proteins from equilibrate() are ", paste(signif(eloga.protein.equil, digits), collapse=" "), "\n")
       if(!isTRUE(all.equal(loga.protein.equil, eloga.protein.equil, check.attributes=FALSE)))
         stop("Bug alert! The same value for log10 equilibrium activities of proteins cannot be calculated manually as by using equilibrate()")
     }

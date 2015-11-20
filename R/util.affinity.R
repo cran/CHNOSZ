@@ -359,7 +359,12 @@ slice.affinity <- function(affinity,d=1,i=1) {
   # take a slice of affinity along one dimension
   a <- affinity
   for(j in 1:length(a$values)) {
+    # preserve the dimensions (especially: names(mydim))
+    # - fix for change in behavior of aperm in R-devel 2015-11-17
+    mydim <- dim(a$values[[j]])
     a$values[[j]] <- as.array(slice(a$values[[j]],d=d,i=i))
+    # the dimension from which we take the slice vanishes
+    dim(a$values[[j]]) <- mydim[-d]
   }
   return(a)
 }

@@ -10,7 +10,8 @@ Calculate equilibrium chemical activities of species from the affinities of form
 
 \usage{
   equilibrate(aout, balance=NULL, loga.balance=NULL,
-    ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE)
+    ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE,
+    method=c("boltzmann", "reaction"))
   balance(aout, balance=NULL)
   equil.boltzmann(Astar, n.balance, loga.balance)
   equil.reaction(Astar, n.balance, loga.balance)
@@ -25,6 +26,7 @@ Calculate equilibrium chemical activities of species from the affinities of form
   \item{Astar}{numeric, affinities of formation reactions excluding species contribution}
   \item{n.balance}{numeric, number of moles of conserved component in the formation reactions of the species of interest}
   \item{loga.balance}{numeric, logarithm of total activity of balanced quantity}
+  \item{method}{character, equilibration method to use}
 }
 
 \details{
@@ -58,7 +60,9 @@ After normalization and equilibration, the equilibrium activities are then re-sc
 
 \code{ispecies} can be supplied to identify a subset of the species to include in the calculation.
 
-\code{equil.boltzmann} is used to calculate the equilibrium activities if \code{balance} is \samp{1} (including the normalized result when \code{normalize} is TRUE), otherwise \code{equil.reaction} is called.
+\code{equil.boltzmann} is used to calculate the equilibrium activities if \code{balance} is \samp{1} (or when \code{normalize} or \code{as.residue} is TRUE), otherwise \code{equil.reaction} is called.
+The default behavior can be overriden by specifying either \samp{boltzmann} or \samp{reaction} in \code{method}.
+Using \code{equil.reaction} may be needed for systems with huge (negative or positive) affinities, where \code{equil.boltzmann} produces a NaN result.
 
 }
 
@@ -76,6 +80,7 @@ Now (from version 0.9-9), a more flexible method for generating guesses is in pl
 
 In \code{equil.boltzmann} (algorithm available beginning with CHNOSZ-0.8), the chemical activities of species are calculated using the Boltzmann distribution.
 This calculation is faster than the algorithm of \code{equil.reaction}, but is limited to systems where the transformations are all balanced on one mole of species.
+If \code{equil.boltzmann} is called with \code{balance} other than \samp{1}, it stops with an error.
 
 }
 
@@ -86,7 +91,7 @@ This calculation is faster than the algorithm of \code{equil.reaction}, but is l
 
 \value{
 \code{equil.reaction} and \code{equil.boltzmann} each return a list with dimensions and length equal to those of \code{Astar}, giving the \code{\link{log10}} of the equilibrium activities of the species of interest.
-\code{equilibrate} returns a list, containing first the values in \code{aout}, to which are appended \code{m.balance} (the balancing coefficients if \code{normalize} is TRUE, a vector of \samp{1}s otherwise), \code{n.balance} (the balancing coefficients if \code{normalize} is FALSE, a vector of \samp{1}s otherwise) and \code{loga.equil} (the calculated equilibrium activities of the species).
+\code{equilibrate} returns a list, containing first the values in \code{aout}, to which are appended \code{m.balance} (the balancing coefficients if \code{normalize} is TRUE, a vector of \samp{1}s otherwise), \code{n.balance} (the balancing coefficients if \code{normalize} is FALSE, a vector of \samp{1}s otherwise), \code{loga.balance}, \code{Astar}, and \code{loga.equil} (the calculated equilibrium activities of the species).
 \code{balance} returns a list containing the balancing coefficients (\code{n}) and a textual description (\code{description}).
 }
 

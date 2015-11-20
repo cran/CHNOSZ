@@ -1,5 +1,46 @@
-CHANGES IN CHNOSZ 1.0.6 (2015-10-19)
+CHANGES IN CHNOSZ 1.0.7 (2015-11-19)
 --------------------------------------
+
+- Add functions usrfig() (get figure limits in user coordinates) and
+  label.figure() (add label to figure outside of plot region).
+
+- Add demo copper.R (complexation of copper with glycine, uses
+  mosaic()).
+
+- Using new supporting function ibasis(), swap.basis() and mosaic()
+  now allow basis species to be specified by name, not only formula.
+
+- diagram() now has '...' argument to pass additional options to
+  plot() (useful with diagram(tplot=FALSE, ...)).
+
+- Update vignette 'equilibrium.Rnw' with better definitions of concepts,
+  organization of functions, and examples and applications. Now uses
+  knitr.
+
+- Remove demo diagram.R (concepts better shown in equilibrium.Rnw).
+
+- Rename basis.matrix() to basis.elements().
+
+- Argument of species.basis() defaults to current species indices.
+  ( species.basis() %*% basis.elements() returns elemental composition
+  of currently defined species.)
+
+- Move demos phosphate.R and nonideal.R to help page nonideal.Rd.
+
+- Add options to thermo$opt: 'ideal.H' and 'ideal.e'. Default TRUE tells
+  nonideal() to set activity coefficients of proton and electron to
+  zero.
+
+- Add 'method' argument to equilibrate() (can be 'reaction' or
+  'boltzmann').
+
+- For compatibility with a change in R-devel ("aperm(a, *) now preserves
+  names(dim(a))"), modify slice.affinity() to preserve names of
+  dimensions, and use check.attributes=FALSE or check.names=FALSE in
+  some tests.
+
+CHANGES IN CHNOSZ 1.0.6 (2015-10-19)
+------------------------------------
 
 - Rewrite rho.IAPWS95() to be able to invert density from IAPWS-95
   equations for a more extensive range of T,P values.
@@ -35,7 +76,7 @@ CHANGES IN CHNOSZ 1.0.6 (2015-10-19)
   add specific importsFrom lines in NAMESPACE.
 
 - Fix incorrect entry for entropy of aqueous methionine and [Met] in
-  OBIGT.csv. Thanks to Apar Prasad for spotting this.
+  OBIGT.csv. Thanks to Apar Prasad for reporting this.
 
 - Some fixes for compatibility with new version of testthat (increase
   tolerance for one test in test-eos.R because of corrected alignment
