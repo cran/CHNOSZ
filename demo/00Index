@@ -10,5 +10,6 @@ buffer          ionized proteins as a chemical activity buffer (1. thiol peroxid
 yeastgfp        logfO2-logaH2O diagrams for model proteins based on YeastGFP localizations
 mosaic          Eh-pH diagram for iron oxides, sulfides and carbonate with two sets of changing basis species
 copper          another example of mosaic(): complexation of copper with glycine species
-solubility      solubility of calicite or CO2(gas) as a function of pH
+solubility      solubility of calcite or CO2(gas) as a function of pH
 wjd             run.wjd() with proteins: cell periphery of yeast
+dehydration     log K of dehydration reactions; SVG file contains tooltips and links

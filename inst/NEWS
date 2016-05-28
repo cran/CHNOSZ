@@ -1,5 +1,36 @@
+CHANGES IN CHNOSZ 1.0.8 (2016-05-28)
+------------------------------------
+
+- Add gypsum to OBIGT.csv.
+
+- Add MgSO4 and hydrated Mg sulfate minerals to OBIGT-2.csv (kieserite,
+  starkeyite, hexahydrite and epsomite from Grevel and Majzlan, 2009).
+
+- Add demo dehydration.R. This demo requires the RSVGTipsDevice package,
+  which is currently unavailable on Windows.
+
+- Add ... argument to EOSvar() and EOSregress(). Allows specifying new
+  variables that are written as a function of arbitrary properties
+  (regression variables still must be a function of at least T and P).
+
+- EOSvar() now returns the negative of the 'QBorn' variable so that
+  values of omega obtained from regressions of volume data have the
+  correct sign in the HKF equations.
+
+- Use given/family naming scheme in inst/CITATION.
+
+- makeup() now works even if 'thermo' object is not available (useful
+  for other packages importing this function). Thanks to Nir Shahaf for
+  the suggestion.
+
+- So that byte-compiled package code works, subcrt() no longer uses
+  caller.name() for flow control. In its place, a new argument
+  'check.Ttr' has been added, used to bypass the checks of transition
+  temperature in calls from dPdTtr(). Thanks to Tomas Kalibera for the
+  suggestion.
+
 CHANGES IN CHNOSZ 1.0.7 (2015-11-19)
---------------------------------------
+------------------------------------
 
 - Add functions usrfig() (get figure limits in user coordinates) and
   label.figure() (add label to figure outside of plot region).

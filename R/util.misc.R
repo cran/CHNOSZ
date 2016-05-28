@@ -6,8 +6,8 @@ dPdTtr <- function(x) {
   # calculate dP/dT for a phase transition
   # (argument is index of the lower-T phase)
   thermo <- get("thermo")
-  t1 <- subcrt(x,P=0,T=thermo$obigt$z.T[x],convert=FALSE,exceed.Ttr=TRUE)
-  t2 <- subcrt(x+1,P=0,T=thermo$obigt$z.T[x],convert=FALSE,exceed.Ttr=TRUE)
+  t1 <- subcrt(x, P=0, T=thermo$obigt$z.T[x], convert=FALSE, check.Ttr=FALSE)
+  t2 <- subcrt(x+1, P=0, T=thermo$obigt$z.T[x], convert=FALSE, check.Ttr=FALSE)
   # if these aren't the same mineral all we can say is zero
   # actually, should be infinity ... the volume change is zero
   if(as.character(t1$species$name) != as.character(t2$species$name)) return(Inf)

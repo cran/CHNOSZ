@@ -3,7 +3,7 @@
 # 20060817 jmd
 
 subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','V','Cp'),
-  T=seq(273.15,623.15,25), P='Psat', grid=NULL, convert=TRUE, exceed.Ttr=FALSE,
+  T=seq(273.15,623.15,25), P='Psat', grid=NULL, convert=TRUE, check.Ttr=TRUE, exceed.Ttr=FALSE,
   logact=NULL, action.unbalanced='warn', IS=0) {
 
   # revise the call if the states have 
@@ -312,8 +312,8 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
       for(i in 1:length(iscgl)) {
         # not if we're not cgl
         if(!iscgl[i]) next
-        # not if dPdTtr is calling us
-        if(identical(caller.name(3),"dPdTtr")) next
+        # not if check.Ttr is FALSE (e.g. subcrt is called by dPdTtr)
+        if(!check.Ttr) next
         # name and state
         myname <- reaction$name[i]
         mystate <- reaction$state[i]

@@ -13,7 +13,7 @@ test_that("EOSvar stops with unknown variables", {
   #expect_error(EOSvar("TX", T=25, P=1), "the arguments of TX\\(\\) are not T, P")
 })
 
-test_that("regressions return known HKF parameters", { 
+test_that("regressions return known HKF parameters (neutral species)", { 
   # regress computed values of heat capacity and volume of CH4(aq)
   # calculated from HKF parameters on a T-P grid
   T <- convert(seq(0, 350, 25), "K")
@@ -34,15 +34,15 @@ test_that("regressions return known HKF parameters", {
   ## the tests: did we get the HKF parameters that are in the database?
   CH4.par <- info(info("CH4"))
   # c1 and c2
-  expect_equal(Cp.coeff[1], CH4.par$c1, check.attributes=FALSE)
-  expect_equal(Cp.coeff[2], CH4.par$c2, check.attributes=FALSE)
+  expect_equivalent(Cp.coeff[1], CH4.par$c1)
+  expect_equivalent(Cp.coeff[2], CH4.par$c2)
   # omega (from Cp)
-  expect_equal(Cp.coeff[3], CH4.par$omega, check.attributes=FALSE)
+  expect_equivalent(Cp.coeff[3], CH4.par$omega)
   # a1, a2, a3 and a4
-  expect_equal(V.coeff[1], CH4.par$a1, check.attributes=FALSE)
-  expect_equal(V.coeff[2], CH4.par$a2, check.attributes=FALSE)
-  expect_equal(V.coeff[3], CH4.par$a3, check.attributes=FALSE)
-  expect_equal(V.coeff[4], CH4.par$a4, check.attributes=FALSE)
-  # omega (from V) - note negative sign
-  expect_equal(-V.coeff[5], CH4.par$omega, check.attributes=FALSE)
+  expect_equivalent(V.coeff[1], CH4.par$a1)
+  expect_equivalent(V.coeff[2], CH4.par$a2)
+  expect_equivalent(V.coeff[3], CH4.par$a3)
+  expect_equivalent(V.coeff[4], CH4.par$a4)
+  # omega (from V)
+  expect_equivalent(V.coeff[5], CH4.par$omega)
 })

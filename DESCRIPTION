@@ -1,6 +1,6 @@
-Date: 2015-11-19
+Date: 2016-05-28
 Package: CHNOSZ
-Version: 1.0.7
+Version: 1.0.8
 Title: Chemical Thermodynamics and Activity Diagrams
 Author: Jeffrey Dick
 Maintainer: Jeffrey Dick <j3ffdick@gmail.com>
@@ -21,6 +21,6 @@ ZipData: no
 VignetteBuilder: knitr
 URL: http://www.chnosz.net/, http://chnosz.r-forge.r-project.org/
 NeedsCompilation: yes
-Packaged: 2015-11-19 16:34:22 UTC; jedick
+Packaged: 2016-05-28 16:21:22 UTC; jedick
 Repository: CRAN
-Date/Publication: 2015-11-20 00:41:17
+Date/Publication: 2016-05-28 20:30:20

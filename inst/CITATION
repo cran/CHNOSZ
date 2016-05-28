@@ -2,7 +2,7 @@ citHeader("To cite CHNOSZ in publications use:")
 
 citEntry(entry = "Article",
          title = "Calculation of the relative metastabilities of proteins using the CHNOSZ software package",
-         author = person(first="Jeffrey",last="Dick",middle="M.",email="jmdick@asu.edu"),
+         author = person(given = c("Jeffrey", "M."), family = "Dick", email="jmdick@asu.edu"),
          journal = "Geochemical Transactions",
 	 year = "2008",
          volume = "9",

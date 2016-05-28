@@ -10,8 +10,8 @@
   subcrt(species, coeff = 1, state = NULL,
     property = c("logK","G","H","S","V","Cp"),
     T = seq(273.15,623.15,25), P = "Psat", grid = NULL, 
-    convert = TRUE, exceed.Ttr = FALSE, logact = NULL,
-    action.unbalanced = "warn", IS = 0)
+    convert = TRUE, check.Ttr = TRUE, exceed.Ttr = FALSE,
+    logact = NULL, action.unbalanced = "warn", IS = 0)
 }
 
 \arguments{
@@ -22,7 +22,8 @@
   \item{T}{numeric, temperature(s) of the calculation}
   \item{P}{numeric, pressure(s) of the calculation, or character, \samp{Psat}}
   \item{grid}{character, type of \code{P}\eqn{\times}{x}\code{T} grid to produce (NULL, the default, means no gridding)}
-  \item{exceed.Ttr}{logical, calculate Gibbs energies of phases of minerals and of other species beyond their transition temperatures?}
+  \item{check.Ttr}{logical, check if temperatures are beyond transition temperatures?}
+  \item{exceed.Ttr}{logical, calculate Gibbs energies of mineral phases and other species beyond their transition temperatures?}
   \item{logact}{numeric, logarithms of activities of species in reaction}
   \item{convert}{logical, are input and output units of T and P those of the user (\code{TRUE}) (see \code{\link{T.units}}), or are they Kelvin and bar (\code{FALSE})?}
   \item{action.unbalanced}{character \samp{warn} or NULL, what action to take if unbalanced reaction is provided}

@@ -9,6 +9,7 @@
 \arguments{
   \item{do.png}{logical, generate PNG files for the plots?}
   \item{which}{character, which example to run}
+  \item{to.file}{logical, generate image files for the plots?}
 }
 
 \usage{
@@ -16,7 +17,7 @@
   demos(which = c("sources", "NaCl", "density",
     "nucleobase", "ORP", "revisit", "findit", 
     "ionize", "buffer", "yeastgfp", "mosaic",
-    "copper", "solubility", "wjd"), do.png=FALSE)
+    "copper", "solubility", "wjd", "dehydration"), to.file=FALSE)
 }
 
 \details{
@@ -45,6 +46,7 @@ See the comments in the source code for more information about each demo.
     \code{copper} \tab another example of \code{\link{mosaic}}: complexation of Cu with glycine (Aksu and Doyle, 2001) \cr
     \code{solubility} \tab solubility of calcite (cf. Manning et al., 2013) or CO2(gas) (cf. Stumm and Morgan, 1996) \cr
     \code{wjd} \tab run.wjd() with proteins: cell periphery of yeast \cr
+    \code{dehydration} \tab log K of dehydration reactions; SVG file contains tooltips and links \cr
   }
 
 }

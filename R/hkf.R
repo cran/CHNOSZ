@@ -17,7 +17,7 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
   property <- eargs$prop
   props <- eargs$props
   Prop <- eargs$Prop
-  domega <- rep(domega,length.out=nrow(ghs))
+  domega <- rep(domega,length.out=nrow(eos))
   # nonsolvation, solvation, and origination contribution
   contribs <- c('n','s','o')
   notcontrib <- ! contrib %in% contribs
@@ -29,8 +29,8 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
     # only take these ones if we're in SUPCRT92 compatibility mode
     dosupcrt <- thermo$opt$water != "IAPWS95"
     if(dosupcrt) {
-      # (E, daldT, V - for partial derivatives of omega (g function))
-      H2O.props <- c(H2O.props,'E','daldT','kT','ZBorn')
+      # (rho, alpha, daldT, beta - for partial derivatives of omega (g function))
+      H2O.props <- c(H2O.props, "rho", "alpha", "daldT", "beta")
     } else {
       # (NBorn, UBorn - for compressibility, expansibility)
       H2O.props <- c(H2O.props,'NBorn','UBorn')
@@ -42,20 +42,26 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
   }
  # a list to store the result
  x <- list()
- for(k in 1:nrow(ghs)) {
+ nspecies <- nrow(ghs)
+ # we can be called with NULL ghs (by Cp_s_var, V_s_var)
+ if(is.null(nspecies)) nspecies <- nrow(eos)
+ for(k in 1:nspecies) {
   # loop over each species
   GHS <- ghs[k,]
   EOS <- eos[k,]
   # substitute Cp and V for missing EoS parameters
   # here we assume that the parameters are in the same position as in thermo$obigt
-  # put the heat capacity in for c1 if both c1 and c2 are missing
-  if(all(is.na(EOS[, 17:18]))) EOS[, 17] <- EOS$Cp
-  # put the volume in for a1 if a1, a2, a3 and a4 are missing
-  if(all(is.na(EOS[, 13:16]))) EOS[, 13] <- convert(EOS$V, "calories")
-  # test for availability of the EoS parameters
-  hasEOS <- any(!is.na(EOS[, 13:20]))
-  # if at least one of the EoS parameters is available, zero out any NA's in the rest
-  if(hasEOS) EOS[, 13:20][, is.na(EOS[, 13:20])] <- 0
+  # we don't need this if we're just looking at solvation properties (Cp_s_var, V_s_var)
+  if("n" %in% contrib) {
+    # put the heat capacity in for c1 if both c1 and c2 are missing
+    if(all(is.na(EOS[, 17:18]))) EOS[, 17] <- EOS$Cp
+    # put the volume in for a1 if a1, a2, a3 and a4 are missing
+    if(all(is.na(EOS[, 13:16]))) EOS[, 13] <- convert(EOS$V, "calories")
+    # test for availability of the EoS parameters
+    hasEOS <- any(!is.na(EOS[, 13:20]))
+    # if at least one of the EoS parameters is available, zero out any NA's in the rest
+    if(hasEOS) EOS[, 13:20][, is.na(EOS[, 13:20])] <- 0
+  }
   # compute values of omega(P,T) from those of omega(Pr,Tr)
   # using g function etc. (Shock et al., 1992 and others)
   omega <- EOS$omega  # omega.PrTr

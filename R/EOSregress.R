@@ -3,7 +3,7 @@
 # 20091105 first version
 # 20110429 revise and merge with CHNOSZ package
 
-EOSvar <- function(var, T, P) {
+EOSvar <- function(var, T, P, ...) {
   # get the variables of a term in a regression equation
   # T (K), P (bar)
   opt <- get("thermo")$opt
@@ -25,14 +25,17 @@ EOSvar <- function(var, T, P) {
     (  if(var %in% water.props()) water(var, T, P)[, 1]
        else if(exists(var)) {
          if(is.function(get(var))) {
-           if(identical(names(formals(get(var))), c("T", "P"))) get(var)(T, P)
-           else stop(paste("the arguments of ", var, "() are not T, P", sep=""))
+           if(all(c("T", "P") %in% names(formals(get(var))))) get(var)(T=T, P=P, ...)
+           else stop(paste("the arguments of ", var, "() do not contain T and P", sep=""))
          }
          else stop(paste("an object named", var, "is not a function"))
        }
        else stop(paste("can't find a variable named", var))
     )
   )
+  # 20151126 apply the negative sign in the HKF EOS for V to the variable
+  # (not to omega as previously assumed)
+  if(var=="QBorn") out <- -out
   return(out)
 }
 
@@ -79,21 +82,21 @@ EOSlab <- function(var, coeff="") {
   return(lab)
 }
 
-EOSregress <- function(exptdata,var="",T.max=9999) {
+EOSregress <- function(exptdata, var="", T.max=9999, ...) {
   # regress exptdata using terms listed in fun 
   # which values to use
   iT <- which(exptdata$T <= T.max)
-  exptdata <- exptdata[iT,]
+  exptdata <- exptdata[iT, ]
   # temperature and pressure
   T <- exptdata$T
   P <- exptdata$P
   # the third column is the property of interest: Cp or V
-  X <- exptdata[,3]
+  X <- exptdata[, 3]
   # now build a regression formula 
   if(length(var) == 0) stop("var is missing")
-  fmla <- as.formula(paste("X ~ ",paste(var,collapse="+")))
+  fmla <- as.formula(paste("X ~ ", paste(var, collapse="+")))
   # retrieve the values of the variables
-  for(i in seq_along(var)) assign(var[i],EOSvar(var[i],T=T,P=P))
+  for(i in seq_along(var)) assign(var[i], EOSvar(var[i], T=T, P=P, ...))
   # now regress away!
   EOSlm <- lm(fmla)
   return(EOSlm)
@@ -169,20 +172,21 @@ EOSplot <- function(exptdata,var=NULL,T.max=9999,T.plot=NULL,
   return(invisible(list(xlim=range(exptdata$T[iexpt]))))
 }
 
-EOScoeffs <- function(species, property) {
+EOScoeffs <- function(species, property, P=1) {
   # get the HKF coefficients for species in the database
   iis <- info(info(species, "aq"))
   if(property=="Cp") {
-    out <- iis[,c("c1", "c2", "omega")]
+    out <- as.numeric(iis[,c("c1", "c2", "omega")])
     names(out) <- c("(Intercept)", "invTTheta2", "TXBorn")
   } else if(property=="V") {
     iis <- iis[,c("a1", "a2", "a3", "a4", "omega")]
     # calculate sigma and xi and convert to volumetric units: 1 cal = 41.84 cm^3 bar
-    sigma <- convert( iis$a1 + iis$a2 / (2600 + 1), "cm3bar" )
-    xi <- convert( iis$a3 + iis$a4 / (2600 + 1), "cm3bar" )
+    sigma <- convert( iis$a1 + iis$a2 / (2600 + P), "cm3bar" )
+    xi <- convert( iis$a3 + iis$a4 / (2600 + P), "cm3bar" )
     omega <- convert( iis$omega, "cm3bar" )
-    # watch for the negative sign on omega here!
-    out <- data.frame(sigma, xi, -omega)
+    # 20151126: we _don't_ put a negative sign on omega here;
+    # now, the negative sign in the HKF EOS is with the variable (QBorn or V_s_var)
+    out <- c(sigma, xi, omega)
     names(out) <- c("(Intercept)", "invTTheta", "QBorn")
   }
   return(out)
