@@ -45,6 +45,8 @@ which.pmax <- function (elts, na.rm = FALSE, pmin=FALSE) {
   which.mmm
 }
 
+### unexported functions ###
+
 lsub <- function(x,y) {
   # subtract elements of list y from those of
   # list x to give list z
@@ -67,4 +69,3 @@ pprod <- function(x,y) {
   pfun <- function(i) x[[i]]*y[i]
   lapply(1:length(y),pfun)
 }
-

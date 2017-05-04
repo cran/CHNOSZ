@@ -1,45 +1,6 @@
 # CHNOSZ/species.R
 # define species of interest 
 
-# to retrieve the coefficients of reactions to form the species from the basis species
-species.basis <- function(species=get("thermo")$species$ispecies) {
-  # current basis elements
-  bmat <- basis.elements()
-  tbmat <- t(bmat)
-  # what are the elements?
-  belem <- rownames(tbmat)
-  # get the species makeup into a matrix
-  mkp <- as.matrix(sapply(makeup(species, count.zero=TRUE), c))
-  # the positions of the species elements in the basis elements
-  ielem <- match(rownames(mkp), belem)
-  # the elements of the species must be contained by the basis species
-  if(any(is.na(ielem))) stop(paste("element(s) not in the basis:", 
-    paste(rownames(mkp)[is.na(ielem)], collapse=" ")))
-  # the positions of the basis elements in the species elements
-  jelem <- match(belem, rownames(mkp))
-  # keep track of which ones are NA's; 
-  # index them as one here but turn them to zero later
-  ina <- is.na(jelem)
-  jelem[ina] <- 1
-  # now put the species matrix into the same order as the basis
-  mkp <- mkp[jelem, , drop=FALSE]
-  # fill zeros for any basis element not in the species
-  mkp[ina, ] <- 0
-  # solve for the basis coefficients and transpose
-  nbasis <- t(apply(mkp, 2, function(x) solve(tbmat, x)))
-  # very small numbers are probably a floating point artifact
-  # can cause problems in situations where zeros are needed
-  # (manifests as issue in longex("phosphate"), where which.balance()
-  #  identifies H2O as conserved component)
-  # 20140201 set digits (to R default) becuase getOption("digits") is changed in knitr
-  out <- zapsmall(nbasis, digits=7)
-  # add names of species and basis species
-  colnames(out) <- colnames(tbmat)
-  # add names of species only if it was a character argument
-  if(all(is.character(species))) rownames(out) <- species
-  return(out)
-} 
-
 # to add to or alter the species definition
 species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) {
   # 20080925 default quiet=TRUE 20101003 default quiet=FALSE
@@ -201,3 +162,43 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
   else return(thermo$species)
 }
 
+### unexported functions ###
+
+# to retrieve the coefficients of reactions to form the species from the basis species
+species.basis <- function(species=get("thermo")$species$ispecies) {
+  # current basis elements
+  bmat <- basis.elements()
+  tbmat <- t(bmat)
+  # what are the elements?
+  belem <- rownames(tbmat)
+  # get the species makeup into a matrix
+  mkp <- as.matrix(sapply(makeup(species, count.zero=TRUE), c))
+  # the positions of the species elements in the basis elements
+  ielem <- match(rownames(mkp), belem)
+  # the elements of the species must be contained by the basis species
+  if(any(is.na(ielem))) stop(paste("element(s) not in the basis:", 
+    paste(rownames(mkp)[is.na(ielem)], collapse=" ")))
+  # the positions of the basis elements in the species elements
+  jelem <- match(belem, rownames(mkp))
+  # keep track of which ones are NA's; 
+  # index them as one here but turn them to zero later
+  ina <- is.na(jelem)
+  jelem[ina] <- 1
+  # now put the species matrix into the same order as the basis
+  mkp <- mkp[jelem, , drop=FALSE]
+  # fill zeros for any basis element not in the species
+  mkp[ina, ] <- 0
+  # solve for the basis coefficients and transpose
+  nbasis <- t(apply(mkp, 2, function(x) solve(tbmat, x)))
+  # very small numbers are probably a floating point artifact
+  # can cause problems in situations where zeros are needed
+  # (manifests as issue in longex("phosphate"), where which.balance()
+  #  identifies H2O as conserved component)
+  # 20140201 set digits (to R default) becuase getOption("digits") is changed in knitr
+  out <- zapsmall(nbasis, digits=7)
+  # add names of species and basis species
+  colnames(out) <- colnames(tbmat)
+  # add names of species only if it was a character argument
+  if(all(is.character(species))) rownames(out) <- species
+  return(out)
+} 

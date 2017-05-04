@@ -5,6 +5,8 @@ suppressMessages(data(thermo))
 
 test_that("errors come as expected, and output gives T and P in user's units", {
   expect_error(affinity(iprotein=7), "basis species are not defined")
+  expect_error(affinity(iprotein=NA), "has some NA values")
+  expect_error(affinity(iprotein=0), "are not rownumbers")
   basis("CHNOS")
   expect_error(affinity(), "species have not been defined")
   species("5a(H),14b(H)-cholestane")
@@ -99,10 +101,11 @@ test_that("'iprotein' gives consistent results on a transect", {
   basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"),
     "aq", c(-3, 0, -4, -7, 999, 999))
   sites <- c("N", "S", "R", "Q", "P")
-  aa <- read.aa(system.file("extdata/protein/DS11.csv", package="CHNOSZ"))
+  file <- system.file("extdata/protein/DS11.csv", package="CHNOSZ")
+  aa <- read.csv(file, as.is=TRUE)
   ip <- add.protein(aa[1:5, ])
-  # to reproduce, we need use the "old" parameters for [Met]
-  add.obigt()
+  # to reproduce, we need use the "old" parameters for [Met] from Dick et al., 2006
+  mod.obigt("[Met]", G=-35245, H=-59310)
   a <- affinity(T=T, pH=pH, H2=H2, iprotein=ip)
   # divide A/2.303RT by protein length
   pl <- protein.length(ip)
@@ -125,7 +128,7 @@ test_that("affinity() for proteins (with/without 'iprotein') returns same value 
   # first for nonionized protein
   basis("CHNOS")
   # try it with iprotein
-  ip <- iprotein("CSG_HALJP")
+  ip <- pinfo("CSG_HALJP")
   expect_equal(affinity(iprotein=ip)$values[[1]][1], A.2303RT.nonionized, tolerance=1e-6)
   # then with the protein loaded as a species
   species("CSG_HALJP")

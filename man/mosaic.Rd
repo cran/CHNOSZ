@@ -63,16 +63,16 @@ bases <- c("SO4-2", "HSO4-", "HS-", "H2S")
 # calculate affinities using the predominant basis species
 m1 <- mosaic(bases, pH=pH, Eh=Eh, T=T)
 # make a diagram and add water stability lines
-diagram(m1$A.species)
+diagram(m1$A.species, lwd=2)
 water.lines("pH", "Eh", T=convert(T, "K"), col="seagreen", lwd=1.5)
 # show lines for Fe(aq) = 10^-4 M
 species(c("Fe+2", "Fe+3"), -4)
 m2 <- mosaic(bases, pH=pH, Eh=Eh, T=T)
-diagram(m2$A.species, add=TRUE, names=NULL, dotted=3)
+diagram(m2$A.species, add=TRUE, names=NULL)
 title(main=paste("Iron oxides and sulfides in water, log(total S) = -6",
   "After Garrels and Christ, 1965", sep="\n"))
 # we could overlay the basis species predominance fields
-#diagram(m1$A.bases, add=TRUE, col="blue", col.names="blue", dotted=3)
+#diagram(m1$A.bases, add=TRUE, col="blue", col.names="blue", lty=3)
 }
 
 \references{

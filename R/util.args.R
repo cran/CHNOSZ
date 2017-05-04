@@ -1,6 +1,16 @@
 # CHNOSZ/util.args.R
-# functions to create argument lists
+# functions to create argument lists and get name of calling function
 
+### unexported functions ###
+
+# These functions are used to normalize user-input arguments, which are case-insensitive.
+
+# return a list with elements:
+#   `prop` for all the properties available for the specified equations-of-state
+#   `prop` for the lower-case version of property
+#   `Prop` for the upper-case (of first letter) version of property
+# produces an error if any of `property` is not in the list of available properties.
+# (See water() and subcrt() for the available properties for different species.)
 eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
   # the available properties for supcrt, probably
   props <- c('G','H','S','Cp','V','kT','E')
@@ -31,6 +41,8 @@ eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
   return(list(props=props,prop=prop,Prop=Prop))
 }
 
+# force T and P to equal length
+# also looks for the keyword Psat in the value of P and substitutes calculated values of the saturation vapor pressure
 TP.args <- function(T=NULL, P=NULL) {
   # keep the [1] here because some functions (e.g. subcrt) will repeat "Psat"
   if(identical(P[1], "Psat")) {
@@ -48,6 +60,7 @@ TP.args <- function(T=NULL, P=NULL) {
   return(list(T=T, P=P))
 }
 
+# make the argument lowercase, then transform a, c, g, and l to aq, gas, cr, and liq
 state.args <- function(state=NULL) {
   if(is.null(state) | is.numeric(state[1])) return(state)
   # normalize state arguments
@@ -60,3 +73,18 @@ state.args <- function(state=NULL) {
   return(state)
 }
 
+caller.name <- function(n=2) {
+  # returns the name of the calling function n frames up
+  # (n=2: the caller of the function that calls this one)
+  # or character() if called interactively
+  if(sys.nframe() < n) name <- character()
+  else {
+    sc <- sys.call(-n)[[1]]
+    name <- try(as.character(sc),silent=TRUE)
+    # also return character() if the value from sys.call is
+    # the function itself (why does this sometimes happen,
+    # e.g. when called from affinity()?)
+    if(class(name)=="try-error") name <- character()
+  }
+  return(name)
+}

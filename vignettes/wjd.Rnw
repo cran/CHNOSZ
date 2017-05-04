@@ -1,4 +1,4 @@
-%% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.2.2 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
 \documentclass[english,noae,round]{article}
 \usepackage{mathpazo}
@@ -8,6 +8,7 @@
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
 \usepackage{color}
 \usepackage{babel}
+\usepackage{graphicx}
 \usepackage[authoryear]{natbib}
 \usepackage[unicode=true,
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
@@ -28,7 +29,7 @@
 %\VignetteIndexEntry{Winding journey down (in Gibbs energy)}
 
 % so DOIs in bibliography show up as hyperlinks
-\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 
 \makeatother
 
@@ -36,9 +37,7 @@
 
 \title{Winding journey down (in Gibbs energy)}
 
-
 \author{Jeffrey M. Dick}
-
 \maketitle
 
 \section{Introduction}
@@ -50,7 +49,7 @@ some examples of its usage. The help page for \texttt{wjd()} in the
 CHNOSZ documentation has details of the implementation that are not
 covered in this vignette. The functions demonstrated here are not
 intended for aqueous solutions or heterogeneous phase equilibria,
-which are covered in some reviews \citep[e.g.][]{NPW+79}.
+which are covered in some reviews \citep[e.g.][]{NPW_79}.
 
 The arguments of \texttt{wjd()} have default values to simulate the
 example problem given by \citealp{WJD58}. In their words, ``The
@@ -127,15 +126,15 @@ iterfun <- function(imax, i) {
 Then apply the function over the different numbers of iterations,
 from 0 (initial conditions) to \Sexpr{niter}, and plot the values.
 
-\setkeys{Gin}{width=1.0\textwidth}
+\setkeys{Gin}{width=0.7\textwidth}
 
 <<>>=
-<<iterplot, fig=TRUE, height=3>>=
-par(mfrow=c(1, 2))
-sa <- sapply(0:niter, iterfun, i=oX[1])
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
-sa <- sapply(0:niter, iterfun, i=oX[4])
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
+<<iterplot, fig=TRUE, width=6, height=2.5>>=
+par(mfrow = c(1, 2), mar = c(4.2, 4.2, .1, .1))
+sa <- sapply(0:niter, iterfun, i = oX[1])
+plot(0:niter, sa, xlab = "iteration", ylab = paste("x", f1), pch = 19)
+sa <- sapply(0:niter, iterfun, i = oX[4])
+plot(0:niter, sa, xlab = "iteration", ylab = paste("x", f4), pch = 19)
 @
 
 \setkeys{Gin}{width=1.0\textwidth}
@@ -171,10 +170,10 @@ condition can be difficult. One type of observation that can be helpful
 is the amount of change during the iterations of the algorithm. As
 equilibrium is approached, it makes sense that the fractional decreases
 in Gibbs energy would become smaller and smaller. This is used as
-a stopping condition in the current implementation -- if the fractional
-change, relative to the total energy of the system, reaches the value
-of \texttt{Gfrac} given in the arguments the iterations stop. Here
-are the fractional changes with each iteration:
+a stopping condition in the current implementation \textendash{} if
+the fractional change, relative to the total energy of the system,
+reaches the value of \texttt{Gfrac} given in the arguments the iterations
+stop. Here are the fractional changes with each iteration:
 
 <<Gfrac>>=
 diff(w$F.Y)/w$F.Y[1:7]
@@ -182,7 +181,6 @@ diff(w$F.Y)/w$F.Y[1:7]
 
 Only the last value is below the default value of \texttt{Gfrac} in
 \texttt{wjd()}.
-
 
 \subsection{Chemical potentials of the elements (from different species representing
 them) become more uniform}
@@ -203,25 +201,37 @@ combinations of species. It has an option to plot the results. Let's
 first look at a plot showing the results after 3 iterations.
 
 \setkeys{Gin}{width=0.6\textwidth}
+\begin{center}
 
 <<>>=
-<<w3_ep_plot, fig=TRUE>>=
+<<marmgp, echo=FALSE>>=
+par(mar = c(4.2, 4.2, 1.1, 1.1))
+par(mgp = c(2, 1, 0))
+@
+
+<<>>=
+<<w3_ep_plot, fig=TRUE, width=7, height=5>>=
+<<marmgp>>
 w3 <- wjd(imax=3)
 ep3 <- element.potentials(w3, plot.it=TRUE)
 @
 
+\end{center}
 \setkeys{Gin}{width=1.0\textwidth}
 
 Here's the plot for the default settings of \texttt{wjd()} which takes
 6 iterations:
 
 \setkeys{Gin}{width=0.6\textwidth}
+\begin{center}
 
 <<>>=
-<<w_ep_plot, fig=TRUE>>=
+<<w_ep_plot, fig=TRUE, width=7, height=5>>=
+<<marmgp>>
 ep <- element.potentials(w, plot.it=TRUE)
 @
 
+\end{center}
 \setkeys{Gin}{width=1.0\textwidth}
 
 That one shows considerably less deviation than the first plot. The
@@ -243,7 +253,6 @@ is.near.equil(w, tol=0.00001)
 
 
 \subsection{Different initial solutions yield similar results}
-
 
 \paragraph{Different guesses for an underdetermined system}
 
@@ -296,23 +305,21 @@ Using the first guess generated using the ``stoich'' method there
 were \Sexpr{niterY1-niter} more iterations than using the default
 initial solution in \texttt{wjd()}.
 
-
-
 Do the different initial guesses actually give similar results?
 
-\setkeys{Gin}{width=0.6\textwidth}
+\setkeys{Gin}{width=0.8\textwidth}
 
 <<>>=
-<<compare_guesses, fig=TRUE>>=
+<<compare_guesses, fig=TRUE, width=7, height=4>>=
+par(mar=c(4.2, 4.2, 0.1, 0.1))
 plot(1:10, w$X, xlab="species", ylab="mole fraction")
 points(1:10, wY1$X, pch=0)
 #points(1:10, wY2$X, pch=2)
 @
 
-\setkeys{Gin}{width=0.6\textwidth}
+\setkeys{Gin}{width=0.8\textwidth}
 
 At that scale it's fairly difficult to tell them apart.
-
 
 \paragraph{Comparing many different guesses}
 
@@ -375,7 +382,6 @@ only a unique solution \citep{Oth76}. Therefore, the algorithm should
 converge on the same result for any initial vector of species mole
 numbers with the same bulk composition.)
 
-
 \section{An example from the literature: prebiological atmospheres}
 
 We will try to reproduce a subset of the calculations of equilibrium
@@ -388,7 +394,7 @@ with CHNOSZ. First let's have a look at what species there are:
 <<read_dlen>>=
 # read formulas and Gibbs energies
 file <- system.file("extdata/thermo/DLEN67.csv", package="CHNOSZ")
-dlen <- read.csv(file, stringsAsFactors=FALSE, row.names=1)
+dlen <- read.csv(file, as.is=TRUE, row.names=1)
 t(dlen[, 1, drop=FALSE])
 @
 
@@ -399,6 +405,7 @@ to be 1:1 \citep{DLE64}. The temperature is 500 K and the pressure
 is 1 atmosphere.
 
 <<setup_atmos>>=
+
 # turn formulas into a stoichiometric matrix
 A <- i2A(dlen$formula)
 # assemble Gibbs energies/RT at 500 K
@@ -430,30 +437,35 @@ Well that's exciting! The order of abundances of $\mathrm{H_{2}O}$,
 $\mathrm{CO_{2}}$, $\mathrm{CH_{4}}$, $\mathrm{NH_{3}}$, $\mathrm{CO}$,
 ethane ($\mathrm{C_{2}H_{6}}$), formic acid ($\mathrm{CH_{2}O_{2}}$)
 and so on matches the order on the left side of Figure 2 in \citet{DLE64}.
-How about changing the carbon content?
+How about changing the carbon content? (\emph{Because it takes a while
+to run, the code is commented below; it is present in }\texttt{\emph{demo(wjd)}}\emph{,
+which was used to make the plot.})
 
-<<atmos_figure, fig=TRUE>>=
-xCs <- seq(8, 47, 3)
-Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
-# normalize the mole numbers to mole fractions
-Xs <- t(t(Xs)/colSums(Xs))
-plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10 mole fraction")
-for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
-text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
-text(7, log10(Xs[, 1]), dlen$formula, adj=1)
+<<atmos_figure>>=
+# xCs <- seq(8, 47, 1)
+# Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
+# # normalize the mole numbers to mole fractions
+# Xs <- t(t(Xs)/colSums(Xs))
+# plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10 mole fraction")
+# for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
+# text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
+# text(35, log10(Xs[, 27]) + 0.5, dlen$formula, adj=0)
+# text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 @
 
-We triggered some ``not near equilibrium'' messages, but overall
-it seems well behaved (note that using the ``central'' method in
-\texttt{guess()} is one way that leads to fewer of these messages).
-And, as expected, it is similar to Fig. 2 of \citet{DLE64}, with
-a major crossing of curves at about 28\% carbon, together with an
-increase in aromatic compounds (e.g. naphthalene, anthracene) going
-toward higher carbon content. Unlike the figure in \citet{DLE64},
-there appears to be a second major crossing of curves at about 43\%
-carbon, corresponding to a rise in CO. (For a higher resolution, try
-setting \texttt{xCs <- seq(8, 47, 1)}.)
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{dayhoff}
+\par\end{center}
 
+We triggered some ``not near equilibrium'' messages (\emph{not shown;
+run the demo to see them}), but overall it seems well behaved (note
+that using the ``central'' method in \texttt{guess()} is one way
+that leads to fewer of these messages). And, as expected, it is similar
+to Fig. 2 of \citet{DLE64}, with a major crossing of curves at about
+28\% carbon, together with an increase in aromatic compounds (e.g.
+naphthalene, anthracene) going toward higher carbon content. Unlike
+the figure in \citet{DLE64}, there appears to be a second major crossing
+of curves at about 43\% carbon, corresponding to a rise in CO.
 
 \section{Running Down: Using a Thermodynamic Database}
 
@@ -464,7 +476,6 @@ to manually construct the stoichiometric matrices and vectors of standard
 Gibbs energies of the species. The function \texttt{run.wjd()} pulls
 the compositional and thermodynamic data for requested species from
 the thermodynamic database and then calls \texttt{wjd()}.
-
 
 \subsection{At a single temperature}
 
@@ -503,7 +514,8 @@ is.near.equil(waa)
 
 Let's plot the abundances of the species:
 
-<<barplot_aa, fig=TRUE>>=
+<<barplot_aa, fig=TRUE, width=5, height=3>>=
+par(mar=c(1.1, 4.1, 1.1, 1.1))
 bp <- barplot(waa$X, ylab="moles")
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 @
@@ -533,8 +545,9 @@ function tests the different initial compositions generated by \texttt{guess()}
 until one is found that is within the specified tolerance of chemical
 potentials of elements. Here's an example:
 
-<<run_aa_C100H70, fig=TRUE>>=
+<<run_aa_C100H70, fig=TRUE, width=5, height=3>>=
 waa <- run.wjd(c(ialk, iaro), B="C100H70")
+par(mar=c(1.1, 4.1, 1.1, 1.1))
 bp <- barplot(waa$X, ylab="moles")
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 @
@@ -550,20 +563,12 @@ basis.logact(ep)
 @
 
 
-\section{Document Information}
-
-Revision history
+\section{Document History}
 \begin{itemize}
 \item 2012-01-01 Initial version
 \item 2012-06-16 Running Down using alkanes and aromatics
 \item 2012-09-20 Add example from Dayhoff et al.
 \end{itemize}
-R session information
-
-<<sessionInfo>>=
-sessionInfo()
-@
-
 \bibliographystyle{plainnat}
 \bibliography{vig}
 

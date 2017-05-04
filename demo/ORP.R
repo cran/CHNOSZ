@@ -2,9 +2,10 @@
 # calculate the temperature dependence of 
 # potentials vs. standard hydrogen electrode (SHE) of various electrodes (Ag/AgCl)
 # and ORP standards (ZoBell, Light's, (tri)iodide) 
+
 # CHNOSZ provides functions subcrt() and convert() 
 # used in this example
-#require(CHNOSZ)
+
 # Bard et al.'s fit to the potential
 # (Bard, Parson, Jordan, Standard Potentials In Aqueous Solution, 1985)
 AgAgCl.Bard <- function(T,high.T=TRUE) {
@@ -12,6 +13,7 @@ AgAgCl.Bard <- function(T,high.T=TRUE) {
   if(high.T) return(0.23737 - 5.3783e-4 * T - 2.3728e-6 * T^2 - 2.2671e-9 * (T+273))
   else return(0.23695 - 4.8564e-4 * T - 3.4205e-6 * T^2 - 5.869e-9 * (T+273))
 }
+
 # function to calculate the potential of Ag/AgCl vs. SHE
 # Ag(s) + Cl- = AgCl(s) + e-
 # logK = -pe - logaCl
@@ -25,13 +27,14 @@ AgAgCl <- function(T,mKCl=4) {
   # get the logK for the reaction
   logK <- subcrt(c("Ag","Cl-","AgCl","e-"),c(-1,-1,1,1),c("cr","aq","cr","aq"),T=T)$out$logK
   # get the activity coefficient for Cl-
-  loggamCl <- subcrt("Cl-",T=T,IS=mKCl)$out[[1]]$loggam
+  loggamCl <- log(10) * subcrt("Cl-",T=T,IS=mKCl)$out[[1]]$loggam
   # get the pe for the solution
   pe <- -logK - logmCl - loggamCl
   # convert that to Eh
   Eh <- convert(pe,"Eh",T=convert(T,"K"))
   return(Eh)
 }
+
 ZoBell <- function(T) {
   # doesn't work very well because we ignore the
   # ferricyanide and ferrocyanide complexes
@@ -45,14 +48,15 @@ ZoBell <- function(T) {
   # 7.4555 g KCl            -> 0.1 mol Cl-
   logmFe2 <- logmFe3 <- log10(0.0033333)
   # get the loggam for the iron species
-  loggamFe2 <- subcrt("Fe+2",T=T,IS=1)$out[[1]]$loggam
-  loggamFe3 <- subcrt("Fe+3",T=T,IS=1)$out[[1]]$loggam
+  loggamFe2 <- log(10) * subcrt("Fe+2",T=T,IS=1)$out[[1]]$loggam
+  loggamFe3 <- log(10) * subcrt("Fe+3",T=T,IS=1)$out[[1]]$loggam
   # get the pe for the solution
   pe <- -logK + logmFe3 + loggamFe3 - logmFe2 - loggamFe2
   # convert to Eh
   Eh <- convert(pe,"Eh",T=convert(T,"K"))
   return(Eh)
 }
+
 ZoBell.table <- function(T=NULL,which=NULL) {
   # oxidation-reduction potential of ZoBell's solution 
   # from Standard Methods for Water and Wastewater or YSI 
@@ -76,6 +80,7 @@ ZoBell.table <- function(T=NULL,which=NULL) {
   if(is.null(T)) T <- Eh.T
   return(data.frame(T=T,Eh=Eh.fun(T)))
 }
+
 Light <- function(T) {
   # this is going to look something like
   # Fe+2 = Fe+3 + e-
@@ -87,14 +92,15 @@ Light <- function(T) {
   # 48.22 g Fe(NH4)(SO4)2(H2O)12 -> 0.1 mol Fe+3
   logmFe2 <- logmFe3 <- log10(0.1)
   # get the loggam for the iron species
-  loggamFe2 <- subcrt("Fe+2",T=T,IS=0.2)$out[[1]]$loggam
-  loggamFe3 <- subcrt("Fe+3",T=T,IS=0.2)$out[[1]]$loggam
+  loggamFe2 <- log(10) * subcrt("Fe+2",T=T,IS=0.2)$out[[1]]$loggam
+  loggamFe3 <- log(10) * subcrt("Fe+3",T=T,IS=0.2)$out[[1]]$loggam
   # get the pe for the solution
   pe <- -logK + logmFe3 + loggamFe3 - logmFe2 - loggamFe2
   # convert to Eh
   Eh <- convert(pe,"Eh",T=convert(T,"K"))
   return(Eh)
 }
+
 Iodide.table <- function(T=NULL) {
   # oxidation-reduction potential of Thermo's iodide solution
   # from thermo instruction sheet 255218-001 (articlesFile_18739)
@@ -104,6 +110,7 @@ Iodide.table <- function(T=NULL) {
   if(is.null(T)) T <- T.Iodide
   return(data.frame(T=T,Eh=Iodide(T)))
 }
+
 Iodide <- function(T) {
   # this is going to look something like
   # 3I- = I3- + 2e-
@@ -114,14 +121,15 @@ Iodide <- function(T) {
   logmI <- log10(2)
   logmI3 <- log10(0.01)
   # get the loggam for the iodine species
-  loggamI <- subcrt("I-",T=T,IS=0.2)$out[[1]]$loggam
-  loggamI3 <- subcrt("I3-",T=T,IS=0.2)$out[[1]]$loggam
+  loggamI <- log(10) * subcrt("I-",T=T,IS=0.2)$out[[1]]$loggam
+  loggamI3 <- log(10) * subcrt("I3-",T=T,IS=0.2)$out[[1]]$loggam
   # get the pe for the solution
   pe <- ( -logK + logmI3 + loggamI3 - 3 * (logmI - loggamI) ) / 2
   # convert to Eh
   Eh <- convert(pe,"Eh",T=convert(T,"K"))
   return(Eh)
 }
+
 figure <- function() {
   # make some figures
   # the temperatures we're interested in
@@ -156,5 +164,6 @@ figure <- function() {
     c("Light","ZoBell","(Tri)Iodide","Ag/AgCl"))
   title(main="Potentials vs standard hydrogen electrode (SHE)")
 }
+
 # finally, make the plot
 figure()

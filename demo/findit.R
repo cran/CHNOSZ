@@ -15,7 +15,7 @@ title("S.D. of equilibrium log activities of sulfur species")
 f2 <- findit(vars[1:2], objective, T=325, P=350, res=16, niter=5)
 title("S.D. of equilibrium log activities of sulfur species")
 # optimize logfO2, pH and T (at constant P ...)
-f3 <- findit(vars, objective, P=350, res=10, niter=10)
+f3 <- findit(vars, objective, P=350, res=10, niter=5, rat=0.5)
 title("S.D. of equilibrium log activities of sulfur species")
 # the results
 print(f1.out <- sapply(f1$value, tail, 1))

@@ -20,7 +20,7 @@ test_that("equilibrate() gives expected messages and errors for balance calculat
   # the following error is triggered by equil.react, not equil.boltzmann
   expect_error(equilibrate(aone), "at least two species needed")
   expect_message(equilibrate(aacid), "balance: from moles of CO2")
-  expect_message(equilibrate(aacid), "n.balance is 2 1 1 2 ")
+  expect_message(equilibrate(aacid), "n.balance is 2 1 1 2")
   expect_message(equilibrate(aacid), "loga.balance is -2.221848")
   expect_message(equilibrate(aacid, loga.balance=-3), "loga.balance is -3")
   expect_error(equilibrate(aacid, balance="length"), "some species are not proteins")
@@ -128,4 +128,4 @@ test_that("equilibrate() can be used for huge values of Astar", {
 # Seewald, J. S. (2001) 
 #   Aqueous geochemistry of low molecular weight hydrocarbons at elevated temperatures and
 #   pressures: Constraints from mineral buffered laboratory experiments
-#   Geochim. Cosmochim. Acta 65, 1641--1664. http://dx.doi.org/10.1016/S0016-7037(01)00544-0
+#   Geochim. Cosmochim. Acta 65, 1641--1664. https://doi.org/10.1016/S0016-7037(01)00544-0

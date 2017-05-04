@@ -2,7 +2,7 @@
 ### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: wjd.Rnw:23-24
+### code chunk number 1: wjd.Rnw:24-25
 ###################################################
   if(exists(".orig.enc")) options(encoding = .orig.enc)
 
@@ -54,7 +54,7 @@ iterfun <- function(imax, i) {
 
 
 ###################################################
-### code chunk number 7: wjd.Rnw:132-132
+### code chunk number 7: wjd.Rnw:131-131
 ###################################################
 
 
@@ -62,11 +62,11 @@ iterfun <- function(imax, i) {
 ###################################################
 ### code chunk number 8: iterplot
 ###################################################
-par(mfrow=c(1, 2))
-sa <- sapply(0:niter, iterfun, i=oX[1])
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
-sa <- sapply(0:niter, iterfun, i=oX[4])
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
+par(mfrow = c(1, 2), mar = c(4.2, 4.2, .1, .1))
+sa <- sapply(0:niter, iterfun, i = oX[1])
+plot(0:niter, sa, xlab = "iteration", ylab = paste("x", f1), pch = 19)
+sa <- sapply(0:niter, iterfun, i = oX[4])
+plot(0:niter, sa, xlab = "iteration", ylab = paste("x", f4), pch = 19)
 
 
 ###################################################
@@ -88,32 +88,49 @@ diff(w$F.Y)/w$F.Y[1:7]
 
 
 ###################################################
-### code chunk number 12: wjd.Rnw:207-207
+### code chunk number 12: wjd.Rnw:206-206
 ###################################################
 
 
 
 ###################################################
-### code chunk number 13: w3_ep_plot
+### code chunk number 13: marmgp
 ###################################################
+par(mar = c(4.2, 4.2, 1.1, 1.1))
+par(mgp = c(2, 1, 0))
+
+
+###################################################
+### code chunk number 14: wjd.Rnw:212-212
+###################################################
+
+
+
+###################################################
+### code chunk number 15: w3_ep_plot
+###################################################
+par(mar = c(4.2, 4.2, 1.1, 1.1))
+par(mgp = c(2, 1, 0))
 w3 <- wjd(imax=3)
 ep3 <- element.potentials(w3, plot.it=TRUE)
 
 
 ###################################################
-### code chunk number 14: wjd.Rnw:220-220
+### code chunk number 16: wjd.Rnw:228-228
 ###################################################
 
 
 
 ###################################################
-### code chunk number 15: w_ep_plot
+### code chunk number 17: w_ep_plot
 ###################################################
+par(mar = c(4.2, 4.2, 1.1, 1.1))
+par(mgp = c(2, 1, 0))
 ep <- element.potentials(w, plot.it=TRUE)
 
 
 ###################################################
-### code chunk number 16: w_ep_plot
+### code chunk number 18: w_ep_plot
 ###################################################
 is.near.equil(w3) # 3 iterations
 is.near.equil(w)  # 7 iterations
@@ -121,7 +138,7 @@ is.near.equil(w, tol=0.00001)
 
 
 ###################################################
-### code chunk number 17: guessw12
+### code chunk number 19: guessw12
 ###################################################
 as.list(args(wjd))$Y
 Y1 <- guess(method="stoich")
@@ -131,13 +148,13 @@ Y1
 
 
 ###################################################
-### code chunk number 18: wjd.Rnw:285-285
+### code chunk number 20: wjd.Rnw:294-294
 ###################################################
 
 
 
 ###################################################
-### code chunk number 19: stoich_guess
+### code chunk number 21: stoich_guess
 ###################################################
 wY1 <- wjd(Y=Y1)
 niterY1 <- length(wY1$lambda)
@@ -146,21 +163,22 @@ is.near.equil(wY1, tol=0.0001)
 
 
 ###################################################
-### code chunk number 20: wjd.Rnw:305-305
+### code chunk number 22: wjd.Rnw:312-312
 ###################################################
 
 
 
 ###################################################
-### code chunk number 21: compare_guesses
+### code chunk number 23: compare_guesses
 ###################################################
+par(mar=c(4.2, 4.2, 0.1, 0.1))
 plot(1:10, w$X, xlab="species", ylab="mole fraction")
 points(1:10, wY1$X, pch=0)
 #points(1:10, wY2$X, pch=2)
 
 
 ###################################################
-### code chunk number 22: allguesses
+### code chunk number 24: allguesses
 ###################################################
 Ys <- guess(iguess=NULL, method="stoich")
 # total number of species combinations
@@ -172,19 +190,19 @@ nguess
 
 
 ###################################################
-### code chunk number 23: allguess.equil
+### code chunk number 25: allguess.equil
 ###################################################
 sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]])))
 
 
 ###################################################
-### code chunk number 24: allguess.equil.2
+### code chunk number 26: allguess.equil.2
 ###################################################
 sapply(iYs,function(i) is.near.equil(wjd(Y=Ys[[i]]),tol=0.0001))
 
 
 ###################################################
-### code chunk number 25: allguess.equil.3
+### code chunk number 27: allguess.equil.3
 ###################################################
 sapply(iYs, function(i) {
   is.near.equil(wjd(Y=Ys[[i]], Gfrac=1e-9), tol=0.0001)
@@ -192,24 +210,25 @@ sapply(iYs, function(i) {
 
 
 ###################################################
-### code chunk number 26: sd.species
+### code chunk number 28: sd.species
 ###################################################
 Xs <- sapply(iYs, function(i) wjd(Y=Ys[[i]], Gfrac=1e-9)$X)
 apply(Xs, 1, sd)
 
 
 ###################################################
-### code chunk number 27: read_dlen
+### code chunk number 29: read_dlen
 ###################################################
 # read formulas and Gibbs energies
 file <- system.file("extdata/thermo/DLEN67.csv", package="CHNOSZ")
-dlen <- read.csv(file, stringsAsFactors=FALSE, row.names=1)
+dlen <- read.csv(file, as.is=TRUE, row.names=1)
 t(dlen[, 1, drop=FALSE])
 
 
 ###################################################
-### code chunk number 28: setup_atmos
+### code chunk number 30: setup_atmos
 ###################################################
+
 # turn formulas into a stoichiometric matrix
 A <- i2A(dlen$formula)
 # assemble Gibbs energies/RT at 500 K
@@ -228,26 +247,27 @@ min.atmos <- function(xC) {
 
 
 ###################################################
-### code chunk number 29: atmos_C15
+### code chunk number 31: atmos_C15
 ###################################################
 sort(min.atmos(15)$X, decreasing=TRUE)
 
 
 ###################################################
-### code chunk number 30: atmos_figure
+### code chunk number 32: atmos_figure
 ###################################################
-xCs <- seq(8, 47, 3)
-Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
-# normalize the mole numbers to mole fractions
-Xs <- t(t(Xs)/colSums(Xs))
-plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10 mole fraction")
-for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
-text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
-text(7, log10(Xs[, 1]), dlen$formula, adj=1)
+# xCs <- seq(8, 47, 1)
+# Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
+# # normalize the mole numbers to mole fractions
+# Xs <- t(t(Xs)/colSums(Xs))
+# plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10 mole fraction")
+# for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
+# text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
+# text(35, log10(Xs[, 27]) + 0.5, dlen$formula, adj=0)
+# text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 
 
 ###################################################
-### code chunk number 31: alkanes_aromatics
+### code chunk number 33: alkanes_aromatics
 ###################################################
 alkanes <- c("n-hexane", "n-heptane", "n-octane", "n-nonane")
 ialk <- info(alkanes, "liq")
@@ -256,7 +276,7 @@ iaro <- info(aromatics, "liq")
 
 
 ###################################################
-### code chunk number 32: run_aa
+### code chunk number 34: run_aa
 ###################################################
 waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8))
 waa$elements
@@ -264,51 +284,47 @@ is.near.equil(waa)
 
 
 ###################################################
-### code chunk number 33: run_aa_equil
+### code chunk number 35: run_aa_equil
 ###################################################
 waa <- run.wjd(c(ialk, iaro), Y=rep(1, 8), imax=20, Gfrac=1e-14, nlambda=501)
 is.near.equil(waa)
 
 
 ###################################################
-### code chunk number 34: barplot_aa
+### code chunk number 36: barplot_aa
 ###################################################
+par(mar=c(1.1, 4.1, 1.1, 1.1))
 bp <- barplot(waa$X, ylab="moles")
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 
 
 ###################################################
-### code chunk number 35: element_potentials_C84H106
+### code chunk number 37: element_potentials_C84H106
 ###################################################
 ep <- equil.potentials(waa)
 print(ep)
 
 
 ###################################################
-### code chunk number 36: basis_potentials_C84H106
+### code chunk number 38: basis_potentials_C84H106
 ###################################################
 basis(c("graphite", "H2"), c("cr", "gas"))
 basis.logact(ep)
 
 
 ###################################################
-### code chunk number 37: run_aa_C100H70
+### code chunk number 39: run_aa_C100H70
 ###################################################
 waa <- run.wjd(c(ialk, iaro), B="C100H70")
+par(mar=c(1.1, 4.1, 1.1, 1.1))
 bp <- barplot(waa$X, ylab="moles")
 text(bp, rep(0.2,8), c(alkanes, aromatics), srt=90, adj=0)
 
 
 ###################################################
-### code chunk number 38: basis_potentials_C84H106
+### code chunk number 40: basis_potentials_C84H106
 ###################################################
 print(ep <- equil.potentials(waa))
 basis.logact(ep)
-
-
-###################################################
-### code chunk number 39: sessionInfo
-###################################################
-sessionInfo()
 
 

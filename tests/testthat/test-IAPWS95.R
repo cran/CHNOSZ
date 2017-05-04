@@ -87,4 +87,4 @@ test_that("calculations are possible at low temperatures", {
 # Wagner, W. and Pruss, A. (2002)
 #   The IAPWS formulation 1995 for the thermodynamic properties of
 #   ordinary water substance for general and scientific use
-#   J. Phys. Chem. Ref. Data 31, 387--535. http://dx.doi.org/10.1063/1.1461829
+#   J. Phys. Chem. Ref. Data 31, 387--535. https://doi.org/10.1063/1.1461829

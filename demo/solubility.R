@@ -19,8 +19,8 @@
 # (New York: John Wiley & Sons), 3rd edition
 
 # set this to CO2 or calcite
-#what <- "CO2"
 what <- "calcite"
+#what <- "CO2"
 
 # function to return the affinity of the metastable equilibrium species
 Afun <- function(loga.balance=-3, T=25) {
@@ -31,7 +31,7 @@ Afun <- function(loga.balance=-3, T=25) {
   species(1:3, unlist(e$loga.equil))
   a <- affinity(T=T)
   # check they're actually equal
-  stopifnot(all(abs(unlist(a$values) - a$values[[1]]) < 1e-10))
+  stopifnot(all(abs(unlist(a$values) - as.vector(a$values[[1]])) < 1e-10))
   return(a$values[[1]])
 }
 
@@ -80,4 +80,4 @@ lines(pHs, loga.HCO3, lty=2, lwd=2)
 lines(pHs, loga.CO3, lty=3, lwd=2)
 legend(ifelse(what=="calcite", "topright", "topleft"), lty=c(1, 1:3), lwd=c(4, 2, 2, 2), col=c("green2", rep("black", 3)),
        legend=as.expression(c("total", expr.species("CO2", state="aq"), expr.species("HCO3-"), expr.species("CO3-2"))))
-title(main=substitute(what~"solubility at"~T~degree*"C", list(what=what, T=T)))
+title(main=substitute("Solubility of"~what~"at"~T~degree*"C", list(what=what, T=T)))

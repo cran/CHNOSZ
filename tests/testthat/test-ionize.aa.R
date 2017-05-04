@@ -36,7 +36,7 @@ test_that("charge summations for aa compositions are consistent with literature"
   Z.LYSC_CHICK.100 <- c(13.3, 7.8, -3.4, -15.2, -20.9, -20.9)
   Z.LYSC_CHICK.150 <- c(13.3, 7.1, -8.0, -20.0, -20.9, -20.9)
   Z.LYSC_CHICK.25_oxid <- c(13.5, 8.7, 7.6, 1.6, -6.2, -12.9)
-  aa <- ip2aa(iprotein("LYSC_CHICK"))
+  aa <- pinfo(pinfo("LYSC_CHICK"))
   pH <- c(4, 6, 8, 10, 12, 14)
   # the literature values are significantly different at this tolerance (the following is not TRUE)
   # expect_equal(Z.LYSC_CHICK.25, Z.LYSC_CHICK.100, 1e-1)
@@ -53,7 +53,7 @@ test_that("heat capacity and Gibbs energy of ionization are consistent with lite
   Cp.AMYA_PYRFU.nonion <- c(41.26, 42.22, 42.85, 43.33, 43.74)
   Cp.AMYA_PYRFU.pH6 <- c(37.44, 37.81, 37.78, 37.41, 36.70)
   Cp.AMYA_PYRFU.pH12 <- c(36.19, 36.59, 36.52, 36.11, 35.30)
-  aa <- ip2aa(iprotein("AMYA_PYRFU"))
+  aa <- pinfo(pinfo("AMYA_PYRFU"))
   Cp.ionization.pH6 <- ionize.aa(aa, "Cp", T=c(60, 80, 100, 120, 140), pH=6)
   Cp.ionization.pH12 <- ionize.aa(aa, "Cp", T=c(60, 80, 100, 120, 140), pH=12)
   # the literature values are significantly different at this tolerance (the following is not TRUE)
@@ -65,9 +65,9 @@ test_that("heat capacity and Gibbs energy of ionization are consistent with lite
   G.AMY_BACSU.25 <- c(-24.9, -24.9, -24.7, -24.5, -24.4, -23.9, -23.5, -23.2)
   G.AMY_BACSU.100 <- c(-26.7, -26.7, -26.4, -26.1, -25.7, -25.1, -24.9, -24.9)
   # calculate the Gibbs energies of the nonionized proteins using the same [Met] parameters as in the paper
-  add.obigt()
+  mod.obigt("[Met]", G=-35245, H=-59310)
   G.nonionized <- subcrt("AMY_BACSU", T=c(25, 100))$out[[1]]$G
-  aa <- ip2aa(iprotein("AMY_BACSU"))
+  aa <- pinfo(pinfo("AMY_BACSU"))
   G.ionization.25 <- ionize.aa(aa, "G", T=25, pH=seq(0, 14, 2))[,1]
   G.ionization.100 <- ionize.aa(aa, "G", T=100, pH=seq(0, 14, 2))[,1]
   expect_equal(G.nonionized[1] + G.ionization.25, G.AMY_BACSU.25 * 1e6, tolerance=1e-3, check.attributes=FALSE)
@@ -96,7 +96,7 @@ test_that("affinity of ionization is consistent with manual calculations", {
   # test whether the additive value for a protein is internally consistent
   alpha <- ionize.aa(ret.val="alpha")
   affinity <- ionize.aa(property="A", ret.val="aavals")
-  aa <- ip2aa(iprotein("LYSC_CHICK"))
+  aa <- pinfo(pinfo("LYSC_CHICK"))
   iionize <- match(c("Cys", "Asp", "Glu", "His", "Lys", "Arg", "Tyr", "chains", "chains"), colnames(aa))
   # the sum of the affinities of ionization of each ionizable group mutiplied by 
   # their degree of formation and by their frequency in the protein
@@ -109,4 +109,4 @@ test_that("affinity of ionization is consistent with manual calculations", {
 # Dick, J. M., LaRowe, D. E. and Helgeson, H. C. (2006) 
 #   Temperature, pressure, and electrochemical constraints on protein speciation: 
 #   Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. 
-#   Biogeosciences 3, 311--336. http://dx.doi.org/10.5194/bg-3-311-2006
+#   Biogeosciences 3, 311--336. https://doi.org/10.5194/bg-3-311-2006

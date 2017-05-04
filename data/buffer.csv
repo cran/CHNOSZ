@@ -14,7 +14,7 @@ ETHANOL,ethanol,aq,-3
 MAMINE,methanamine,aq,-3
 HM,hematite,cr1,0
 HM,magnetite,cr1,0
-FeFeO,Fe,cr1,0
+FeFeO,iron,cr1,0
 FeFeO,FeO,cr,0
 CO2-AC,CO2,aq,-3
 CO2-AC,"acetic acid",aq,-3

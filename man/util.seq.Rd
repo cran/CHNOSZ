@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{util.seq}
 \alias{util.seq}
 \alias{aminoacids}

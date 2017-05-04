@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{transfer}
 \alias{transfer}
 \alias{draw.transfer}
@@ -5,7 +6,7 @@
 \alias{apc}
 \title{Mass Transfer Calculations}
 \description{
-Simulate a mass transfer process such as mineral weathering or sequential formation of proteins.
+Simulate a mass transfer process such as mineral weathering.
 }
 
 \usage{
@@ -59,10 +60,6 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 
 }
 
-\section{Warning}{
-  \code{feldspar} loads the secondary database (using \code{\link{add.obigt}}); after using this function use \code{data(thermo)} to restore the primary database.
-}
-
 \value{
   \code{transfer} returns a list containing information about the conditions at each step: \code{basis}, data frame of the logarithms of activities of basis species, \code{species}, data frame of the logarithms of activities (moles for solids) of species, \code{alphas}, numeric vector of the values of the destruction exponent, \code{dmodes}, character vector of the destruction mode, \code{istables}, numeric vector of the index of the most stable product, \code{myaffs}, list of the affinities of the formation reactions of species, \code{didwork}, logical vector indicating whether the steps succeeded or failed.
 }
@@ -71,12 +68,10 @@ Simulate a mass transfer process such as mineral weathering or sequential format
 \examples{\dontshow{data(thermo)}
 ## react potassium feldspar in a closed system
 ## after Steinmann et al., 1994 and Helgeson et al., 1969
-# load the secondary database to use H4SiO4
-add.obigt()
-basis(c("Al+3", "H4SiO4", "K+", "H2O", "H+", "O2"), c(0, -6, -6, 0, 0, 0))
+basis(c("Al+3", "pseudo-H4SiO4", "K+", "H2O", "H+", "O2"), c(0, -6, -6, 0, 0, 0))
 species(c("k-feldspar", "muscovite", "pyrophyllite", "kaolinite", "gibbsite"))
 a <- affinity(H4SiO4=c(-6, -2), "K+"=c(-3, 8))
-diagram(a, fill="heat")
+diagram(a, fill="heat", ylab=ratlab("K+"))
 basis("pH", 4)
 species(1:5, c(-4, rep(-999, 4)))
 tr <- transfer(190, dmode="coupled", plot=c(2, 3), devmax=1, alphamax=-1.5)
@@ -84,8 +79,6 @@ tr <- transfer(190, dmode="coupled", plot=c(2, 3), devmax=1, alphamax=-1.5)
 draw.transfer(tr)
 # reset the plot layout
 layout(matrix(1))
-# restore the primary database
-data(thermo)
 
 ## can also run the calculation above (at higher resolution) with
 #feldspar("closed")
@@ -94,7 +87,7 @@ data(thermo)
 }
 
 \references{
-  Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T. (1969) Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta} \bold{33}, 455--481. \url{http://dx.doi.org/10.1016/0016-7037(69)90127-6}
+  Helgeson, H. C., Garrels, R. M. and Mackenzie, F. T. (1969) Evaluation of irreversible reactions in geochemical processes involving minerals and aqueous solutions. II. Applications. \emph{Geochim. Cosmochim. Acta} \bold{33}, 455--481. \url{https://doi.org/10.1016/0016-7037(69)90127-6}
 
   Steinmann, P., Lichtner, P. C. and Shotyk, W. (1994) Reaction path approach to mineral weathering reactions. \emph{Clay Clay Min.} \bold{42}, 197--206. \url{http://ccm.geoscienceworld.org/cgi/content/abstract/42/2/197}
 }

@@ -217,7 +217,7 @@ element.potentials <- function(w, plot.it=FALSE, iplot=1:ncol(w$A)) {
     par(mfrow=c(length(iplot),1))
     for(i in iplot) {
       ylab <- as.expression(substitute(mu[x]/RT,list(x=colnames(ep)[i])))
-      plot(ep[,i],xlab="species combination",ylab=ylab)
+      plot(ep[,i],xlab="species combination",ylab=ylab, pch=19)
       title(main=paste("max difference (range) =",format(diff(range(ep[,i])),digits=2)))
     }
   }
@@ -238,7 +238,7 @@ is.near.equil <- function(w, tol=0.01, quiet=FALSE) {
     # talk about the differences in chemical potentials
     epdiff <- abs(apply(apply(ep, 2, range), 2, diff))
     imax <- which.max(epdiff)
-    msgout("is.near.equil: solution has variation of ", epdiff[imax], " in mu/RT of ", names(epdiff)[imax], "\n")
+    message("is.near.equil: solution has variation of ", epdiff[imax], " in mu/RT of ", names(epdiff)[imax])
   }
   return(ine)
 }
@@ -262,7 +262,7 @@ guess <- function(
   # if method="central" get central solution using limSolve package  20120919
   if(identical(method, "central")) {
     if(!"limSolve" %in% row.names(installed.packages())) {
-      msgout("guess: skipping 'central' method as limSolve package is not available\n")
+      message("guess: skipping 'central' method as limSolve package is not available")
     } else {
       # the inequality constraints for moles of species
       G <- diag(nrow(A))
@@ -378,10 +378,10 @@ run.wjd <- function(ispecies, B=NULL, method="stoich", Y=run.guess(ispecies, B, 
       for(i in 1:length(Y)) {
         w <- wjd(A, G0.RT, Y[[i]], P=P, nlambda=nlambda, imax=imax, Gfrac=Gfrac)
         if(is.near.equil(w, tol=tol)) {
-          msgout("run.wjd: got within tolerance on initial solution ", i, " of ", length(Y), "\n")
+          message("run.wjd: got within tolerance on initial solution ", i, " of ", length(Y))
           break
         }
-        if(i==length(Y)) msgout("run.wjd: tested ", length(Y), " initial solutions\n")
+        if(i==length(Y)) message("run.wjd: tested ", length(Y), " initial solutions")
       }
     }
     # only return a near equilibrium solution

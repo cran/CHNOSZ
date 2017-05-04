@@ -35,13 +35,13 @@ test_that("RH2obigt() gives group additivity results consistent with database va
 })
 
 test_that("add.obigt() replaces existing entries without changing species index", {
-  # store the original species index of citric acid
-  icitric <- info("citric acid", "aq")
-  # add supplemental database - includes citric acid
-  file <- system.file("extdata/thermo/OBIGT-2.csv", package="CHNOSZ")
+  # store the original species index of CdCl2
+  iCdCl2 <- info("CdCl2", "aq")
+  # add supplemental database - includes CdCl2
+  file <- system.file("extdata/thermo/BZA10.csv", package="CHNOSZ")
   isp <- add.obigt(file, force=TRUE)
-  # species index of citric acid should not have changed
-  expect_equal(info("citric acid", "aq"), icitric)
+  # species index of CdCl2 should not have changed
+  expect_equal(info("CdCl2", "aq"), iCdCl2)
   # check that names of species modified are same as in file
   newdat <- read.csv(file, stringsAsFactors=FALSE)
   # the order isn't guaranteed ... just make sure they're all there
@@ -53,4 +53,4 @@ test_that("add.obigt() replaces existing entries without changing species index"
 # Richard, L. and Helgeson, H. C. (1998) Calculation of the thermodynamic properties at elevated 
 #   temperatures and pressures of saturated and aromatic high molecular weight solid and liquid 
 #   hydrocarbons in kerogen, bitumen, petroleum, and other organic matter of biogeochemical interest. 
-#   Geochim. Cosmochim. Acta 62, 3591--3636. http://dx.doi.org/10.1016/S0016-7037(97)00345-1
+#   Geochim. Cosmochim. Acta 62, 3591--3636. https://doi.org/10.1016/S0016-7037(97)00345-1

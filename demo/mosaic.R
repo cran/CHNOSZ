@@ -24,15 +24,16 @@ bases2 <- c("CO3-2", "HCO3-", "CO2")
 # compare with the plot in Garrels and Christ, 1965
 m1 <- mosaic(bases, bases2, TRUE, pH=pH, Eh=Eh, T=T)
 # make a diagram and add water stability lines
-diagram(m1$A.species)
+diagram(m1$A.species, lwd=2)
 water.lines("pH", "Eh", T=convert(T, "K"), col="seagreen", lwd=1.5)
 # show lines for Fe(aq) = 10^-4 M
 species(c("Fe+2", "Fe+3"), -4)
 m2 <- mosaic(bases, bases2, TRUE, pH=pH, Eh=Eh, T=T)
-diagram(m2$A.species, add=TRUE, names=NULL, dotted=3)
+diagram(m2$A.species, add=TRUE, names=NULL)
 title(main=paste("Iron oxides, sulfides and carbonate in water, log(total S) = -6,",
   "log(total C)=0, after Garrels and Christ, 1965", sep="\n"))
 # overlay the carbonate basis species predominance fields
-diagram(m1$A.bases2, add=TRUE, col="blue", col.names="blue", dotted=3)
+d <- diagram(m1$A.bases2, add=TRUE, col="blue", names=NULL, lty=3, limit.water=FALSE)
+text(d$lx, -0.8, as.expression(sapply(m1$A.bases2$species$name, expr.species)), col="blue")
 # reset the database, as it was changed in this example
 data(thermo)

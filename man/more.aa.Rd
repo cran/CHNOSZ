@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{more.aa}
 \alias{more.aa}
 \title{Proteins from Model Organisms}
@@ -17,7 +18,7 @@
 \details{
 \code{more.aa} retrieves the amino acid composition(s) of the indicated proteins in either \emph{Escherichia coli} or \emph{Saccharomyces cerevisiae}.
 The value of \code{organism} can be one of \samp{Eco} or \samp{Sce}.
-The calculation depends on the data files \code{\link{extdata}/protein/Eco.csv.xz} and \code{\link{extdata}/protein/Sce.csv.xz}, which contain the amino acid compositions of the proteins.
+The calculation depends on the data files \code{\link{extdata}/protein/Eco.csv.xz} and \code{Sce.csv.xz}, which contain the amino acid compositions of the proteins.
 The \code{protein} argument should be a vector or a list of vectors of one or more Ordered Locus Names (OLN) or Open Reading Frame (ORF) names that are found in these files.
 The output data frame contains rows with NA compositions for names that are not matched.
 }

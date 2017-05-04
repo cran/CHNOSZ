@@ -1,24 +1,7 @@
 # CHNOSZ/read.expr.R
 # protein abundance and localization data from experiments
-# stress: protein identities from stress.csv
 # yeastgfp: protein localization and abundance from yeastgfp.csv
 # read.expr: protein abundance from other files (including in extdata/abundance)
-
-stress <- function(condition, organism) {
-  # get names of proteins from a stress response experiment
-  # extracted from get.protein() 20120519 jmd
-  # read the data file
-  stressfile <- system.file("extdata/abundance/stress.csv", package="CHNOSZ")
-  stressdat <- read.csv(stressfile, check.names=FALSE, as.is=TRUE)
-  imatch <- which(colnames(stressdat) == condition & stressdat[1, ] == organism)
-  if(length(imatch)==0) stop("didn't find proteins for ", organism, " in ", condition)
-  protein <- stressdat[3:nrow(stressdat), imatch]
-  protein <- protein[!is.na(protein)]
-  # stressdat[2, ]: the literature source of the data
-  msgout("stress: found ", length(protein), " proteins for ", organism, " in ", condition, " from ", stressdat[2, imatch], "\n")
-  out <- list(protein=protein, abundance=rep(1, length(protein)))
-  return(out)
-}
 
 yeastgfp <- function(location=NULL, exclusive=TRUE) {
   # return a list of ORFs and protein abundances for a subcellular location
@@ -29,14 +12,12 @@ yeastgfp <- function(location=NULL, exclusive=TRUE) {
   # yeastgfp preprocessing
   ygfp <- read.csv(yfile)
   # convert factors to numeric w/o NA coercion warnings
-  warn <- options(warn=-1)
-  ygfp$abundance <- as.numeric(as.character(ygfp$abundance))
-  options(warn)
+  ygfp$abundance <- as.numeric.nowarn(as.character(ygfp$abundance))
   # if location is NULL, just report on the content of the file
   # and return the names of the locations
   if(is.null(location)) {
-    msgout("yeastgfp: ", ypath, " has ", nrow(ygfp), " localizations and ",
-      length(ygfp$abundance[!is.na(ygfp$abundance)]), " abundances\n")
+    message("yeastgfp: ", ypath, " has ", nrow(ygfp), " localizations and ",
+      length(ygfp$abundance[!is.na(ygfp$abundance)]), " abundances")
     return(invisible(colnames(ygfp)[6:28]))
   }
   # iterate over multiple locations
@@ -51,8 +32,8 @@ yeastgfp <- function(location=NULL, exclusive=TRUE) {
       # find the number of localizations of each ORF
       localizations <- numeric(nrow(ygfp))
       for(j in 6:28) localizations <- localizations + as.logical(ygfp[,j])
-      if(all(localizations[thisygfp] > 1)) msgout("yeastgfp: no exclusive localization found for ",location[i],
-        " ... using non-exclusive localizations\n",sep="")
+      if(all(localizations[thisygfp] > 1)) message("yeastgfp: no exclusive localization found for ",location[i],
+        " ... using non-exclusive localizations",sep="")
       else thisygfp <- thisygfp & ! localizations > 1
     }
     protein <- as.character(ygfp$yORF[thisygfp])

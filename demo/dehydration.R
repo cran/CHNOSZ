@@ -14,9 +14,6 @@ T <- seq(1, 175)
 plot(range(T), c(-2, 1), type="n", xlab="T, &#176;C", ylab="log K")
 title(main="Dehydration reactions")
 
-# add.obigt is used to add malate and fumarate,
-# and epsomite and hexahydrite to thermo$obigt
-add.obigt()
 reactants <- c("[AABB]", "[AABB]", "malate-2", "goethite", "gypsum", "epsomite", "ethanol")
 products <- c("[UPBB]", "[PBB]", "fumarate-2", "hematite", "anhydrite", "hexahydrite", "ethylene")
 rstate <- c("aq", "cr", "aq", "cr", "cr", "cr", "aq")
@@ -41,7 +38,7 @@ for(i in 1:length(reactants)) {
 
   # points
   if(!is.na(ex.T[i])) {
-    URL <- paste0("http://dx.doi.org/", ex.doi[i])
+    URL <- paste0("https://doi.org/", ex.doi[i])
     setSVGShapeURL(URL, target="_blank")
     setSVGShapeContents(paste0("<title>", ex.txt[i], "</title>"))
     # we would use this instead with toolTipMode=1 :
@@ -53,6 +50,8 @@ for(i in 1:length(reactants)) {
   for(j in 1:2) {
     formula <- thermo$obigt$formula[s$reaction$ispecies[j]]
     key1 <- thermo$obigt$ref1[s$reaction$ispecies[j]]
+    # remove suffix from the key (e.g. "DLH06 [S15]" --> "DLH06")
+    key1 <- strsplit(key1, " ")[[1]][1]
     ikey1 <- which(thermo$refs$key==key1)
     URL1 <- thermo$refs$URL[ikey1]
     setSVGShapeURL(URL1, target="_blank")

@@ -67,4 +67,4 @@ test_that("open-system equilibrium distributions reproduce the results of wjd()"
 
 # White, W. B., Johnson, S. M. and Dantzig, G. B. (1958) 
 #   Chemical equilibrium in complex mixtures. 
-#   J. Chem. Phys. 28, 751--755. http://dx.doi.org/10.1063/1.1744264
+#   J. Chem. Phys. 28, 751--755. https://doi.org/10.1063/1.1744264

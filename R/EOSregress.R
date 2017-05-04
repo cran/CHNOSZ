@@ -3,6 +3,19 @@
 # 20091105 first version
 # 20110429 revise and merge with CHNOSZ package
 
+Cp_s_var <- function(T=298.15, P=1, omega.PrTr=0, Z=0) {
+  # solvation contribution to heat capacity in the HKF EOS, divided by omega(Pr,Tr) (calories)
+  Cp_s <- hkf("Cp", T=T, P=P, eos=data.frame(omega=omega.PrTr, Z=Z), contrib="s")
+  return(Cp_s[[1]][, 1]/omega.PrTr)
+}
+
+V_s_var <- function(T=298.15, P=1, omega.PrTr=0, Z=0) {
+  # solvation contribution to volume in the HKF EOS, divided by omega(Pr,Tr) (cm3.bar)
+  # [the negative sign on this term as written in the HKF EOS is accounted for by hkf()]
+  V_s <- hkf("V", T=T, P=P, eos=data.frame(omega=omega.PrTr, Z=Z), contrib="s")
+  return(V_s[[1]][, 1]/convert(omega.PrTr, "cm3bar"))
+}
+
 EOSvar <- function(var, T, P, ...) {
   # get the variables of a term in a regression equation
   # T (K), P (bar)
@@ -102,20 +115,21 @@ EOSregress <- function(exptdata, var="", T.max=9999, ...) {
   return(EOSlm)
 }
 
-EOScalc <- function(coefficients,T,P) {
+EOScalc <- function(coefficients, T, P, ...) {
   # calculate values of volume
   # or heat capacity from regression fit
   X <- 0
   for(i in 1:length(coefficients)) {
     coeff.i <- coefficients[[i]]
-    fun.i <- EOSvar(names(coefficients)[i],T,P)
+    fun.i <- EOSvar(names(coefficients)[i], T, P, ...)
     X <- X + coeff.i * fun.i
   }
   return(X)
 }
 
-EOSplot <- function(exptdata,var=NULL,T.max=9999,T.plot=NULL,
-  fun.legend="topleft",coefficients=NULL) {
+EOSplot <- function(exptdata, var=NULL, T.max=9999, T.plot=NULL,
+  fun.legend="topleft", coefficients=NULL, add=FALSE,
+  lty=par("lty"), col=par("col"), ...) {
   # plot experimental and modelled volumes and heat capacities
   # first figure out the property (Cp or V) from the exptdata
   prop <- colnames(exptdata)[3]
@@ -126,39 +140,43 @@ EOSplot <- function(exptdata,var=NULL,T.max=9999,T.plot=NULL,
   }
   # perform the regression, only using temperatures up to T.max
   if(is.null(coefficients)) {
-    EOSlm <- EOSregress(exptdata, var, T.max)
+    EOSlm <- EOSregress(exptdata, var, T.max, ...)
     coefficients <- EOSlm$coefficients
   }
   # only plot points below a certain temperature
   iexpt <- 1:nrow(exptdata)
   if(!is.null(T.plot)) iexpt <- which(exptdata$T < T.plot)
-  iX <- match(prop, colnames(exptdata))
-  ylim <- extendrange(exptdata[iexpt, iX], f=0.1)
+  # for a nicer plot, extend the ranges, but don't go below -20 degrees C
+  ylim <- extendrange(exptdata[iexpt, prop], f=0.1)
   xlim <- extendrange(exptdata$T[iexpt], f=0.1)
+  xlim[xlim < 253.15] <- 253.15
   # start plot
-  thermo.plot.new(xlim=xlim, ylim=ylim, xlab=axis.label("T", units="K"),
-    ylab=axis.label(paste(prop, "0", sep="")), yline=2, mar=NULL)
-  # different plot symbols to represent size of residuals
-  pch.open <- 1
-  pch.filled <- 16
-  # find the calculated values at these conditions
-  calc.X <- EOScalc(coefficients, exptdata$T, exptdata$P)
-  expt.X <- exptdata[, iX]
-  # are we within 10% of the values
-  in10 <- which(abs((calc.X-expt.X)/expt.X) < 0.1)
-  pch <- rep(pch.open, length(exptdata$T))
-  pch[in10] <- pch.filled
-  points(exptdata$T, exptdata[, iX], pch=pch)
-  # take out NAs and Infinite values
-  iNA <- is.na(calc.X) | is.infinite(calc.X)
+  if(!add) {
+    thermo.plot.new(xlim=xlim, ylim=ylim, xlab=axis.label("T", units="K"),
+      ylab=axis.label(paste(prop, "0", sep="")), yline=2, mar=NULL)
+    # different plot symbols to represent size of residuals
+    pch.open <- 1
+    pch.filled <- 16
+    # find the calculated values at these conditions
+    calc.X <- EOScalc(coefficients, exptdata$T, exptdata$P, ...)
+    expt.X <- exptdata[, prop]
+    # are we within 10% of the values
+    in10 <- which(abs((calc.X-expt.X)/expt.X) < 0.1)
+    pch <- rep(pch.open, length(exptdata$T))
+    pch[in10] <- pch.filled
+    points(exptdata$T, exptdata[, prop], pch=pch)
+  }
   # plot regression line at a single P
   P <- mean(exptdata$P)
-  msgout("EOSplot: plotting line for P=", P, " bar\n")
+  message("EOSplot: plotting line for P=", P, " bar")
   xs <- seq(xlim[1], xlim[2], length.out=200)
-  calc.X <- EOScalc(coefficients, xs, P)
-  lines(xs, calc.X)
+  calc.X <- EOScalc(coefficients, xs, P, ...)
+  lines(xs, calc.X, lty=lty, col=col)
   # make legend
-  if(!is.null(fun.legend)) {
+  if(!is.null(fun.legend) & !add) {
+    # 20161101: negate QBorn and V_s_var
+    iQ <- names(coefficients) %in% c("QBorn", "V_s_var")
+    coefficients[iQ] <- -coefficients[iQ]
     coeffs <- as.character(round(as.numeric(coefficients), 4))
     # so that positive ones appear with a plus sign
     ipos <- which(coeffs >= 0)
@@ -169,7 +187,7 @@ EOSplot <- function(exptdata,var=NULL,T.max=9999,T.plot=NULL,
     #fun.lab <- paste(names(coeffs),round(as.numeric(coeffs),4))
     legend(fun.legend, legend=fun.lab, pt.cex=0.1)
   }
-  return(invisible(list(xlim=range(exptdata$T[iexpt]))))
+  return(invisible(list(xrange=range(exptdata$T[iexpt]), coefficients=coefficients)))
 }
 
 EOScoeffs <- function(species, property, P=1) {

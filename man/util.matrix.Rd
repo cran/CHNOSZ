@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{util.matrix}
 \alias{util.matrix}
 \alias{invertible.combs}

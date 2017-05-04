@@ -2,16 +2,6 @@
 # objective functions for revisit(), findit()
 # all objective functions in one file, added attributes  20121009 jmd 
 
-get.objfun <- function(objective) {
-  # get the function with the name given in 'objective'
-  objfun <- get(objective)
-  # perform a check on its usability
-  if(!"optimum" %in% names(attributes(objfun)))
-    stop(paste(objective, "is not a function with an attribute named 'optimum'"))
-  # return the function
-  return(objfun)
-}
-
 # input: a1 or loga1 is matrix with a column for each species and a row for each condition
 # output: vector with length equal to number of rows of a1 or loga1
 # attributes:
@@ -193,3 +183,17 @@ DGtr <- structure(
   },
   optimum="minimal"
 )
+
+### unexported functions ###
+
+# return the objective function named in objective,
+#  or produce an error if the function has no optimum attribute
+get.objfun <- function(objective) {
+  # get the function with the name given in 'objective'
+  objfun <- get(objective)
+  # perform a check on its usability
+  if(!"optimum" %in% names(attributes(objfun)))
+    stop(paste(objective, "is not a function with an attribute named 'optimum'"))
+  # return the function
+  return(objfun)
+}

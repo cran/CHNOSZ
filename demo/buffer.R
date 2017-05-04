@@ -1,43 +1,36 @@
-## Buffer + ionization: Metastablilities of
-## thiol peroxidases from model bactera
-## (ECOLI, BACSU mesophile; AQUAE thermophile,
-## THIDA acidophile, BACHD alkaliphile)
-basis("CHNOS+")
-organisms <- c("ECOLI", "AQUAE", "BACSU", "BACHD", "THIDA")
-species("TPX", organisms)
-# create a buffer with our proteins in it
-mod.buffer("TPX", paste("TPX", organisms, sep="_"))
-# set up the buffered activities
-basis(c("CO2", "H2O", "NH3", "O2"), "TPX")
-a <- affinity(return.buffer=TRUE, T=50)
-basis(c("CO2", "H2O", "NH3", "O2"), as.numeric(a[1:4]))
-a <- affinity(pH=c(4, 10, 300), T=c(40, 60, 300))
-e <- equilibrate(a, normalize=TRUE)
-diagram(e, fill=NULL)
-title(main="Thiol peroxidases from bacteria")
-legend("topleft", describe.basis(thermo$basis[-6,]))
+# demos/buffer.R
+# calculate buffered activities of basis species using two methods
+# reproduces Figure 6 of Schulte and Shock, 1995 (doi:10.1007/BF01581580)
 
-## Buffer + ionization: relative stabilities
-## of E. coli sigma factors on a T-pH diagram
-# (sigma factors 24, 32, 38, 54, 70, i.e.
-# RpoE, RpoH, RpoS, RpoN, RpoD)
-proteins <- c("RPOE", "RP32", "RPOS", "RP54", "RPOD")
-basis("CHNOS+")
-basis("pH", 7.4)
-# define and set the buffer
-mod.buffer("sigma", paste(proteins, "ECOLI", sep="_"))
-basis(c("CO2", "NH3", "H2S", "O2"), "sigma")
-logact <- affinity(return.buffer=TRUE, T=25)
-# Set the activities of the basis species to constants 
-# corresponding to the buffer, and diagram the relative
-# stabilities as a function of T and pH
-basis(c("CO2", "NH3", "H2S", "O2"), as.numeric(logact))
-species(paste(proteins, "ECOLI", sep="_"))
-a <- affinity(pH=c(5, 10), T=c(10, 40))
-diagram(a, normalize=FALSE, fill="heat")
-title(main="Relative stabilities of sigma factors in E. coli")
-ptext <- c(describe.property("T", 25), 
-  describe.basis(ibasis=c(2, 6), oneline=TRUE))
-btext <- describe.basis(ibasis=c(1, 3, 4, 5), oneline=TRUE)
-legend("bottomleft", legend=c("preset (input values):",
-  ptext, "buffered (results):", btext), bty="n")
+b.species <- c("Fe", "CO2", "H2O", "N2", "H2", "H2S", "SiO2")
+b.state <- c("cr1", "gas", "liq", "gas", "gas", "aq", "aq")
+b.logact <- c(0, 1, 0, 0, 0, 0, 0)
+basis(b.species, b.state, b.logact)
+xlim <- c(0, 350)
+thermo.plot.new(xlim=xlim, ylim=c(-4, 4), xlab=axis.label("T"), ylab=axis.label("H2"))
+# method 1: in affinity(), assign name of buffer to basis species
+bufferline <- function(buffer, ixlab) {
+  basis("H2", buffer)
+  a <- affinity(T=xlim, P=300, return.buffer=TRUE, exceed.Ttr=TRUE)
+  lines(a$vals[[1]], a$H2, col=3, lwd=2)
+  text(a$vals[[1]][ixlab], a$H2[ixlab] + 0.2, buffer)
+}
+bufferline("FeFeO", 20)
+bufferline("QFM", 38)
+bufferline("PPM", 102)
+bufferline("HM", 51)
+# method 2: in diagram(), use the `what` argument
+basis("H2", 0)
+for(logact in c(-6, -10, -15)) {
+  species(c("formaldehyde", "HCN"), logact)
+  a <- affinity(T=xlim, P=300)
+  d <- diagram(a, what="H2", lty=c(3, 2), add=TRUE)
+  text(a$vals[[1]][13], mean(sapply(d$plotvals, c)[13, ]), logact)
+}
+# add legends and title
+legend("topright", legend = c("minerals", "formaldehyde", "HCN"),
+  lty=c(1, 3, 2), col=c(3, 1, 1), bg="white", cex=0.9)
+legend("bottomright", legend = c(describe.property("P", 300),
+  describe.basis(ibasis=c(2,4))), bg="white", cex=0.9)
+title(main=paste("Mineral buffers and activities of aqueous species",
+                 "(Schulte and Shock, 1995)", sep="\n"), cex.main=0.9)

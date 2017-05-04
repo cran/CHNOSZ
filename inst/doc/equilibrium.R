@@ -24,7 +24,7 @@ aaA <- function() {
 }
 
 aaB <- function() {
-  a <- affinity(O2=c(-90, -70, res), H2O=c(-20, 10, res))
+  a <- affinity(O2=c(-90, -70, 80), H2O=c(-20, 10, 80))
   e <- equilibrate(a, balance=1)
   diagram(e, names=aa)
 }
@@ -35,7 +35,7 @@ aaC <- function() {
 }
 
 aaD <- function() {
-  a <- affinity(O2=c(-71, -66), H2O=c(-8, 4))
+  a <- affinity(O2=c(-71, -66, 80), H2O=c(-8, 4, 80))
   e <- equilibrate(a, balance="CO2")
   diagram(e, names=aa)
 }
@@ -140,7 +140,7 @@ species(proteins, organisms)
 
 ## ----PRfigures---------------------------------------------------------------------
 prA <- function() {
-  a <- affinity(O2=c(-90, -70, res), H2O=c(-20, 0, res))
+  a <- affinity(O2=c(-90, -70, 80), H2O=c(-20, 0, 80))
   e <- equilibrate(a, balance="length", loga.balance=0)
   diagram(e, names=organisms)
 }
@@ -148,7 +148,7 @@ prA <- function() {
 prB <- function() {
   a <- affinity(O2=c(-90, -70))
   e <- equilibrate(a, balance="length", loga.balance=0)
-  diagram(e, names=organisms, ylim=c(-5, -1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-5, -1))
 }
 
 prC <- function() {
@@ -160,7 +160,7 @@ prC <- function() {
 prD <- function() {
   a <- affinity(O2=c(-90, -70))
   e <- equilibrate(a, normalize=TRUE, loga.balance=0)
-  diagram(e, names=organisms, ylim=c(-5, -1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-5, -1))
 }
 
 prE <- function() {
@@ -172,7 +172,7 @@ prE <- function() {
 prF <- function() {
   a <- affinity(O2=c(-90, -70))
   e <- equilibrate(a, as.residue=TRUE, loga.balance=0)
-  diagram(e, names=organisms, ylim=c(-3, 1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-3, 1))
 }
 
 ## ----PRplot, message=FALSE, echo=FALSE, results="hide", fig.width=13/2, fig.height=9/2, cache=TRUE----
@@ -250,7 +250,7 @@ for(loga in c(-1, 0, -2, -3)) {
 water.lines()
 
 
-## ----glutathione, results="hide", message=FALSE, fig.width=5, fig.height=3.5-------
+## ----glutathione, results="hide", message=FALSE, fig.width=5, fig.height=4---------
 basis(c("GSH", "NH3", "H2S", "H2O", "H+", "e-"))
 basis("pH", 7)
 species(c("GSH", "GSSG"))
@@ -273,14 +273,11 @@ demo("copper", ask=FALSE)
 
 ## ----AddObigt----------------------------------------------------------------------
 data(thermo)
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 
 ## ----ProteinFormation--------------------------------------------------------------
 basis("CHNOS+")
 species("CSG",c("METVO", "METJA"))
-
-## ----ProteinInfo-------------------------------------------------------------------
-protein.info(species()$name)
 
 ## ----ProteinAffinity---------------------------------------------------------------
 a <- affinity()
@@ -294,7 +291,7 @@ e$loga.equil
 protein.basis(species()$name, normalize=TRUE)
 
 ## ----ProteinEquil, results="hide"--------------------------------------------------
-protein <- iprotein(c("CSG_METVO", "CSG_METJA"))
+protein <- pinfo(c("CSG_METVO", "CSG_METJA"))
 basis("CHNOS+")
 swap.basis("O2", "H2")
 protein.equil(protein, loga.protein=-3)
@@ -307,11 +304,11 @@ species(proteins, organisms)
 a <- affinity(O2=c(-100, -65))
 layout(matrix(1:2), heights=c(1, 2))
 e <- equilibrate(a)
-diagram(e, ylim=c(-2.8, -1.6), legend.x=NA, names=organisms)
+diagram(e, ylim=c(-2.8, -1.6), names=organisms)
 water.lines(xaxis="O2")
 title(main="Equilibrium activities of proteins, normalize = FALSE")
 e <- equilibrate(a, normalize=TRUE)
-diagram(e, ylim=c(-4, -2), legend.x=NA, names=organisms)
+diagram(e, ylim=c(-4, -2), names=organisms)
 water.lines(xaxis="O2")
 title(main="Equilibrium activities of proteins, normalize = TRUE")
 

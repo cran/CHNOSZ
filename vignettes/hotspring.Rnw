@@ -1,4 +1,4 @@
-%% LyX 2.1.3 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.2.2 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
 \documentclass[english]{article}
 \usepackage{mathpazo}
@@ -15,7 +15,7 @@
 \usepackage[numbers]{natbib}
 \usepackage[unicode=true,pdfusetitle,
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
- breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=true]
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=true]
  {hyperref}
 \hypersetup{
  citecolor=magenta, urlcolor=blue}
@@ -27,7 +27,7 @@
 %\VignetteEngine{knitr::knitr}
 
 % so DOIs in bibliography show up as hyperlinks
-\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 
 \makeatother
 
@@ -46,12 +46,9 @@ if (before && options$fig.show!='none') par(mar=c(4,4,1,1),cex.lab=.95,cex.axis=
 })
 @
 
-
 \title{Hot-spring proteins in CHNOSZ}
 
-
 \author{Jeffrey M. Dick and Everett L. Shock}
-
 \maketitle
 
 \section{Introduction}
@@ -78,15 +75,17 @@ to create the BLAST frequency table, and \texttt{revisit()} to calculate
 the $\Delta G_{tr}$) have been introduced here in order to streamline
 the code.
 
-Load CHNOSZ and the thermodynamic database. The thermodynamic data
-for the methionine sidechain group used in the 2011 paper \citep{DS11}
-was updated in CHNOSZ\_0.9-9 \citep{LD12}, but the older dataset
-is still available using \texttt{add.obigt()}.
+Load CHNOSZ and the thermodynamic database. In order to reproduce
+the calculations from the 2011 paper, we modify the methionine sidechain
+group using old values of standard Gibbs energy and enthalpy from
+\citep{DLH06}; these are inaccurate values that were updated by \citep{LD12}
+and are available starting in CHNOSZ\_0.9-9 (the current values are
+used further below).
 
 <<libraryCHNOSZ>>=
 library(CHNOSZ)
 data(thermo)
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 @
 
 Some values that are shared among different calculations: measured
@@ -119,11 +118,10 @@ pHfun <- splinefun(distance, bison.pH, method="mono")
 lines(xpoints, pHfun(xpoints))
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0022782.g005}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0022782.g005}{DOI link}
 to published figure (panels A and B). The length of \texttt{xpoints}
 here, 128, is the resolution used for the figures in the 2011 paper
 (defined in the \texttt{mkargs()} function of the Supporting Information).
-
 
 \section{General setup}
 
@@ -134,12 +132,12 @@ sites located in the hot spring.
 
 <<proteins>>=
 # read the amino acid compositions
-aa.annot <- read.aa(system.file("extdata/protein/DS11.csv", package="CHNOSZ"))
-aa.phyla <- read.aa(system.file("extdata/protein/DS13.csv", package="CHNOSZ"))
+aa.annot <- read.csv(system.file("extdata/protein/DS11.csv", package="CHNOSZ"), as.is=TRUE)
+aa.phyla <- read.csv(system.file("extdata/protein/DS13.csv", package="CHNOSZ"), as.is=TRUE)
 @
 
 Here are the site names for the sampling locations (also referred
-to as sites 1--5).
+to as sites 1\textendash 5).
 
 <<sitename>>=
 sites <- c("N", "S", "R", "Q", "P")
@@ -170,7 +168,6 @@ phyla.lty <- c(1:6, 1:5)
 phyla.abbrv
 @
 
-
 \section{Average oxidation state of carbon}
 
 The average oxidation state of carbon ($\overline{Z}_{\mathrm{C}}$)
@@ -182,8 +179,6 @@ where $n_{\mathrm{C}}$, $n_{\mathrm{H}}$, $n_{\mathrm{N}}$, $n_{\mathrm{O}}$
 and $n_{\mathrm{S}}$ are the numbers of the indicated subscripted
 elements in the chemical formula of a protein or other chemical species,
 and $Z$ is the net charge of the chemical species.
-
-
 
 <<ZCplot, fig.width=5, fig.height=5, out.width='.49\\textwidth'>>=
 # 2011 plot
@@ -222,15 +217,13 @@ legend("bottomright", pch=0:10, legend=phyla.abbrv, bg="white", cex=0.9)
 title(main="major phyla")
 @
 
-DOI links for these plots as they appeared in the publications: \href{http://dx.doi.org/10.1371/journal.pone.0022782.g004}{plot 1},
-\href{http://dx.doi.org/10.1371/journal.pone.0072395.g001}{plot 2}.
+DOI links for these plots as they appeared in the publications: \href{https://doi.org/10.1371/journal.pone.0022782.g004}{plot 1},
+\href{https://doi.org/10.1371/journal.pone.0072395.g001}{plot 2}.
 Compared to the papers, a different \emph{y}-axis scale is used here,
 in order to have same scale on both plots; permease at lower $\overline{Z}_{\mathrm{C}}$
 does not appear in plot 1 here.
 
-
 \section{Relative stabilities of ``overall'' model proteins}
-
 
 \subsection{Formation reactions of proteins from basis species}
 
@@ -274,7 +267,6 @@ and 2; increasing the activity of $\mathrm{H_{2}}$ (more reducing
 conditions) has a relatively more favorable mass-action effect on
 the formation of the proteins at the higher temperature sites.
 
-
 \subsection{Chemical affinities along a chemical gradient}
 
 Function to calculate $\log a_{\mathrm{H_{2}}}$ as a linear equation
@@ -284,7 +276,6 @@ in the 2011 paper \citep{DS11} (also shown as Equation 2 in 2013
 \begin{equation}
 \log a_{\mathrm{H_{2_{\left(aq\right)}}}}=-11+3/40\times T\mathrm{\left(^{\circ}C\right)}\label{eq:logaH2}
 \end{equation}
-
 
 <<logaH2>>=
 get.logaH2 <- function(T) -11 + T * 3/40
@@ -304,7 +295,7 @@ a.res <- t(as.data.frame(a$values))/pl
 a.res
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0022782.t005}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0022782.t005}{DOI link}
 to published table.
 
 The affinities are expressed as dimensionless values, i.e. $\boldsymbol{A}/2.303RT$
@@ -331,7 +322,6 @@ apply(a.res, 2, which.max)
 This 1-2-4 progression of stabilities is visualized below; for some
 groups of proteins, an update to the thermodynamic properties of the
 methionine sidechain causes proteins from site 3 also to become stable.
-
 
 \subsection{Relative stabilities along a chemical gradient}
 
@@ -375,7 +365,7 @@ diagram(e, legend.x=NULL)
 legend("bottom", lty=1:5, legend=1:5, bty="n", cex=0.6)
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0022782.g005}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0022782.g005}{DOI link}
 to published figure (panels B and F).
 
 \clearpage
@@ -406,20 +396,18 @@ for(i in 1:2) {
 }
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0022782.g007}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0022782.g007}{DOI link}
 to published figure.
 
 \clearpage
-
 
 \section{Comparing old and new methionine sidechain parameters}
 
 Make some $T-\log a_{\mathrm{H_{2}}}$ metastable equilibrium predominance
 diagrams using different values for the thermodynamic properties of
 the methionine sidechain group {[}Met{]}. The first row shows the
-results using the old values (since \texttt{add.obigt()} was called
-above); for the second row (j=2), we reset the database to use the
-current (revised) parameters.
+results using the old values (defined on page 1); for the second row
+(j=2), we reset the database to use the current (revised) parameters.
 
 <<methionine, fig.width=6, fig.height=4, message=FALSE, results='hide', cache=TRUE>>=
 par(mfrow=c(2, 3))
@@ -444,10 +432,9 @@ for(j in 1:2) {
 }
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0072395.g002}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0072395.g002}{DOI link}
 to published figure, which was made with higher resolution (256) and
 manual placement of some labels.
-
 
 \section{Relative abundance calculations}
 
@@ -534,20 +521,17 @@ for(i in 1:5) {
 }
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0072395.g003}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0072395.g003}{DOI link}
 to published version of the figure.
 
 \clearpage
-
 
 \section{Activity of hydrogen comparison}
 
 Let's compare the computed activities of hydrogen with various redox
 indicators measured in the field.
 
-
 \subsection{Conversion of field measurements}
-
 
 \paragraph{ORP}
 
@@ -591,7 +575,6 @@ logK.ORP <- subcrt(c("e-", "H+", "H2"), c(-2, -2, 1), T=T.ORP)$out$logK
 logaH2.ORP <- logK.ORP - 2*pe - 2*pH.ORP
 @
 
-
 \paragraph{Sulfide/Sulfate}
 
 For sulfide/sulfate, assign activities that are equal to concentrations
@@ -611,7 +594,6 @@ logK.S <- subcrt(c("HS-", "H2O", "SO4-2", "H+", "H2"), c(-1, -4, 1, 1, 4), T=bis
 logaH2.S <- (logK.S + bison.pH - loga.SO4 + loga.HS) / 4
 @
 
-
 \paragraph{Dissolved Oxygen}
 
 Calculate the effective activity of hydrogen corresponding to the
@@ -628,7 +610,6 @@ logaO2 <- log10(DO/1000/32)
 logK <- subcrt(c("O2", "H2", "H2O"), c(-0.5, -1, 1), T=bison.T)$out$logK
 logaH2.O <- 0 - 0.5*logaO2 - logK
 @
-
 
 \paragraph{Plot it!}
 
@@ -664,9 +645,8 @@ text(90, -5.3, "Equation 2")
 text(66, -9, "optimal parameterization\nfor observed\nphylum abundances", adj=0)
 @
 
-DOI links to published versions: \href{http://dx.doi.org/10.1371/journal.pone.0022782.g009}{plot 1},
-\href{http://dx.doi.org/10.1371/journal.pone.0072395.g004}{plot 2}.
-
+DOI links to published versions: \href{https://doi.org/10.1371/journal.pone.0022782.g009}{plot 1},
+\href{https://doi.org/10.1371/journal.pone.0072395.g004}{plot 2}.
 
 \section{Relative abundance comparison}
 
@@ -703,7 +683,7 @@ for(iloc in 1:5) {
 }
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0072395.g005}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0072395.g005}{DOI link}
 to published figure.
 
 \clearpage
@@ -731,15 +711,14 @@ plot.new()
 legend("bottomleft", legend=rev(phyla.abbrv), fill=rev(phyla.cols), bty="n", cex=0.7)
 @
 
-\href{http://dx.doi.org/10.1371/journal.pone.0072395.g006}{DOI link}
+\href{https://doi.org/10.1371/journal.pone.0072395.g006}{DOI link}
 to published figure.
-
 
 \section{Document history}
 \begin{itemize}
 \item 2011-08-23 Initial version (CHNOSZ\_0.9-7)
 \item 2012-01-07 Use \texttt{add.obigt()} for superseded properties of methionine
-sidechain group.
+sidechain group (changed to \texttt{mod.obigt()} on 2016-12-21).
 \item 2014-02-01 Include results from 2013 paper and change VignetteEngine
 to knitr.
 \end{itemize}

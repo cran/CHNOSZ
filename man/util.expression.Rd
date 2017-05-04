@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{util.expression}
 \alias{util.expression}
 \alias{expr.species}
@@ -7,6 +8,8 @@
 \alias{describe.basis}
 \alias{describe.property}
 \alias{describe.reaction}
+\alias{syslab}
+\alias{ratlab}
 \title{Functions to Express Chemical Formulas and Properties}
 \description{Generate expressions suitable for axis labels and plot legends describing chemical species, properties and reactions.}
 
@@ -20,6 +23,8 @@
   describe.property(property, value, digits = 1, oneline = FALSE,
     ret.val = FALSE)
   describe.reaction(reaction, iname = numeric(), states = NULL)
+  syslab(system = c("K2O", "Al2O3", "SiO2", "H2O"), dash="\u2013")
+  ratlab(ion = "K+")
 }
 
 \arguments{
@@ -40,6 +45,9 @@
   \item{reaction}{data frame, definition of reaction}
   \item{iname}{numeric, show names instead of formulas for these species}
   \item{states}{character, if \samp{all}, show states for all species}
+  \item{system}{character, thermodynamic components}
+  \item{dash}{character to use for dash between components}
+  \item{ion}{character, an ion}
 }
 
 \details{
@@ -54,8 +62,7 @@ Other specific characters are parsed as follows (case-sensitive):
      \samp{D} \tab Delta \cr
      \samp{A} \tab bold A (chemical affinity) \cr
      \samp{p} \tab subscript italic P (isobaric heat capacity) \cr
-     \samp{0} \tab degree sign (standard-state property) \cr
-  }
+     \samp{0} \tab degree sign (standard-state property) \cr  }
 
 A \samp{0} gets interpreted as a degree sign only if it does not immediately follow a number (so that e.g. \samp{2.303} can be included in an expression).
 
@@ -72,8 +79,7 @@ Special cases for the \code{property} argument (\samp{logK}, \samp{Eh}, \samp{pH
      \samp{P} \tab pressure \cr
      \samp{T} \tab temperature \cr
      \samp{Eh} \tab electrical potential \cr
-     \samp{IS} \tab ionic strength \cr
-  }
+     \samp{IS} \tab ionic strength \cr  }
 
 If none of those characters appears in the property, the expression is an empty character (no units). If a \code{prefix} is given, it is added to the expression. The denominator of the units (default \samp{mol}) is taken from the \code{per} argument; it is applied to all units except for \samp{P}, \samp{T}, \samp{Eh}, and \samp{IS}.
 
@@ -85,6 +91,14 @@ If none of those characters appears in the property, the expression is an empty 
 
   \code{describe.reaction} makes an expression summarizing a chemical reaction. The \code{reaction} data frame can be generated using \code{\link{subcrt}}. Based on the sign of their reaction coefficients, species are placed on the reactant (left) or product (right) side of the reaction, where the species with their coefficients are separated by plus signs; the two sides of the reaction are separated by an equals sign. Coefficients equal to 1 are not shown. Chemical formulas of species include a designation of physical state if \code{states} is \samp{all}. Names of species (as provided in \code{reaction}) are shown instead of chemical formulas for the species identified by \code{iname}.
 
+\code{syslab} formats the given thermodynamic components (using \code{expr.species}) and adds intervening en dashes.
+
+\code{ratlab} produces a expression for the activity ratio, viz. (activity of the ion) / [(activity of H+) ^ (charge of the ion)].
+
+}
+
+\seealso{
+\code{demo("activity_ratios")} for examples of \code{syslab} and \code{ratlab}.
 }
 
 \examples{\dontshow{data(thermo)}

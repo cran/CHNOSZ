@@ -1,13 +1,15 @@
-#LyX 2.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 474
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \begin_preamble
 %\VignetteIndexEntry{Winding journey down (in Gibbs energy)}
 
 % so DOIs in bibliography show up as hyperlinks
-\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 \end_preamble
 \options round
 \use_default_options true
@@ -19,16 +21,16 @@ sweave
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman palatino
-\font_sans default
-\font_typewriter default
-\font_math auto
+\font_roman "palatino" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -159,7 +161,7 @@ wjd()
 \begin_inset CommandInset citation
 LatexCommand citep
 before "e.g."
-key "NPW+79"
+key "NPW_79"
 
 \end_inset
 
@@ -610,7 +612,7 @@ status open
 
 
 \backslash
-setkeys{Gin}{width=1.0
+setkeys{Gin}{width=0.7
 \backslash
 textwidth}
 \end_layout
@@ -626,32 +628,32 @@ status open
 
 \begin_layout Plain Layout
 
-<<iterplot, fig=TRUE, height=3>>=
+<<iterplot, fig=TRUE, width=6, height=2.5>>=
 \end_layout
 
 \begin_layout Plain Layout
 
-par(mfrow=c(1, 2))
+par(mfrow = c(1, 2), mar = c(4.2, 4.2, .1, .1))
 \end_layout
 
 \begin_layout Plain Layout
 
-sa <- sapply(0:niter, iterfun, i=oX[1])
+sa <- sapply(0:niter, iterfun, i = oX[1])
 \end_layout
 
 \begin_layout Plain Layout
 
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f1))
+plot(0:niter, sa, xlab = "iteration", ylab = paste("x", f1), pch = 19)
 \end_layout
 
 \begin_layout Plain Layout
 
-sa <- sapply(0:niter, iterfun, i=oX[4])
+sa <- sapply(0:niter, iterfun, i = oX[4])
 \end_layout
 
 \begin_layout Plain Layout
 
-plot(0:niter, sa, xlab="iteration", ylab=paste("x", f4))
+plot(0:niter, sa, xlab = "iteration", ylab = paste("x", f4), pch = 19)
 \end_layout
 
 \end_inset
@@ -828,7 +830,7 @@ wjd()
  the iterations of the algorithm.
  As equilibrium is approached, it makes sense that the fractional decreases
  in Gibbs energy would become smaller and smaller.
- This is used as a stopping condition in the current implementation -- if
+ This is used as a stopping condition in the current implementation – if
  the fractional change, relative to the total energy of the system, reaches
  the value of 
 \family typewriter
@@ -936,6 +938,13 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
+\begin_layout Plain Layout
+
+
+\backslash
+begin{center}
+\end_layout
+
 \end_inset
 
 
@@ -943,11 +952,40 @@ textwidth}
 
 \begin_layout Standard
 \begin_inset Flex Chunk
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
-<<w3_ep_plot, fig=TRUE>>=
+<<marmgp, echo=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mar = c(4.2, 4.2, 1.1, 1.1))
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mgp = c(2, 1, 0))
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex Chunk
+status collapsed
+
+\begin_layout Plain Layout
+
+<<w3_ep_plot, fig=TRUE, width=7, height=5>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<marmgp>>
 \end_layout
 
 \begin_layout Plain Layout
@@ -968,6 +1006,13 @@ ep3 <- element.potentials(w3, plot.it=TRUE)
 \begin_layout Chunk
 \begin_inset ERT
 status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{center}
+\end_layout
 
 \begin_layout Plain Layout
 
@@ -1013,6 +1058,13 @@ setkeys{Gin}{width=0.6
 textwidth}
 \end_layout
 
+\begin_layout Plain Layout
+
+
+\backslash
+begin{center}
+\end_layout
+
 \end_inset
 
 
@@ -1024,7 +1076,12 @@ status open
 
 \begin_layout Plain Layout
 
-<<w_ep_plot, fig=TRUE>>=
+<<w_ep_plot, fig=TRUE, width=7, height=5>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<marmgp>>
 \end_layout
 
 \begin_layout Plain Layout
@@ -1040,6 +1097,13 @@ ep <- element.potentials(w, plot.it=TRUE)
 \begin_layout Standard
 \begin_inset ERT
 status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{center}
+\end_layout
 
 \begin_layout Plain Layout
 
@@ -1381,7 +1445,7 @@ wjd()
 
 \begin_layout Standard
 \begin_inset Branch inactive
-status open
+status collapsed
 
 \begin_layout Standard
 \begin_inset Branch short
@@ -1527,7 +1591,7 @@ status open
 
 
 \backslash
-setkeys{Gin}{width=0.6
+setkeys{Gin}{width=0.8
 \backslash
 textwidth}
 \end_layout
@@ -1543,7 +1607,12 @@ status open
 
 \begin_layout Plain Layout
 
-<<compare_guesses, fig=TRUE>>=
+<<compare_guesses, fig=TRUE, width=7, height=4>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mar=c(4.2, 4.2, 0.1, 0.1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1574,7 +1643,7 @@ status open
 
 
 \backslash
-setkeys{Gin}{width=0.6
+setkeys{Gin}{width=0.8
 \backslash
 textwidth}
 \end_layout
@@ -1948,7 +2017,7 @@ file <- system.file("extdata/thermo/DLEN67.csv", package="CHNOSZ")
 
 \begin_layout Plain Layout
 
-dlen <- read.csv(file, stringsAsFactors=FALSE, row.names=1)
+dlen <- read.csv(file, as.is=TRUE, row.names=1)
 \end_layout
 
 \begin_layout Plain Layout
@@ -2002,6 +2071,11 @@ setup_atmos
 \end_layout
 
 \end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 
 # turn formulas into a stoichiometric matrix
 \end_layout
@@ -2172,7 +2246,16 @@ key "DLE64"
 \end_inset
 
 .
- How about changing the carbon content?
+ How about changing the carbon content? (
+\emph on
+Because it takes a while to run, the code is commented below; it is present
+ in 
+\family typewriter
+demo(wjd)
+\family default
+, which was used to make the plot.
+\emph default
+)
 \end_layout
 
 \begin_layout Standard
@@ -2189,54 +2272,70 @@ status open
 status open
 
 \begin_layout Plain Layout
-atmos_figure, fig=TRUE
+atmos_figure
 \end_layout
 
 \end_inset
 
-xCs <- seq(8, 47, 3)
+# xCs <- seq(8, 47, 1)
 \end_layout
 
 \begin_layout Plain Layout
 
-Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
+# Xs <- sapply(xCs, function(xC) min.atmos(xC)$X)
 \end_layout
 
 \begin_layout Plain Layout
 
-# normalize the mole numbers to mole fractions
+# # normalize the mole numbers to mole fractions
 \end_layout
 
 \begin_layout Plain Layout
 
-Xs <- t(t(Xs)/colSums(Xs))
+# Xs <- t(t(Xs)/colSums(Xs))
 \end_layout
 
 \begin_layout Plain Layout
 
-plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10
+# plot(-10, 0, xlim=c(0, 55), ylim=c(-25, 1), xlab="mole percent C", ylab="log10
  mole fraction")
 \end_layout
 
 \begin_layout Plain Layout
 
-for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
+# for(i in 1:nrow(Xs)) lines(xCs, log10(Xs[i, ]))
 \end_layout
 
 \begin_layout Plain Layout
 
-text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
+# text(48, log10(Xs[, length(xCs)]), dlen$formula, adj=0)
 \end_layout
 
 \begin_layout Plain Layout
 
-text(7, log10(Xs[, 1]), dlen$formula, adj=1)
+# text(35, log10(Xs[, 27]) + 0.5, dlen$formula, adj=0)
+\end_layout
+
+\begin_layout Plain Layout
+
+# text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 \end_layout
 
 \end_inset
 
 
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename dayhoff.pdf
+	width 70col%
 
 \end_inset
 
@@ -2252,7 +2351,11 @@ not near equilibrium
 \begin_inset Quotes erd
 \end_inset
 
- messages, but overall it seems well behaved (note that using the 
+ messages (
+\emph on
+not shown; run the demo to see them
+\emph default
+), but overall it seems well behaved (note that using the 
 \begin_inset Quotes eld
 \end_inset
 
@@ -2285,11 +2388,6 @@ key "DLE64"
 
 , there appears to be a second major crossing of curves at about 43% carbon,
  corresponding to a rise in CO.
- (For a higher resolution, try setting 
-\family typewriter
-xCs <- seq(8, 47, 1)
-\family default
-.)
 \end_layout
 
 \end_inset
@@ -2511,10 +2609,15 @@ status open
 status open
 
 \begin_layout Plain Layout
-barplot_aa, fig=TRUE
+barplot_aa, fig=TRUE, width=5, height=3
 \end_layout
 
 \end_inset
+
+par(mar=c(1.1, 4.1, 1.1, 1.1))
+\end_layout
+
+\begin_layout Plain Layout
 
 bp <- barplot(waa$X, ylab="moles")
 \end_layout
@@ -2658,12 +2761,17 @@ status open
 status open
 
 \begin_layout Plain Layout
-run_aa_C100H70, fig=TRUE
+run_aa_C100H70, fig=TRUE, width=5, height=3
 \end_layout
 
 \end_inset
 
 waa <- run.wjd(c(ialk, iaro), B="C100H70")
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mar=c(1.1, 4.1, 1.1, 1.1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -2736,11 +2844,7 @@ basis.logact(ep)
 \end_layout
 
 \begin_layout Section
-Document Information
-\end_layout
-
-\begin_layout Standard
-Revision history
+Document History
 \end_layout
 
 \begin_layout Itemize
@@ -2753,42 +2857,6 @@ Revision history
 
 \begin_layout Itemize
 2012-09-20 Add example from Dayhoff et al.
-\end_layout
-
-\begin_layout Standard
-R session information
-\end_layout
-
-\begin_layout Standard
-\begin_inset Branch short
-status open
-
-\begin_layout Standard
-\begin_inset Flex Chunk
-status open
-
-\begin_layout Plain Layout
-
-\begin_inset Argument 1
-status open
-
-\begin_layout Plain Layout
-sessionInfo
-\end_layout
-
-\end_inset
-
-sessionInfo()
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard

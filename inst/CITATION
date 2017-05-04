@@ -9,7 +9,7 @@ citEntry(entry = "Article",
          number = "10",
          pages = "",
 	 month = "October",
-         url = "http://www.geochemicaltransactions.com/content/9/1/10", 
+         doi = "10.1186/1467-4866-9-10",
          textVersion =   
          paste("Dick, J. M. (2008). ",
                "Calculation of the relative metastabilities of proteins using the CHNOSZ software package. ",

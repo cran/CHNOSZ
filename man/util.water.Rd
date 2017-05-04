@@ -19,7 +19,7 @@
   \item{property}{character, property to calculate}
   \item{T}{numeric, temperature (K)}
   \item{P}{numeric, pressure (units of bar, except MPa for \code{water.AW90})}
-  \item{state}{character, state or phase of H2O}
+  \item{state}{character, state or phase of \H2O}
   \item{trace}{integer number}
   \item{rho}{numeric, density (kg m\eqn{^{-3}}{^-3})}
 }
@@ -29,7 +29,7 @@
 Auxiliary equations to the IAPWS-95 formulation (Wagner and Pruß, 2002) are provided in \code{WP02.auxiliary}.
 The \code{property} for this function can be one of \samp{P.sigma} (saturation vapor pressure in MPa), \samp{dP.sigma.dT} (derivative of saturation vapor pressure with respect to temperature), or \samp{rho.liquid} or \samp{rho.vapor} (density of liquid or vapor in kg m\eqn{^{-3}}{^-3}).
 
-\code{rho.IAPWS95} implements a root-finding technique (using \code{\link{uniroot}}) to determine the values of density for the stable phase of H2O at the given temperature and pressure.
+\code{rho.IAPWS95} implements a root-finding technique (using \code{\link{uniroot}}) to determine the values of density for the stable phase of \H2O at the given temperature and pressure.
 The \code{state} option is used internally in order to determine the stable phase at conditions close to saturation (0.9999*Psat <= P <= 1.00005*Psat, where Psat is the saturation pressure calculated by \code{\link{WP02.auxiliary}}).
 Alternatively, the user can specify a \code{state} of \samp{liquid} or \samp{vapor} to force the calculation of density for the corresponding phase, even if it is metastable (e.g. superheated water, supercooled steam; this option has no effect in the supercritical region).
 The \code{state} is set in calls by \code{\link{water.IAPWS95}} to the value in \code{thermo$opt$IAPWS.sat} (default \samp{liquid}) so that higher-level functions (\code{\link{water}}, \code{\link{subcrt}}) take properties for that state along the saturation curve.
@@ -72,12 +72,9 @@ stopifnot(all(V.vapor > V.liquid))
 }
 
 \references{
+Archer, D. G. and Wang, P. M. (1990) The dielectric constant of water and Debye-Hückel limiting law slopes. \emph{J. Phys. Chem. Ref. Data} \bold{19}, 371--411. \url{https://srd.nist.gov/JPCRD/jpcrd383.pdf}
 
-  Archer, D. G. and Wang, P. M. (1990) The dielectric constant of water and Debye-Hückel limiting law slopes. \emph{J. Phys. Chem. Ref. Data} \bold{19}, 371--411. \url{http://www.nist.gov/data/PDFfiles/jpcrd383.pdf}
-
-  Wagner, W. and Pruß, A. (2002) The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. \emph{J. Phys. Chem. Ref. Data} \bold{31}, 387--535. \url{http://dx.doi.org/10.1063/1.1461829}
-
+Wagner, W. and Pruß, A. (2002) The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. \emph{J. Phys. Chem. Ref. Data} \bold{31}, 387--535. \url{https://doi.org/10.1063/1.1461829}
 }
-
 
 \concept{Secondary thermodynamic modeling}

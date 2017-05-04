@@ -1,34 +1,15 @@
 # CHNOSZ/util.formula.R
 # functions to compute some properties of chemical formulas
 
-get.formula <- function(formula) {
-  # return the argument if it's a matrix
-  if(is.matrix(formula)) return(formula)
-  # return the argument as matrix if it's a data frame
-  if(is.data.frame(formula)) return(as.matrix(formula))
-  # return the values in the argument, or chemical formula(s) 
-  # for values that are species indices
-  # for numeric values, get the formulas from those rownumbers of thermo$obigt
-  i <- suppressWarnings(as.numeric(formula))
-  # we can't have more than the number of rows in thermo$obigt
-  thermo <- get("thermo")
-  iover <- i > nrow(thermo$obigt)
-  iover[is.na(iover)] <- FALSE
-  if(any(iover)) stop(paste("species number(s)",paste(i[iover],collapse=" "),
-    "not available in thermo$obigt"))
-  # we let negative numbers pass as formulas
-  i[i < 0] <- NA
-  # replace any species indices with formulas from thermo$obigt
-  formula[!is.na(i)] <- thermo$obigt$formula[i[!is.na(i)]]
-  return(formula)
-}
-
 i2A <- function(formula) {
   ## assemble the stoichiometric matrix (A)
   ## for the given formulas  20120108 jmd
   if(is.matrix(formula)) {
     # do nothing if the argument is already a matrix
     A <- formula
+  } else if(is.numeric(formula) & !is.null(names(formula))) {
+    # turn a named numeric object into a formula matrix
+    A <- t(as.matrix(formula))
   } else {
     # get the elemental makeup of each formula, counting
     # zero for elements that appear only in other formulas
@@ -157,4 +138,34 @@ ZC <- function(formula) {
   # average oxidation state
   ZC <- as.numeric(formulacharge/nC)
   return(ZC)
+}
+
+### unexported functions ###
+
+# Accept a numeric or character argument; the character argument can be mixed
+#   (i.e. include quoted numbers). as.numeric is tested on every value; numeric values
+#   are then interpreted as species indices in the thermodynamic database (rownumbers of thermo$obigt),
+#   and the chemical formulas for those species are returned.
+# Values that can not be converted to numeric are returned as-is.
+get.formula <- function(formula) {
+  # return the argument if it's a matrix or named numeric
+  if(is.matrix(formula)) return(formula)
+  if(is.numeric(formula) & !is.null(names(formula))) return(formula)
+  # return the argument as matrix if it's a data frame
+  if(is.data.frame(formula)) return(as.matrix(formula))
+  # return the values in the argument, or chemical formula(s) 
+  # for values that are species indices
+  # for numeric values, get the formulas from those rownumbers of thermo$obigt
+  i <- as.integer.nowarn(formula)
+  # we can't have more than the number of rows in thermo$obigt
+  thermo <- get("thermo")
+  iover <- i > nrow(thermo$obigt)
+  iover[is.na(iover)] <- FALSE
+  if(any(iover)) stop(paste("species number(s)",paste(i[iover],collapse=" "),
+    "not available in thermo$obigt"))
+  # we let negative numbers pass as formulas
+  i[i < 0] <- NA
+  # replace any species indices with formulas from thermo$obigt
+  formula[!is.na(i)] <- thermo$obigt$formula[i[!is.na(i)]]
+  return(formula)
 }

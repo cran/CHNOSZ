@@ -25,7 +25,7 @@ nonideal <- function(species,proptable,IS,T) {
     }
     # Alberty, 2003 Eq. 3.6-1
     loggamma <- function(a,Z,I,B) { - a * Z^2 * I^(1/2) / (1 + B * I^(1/2)) }
-    # XXX check the following equations 20080208 jmd
+    # TODO: check the following equations 20080208 jmd
     if(prop=='log') return(loggamma(eval(A),Z,I,B))
     else if(prop=='G') return(thermo$opt$R * T * loggamma(eval(A),Z,I,B))
     else if(prop=='H') return(thermo$opt$R * T^2 * loggamma(eval(DD(A,'T',1)),Z,I,B))
@@ -62,7 +62,7 @@ nonideal <- function(species,proptable,IS,T) {
     proptable[[i]] <- myprops
     if(didit) ndid <- ndid + 1
   }
-  if(ndid > 0) msgout(paste('nonideal:',ndid,'species were nonideal\n'))
+  if(ndid > 0) message(paste('nonideal:',ndid,'species were nonideal'))
   return(proptable)
 }
 

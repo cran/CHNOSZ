@@ -19,7 +19,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   ispecies <- ispecies[!ina[ispecies]]
   if(length(ispecies)==0) stop("all species have NA affinities")
   if(!identical(ispecies, 1:nspecies)) {
-    msgout(paste("equilibrate: using", length(ispecies), "of", nspecies, "species\n"))
+    message(paste("equilibrate: using", length(ispecies), "of", nspecies, "species"))
     aout$species <- aout$species[ispecies, ]
     aout$values <- aout$values[ispecies]
     n.balance <- n.balance[ispecies]
@@ -27,7 +27,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   ## number of species that are left
   nspecies <- length(aout$values)
   ## say what the balancing coefficients are
-  if(length(n.balance) < 100) msgout(paste("equilibrate: n.balance is", c2s(n.balance), "\n"))
+  if(length(n.balance) < 100) message(paste("equilibrate: n.balance is", c2s(n.balance)))
   ## logarithm of total activity of the balance
   if(is.null(loga.balance)) {
     # sum up the activities, then take absolute value
@@ -35,15 +35,15 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
     sumact <- abs(sum(10^aout$species$logact * n.balance))
     loga.balance <- log10(sumact)
   }
-  msgout(paste0("equilibrate: loga.balance is ", loga.balance, "\n"))
+  message(paste0("equilibrate: loga.balance is ", loga.balance))
   ## normalize -- normalize the molar formula by the balance coefficients
   m.balance <- n.balance
   isprotein <- grepl("_", as.character(aout$species$name))
   if(normalize | as.residue) {
     if(any(n.balance < 0)) stop("one or more negative balancing coefficients prohibit using normalized molar formulas")
     n.balance <- rep(1, nspecies)
-    if(as.residue) msgout(paste("equilibrate: using 'as.residue' for molar formulas\n"))
-    else msgout(paste("equilibrate: using 'normalize' for molar formulas\n"))
+    if(as.residue) message(paste("equilibrate: using 'as.residue' for molar formulas"))
+    else message(paste("equilibrate: using 'normalize' for molar formulas"))
   } else m.balance <- rep(1, nspecies)
   ## Astar: the affinities/2.303RT of formation reactions with
   ## formed species in their standard-state activities
@@ -57,7 +57,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
     if(all(n.balance==1)) method <- method[1]
     else method <- method[2]
   }
-  msgout(paste("equilibrate: using", method[1], "method\n"))
+  message(paste("equilibrate: using", method[1], "method"))
   if(method[1]=="boltzmann") loga.equil <- equil.boltzmann(Astar, n.balance, loga.balance)
   else if(method[1]=="reaction") loga.equil <- equil.reaction(Astar, n.balance, loga.balance)
   ## if we normalized the formulas, get back to activities to species
@@ -228,6 +228,9 @@ equil.reaction <- function(Astar, n.balance, loga.balance) {
   return(logact)
 }
 
+### unexported functions ###
+
+# return a list containing the balancing coefficients (n) and a textual description (description)
 balance <- function(aout, balance=NULL) {
   ## generate n.balance from user-given or automatically identified basis species
   ## extracted from equilibrate() 20120929
@@ -250,28 +253,30 @@ balance <- function(aout, balance=NULL) {
     # no shared basis species - balance on one mole of species
     if(length(ibalance) == 0) balance <- 1
   } 
+  # change "1" to 1 (numeric) 20170206
+  if(identical(balance, "1")) balance <- 1
   if(is.numeric(balance[1])) {
     # a numeric vector
     n.balance <- rep(balance, length.out=length(aout$values))
-    msgout("balance: from numeric argument value\n")
+    message("balance: from numeric argument value")
   } else {
     # "length" for balancing on protein length
     if(identical(balance, "length")) {
       if(!all(isprotein)) stop("length was the requested balance, but some species are not proteins")
       n.balance <- protein.length(aout$species$name)
-      msgout("balance: from protein length\n")
+      message("balance: from protein length")
     } else if(identical(balance, "volume")) {
       n.balance <- info(aout$species$ispecies, check.it=FALSE)$V
-      msgout("balance: from volume")
+      message("balance: from volume")
     } else {
       # is the balance the name of a basis species?
       if(length(ibalance)==0) {
         ibalance <- match(balance, rownames(aout$basis))
-        if(is.na(ibalance)) stop("basis species (", balance, ") not available to balance transformations")
+        if(is.na(ibalance)) stop("basis species (", balance, ") not available to balance reactions")
       }
       # the name of the basis species (need this if we got ibalance which which.balance, above)
       balance <- colnames(aout$species)[ibalance[1]]
-      msgout(paste("balance: from moles of", balance, "in formation reactions\n"))
+      message(paste("balance: from moles of", balance, "in formation reactions"))
       # the balance vector
       n.balance <- aout$species[, ibalance[1]]
       # we check if that all formation reactions contain this basis species

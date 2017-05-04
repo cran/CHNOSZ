@@ -1,7 +1,6 @@
 context("info")
 
 test_that("info.character() produces expected results and messages", {
-  expect_equal(info.character("CO2"), 69)
   expect_equal(info.character("acetate", "cr"), NA)
   expect_message(info.character("acetate", "cr"), "only 'aq' is available")
   expect_message(info.character("methane", "cr"), "only 'aq' 'liq' 'gas' are available")
@@ -19,7 +18,6 @@ test_that("info.numeric() produces expected errors and messages", {
 })
 
 test_that("info.approx() produces expected messages", {
-  expect_message(info.approx("lact"), "showing first 25")
   expect_message(info.approx("lactic"), "is similar to lactic acid")
   expect_message(info.approx("lactic acid"), "is ambiguous")
   # note though that info("lactic acid") finds a match b/c info.character is used first...

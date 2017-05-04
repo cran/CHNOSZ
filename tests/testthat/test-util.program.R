@@ -14,15 +14,16 @@ test_that("palply() launches calculations on multiple cores", {
 
 test_that("other functions are calling palply() properly", {
   if(min(getOption("mc.cores"), 2) > 1 & parallel::detectCores() > 1) {
-    ff <- system.file("extdata/fasta/HTCC1062.faa.xz", package="CHNOSZ")
-    expect_message(aa <- read.fasta(ff), "read.fasta running 1354 calculations")
-    # ^^^ also messaged: count.aa running 1354 calculations
-    ip <- add.protein(aa)
+    # CHNOSZ no longer has a large FASTA file to test this with 20170205
+    #ff <- system.file("extdata/fasta/HTCC1062.faa.xz", package="CHNOSZ")
+    #expect_message(aa <- read.fasta(ff), "read.fasta running 1354 calculations")
     basis("CHNOS")
-    expect_message(a <- affinity(O2=c(-90, -60, 1000), iprotein=ip), "affinity running 1354 calculations")
+    ip <- 1:nrow(thermo$protein)
+    expect_message(a <- affinity(iprotein=rep(ip, 3)), "affinity running .* calculations")
+    expect_message(e <- equilibrate(a, normalize=TRUE), "equil.boltzmann running .* calculations")
+    # test reaction method
+    species(c("CO2", "acetic acid"))
+    a <- affinity(O2=c(-90, -60, 1000))
     expect_message(e <- equilibrate(a), "equil.reaction running 1000 calculations")
-    expect_message(e <- equilibrate(a, normalize=TRUE), "equil.boltzmann running 1354 calculations")
-    # ^^^ above message repeated 2x
   }
 })
-

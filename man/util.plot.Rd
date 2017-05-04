@@ -1,28 +1,26 @@
+\encoding{UTF-8}
 \name{util.plot}
 \alias{util.plot}
 \alias{thermo.plot.new}
-\alias{thermo.axis}
 \alias{label.plot}
 \alias{usrfig}
 \alias{label.figure}
 \alias{water.lines}
 \alias{mtitle}
-\alias{residualsplot}
+\alias{ZC.col}
 \title{Functions to Create and Modify Plots}
 
 \description{
-  Initialize a new plot window using preset parameters, open a postcript file for plotting, add an axis or title to a plot, generate labels for plot axes and for identification of subplots and physical and chemical conditions, add stability lines for water to a diagram.
+  Initialize a new plot window using preset parameters, add an axis or title to a plot, generate labels for axes and subplots, add stability lines for water, get colors for a set of numeric values.
 }
 
 
 \usage{
   thermo.plot.new(xlim, ylim, xlab, ylab, cex = par("cex"),
     mar = NULL, lwd = par("lwd"), side = c(1,2,3,4), 
-    mgp = c(1.5, 0.3, 0), cex.axis = par("cex"), col = par("col"),
-    yline = NULL, axs = "i", do.box = TRUE, ticks = NULL, las = 1,
-    xline = NULL)
-  thermo.axis(lab = "x-axis", side = 1, line = 1.5, cex = par("cex"),
-    lwd = par("lwd"), T = NULL, col = par("col"))
+    mgp = c(1.7, 0.3, 0), cex.axis = par("cex"), col = par("col"),
+    yline = NULL, axs = "i", do.box = TRUE, las = 1,
+    xline = NULL, ...)
   label.plot(x, xfrac = 0.05, yfrac = 0.95, paren = FALSE,
     italic = FALSE, ...)
   usrfig()
@@ -30,9 +28,9 @@
     italic = FALSE, ...)
   water.lines(xaxis = "pH", yaxis = "Eh", T = 298.15, P = "Psat", 
     which = c("oxidation","reduction"), logaH2O = 0, lty = 2, lwd=1,
-    col = par("fg"), xpoints = NULL, O2state="gas")
+    col = par("fg"), xpoints = NULL, O2state="gas", plot.it = TRUE)
   mtitle(main, line=0, ...)
-  residualsplot(residuals, property = "Cp", model = "big")
+  ZC.col(z)
 }
 
 \arguments{
@@ -50,11 +48,9 @@
   \item{yline}{numeric, margin line on which to plot \eqn{y}{y}-axis name}
   \item{axs}{character, setting for axis limit calculation}
   \item{do.box}{logical, draw a box around the plot?}
-  \item{ticks}{numeric, same effect as \code{side} (retained for backwards compatibility)}
   \item{las}{numeric, style for axis labels}
   \item{xline}{numeric, margin line on which to plot \eqn{x}{x}-axis name}
-  \item{lab}{character, description of axis label}
-  \item{line}{numeric, margin line to plot axis label}
+  \item{...}{further arguments passed to \code{par} or \code{mtext}}
   \item{T}{numeric, temperature (K)}
   \item{x}{character, label to place on plot}
   \item{xfrac}{numeric, fractional location on \eqn{x}{x}-axis for placement of label}
@@ -69,16 +65,15 @@
   \item{lty}{numeric, line type}
   \item{xpoints}{numeric, points to plot on \eqn{x}{x} axis}
   \item{O2state}{character, state of O2}
+  \item{plot.it}{logical, plot the lines?}
   \item{main}{character, text for plot title}
-  \item{...}{further arguments passed to \code{mtext}}
-  \item{residuals}{numeric, named vector of residuals to plot}
-  \item{property}{character, name of property}
-  \item{model}{character, name of model to use in plot title}
+  \item{line}{numeric, margin line to place title}
+  \item{z}{numeric, set of values}
 }
 
 \details{
 
-  \code{thermo.plot.new} sets parameters for a new plot, creates a new plot using \code{\link{plot.new}}, and adds axes and major and minor ticks to the plot. Plot parameters (see \code{\link{par}}) including \code{cex}, \code{mar}, \code{lwd}, \code{mgp} and \code{axs} can be given, as well as a numeric vector in \code{ticks} identifying which sides of the plot receive tick marks. \code{yline}, if present, denotes the margin line (default \code{\link{par}('mgp')[1]}) where the y-axis name is plotted. The very first time \code{thermo.plot.new} is called, it stores the existing value of \code{par(no.readonly=TRUE)} in \code{thermo$opar} so that the plot device can be reset to the previous state later on.
+  \code{thermo.plot.new} sets parameters for a new plot, creates a new plot using \code{\link{plot.new}}, and adds axes and major and minor tick marks to the plot. Plot parameters (see \code{\link{par}}) including \code{cex}, \code{mar}, \code{lwd}, \code{mgp} and \code{axs} can be given, as well as a numeric vector in \code{side} identifying which sides of the plot receive tick marks. \code{yline}, if present, denotes the margin line (default \code{\link{par}('mgp')[1]}) where the y-axis name is plotted.
 
 \code{water.lines} plots lines representing the oxidation and reduction stability limits of water on \code{yaxis}-\code{xaxis} diagrams, where \code{yaxis} can be \samp{Eh} or \samp{O2}, and \code{xaxis} can be \samp{pH} or \samp{T}.
 \code{which} controls which lines are drawn (\samp{oxidation}, \samp{reduction}, or both (the default)).
@@ -94,19 +89,15 @@ The location of the label is controlled by \code{xfrac} and \code{yfrac} (the fr
 \code{usrfig} returns the limits of the figure region in \dQuote{user} coordinates (i.e. the limits of the plot region, from \code{\link{par}("usr")}).
 It is a supporting function for \code{label.figure} but is also useful for other circumstances where information must be added at a particular location in a figure.
 
-  \code{thermo.axis} is used to add axes and axis labels to plots, with some default style settings (rotation of numeric labels) and conversions between oxidation-reduction scales (called by \code{thermo.plot.new}). It also adds minor tick marks.
-
 \code{mtitle} can be used to add a multi-line title to a plot.
 It loops over each element of \code{main} and places it on a separate margin line using \code{\link{mtext}}.
 The spacing of the last (bottom) line from the edge of the plot is specified by \code{line}.
 This function exists to facilitate using \code{\link{expression}}s in multiline titles (see \code{\link{revisit}} for an example.) 
 
-  \code{residualsplot} produces a \code{\link{barchart}} with options useful for plotting residuals of group contribution models for thermodynamic properties. It plots horizontal bars stacked with largest on top. The names of the \code{residuals} argument (i.e., the names of model species) are plotted across from each respective bar. The axis title is taken from the \code{property} (probably \samp{Cp} or \samp{V}), and the plot title includes the \code{model} name. See the \sQuote{xadditivity} vignette for examples of these plots.
+\code{ZC.col} uses \CRANpkg{colorspace}) to generate colors from a diverging palette (red - light grey - blue) corresponding to the values in \code{z}.
+Red is associated with lower values of \code{z}.
+This function is intended to generate colors for distinguishing average oxidation state of carbon \code{\link{ZC}}, but any numeric values can be supplied.
 
-}
-
-\section{Side Effects}{
-  These functions create or modify a plot.
 }
 
 \keyword{utilities}

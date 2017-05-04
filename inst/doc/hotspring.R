@@ -14,7 +14,7 @@ if (before && options$fig.show!='none') par(mar=c(4,4,1,1),cex.lab=.95,cex.axis=
 ## ----libraryCHNOSZ-----------------------------------------------------------------
 library(CHNOSZ)
 data(thermo)
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 
 ## ----TpH---------------------------------------------------------------------------
 bison.T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
@@ -36,8 +36,8 @@ lines(xpoints, pHfun(xpoints))
 
 ## ----proteins----------------------------------------------------------------------
 # read the amino acid compositions
-aa.annot <- read.aa(system.file("extdata/protein/DS11.csv", package="CHNOSZ"))
-aa.phyla <- read.aa(system.file("extdata/protein/DS13.csv", package="CHNOSZ"))
+aa.annot <- read.csv(system.file("extdata/protein/DS11.csv", package="CHNOSZ"), as.is=TRUE)
+aa.phyla <- read.csv(system.file("extdata/protein/DS13.csv", package="CHNOSZ"), as.is=TRUE)
 
 ## ----sitename----------------------------------------------------------------------
 sites <- c("N", "S", "R", "Q", "P")

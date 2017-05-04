@@ -1,58 +1,44 @@
+\encoding{UTF-8}
 \name{util.misc}
 \alias{util.misc}
 \alias{dPdTtr}
 \alias{Ttr}
-\alias{which.balance}
+\alias{GHS_Tr}
 \alias{unitize}
 \title{Functions for Miscellaneous Tasks}
 \description{
-  Calculate \eqn{dP/dT}{dP/dT} and temperature of phase transitions, calculate heat capacities of unfolded proteins using an equation from the literature, calculate non-ideal contributions to apparent standard molal properties, identify a conserved basis species, scale logarithms of activity to a desired total activity, calculate Gibbs energy of transformation of a system.
+Calculate \eqn{dP/dT}{dP/dT} and temperature of phase transitions; scale logarithms of activity to a desired total activity.
 }
 
 \usage{
-  dPdTtr(x)
-  Ttr(x, P = 1, dPdT = NULL)
-  which.balance(species)
+  dPdTtr(ispecies)
+  Ttr(ispecies, P = 1, dPdT = NULL)
+  GHS_Tr(ispecies, Htr)
   unitize(logact = NULL, length = NULL, logact.tot = 0)
 }
 
 \arguments{
-  \item{x}{numeric index of a mineral phase (\code{dPdTtr}, \code{Ttr})}
+  \item{ispecies}{numeric, species index of a mineral phase}
   \item{P}{numeric, pressure (bar)}
   \item{dPdT}{numeric, values of (\eqn{dP/dT}{dP/dT}) of phase transitions (\code{Ttr})}
-  \item{species}{dataframe, species definition such as that in \code{\link{thermo}$species}}
+  \item{Htr}{numeric, enthalpy(ies) of transition (cal/mol)}
   \item{logact}{numeric, logarithms of activity}
   \item{length}{numeric, numbers of residues}
   \item{logact.tot}{numeric, logarithm of total activity}
 }
 
 \details{
+\code{dPdTtr} returns values of \eqn{(dP/dT)_{Ttr}}{(dP/dT)Ttr}, where \eqn{Ttr}{Ttr} represents the transition temperature, of the phase transition at the high-\eqn{T}{T} stability limit of the \code{ispecies} in \code{thermo$obigt} (no checking is done to verify that the species represents in fact one phase of a mineral with phase transitions).
+\code{dPdTtr} takes account of the Clapeyron equation, \eqn{(dP/dT)_{Ttr}}{(dP/dT)Ttr}=\eqn{{\Delta}S/{\Delta}V}{DS/DV}, where \eqn{{\Delta}S}{DS} and \eqn{{\Delta}V}{DV} represent the changes in entropy and volume of phase transition, and are calculated using \code{subcrt} at Ttr from the standard molal entropies and volumes of the two phases involved.
+Using values of \code{dPdT} calculated using \code{dPdTtr} or supplied in the arguments, \code{Ttr} returns as a function of \code{P} values of the upper transition temperature of the mineral phase represented by \code{ispecies}.
 
-  
+\code{GHS_Tr} can be used to calculate values of G, H, and S at Tr for the cr2, cr3, and cr4 phases in the database.
+It combines the given \code{Htr} (enthalpies of transition) with the database values of GHS @ Tr only for the phase that is stable at 298.15 K (cr1) and the transition temperatures and Cp coefficients for higher-temperature phases, to calculate the GHS @ Tr (i.e. low-temperature metastable conditions) of the phases that are stable at higher temperatures.
 
-  \code{dPdTtr} returns values of \eqn{(dP/dT)_{Ttr}}{(dP/dT)Ttr}, where \eqn{Ttr}{Ttr} represents the transition temperature, of the phase transition at the high-\eqn{T}{T} stability limit of the \code{x}th species in \code{thermo$obigt} (no checking is done to verify that the species represents in fact one phase of a mineral with phase transitions). \code{dPdTtr} takes account of the Clapeyron equation, \eqn{(dP/dT)_{Ttr}}{(dP/dT)Ttr}=\eqn{{\Delta}S/{\Delta}V}{DS/DV}, where \eqn{{\Delta}S}{DS} and \eqn{{\Delta}V}{DV} represent the changes in entropy and volume of phase transition, and are calculated using \code{subcrt} at Ttr from the standard molal entropies and volumes of the two phases involved. Using values of \code{dPdT} calculated using \code{dPdTtr} or supplied in the arguments, \code{Ttr} returns as a function of \code{P} values of the upper transition temperature of the mineral phase represented by the \code{x}th species.
-
-\code{nonideal} takes a list of dataframes (in \code{proptable}) containing the standard molal properties of the identified \code{species}.
-The function bypasses (leaves unchanged) properties of the proton (H+), electron (e-), and all species whose charge (determined by the number of Z in their \code{\link{makeup}}) is equal to zero.
-The values of \code{IS} are combined with Alberty's (2003) equation 3.6-1 (Debye-Huckel equation) and its derivatives, to calculate apparent molal properties at the specified ionic strength(s) and temperature(s).
-The lengths of \code{IS} and \code{T} supplied in the arguments should be equal to the number of rows of each dataframe in \code{proptable}, or one to use single values throughout.
-The apparent molal properties that can be calculated include \code{G}, \code{H}, \code{S} and \code{Cp}; any columns in the dataframes of \code{proptable} with other names are left untouched.
-A column named \code{loggam} (logarithm of gamma, the activity coefficient) is appended to the output dataframe of species properties.
-
-  \code{which.balance} returns, in order, which column(s) of \code{species} all have non-zero values. It is used by \code{\link{diagram}} and \code{\link{transfer}} to determine a conservant (i.e. basis species that are conserved in transformation reactions) if none is supplied by the user.
-
-  \code{spearman} calculates Spearman's rank correlation coefficient for \code{a} and \code{b}.
-
-  \code{unitize} scales the logarithms of activities given in \code{logact} so that the logarithm of total activity of residues is equal to zero (i.e. total activity of residues is one), or to some other value set in \code{logact.tot}.  \code{length} indicates the number of residues in each species. If \code{logact} is NULL, the function takes the logarithms of activities from the current species definition. If any of those species are proteins, the function gets their lengths using \code{protein.length}.
-}
-
-\value{
-  Numeric returns are made by \code{dPdTtr}, \code{Ttr}, \code{spearman}, \code{mod.obigt} Functions with no (or unspecified) returns are \code{thermo.plot.new}, \code{thermo.postscript}, \code{label.plot} and \code{water.lines}.
-}
-
-
-\seealso{
-  For some of the functions on which these utilities depend or were modeled, see \code{\link{paste}}, \code{\link{substr}}, \code{\link{tolower}}, \code{\link{par}} and \code{\link{text}}.
+\code{unitize} scales the logarithms of activities given in \code{logact} so that the logarithm of total activity of residues is equal to zero (i.e. total activity of residues is one), or to some other value set in \code{logact.tot}.
+\code{length} indicates the number of residues in each species.
+If \code{logact} is NULL, the function takes the logarithms of activities from the current species definition.
+If any of those species are proteins, the function gets their lengths using \code{protein.length}.
 }
 
 \examples{\dontshow{data(thermo)}
@@ -64,6 +50,22 @@ dPdTtr(si+1) # second transition
 # temperature of transitions (Ttr) as a function of P
 Ttr(si,P=c(1,10,100,1000))
 Ttr(si,P=c(1,10,100,1000))
+
+# calculate the GHS at Tr for the high-temperature phases of iron
+# using transition enthalpies from the SUPCRT92 database (sprons92.dat)
+Htr <- c(326.0, 215.0, 165.0)
+iiron <- info("iron")
+GHS_Tr(iiron, Htr)
+# the results calculated above are stored in the database ...
+info(1:3 + iiron)[, c("G", "H", "S")]
+# ... meaning that we can recalculate the transition enthalpies using subcrt()
+sapply(info(0:2 + iiron)$T, function(T) {
+  # a very small T increment around the transition temperature
+  T <- convert(c(T-0.01, T), "C")
+  # use suppressMessages to make the output less crowded
+  substuff <- suppressMessages(subcrt("iron", T=T, P=1))
+  diff(substuff$out$iron$H)
+})
 
 ## scale logarithms of activity
 # suppose we have two proteins whose lengths are 100 and 
@@ -86,10 +88,6 @@ loga <- unitize(logact,length,logact.tot)
 stopifnot(isTRUE(all.equal(loga[2]-loga[1],1)))
 # but the activities of residues still add up to one
 stopifnot(isTRUE(all.equal(sum(10^loga * length),1)))
-}
-
-\references{
-  Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
 }
 
 \keyword{utilities}

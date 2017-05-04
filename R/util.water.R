@@ -67,45 +67,45 @@ rho.IAPWS95 <- function(T=298.15, P=1, state="", trace=0) {
       # above critical temperature
       interval <- c(0.1, 1)
       extendInt <- "upX"
-      if(trace > 0) msgout("supercritical (T) ")
+      if(trace > 0) message("supercritical (T) ", appendLF=FALSE)
     } else if(P.MPa[i] > P.critical) {
       # above critical pressure
       rho.sat <- WP02.auxiliary("rho.liquid", T=T[i])
       interval <- c(rho.sat, rho.sat + 1)
       extendInt <- "upX"
-      if(trace > 0) msgout("supercritical (P) ")
+      if(trace > 0) message("supercritical (P) ", appendLF=FALSE)
     } else if(P.MPa[i] <= 0.9999*Psat) {
       # steam
       rho.sat <- WP02.auxiliary("rho.vapor", T=T[i])
       interval <- c(rho.sat*0.1, rho.sat)
       extendInt <- "upX"
-      if(trace > 0) msgout("steam ")
+      if(trace > 0) message("steam ", appendLF=FALSE)
     } else if(P.MPa[i] >= 1.00005*Psat) {
       # water
       rho.sat <- WP02.auxiliary("rho.liquid", T=T[i])
       interval <- c(rho.sat, rho.sat + 1)
       extendInt <- "upX"
-      if(trace > 0) msgout("water ")
+      if(trace > 0) message("water ", appendLF=FALSE)
     } else if(!state %in% c("liquid", "vapor")) {
       # we're close to the saturation curve;
       # calculate rho and G for liquid and vapor and return rho for stable phase
-      if(trace > 0) msgout("close to saturation; trying liquid and vapor\n")
+      if(trace > 0) message("close to saturation; trying liquid and vapor")
       rho.liquid <- rho.IAPWS95(T[i], P[i], state="liquid", trace=trace)
       rho.vapor <- rho.IAPWS95(T[i], P[i], state="vapor", trace=trace)
       G.liquid <- IAPWS95("G", rho=rho.liquid, T=T[i])
       G.vapor <- IAPWS95("G", rho=rho.vapor, T=T[i])
       if(G.liquid < G.vapor) {
         this.rho <- rho.liquid 
-        if(trace > 0) msgout(paste0("G.liquid(", G.liquid, ") < G.vapor(", G.vapor, ")\n"))
+        if(trace > 0) message(paste0("G.liquid(", G.liquid, ") < G.vapor(", G.vapor, ")"))
       } else {
         this.rho <- rho.vapor
-        if(trace > 0) msgout(paste0("G.vapor(", G.vapor, ") < G.liquid (", G.liquid, ")\n"))
+        if(trace > 0) message(paste0("G.vapor(", G.vapor, ") < G.liquid (", G.liquid, ")"))
       }
       rho <- c(rho, this.rho)
       next
     } else {
       # we are looking at a specific state
-      if(trace > 0) msgout(paste("specified state:", state, " "))
+      if(trace > 0) message(paste("specified state:", state, " "), appendLF=FALSE)
       if(state=="vapor") rho0 <- WP02.auxiliary("rho.vapor", T[i])
       else if(state=="liquid") rho0 <- WP02.auxiliary("rho.liquid", T[i])
       # a too-big range may cause problems e.g.
@@ -118,7 +118,7 @@ rho.IAPWS95 <- function(T=298.15, P=1, state="", trace=0) {
       else if(all(P.init > P.MPa[i])) extendInt <- "upX"
       else extendInt <- "yes"
     }
-    if(trace > 0) msgout(paste0("T=", T[i], " P=", P[i], " rho=[", interval[1], ",", interval[2], "]\n"))
+    if(trace > 0) message(paste0("T=", T[i], " P=", P[i], " rho=[", interval[1], ",", interval[2], "]"))
     this.rho <- try(uniroot(dP, interval, extendInt=extendInt, trace=trace, T=T[i], P.MPa=P.MPa[i])$root, TRUE)
     if(!is.numeric(this.rho)) {
       warning("rho.IAPWS95: problems finding density at ", T[i], " K and ", P[i], " bar", call.=FALSE)

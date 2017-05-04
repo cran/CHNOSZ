@@ -1,6 +1,9 @@
 # CHNOSZ/util.character.R
 # functions to work with character objects
 
+### unexported functions ###
+
+# join the elements of a character object into a character object of length 1 (a string)
 c2s <- function(x, sep=' ') {
   # make a string out of a character vector
   if(length(x) %in% c(0,1)) return(x)
@@ -8,6 +11,9 @@ c2s <- function(x, sep=' ') {
   return(s)
 }
 
+# split a string into elements of a character object of length n+1, where n is the number of separators in the string
+# default sep=NULL indicates a separator at every position of x
+# keep.sep is used to keep the separators in the output
 s2c <- function(x,sep=NULL,keep.sep=TRUE) {
   # recursively split 'x' according to separation strings in 'sep'
   do.split <- function(x,sep,keep.sep=TRUE) {
@@ -46,17 +52,29 @@ s2c <- function(x,sep=NULL,keep.sep=TRUE) {
   return(x)
 }
 
+# return a value of TRUE or FALSE for each element of x
 can.be.numeric <- function(x) {
   # return FALSE if length of argument is zero
-  if(length(x)==0) return(FALSE)
-  if(length(x)>1) return(as.logical(sapply(x,can.be.numeric)))
-  # don't warn about NAs in as.numeric
-  oldopt <- options(warn=-1)
-  cb <- FALSE
-  if(!is.na(as.numeric(x))) cb <- TRUE
-  if(x %in% c('.','+','-')) cb <- TRUE
-  # let the user have their way
-  options(oldopt)
-  return(cb)
+  if(length(x) == 0) FALSE else
+  if(length(x) > 1) as.logical(sapply(x, can.be.numeric)) else {
+    if(is.numeric(x)) TRUE else
+    if(!is.na(as.numeric.nowarn(x))) TRUE else
+    if(x %in% c('.','+','-')) TRUE else FALSE
+  }
 }
 
+# something like R's as.numeric(), but without the "NAs introduced by coercion" warnings
+# (needed because testthat somehow detects the warnings suppressed by suppressWarnings) 20170427
+as.numeric.nowarn <- function(x) {
+  if(length(x) == 0) numeric() else
+  if(length(x) > 1) sapply(x, as.numeric.nowarn) else
+  # http://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
+  if(grepl("^[+-]?([0-9]*[.])?[0-9]+$", x)) as.numeric(x) else NA_real_
+}
+
+# convert to integer without NA coercion warnings
+as.integer.nowarn <- function(x) {
+  if(length(x) == 0) integer() else
+  if(length(x) > 1) sapply(x, as.integer.nowarn) else
+  if(grepl("[^0-9]", x)) NA_integer_ else as.integer(x)
+}

@@ -1,7 +1,7 @@
 context("util.affinity")
 
 test_that("A.ionization() builds arrays with correct dimensions", {
-  iprotein <- iprotein(c("LYSC_CHICK", "RNAS1_BOVIN"))
+  iprotein <- pinfo(c("LYSC_CHICK", "RNAS1_BOVIN"))
   vals <- list(T=convert(c(25, 50, 100), "K"), O2=c(-80, -70), pH=c(5, 6, 7, 8))
   vars <- names(vals)
   A <- A.ionization(iprotein, vars, vals)
@@ -51,7 +51,7 @@ test_that("energy() includes ionization affinities of proteins when needed", {
   A.ionization.LYSC_CHICK <- Aion.pH11$a[[2]] - Anonion$a[[2]]
   # there should be 2 unique values (logfO2 doesn't matter)
   # and they should be equal to the "manual" calculation using ionize.aa
-  A.ionization.2550 <- ionize.aa(ip2aa(iprotein("LYSC_CHICK")), property="A", T=c(25, 50), pH=11)
+  A.ionization.2550 <- ionize.aa(pinfo(pinfo("LYSC_CHICK")), property="A", T=c(25, 50), pH=11)
   expect_equal(A.ionization.LYSC_CHICK[, 1], A.ionization.2550[, 1], check.attributes=FALSE)
   expect_equal(A.ionization.LYSC_CHICK[, 3], A.ionization.2550[, 1], check.attributes=FALSE)
 })

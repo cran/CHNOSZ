@@ -1,4 +1,4 @@
-%% LyX 2.1.4 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.2.2 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
 \documentclass[english,round]{article}
 \usepackage{mathpazo}
@@ -15,7 +15,7 @@
 \usepackage[authoryear]{natbib}
 \usepackage[unicode=true,pdfusetitle,
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
- breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=true]
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=true]
  {hyperref}
 \hypersetup{
  citecolor=magenta, urlcolor=blue}
@@ -27,7 +27,7 @@
 %\VignetteEngine{knitr::knitr}
 
 % so DOIs in bibliography show up as hyperlinks
-\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 
 \makeatother
 
@@ -43,9 +43,7 @@ options(width=85)
 options(digits=3)
 @
 
-
 \title{Equilibrium in CHNOSZ}
-
 
 \author{Jeffrey M. Dick}
 
@@ -55,7 +53,6 @@ and provides examples of calculating equilibrium in CHNOSZ. It also
 highlights some applications of the methods (i.e. to reproduce published
 diagrams) and includes an Appendix on details of the equilibration
 calculations.
-
 
 \section{Concepts}
 \begin{description}
@@ -143,7 +140,6 @@ description of the equilibration method applied to proteins see \citet{DS13}
 (also with a derivation of energetic distance from equilibrium using
 the \textbf{starred affinity}).
 
-
 \section{Organization}
 
 The function sequences below assume you have already defined the basis
@@ -221,7 +217,6 @@ are temporarily set to 1.
 
 \section{Examples}
 
-
 \subsection{Amino acids}
 
 Basis species: $\mathrm{CO_{2}}$, $\mathrm{H_{2}O}$, $\mathrm{NH_{3}}$,
@@ -249,7 +244,7 @@ aaA <- function() {
 }
 
 aaB <- function() {
-  a <- affinity(O2=c(-90, -70, res), H2O=c(-20, 10, res))
+  a <- affinity(O2=c(-90, -70, 80), H2O=c(-20, 10, 80))
   e <- equilibrate(a, balance=1)
   diagram(e, names=aa)
 }
@@ -260,7 +255,7 @@ aaC <- function() {
 }
 
 aaD <- function() {
-  a <- affinity(O2=c(-71, -66), H2O=c(-8, 4))
+  a <- affinity(O2=c(-71, -66, 80), H2O=c(-8, 4, 80))
   e <- equilibrate(a, balance="CO2")
   diagram(e, names=aa)
 }
@@ -432,7 +427,7 @@ Code for the figures.
 
 <<PRfigures>>=
 prA <- function() {
-  a <- affinity(O2=c(-90, -70, res), H2O=c(-20, 0, res))
+  a <- affinity(O2=c(-90, -70, 80), H2O=c(-20, 0, 80))
   e <- equilibrate(a, balance="length", loga.balance=0)
   diagram(e, names=organisms)
 }
@@ -440,7 +435,7 @@ prA <- function() {
 prB <- function() {
   a <- affinity(O2=c(-90, -70))
   e <- equilibrate(a, balance="length", loga.balance=0)
-  diagram(e, names=organisms, ylim=c(-5, -1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-5, -1))
 }
 
 prC <- function() {
@@ -452,7 +447,7 @@ prC <- function() {
 prD <- function() {
   a <- affinity(O2=c(-90, -70))
   e <- equilibrate(a, normalize=TRUE, loga.balance=0)
-  diagram(e, names=organisms, ylim=c(-5, -1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-5, -1))
 }
 
 prE <- function() {
@@ -464,7 +459,7 @@ prE <- function() {
 prF <- function() {
   a <- affinity(O2=c(-90, -70))
   e <- equilibrate(a, as.residue=TRUE, loga.balance=0)
-  diagram(e, names=organisms, ylim=c(-3, 1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-3, 1))
 }
 @
 
@@ -586,13 +581,11 @@ approaches.
 
 \clearpage
 
-
 \section{Applications}
 
 Many of the help-page examples and demos in CHNOSZ use these methods
 to reproduce (or closely emulate) published figures. Below is not
 a comprehensive list, but just some highlights.
-
 
 \subsection{Maximum affinity method}
 \begin{itemize}
@@ -602,8 +595,8 @@ fields for aqueous species (balance = 1, after \citealp{TS01})
 for minerals (balance $\ne$ 1, after \citealp{Hel70c}).
 \item Next is an example of using \emph{unequal activities} of species (mineral
 activity = 1; variable aqueous species activity indicated by the contours
-(logarithm of activity)) to plot aqueous species -- mineral stability
-boundaries (balance = 1, after Figure 14 of \citealp{Pou49}).
+(logarithm of activity)) to plot aqueous species \textendash{} mineral
+stability boundaries (balance = 1, after Figure 14 of \citealp{Pou49}).
 \end{itemize}
 <<Pourbaix, message=FALSE, results="hide", fig.width=4, fig.height=3, cache=TRUE>>=
 basis(c("Cu+2", "H2O", "H+", "e-"))
@@ -619,7 +612,6 @@ for(loga in c(-1, 0, -2, -3)) {
 water.lines()
 
 @
-
 
 \subsection{Equilibration method}
 \begin{itemize}
@@ -642,7 +634,7 @@ species distribution). Although the caption to Fig. 3 of \citet{SB01}
 reads ``percent GSH that has been oxidized to GSSG'', the lines
 in their figure are closer to the black lines in the figure below.
 \end{itemize}
-<<glutathione, results="hide", message=FALSE, fig.width=5, fig.height=3.5>>=
+<<glutathione, results="hide", message=FALSE, fig.width=5, fig.height=4>>=
 basis(c("GSH", "NH3", "H2S", "H2O", "H+", "e-"))
 basis("pH", 7)
 species(c("GSH", "GSSG"))
@@ -660,19 +652,6 @@ mtext(side=2, "fraction of GSH oxidized to GSSG", las=0, line=2.6, col="blue", c
 mtext(side=2, "- - - - - - - - - - - - - - - - - - -", las=0, line=2.1, cex=0.8)
 legend("topleft", lty=1:3, legend=paste(mM, "mM GSH"))
 @
-\begin{itemize}
-\item Protein examples (with \texttt{normalize = TRUE}): 
-
-\begin{itemize}
-\item See ``Subcellular proteins'' in the vignette \emph{An introduction
-to CHNOSZ}, ``speciation diagram for ER.to.Golgi proteins'' in \texttt{?read.expr},
-and \texttt{demo(\textquotedbl{}yeastgfp\textquotedbl{})}, after \citet{Dic09}.
-\item Also see the vignette \emph{Hot-spring proteins in CHNOSZ}.
-\end{itemize}
-\item For systems of many proteins, equilibrium diagrams such as this can
-become very cluttered, and it may be desirable to use summary statistics
-to identify trends in the activities or affinities (see \texttt{revisit()}).
-\end{itemize}
 
 \subsection{Mosaic diagrams}
 
@@ -714,7 +693,6 @@ described previously \citep{Dic08,DS11} (the ``CSG'' example).
 The results shows that two approaches are equivalent when the molar
 formulas are normalized.
 
-
 \section{Standard states, the ideal approximation and sources of data}
 
 By chemical activity we mean the quantity $a_{i}$ that appears in
@@ -740,18 +718,14 @@ relative abundances of species, including proteins.
 For the CSG examples below, we would like to reproduce exactly the
 values appearing in publications. Because recent versions of CHNOSZ
 incorporate data updates for the methionine sidechain group, we should
-therefore revert to the previous values before proceeding. The \texttt{add.obigt()}
-function does just that, as well as adds other species from the supplemental
-database provided with CHNOSZ:
+therefore revert to the previous values \citep{DLH06} before proceeding.
 
 <<AddObigt>>=
 data(thermo)
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 @
 
-
 \section{Reaction-matrix approach}
-
 
 \subsection{CSG Example: Whole formulas}
 
@@ -780,23 +754,10 @@ species("CSG",c("METVO", "METJA"))
 Although the basis species are defined, the temperature is not yet
 specified, so it is not immediately possible to calculate the ionization
 states of the proteins. That is why the coefficient on $\mathrm{H^{+}}$
-is zero in the output above. To see what the computed protein charges
-are at 25 $^{\circ}$C and 1 bar and at pH 7 (specified by the logarithm
-of activity of $\mathrm{H^{+}}$ in the basis species), try this:
-
-<<ProteinInfo>>=
-protein.info(species()$name)
-@
-
-Note that \texttt{affinity()} is called twice by \texttt{protein.info()};
-this so that both charges and standard Gibbs energies of ionization
-of the proteins can be calculated. The \texttt{Z} values in the table
-are the charges of the proteins computed using the ionization constants
-of sidechain and terminal groups, and the \texttt{G.Z} values are
-the calculated Gibbs energies of formation of the ionized proteins
-\citep{DLH06}. The \texttt{ZC} values are the average oxidation states
-of carbon of the proteins. Let us now calculate the chemical affinities
-of formation of the ionized proteins:
+is zero in the output above. Let us now calculate the chemical affinities
+of formation of the ionized proteins at 25 $^{\circ}$C, 1 bar, and
+pH = 7 (specified by the logarithm of activity of $\mathrm{H^{+}}$
+in the basis species):
 
 <<ProteinAffinity>>=
 a <- affinity()
@@ -856,7 +817,6 @@ a_{residue,i}=n_{i}\times a_{i}\,.\label{eq:a_residue_i}
 553\times a_{\mathrm{CSG\_METVO}}+530\times a_{\mathrm{CSG\_METJA}}=1.083\,.\label{eq:a_residue}
 \end{equation}
 
-
 At equilibrium, the affinities of the formation reactions, per conserved
 quantity (in this case protein backbone groups) are equal. Therefore
 $\boldsymbol{A}=\boldsymbol{A}_{3}/553=\boldsymbol{A}_{4}/530$ is
@@ -869,7 +829,7 @@ and
 \begin{equation}
 \boldsymbol{A}/2.303RT=\left(314.1877-\log a_{\mathrm{CSG\_METJA}}\right)/530\,.\label{eq:A_METJA}
 \end{equation}
-Now we have three equations (\ref{eq:a_residue}--\ref{eq:A_METJA})
+Now we have three equations (\ref{eq:a_residue}\textendash \ref{eq:A_METJA})
 with three unknowns. The solution can be displayed in CHNOSZ as follows.
 Because the balancing coefficients differ from unity, the function
 called by \texttt{equilibrate()} in this case is \texttt{equil.reaction()},
@@ -889,7 +849,6 @@ Equilibrium activities that differ by such great magnitudes make it
 appear that the proteins are very unlikely to coexist in metastable
 equilibrium. Later we explain the concept of using residue equivalents
 of the proteins to achieve a different result.
-
 
 \subsection{Implementing the reaction-matrix approach}
 
@@ -924,7 +883,6 @@ Even if values of $\delta a_{\mathrm{ic}}$ on either side of zero
 can be located, the algorithm does not guarantee an accurate solution
 and may give a warning about poor convergence if a certain tolerance
 is not reached.
-
 
 \subsection{CSG Example: normalized formulas (residue equivalents)}
 
@@ -992,9 +950,7 @@ The approach just described is not actually used by \texttt{equilibrate(...,
 normalize = TRUE)}. Instead, because balance = 1, the Boltzmann distribution,
 which is faster, can be used.
 
-
 \section{Boltzmann distribution}
-
 
 \subsection{CSG Example: Normalized formulas}
 
@@ -1015,9 +971,7 @@ and $a_{13}/\sum a_{i}=0.7168991$. Since $\sum a_{i}=1.083$, we
 arrive at $a_{12}=0.3065982$ and $a_{13}=0.7764018$, the same result
 as above.
 
-
 \section{Notes on implementation}
-
 
 \subsection{CSG example: another look}
 
@@ -1034,7 +988,7 @@ for CSG example we have been discussing.
 \begin{small}
 
 <<ProteinEquil, results="hide">>=
-protein <- iprotein(c("CSG_METVO", "CSG_METJA"))
+protein <- pinfo(c("CSG_METVO", "CSG_METJA"))
 basis("CHNOS+")
 swap.basis("O2", "H2")
 protein.equil(protein, loga.protein=-3)
@@ -1048,7 +1002,6 @@ and the equilibrium activities of the proteins calculated using \texttt{equilibr
 (Note that Astar/RT in the second line after the first ``check it!''
 can be multiplied by $\ln10$ to get the values shown above in Eqs.
 \ref{eq:A_METVO_residue} and \ref{eq:A_METJA_residue}.)
-
 
 \subsection{Visualizing the effects of normalization}
 
@@ -1064,11 +1017,11 @@ species(proteins, organisms)
 a <- affinity(O2=c(-100, -65))
 layout(matrix(1:2), heights=c(1, 2))
 e <- equilibrate(a)
-diagram(e, ylim=c(-2.8, -1.6), legend.x=NA, names=organisms)
+diagram(e, ylim=c(-2.8, -1.6), names=organisms)
 water.lines(xaxis="O2")
 title(main="Equilibrium activities of proteins, normalize = FALSE")
 e <- equilibrate(a, normalize=TRUE)
-diagram(e, ylim=c(-4, -2), legend.x=NA, names=organisms)
+diagram(e, ylim=c(-4, -2), names=organisms)
 water.lines(xaxis="O2")
 title(main="Equilibrium activities of proteins, normalize = TRUE")
 @
@@ -1113,7 +1066,6 @@ as shown in the second diagram. Although \texttt{normalize = TRUE}
 was implemented to study the relative stabilities of proteins, it
 might also be relevant to other systems where the molecules are in
 various stages of polymerization.
-
 
 \section*{Document history}
 \begin{itemize}

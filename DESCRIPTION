@@ -1,26 +1,27 @@
-Date: 2016-05-28
+Date: 2017-05-04
 Package: CHNOSZ
-Version: 1.0.8
+Version: 1.1.0
 Title: Chemical Thermodynamics and Activity Diagrams
 Author: Jeffrey Dick
 Maintainer: Jeffrey Dick <j3ffdick@gmail.com>
 Depends: R (>= 3.1.0)
-Suggests: limSolve, testthat, knitr
-Imports: grDevices, graphics, stats, utils
-Description: Functions and data sets to support chemical thermodynamic modeling in biochemistry
-  and low-temperature geochemistry. The features include calculation of the standard molal
-  thermodynamic properties and chemical affinities of reactions involving minerals and/or
-  biomolecules; a database of thermodynamic properties of aqueous, crystalline and gaseous
-  species; amino acid group additivity for the standard molal thermodynamic properties of
-  neutral and ionized proteins; use of the revised Helgeson-Kirkham-Flowers equations of state
-  for aqueous species; construction of equilibrium activity diagrams as a function of
-  temperature, pressure, and chemical activities or fugacities of basis species.
+Suggests: limSolve, testthat, knitr, rmarkdown, tufte, RSVGTipsDevice
+Imports: grDevices, graphics, stats, utils, colorspace
+Description: An integrated set of tools for thermodynamic calculations in compositional
+  biology and geochemistry. Thermodynamic properties are taken from a database for minerals
+  and inorganic and organic aqueous species including biomolecules, or from amino acid
+  group additivity for proteins. High-temperature properties are calculated using the
+  revised Helgeson-Kirkham-Flowers equations of state for aqueous species. Functions are
+  provided to define a system using basis species, automatically balance reactions,
+  calculate the chemical affinities of reactions for selected species, and plot the results
+  on potential diagrams or equilibrium activity diagrams. Experimental features are
+  available to calculate activity coefficients for aqueous species or for multidimensional
+  optimization of thermodynamic variables using an objective function.
 License: GPL (>= 2)
 BuildResaveData: no
-ZipData: no
 VignetteBuilder: knitr
 URL: http://www.chnosz.net/, http://chnosz.r-forge.r-project.org/
 NeedsCompilation: yes
-Packaged: 2016-05-28 16:21:22 UTC; jedick
+Packaged: 2017-05-04 11:34:06 UTC; jedick
 Repository: CRAN
-Date/Publication: 2016-05-28 20:30:20
+Date/Publication: 2017-05-04 17:48:31 UTC

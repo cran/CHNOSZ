@@ -12,7 +12,7 @@ more.aa <- function(protein=NULL, organism) {
   mydata <- read.csv(datafile, as.is=TRUE)
   # if protein is not supplied, just give some information about the datafile
   if(is.null(protein)) {
-    msgout("more.aa: ", datapath, " has data for ", nrow(mydata), " proteins\n")
+    message("more.aa: ", datapath, " has data for ", nrow(mydata), " proteins")
     return(invisible())
   }
   # which columns to search for matches
@@ -41,7 +41,7 @@ more.aa <- function(protein=NULL, organism) {
     inotmatch <- which(is.na(imatch)) 
     if(length(inotmatch) > 0) {
       if(length(inotmatch)==1) verb <- " was" else verb <- " were"
-      msgout("more.aa: ", paste(protein[[i]][inotmatch], collapse=" "), verb, " not matched\n")
+      message("more.aa: ", paste(protein[[i]][inotmatch], collapse=" "), verb, " not matched")
     }
     aa <- data.frame(mydata[imatch, iaa])
     # add the identifying columns

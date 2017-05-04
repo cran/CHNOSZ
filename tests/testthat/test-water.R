@@ -20,4 +20,4 @@ test_that("water.SUPCRT92() gives expected values for E and kT", {
 
 # Fine, R. A. and Millero, F. J. (1973)
 #   Compressibility of water as a function of temperature and pressure
-#   J. Chem. Phys. 59, 5529--5536. http://dx.doi.org/10.1063/1.1679903
+#   J. Chem. Phys. 59, 5529--5536. https://doi.org/10.1063/1.1679903

@@ -51,7 +51,7 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
     else {
       # in the ith loop we consider intervals
       # of rat^(i-1) of the ranges specified at start
-      msgout(paste("optimal:",round(curr,4),"",""))
+      message(paste("optimal:",round(curr,4),"",""), appendLF=FALSE)
       range <- range(lim)
       int <- abs(diff(range)) * rat^(i-1)
       mylims <- c(curr-int/2, curr+int/2)
@@ -61,7 +61,7 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
       # reverse the order if the axis is reversed
       if(diff(lim) < 0) mylims <- rev(mylims)
     }
-    msgout(paste("new limits:",round(mylims[1],4),round(mylims[2],4),"\n"))
+    message(paste("new limits:",round(mylims[1],4),round(mylims[2],4)))
     return(mylims)
   }
 
@@ -76,14 +76,14 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
   # loop for the specified number of iterations
   # (todo: loop until an error threshhold is reached)
   for(i in 1:niter) {
-    msgout(paste("\n###### findit: iteration",i,"of",niter,"\n"))
+    message(paste("\n###### findit: iteration",i,"of",niter))
     # to generate the argument list for affinity
     # with the variables specified in lims
     aargs <- list()
     for(j in 1:length(lims)) {
       if(names(lims)[j] %in% rownames(basis)) {
         ibasis <- match(names(lims)[j],rownames(basis))
-        msgout(paste("###",rownames(basis)[ibasis],""))
+        message(paste("###",rownames(basis)[ibasis],""), appendLF=FALSE)
         # the starting search limits for this species
         lim <- lims[[j]]
         # center the search interval on the current values
@@ -93,7 +93,7 @@ findit <- function(lims=list(), objective="CV", niter=NULL, iprotein=NULL, plot.
         names(myarg) <- rownames(basis)[ibasis]
         aargs <- c(aargs,myarg)
       } else if(names(lims[j]) %in% c("T","P")) {
-        msgout(paste("###",names(lims[j]),""))
+        message(paste("###",names(lims[j]),""), appendLF=FALSE)
         if(names(lims[j])=="T") {
           lim <- lims$T
           curr <- T

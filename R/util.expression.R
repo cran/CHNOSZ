@@ -7,32 +7,39 @@ expr.species <- function(species, state="", log="", value=NULL) {
   # that include subscripts, superscripts (if charged)
   # and optionally designations of states +/- loga or logf prefix
   if(length(species) > 1) (stop("more than one species"))
+  # convert to character so that "1", "2", etc. don't get converted to chemical formulas via makeup()
+  species <- as.character(species)
   # the counts of elements in the species:
   # here we don't care too much if an "element" is a real element
   # (listed in thermo$element), so we suppress warnings
-  elements <- suppressWarnings(makeup(species))
-  # where we'll put the expression
-  expr <- ""
-  # loop over elements
-  for(i in 1:length(elements)) {
-    if(names(elements)[i] != 'Z') {
-      # append the elemental symbol
-      expr <- substitute(paste(a, b), list(a=expr, b=names(elements)[i]))
-      # recover the coefficient
-      if(elements[i]==1) coeff <- "" else coeff <- elements[i]
-      # append the coefficient
-      # subscripts within subscripts (log) are too small
-      if(log != "") expr <- substitute(a*b, list(a=expr, b=coeff))
-      else expr <- substitute(a[b], list(a=expr, b=coeff))
-    } else {
-      # for charged species, don't show "Z" but do show e.g. "+2"
-      coeff <- elements[i]
-      if(coeff==-1) coeff <- "-"
-      else if(coeff==1) coeff <- "+"
-      else if(coeff > 0) coeff <- paste("+", as.character(coeff), sep="")
-      # append the coefficient (as a superscript if we're not in a log expression)
-      if(log != "") expr <- substitute(a*b, list(a=expr, b=coeff))
-      else expr <- substitute(a^b, list(a=expr, b=coeff))
+  elements <- suppressWarnings(try(makeup(species), TRUE))
+  # if `species` can't be parsed as a chemical formula, we don't do the formula formatting
+  if(identical(class(elements), "try-error")) expr <- species
+  else {
+    # where we'll put the expression
+    expr <- ""
+    # loop over elements
+    for(i in 1:length(elements)) {
+      if(names(elements)[i] != 'Z') {
+        # append the elemental symbol
+        expr <- substitute(paste(a, b), list(a=expr, b=names(elements)[i]))
+        # recover the coefficient
+        if(elements[i]==1) coeff <- "" else coeff <- elements[i]
+        # append the coefficient
+        ## subscripts within subscripts (log) are too small
+        #if(log != "") expr <- substitute(a*b, list(a=expr, b=coeff))
+        #else expr <- substitute(a[b], list(a=expr, b=coeff))
+        expr <- substitute(a[b], list(a=expr, b=coeff))
+      } else {
+        # for charged species, don't show "Z" but do show e.g. "+2"
+        coeff <- elements[i]
+        if(coeff==-1) coeff <- "-"
+        else if(coeff==1) coeff <- "+"
+        else if(coeff > 0) coeff <- paste("+", as.character(coeff), sep="")
+        # append the coefficient (as a superscript if we're not in a log expression)
+        if(log != "") expr <- substitute(a*b, list(a=expr, b=coeff))
+        else expr <- substitute(a^b, list(a=expr, b=coeff))
+      }
     }
   }
   # write a designation of physical state
@@ -49,7 +56,7 @@ expr.species <- function(species, state="", log="", value=NULL) {
     if(log %in% c("aq", "cr", "liq", "cr1", "cr2", "cr3", "cr4")) acity <- "a"
     else if(log %in% c("g", "gas")) acity <- "f"
     else stop(paste("'", log, "' is not a recognized state", sep=""))
-    logacity <- substitute(log*italic(a), list(a=acity))
+    logacity <- substitute(log~italic(a), list(a=acity))
     expr <- substitute(a[b], list(a=logacity, b=expr))
     # write a value if given
     if(!is.null(value)) {
@@ -74,7 +81,7 @@ expr.property <- function(property) {
   if(property=="pH") return("pH")
   if(property=="pe") return("pe")
   if(property=="IS") return("IS")
-  if(property=="ZC") return(quote(bar(italic(Z))[C]))
+  if(property=="ZC") return(quote(italic(Z)[C]))
   # process each character in the property abbreviation
   prevchar <- character()
   for(i in 1:length(propchar)) {
@@ -87,11 +94,9 @@ expr.property <- function(property) {
     else if(thischar %in% letters) thisexpr <- substitute(""[italic(a)], list(a=thischar))
     else thisexpr <- substitute(a, list(a=thischar))
     # D for greek Delta
-    # A for bold A (affinity)
     # p for subscript italic P (in Cp)
     # 0 for degree sign (but not immediately following a number e.g. 2.303)
     if(thischar=='D') thisexpr <- substitute(Delta)
-    if(thischar=='A') thisexpr <- substitute(bold(A))
     if(thischar=='p') thisexpr <- substitute(a[italic(P)], list(a=""))
     if(thischar=='0' & !can.be.numeric(prevchar)) thisexpr <- substitute(degree)
     # put it together
@@ -250,3 +255,26 @@ describe.reaction <- function(reaction, iname=numeric(), states=NULL) {
   return(desc)
 }
 
+# make formatted text for activity ratio 20170217
+ratlab <- function(ion="K+") {
+  # the charge
+  Z <- makeup(ion)["Z"]
+  # the text for the exponent on aH+
+  exp.H <- as.character(Z)
+  # the expression for the ion and H+
+  expr.ion <- expr.species(ion)
+  expr.H <- expr.species("H+")
+  # the final expression
+  if(exp.H=="1") substitute(log~(italic(a)[expr.ion] / italic(a)[expr.H]), list(expr.ion=expr.ion, expr.H=expr.H))
+  else substitute(log~(italic(a)[expr.ion] / italic(a)[expr.H]^exp.H), list(expr.ion=expr.ion, expr.H=expr.H, exp.H=exp.H))
+}
+
+# make formatted text for thermodynamic system 20170217
+syslab <- function(system = c("K2O", "Al2O3", "SiO2", "H2O"), dash="\u2013") {
+  for(i in seq_along(system)) {
+    expr <- expr.species(system[i])
+    # use en dash here
+    if(i==1) lab <- expr else lab <- substitute(a*dash*b, list(a=lab, dash=dash, b=expr))
+  }
+  lab
+}

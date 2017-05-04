@@ -1,3 +1,205 @@
+CHANGES IN CHNOSZ 1.1.0 (2017-05-04)
+------------------------------------
+
+DOCUMENTATION:
+
+- Replace anintro.Rnw (Sweave) with rewritten anintro.Rmd (using knitr
+  with Tufte style).
+
+- Add obigt.Rmd (Thermodynamic data in CHNOSZ).
+
+- Add eos-regress.Rmd (Regressing thermodynamic data), including
+  section on Making a pseudospecies: H4SiO4.
+
+- New demos: bugstab.R (potential diagrams for microbial proteins in
+  colorectal cancer), activity_ratios.R (mineral stability diagrams
+  with activity ratios on the axes), Shh.R (affinities of
+  transcription factors relative to Sonic hedgehog).
+
+- Converted demos: move examples from help pages to protein.equil.R,
+  add.obigt.R, and affinity.R.
+
+- Updated and removed demos: update buffer.R (logfH2 set by mineral
+  buffers and aqueous species) and rename old buffer.R to protbuff.R
+  (proteins as buffers); remove nucleobase.R.
+
+NAMESPACE:
+
+- The NAMESPACE now exports selected functions, instead of all of them.
+
+- The following functions are no longer exported, nor documented in the
+  Rd files: thermo.axis, optimal.index, extremes, caller.name, lsub,
+  lsum, pprod, energy, energy.args, A.ionization, can.be.numeric, s2c,
+  c2s, eos.args, TP.args, state.args, info.approx, info.character,
+  info.text, info.numeric, count.charge, count.formulas, buffer,
+  mod.basis, put.basis, preset.basis, preset.logact, species.basis,
+  envert, outvert, which.balance, gfun, IAPWS95.residual,
+  IAPWS95.idealgas, obigt2eos, group.formulas, get.formula, get.objfun,
+  balance.
+
+CHANGES TO diagram():
+
+- For the `groups` argument, activities are multiplied by the balance
+  coefficients before the summation.
+
+- Draw smoother boundary lines (with contour(); `lty` is usable), at the
+  expense of not being precisely aligned with the grid used for plotting
+  colors. For the old behavior, use `dotted=0`.
+
+- Default of `legend.x` changed to NA (instead of making a legend, put
+  labels near the lines).
+
+- Field labels: apply formatting (subscripts and superscripts) to names
+  that parse as chemical formulas; use `format.names=FALSE` to disable.
+
+- Chemical formulas that are part of the axis labels (log activity or
+  fugacity) now have formatting applied.
+
+- Add arguments `adj` and `dy` for x-alignment and y-offset of line
+  labels.
+
+- Add arguments `fill.NA` (color of empty areas) and `limit.water`
+  (assign NA to areas beyond water stability limits on Eh-pH and pe-pH
+  diagrams).
+
+NEW FEATURES:
+
+- Add ZC.col() for generating a red-grey-blue color scale from
+  numeric values.
+
+- Add "QEC" as a keyword for preset species in basis() (glutamine,
+  glutamic acid, cysteine, H2O, O2).
+
+- More flexible parsing of chemical formulas for ZC() and other
+  functions; e.g. `ZC(colMeans(protein.formula(1:4)))` now works.
+
+- read.fasta() extracts information from UniProt FASTA headers
+  (accession, name, organism) into columns of the output data frame
+  (protein, abbrv, organism).
+
+- Add `...` argument to thermo.plot.new() (additional arguments for
+  par()).
+
+- With new default arguments, thermo.axis() only plots the axis tick
+  marks and lines; this is used in diagram() to redraw the axes on
+  filled diagrams.
+
+- seq2aa() removes newlines and whitespace before counting the
+  letters in the sequence.
+
+- read.fasta(): change argument `i` to `iseq`; this is used to select
+  particular sequences to read from the file.
+
+- Add syslab() and ratlab() to make formatted expressions for
+  sets of thermodynamic components and activity ratios.
+
+- Add GHS_Tr() to calculate G, H, and S at Tr (298.15 K) of phases
+  stable at high temperature, using provided enthalpies of transition
+  and database values of transition temperatures and heat capacity
+  parameters, and GHS at Tr of the low-temperature phase.
+
+- Add extdata/supcrt/ directory with files read.supcrt.R, compare.R,
+  newnames.csv; used to compare data in SUPCRT and slop files
+  (http://geopig.asu.edu/?q=tools) to data in thermo$obigt.
+
+NEW AND OLD DATA:
+
+- Split OBIGT.csv and OBIGT-2.csv into multiple files according to type
+  of substance (inorganic, organic, or biotic). All files are now under
+  extdata/OBIGT/. Conflicting data from OBIGT-2.csv were removed (see
+  below).
+
+- Citations in OBIGT now have a suffix (e.g. [S92] or [S98]) if the data
+  were first present in sprons92.dat from SUPCRT, slop98.dat, or later
+  versions of the slop data files (http://geopig.asu.edu/?q=tools).
+
+- biotic_aq.csv: Add data for citric acid cycle metabolites from
+  Canovas and Shock, 2016.
+
+- CHNOSZ_aq.csv: Add H4SiO4 pseudospecies (pseudo-H4SiO4); see
+  calculations in eos-regress.Rmd.
+
+- organic_aq.csv: Add data for aqueous phenanthrene and methylphenanthrene
+  from Dick et al., 2013.
+
+- Remove superseded data previously in OBIGT-2.csv: citric acid cycle
+  metabolites from Dalla-Betta and Schulte, 2009.
+
+- Remove superseded data previously in OBIGT-2.csv: methionine and [Met]
+  from Dick et al., 2006. Examples that require the old group additivity
+  parameters can modify the database using:
+  `mod.obigt("[Met]", G=-35245, H=-59310)`.
+
+- Move two datasets that conflict with the primary database, but are
+  used in tests, examples, or vignettes, from OBIGT-2.csv to
+  extdata/thermo (Ste01.csv and BZA10.csv).
+
+- Remove other conflicting datasets (i.e. that provide different data
+  for a species already in the database) previously listed in
+  OBIGT-2.csv (21 sources).
+
+- Replace GHS for iron (c2, c3) calculated in CHNOSZ with values derived
+  from sprons92.dat.
+
+- Replace data for sulfur (cr) from Gurrieri, 1996, personal
+  communication with that "as used by" McCollom and Shock, 1997 (from
+  slop98.dat).
+
+- Update selected nonelectrolytes with data from Plyasunov and Shock,
+  2001, as listed in slop07.dat (http://geopig.asu.edu/?q=tools).
+
+- extdata: Add fasta/rubisco.fasta and cpetc/*.csv files SS98_Fig5a,
+  SS98_Fig5b, PM90 (all used in anintro.Rmd).
+
+BUG FIXES:
+
+- Correct charge (-2) of NAD(red)-2 in biotic_aq.csv. Thanks to Peter
+  Canovas.
+
+- Correct charge (-2) of MgATP-2.
+
+- subcrt() returns `loggam` using the common logarithm; add
+  test-nonideal.R to check for consistency between loggam and logK
+  values returned by subcrt(). This also fixes the issue previously
+  noted for the first example in ?nonideal. Thanks to David T. Wang for
+  the bug report and test.
+
+- NaN values from equilibrate() are now preserved by diagram(),
+  producing empty (NA) fields rather than being mistakenly labeled with
+  the first species. Thanks to Grayson Boyer for the bug report.
+
+OTHER CHANGES:
+
+- Remove msgout(), and replace previous calls to that function with
+  message() from base R. As a result, the messages don't appear in
+  Sweave vignettes, but can be turned on or off in knitr vignettes.
+
+- Remove HTCC1062.faa.xz.
+
+- Remove the bold formatting for "A" in expr.property(); "A" is
+  italicized like most other uppercase letters.
+
+- Rename browse.refs() to thermo.refs(); remove URL browsing (except for
+  summary table).
+
+- New function pinfo() merges functionality of old iprotein() and
+  ip2aa(). Add `regexp` argument to control whether matches are made
+  using a regular expression.
+
+- Rename aa2eos() to protein.obigt().
+
+- Remove anim.plasma() and AA03.csv.
+
+- Remove stress() and stress.csv; move data from Tai et al., 2005 (used
+  in an example in ?read.expr) to TBD+05.csv.
+
+- Remove read.aa() - replaced by read.csv() with as.is=TRUE.
+
+- Remove grep.file().
+
+- Remove sideeffects.Rd (functions with side effects are now identified
+  with red color in anintro.Rmd).
+
 CHANGES IN CHNOSZ 1.0.8 (2016-05-28)
 ------------------------------------
 

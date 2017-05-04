@@ -22,8 +22,8 @@ mod.buffer <- function(name,species=NULL,state=get("thermo")$opt$state,logact=-3
       if(state[1]=='') {
         thermo$buffers <- thermo$buffers[-imod,]
         assign("thermo", thermo, "CHNOSZ")
-        msgout(paste('mod.buffer: removed ',c2s(species),' in ',
-          c2s(unique(name)),' buffer.\n',sep=''))
+        message(paste('mod.buffer: removed ',c2s(species),' in ',
+          c2s(unique(name)),' buffer',sep=''))
       } else {
         if(missing(state)) state <- thermo$buffers$state[imod]
         if(missing(logact)) logact <- thermo$buffers$logact[imod]
@@ -35,11 +35,11 @@ mod.buffer <- function(name,species=NULL,state=get("thermo")$opt$state,logact=-3
         thermo$buffers$logact[imod] <- logact
         assign("thermo", thermo, "CHNOSZ")
         if(identical(state.old,state) & identical(logact.old,logact)) {
-          msgout(paste('mod.buffer: nothing changed for ',
-            c2s(species),' in ',c2s(unique(name)),' buffer.\n',sep=''))
+          message(paste('mod.buffer: nothing changed for ',
+            c2s(species),' in ',c2s(unique(name)),' buffer',sep=''))
         } else {
-          msgout(paste('mod.buffer: changed state and/or logact of ',
-            c2s(species),' in ',c2s(unique(name)),' buffer.\n',sep=''))
+          message(paste('mod.buffer: changed state and/or logact of ',
+            c2s(species),' in ',c2s(unique(name)),' buffer',sep=''))
         }
       }
     } else {
@@ -51,10 +51,12 @@ mod.buffer <- function(name,species=NULL,state=get("thermo")$opt$state,logact=-3
     t <- data.frame(name=name,species=species,state=state,logact=logact)
     thermo$buffers <- rbind(thermo$buffers,t)
     assign("thermo", thermo, "CHNOSZ")
-    msgout(paste('mod.buffer: added ',c2s(unique(name)),'.\n',sep=''))
+    message(paste('mod.buffer: added',c2s(unique(name))))
   }
   return(invisible(thermo$buffers[thermo$buffers$name %in% name,]))
 }
+
+### unexported functions ###
 
 buffer <- function(logK=NULL,ibasis=NULL,logact.basis=NULL,is.buffer=NULL,balance='PBB') {
   thermo <- get("thermo")
@@ -163,7 +165,7 @@ buffer <- function(logK=NULL,ibasis=NULL,logact.basis=NULL,is.buffer=NULL,balanc
   if(is.null(newbasis)) context <- '' else context <- paste(', ',basisnames[newbasis],' (conserved)',sep='')
   reqtext <- paste(c2s(basisnames[ibasisrequested]),' (active)',sep='')
   if(length(ibasisadded)==0) addtext <- '' else addtext <- paste(', ',c2s(basisnames[ibasisadded]),sep='')
-  msgout(paste('buffer: ( ',bufname,' ) for activity of ',reqtext,addtext,context,'\n',sep=''))
+  message(paste('buffer: ( ',bufname,' ) for activity of ',reqtext,addtext,context,sep=''))
   #print(bufbasis)
   # there could still be stuff here (over-defined system?)
   xx <- bufbasis[,-ibasis,drop=FALSE]

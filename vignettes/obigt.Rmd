@@ -1,0 +1,269 @@
+---
+title: "Thermodynamic data in [CHNOSZ](http://www.chnosz.net)"
+output:
+# change to html_document for full version
+  html_document:
+    mathjax: null
+# uncomment the next two lines for full version
+    theme: cosmo
+    css: obigt.css
+vignette: >
+  %\VignetteIndexEntry{Thermodynamic data in CHNOSZ}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+bibliography: obigt.bib
+# so that these appear in the bibliography
+nocite: | 
+  @SPRONS92, @SLOP98, @SLOP07, @SLOP15, @CHNOSZ
+# 20170212: comment the csl line to build package on R-Forge, to avoid
+# getting an error there (pandoc-citeproc: error while parsing the XML string)
+csl: elementa.csl
+---
+
+<!-- The bare-bones version (small, for submission to CRAN) uses html_vignette. -->
+<!-- The full version (on chnosz.net) uses html_document; also uncomment the theme and css above,
+       the note under "Sources of data", and the "All at once" section below. -->
+
+```{r library_CHNOSZ, include=FALSE}
+library(CHNOSZ)
+```
+
+```{r data_thermo, include=FALSE}
+data(thermo)
+```
+
+```{r nspecies, include=FALSE}
+# assign the file name to a variable and print the file name and number of species
+setfile <- function(csvfile, dat=NULL) {
+  # assign csvfile outside this function
+  assign("csvfile", csvfile, parent.frame())
+  file <- system.file(paste0("extdata/OBIGT/", csvfile, ".xz"), package="CHNOSZ")
+  dat <- read.csv(file, as.is=TRUE)
+  # the class of substance, followed by number of species
+  class <- gsub("_.*", "", csvfile)
+  substr(class, 1, 1) <- toupper(substr(class, 1, 1))
+  paste0("`", class, "` (", nrow(dat), ")")
+}
+```
+
+```{r filerefs, include=FALSE}
+filerefs <- function(csvfile, dat=NULL, message=FALSE) {
+  # with dat, look for ref2 in dat
+  whichref <- "ref2"
+  # without dat, look for ref1 in csvfile
+  if(is.null(dat)) {
+    file <- system.file(paste0("extdata/OBIGT/", csvfile, ".xz"), package="CHNOSZ")
+    dat <- read.csv(file, as.is=TRUE)
+    whichref <- "ref1"
+  }
+  # count number of times each reference is used
+  tab <- table(dat[, whichref])
+  # there are no references in H2O_aq.csv so we return the species here
+  if(length(tab)==0) return(paste(dat$name, dat$state))
+  # the keys only (no [S92] etc.)
+  keys <- sapply(strsplit(names(tab), " "), "[", 1)
+  # warn if any keys aren't in thermo$ref$key
+  ikey <- match(keys, thermo$ref$key)
+  ina <- is.na(ikey)
+  if(any(ina)) cat(paste("**WARNING: key(s)", paste(names(tab)[ina], collapse=" "), "not found in `thermo$ref$key`**\n\n"))
+  # put the table in chronological order, according to thermo$ref
+  #ikey <- na.omit(match(thermo$ref$key, keys))
+  ikey <- order(match(keys, thermo$ref$key)) # works for duplicated keys (e.g. "Sho92" and "Sho92 [S98]")
+  tab <- tab[ikey]
+  keys <- keys[ikey]
+  xxx <- lapply(seq_along(tab), function(i){
+    thiskey <- keys[i]
+    # read thermo$ref$note
+    iref <- match(thiskey, thermo$ref$key)
+    note <- thermo$ref$note[iref]
+    if(!identical(note, "")) note <- paste0(" *", note, "* ")
+    # append symbol for [S92], [S98], or [S15]
+    if(grepl("[S92]", names(tab)[i], fixed=TRUE) | grepl("SPRONS92", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(ø)")
+    if(grepl("[S98]", names(tab)[i], fixed=TRUE) | grepl("SLOP98", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(\\*)")
+    if(grepl("[S07]", names(tab)[i], fixed=TRUE) | grepl("SLOP07", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(†)")
+    if(grepl("[S15]", names(tab)[i], fixed=TRUE) | grepl("SLOP15", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(‡)")
+    # use bullets for ref2
+    if(whichref=="ref2") bullet <- "- " else bullet <- ""
+    # convert key (e.g. LD12.2) to ref in OBIGT.bib (e.g. LD12)
+    thisref <- gsub("\\..*$", "", thiskey)
+    # replace SLOP98 with slop98.dat, etc.
+    # (we don't actually cite them here to keep the year from showing -- it's annoying to see e.g. "slop98.dat (1998)")
+    citemark <- "@"
+    if(thisref=="SLOP15") { thisref <- "slop15.dat"; citemark <- "" }
+    if(thisref=="SLOP07") { thisref <- "slop07.dat"; citemark <- "" }
+    if(thisref=="SLOP98") { thisref <- "slop98.dat"; citemark <- "" }
+    if(thisref=="SPRONS92") { thisref <- "sprons92.dat"; citemark <- "" }
+    if(thisref=="CHNOSZ") { citemark <- "" }
+    cat(bullet, citemark, thisref, " -- ", tab[i], note, "\n\n", sep="")
+    # get ref2 if we're in the outer list
+    if(whichref!="ref2") filerefs(dat=dat[dat$ref1==names(tab)[i], ])
+  })
+  # return all the species listed
+  paste(dat$name, dat$state)
+}
+```
+
+This [vignette](index.html), produced on `r Sys.Date()`, documents the sources of thermodynamic data in CHNOSZ version `r sessionInfo()$otherPkgs$CHNOSZ$Version`.
+
+The sections below correspond to CSV data files read by `data(thermo)`.
+In each section, the primary references (`ref1` in `thermo$obigt`) are listed in chronological order.
+Any secondary references (`ref2`) are listed with bullet points.
+Each reference is followed by the number of species, and a note (from `thermo$refs`).
+Symbols show whether the data were present in the earliest of the sprons92.dat (ø), slop98.dat (\*), slop07.dat (†), or slop15.dat (‡) datafiles for the SUPCRT92 package.
+
+Any additional comments are placed at the beginning of the sections.
+Abbreviations used below are: Cp (heat capacity), GHS (standard Gibbs energy, enthalpy, entropy), HKF (Helgeson-Kirkham-Flowers equations), V (volume).
+
+# Sources of data {.tabset .tabset-fade}
+
+<!-- uncomment for full version -->
+Use the tabs below to select a section for viewing.
+Select "All at once" to show all sections.
+
+## Aqueous species {.tabset .tabset-pills}
+
+### `r setfile("H2O_aq.csv")`
+```{r H2O_aq, results="asis", echo=FALSE}
+cat('This file contains H<sub>2</sub>O, *e*<sup>-</sup>, and H<sup>+</sup>. The properties of H<sub>2</sub>O are listed as NA; CHNOSZ calculates its properties using a Fortran subroutine taken from SUPRCT92 [@JOH92]. The properties of the proton (H<sup>+</sup>) are 0. The properties of the electron (*e*<sup>-</sup>) are 0, except for *S*°, which is the opposite of *S*° for the "element" of charge, Z (see `?thermo`).\n')
+```
+```{r used, include=FALSE}
+# initialize the list of used species
+used <- character()
+```
+```{r reflist, results="asis", echo=FALSE}
+used <- c(used, filerefs(csvfile))
+```
+
+### `r setfile("inorganic_aq.csv")`
+```{r inorganic_aq, results="asis", echo=FALSE}
+cat("Note: ZnCl4-2 was present in sprons92.dat but not in slop98.dat or later files, and is not included in CHNOSZ.")
+```
+
+```{r reflist, results="asis", echo=FALSE}
+```
+
+### `r setfile("organic_aq.csv")`
+```{r reflist, results="asis", echo=FALSE}
+```
+
+### `r setfile("biotic_aq.csv")`
+```{r reflist, results="asis", echo=FALSE}
+```
+
+### `r setfile("CHNOSZ_aq.csv")`
+```{r CHNOSZ_aq, results="asis", echo=FALSE}
+cat("The primary aqueous silica species in CHNSOZ is SiO<sub>2</sub> [@SHS89]. The pseudospecies H<sub>4</sub>SiO<sub>4</sub> is used to make activity diagrams with *a*<sub>H<sub>4</sub>SiO<sub>4</sub></sub> as a variable. The GHS and HKF parameters for this pseudospecies were calculated using CHNOSZ; see the vignette [*Regressing thermodynamic data*](eos-regress.html) for more information.")
+```
+
+```{r reflist, results="asis", echo=FALSE}
+```
+
+## Solids {.tabset .tabset-pills}
+
+### `r setfile("inorganic_cr.csv")`
+```{r inorganic_cr, results="asis", echo=FALSE}
+cat("Note: chamosite,7A and witherite were present in sprons92.dat but not in slop98.dat or later files, and are not included in CHNOSZ.\n\n")
+cat("Note: parameters used here for goethite differ slightly from those listed in the slop files [@Sho09].")
+```
+
+```{r reflist, results="asis", echo=FALSE}
+```
+
+### `r setfile("organic_cr.csv")`
+```{r reflist, results="asis", echo=FALSE}
+```
+
+## Liquids {.tabset .tabset-pills}
+
+### `r setfile("organic_liq.csv")`
+```{r reflist, results="asis", echo=FALSE}
+```
+
+## Gases {.tabset .tabset-pills}
+
+### `r setfile("inorganic_gas.csv")`
+```{r reflist, results="asis", echo=FALSE}
+```
+
+### `r setfile("organic_gas.csv")`
+```{r reflist, results="asis", echo=FALSE}
+```
+
+
+<!-- uncomment for full version -->
+
+## All at once
+
+### Aqueous species
+
+#### `r setfile("H2O_aq.csv")`
+```{r H2O_aq, results="asis", echo=FALSE}
+```
+```{r used2, include=FALSE}
+# initialize the list of used species
+used2 <- character()
+```
+```{r reflist2, results="asis", echo=FALSE}
+used2 <- c(used2, filerefs(csvfile))
+```
+
+#### `r setfile("inorganic_aq.csv")`
+```{r inorganic_aq, results="asis", echo=FALSE}
+```
+
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+#### `r setfile("organic_aq.csv")`
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+#### `r setfile("biotic_aq.csv")`
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+#### `r setfile("CHNOSZ_aq.csv")`
+```{r CHNOSZ_aq, results="asis", echo=FALSE}
+```
+
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+### Solids
+
+#### `r setfile("inorganic_cr.csv")`
+```{r inorganic_cr, results="asis", echo=FALSE}
+```
+
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+#### `r setfile("organic_cr.csv")`
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+### Liquids
+
+#### `r setfile("organic_liq.csv")`
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+### Gases
+
+#### `r setfile("inorganic_gas.csv")`
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+#### `r setfile("organic_gas.csv")`
+```{r reflist2, results="asis", echo=FALSE}
+```
+
+```{r check_used_used2, results="asis", echo=FALSE}
+if(length(used) != length(used2)) cat(paste0("**WARNING: Tabbed list has ", length(used), " species but 'All at once list' has ", length(used2),".**\n\n"))
+```
+
+# Total count of species
+
+`r length(used)` of `r nrow(thermo$obigt)` entries in `thermo$obigt` are documented here.
+
+# References

@@ -1,15 +1,20 @@
 sources         cross-check the reference list with the thermodynamic database
+protein.equil   chemical activities of two proteins in metastable equilibrium
+affinity        affinities of metabolic reactions and amino acid synthesis
 NaCl            equilibrium constant for aqueous NaCl dissociation
 density         density of H2O, inverted from IAPWS-95 equations
-nucleobase      relative stabilities of nucleobases and some amino acids
-ORP             oxidation-reduction potential of redox standards as a function of temperature
-revisit         detailed example of usage of revisit()
-findit          detailed example of usage of findit()
+ORP             temperature dependence of oxidation-reduction potential for redox standards
+revisit         coefficient of variation of metastable equilibrium activities of proteins
+findit          minimize the standard deviation of logarithms of activities of sulfur species
 ionize          ionize.aa(): contour plots of net charge and ionization properties of LYSC_CHICK
-buffer          ionized proteins as a chemical activity buffer (1. thiol peroxidases 2. sigma factors)
-yeastgfp        logfO2-logaH2O diagrams for model proteins based on YeastGFP localizations
+buffer          minerals and aqueous species as buffers of hydrogen fugacity
+protbuff        chemical activities buffered by thiol peroxidases or sigma factors
+yeastgfp        subcellular locations: log fO2 - log aH2O and log a - log fO2 diagrams
 mosaic          Eh-pH diagram for iron oxides, sulfides and carbonate with two sets of changing basis species
 copper          another example of mosaic(): complexation of copper with glycine species
 solubility      solubility of calcite or CO2(gas) as a function of pH
-wjd             run.wjd() with proteins: cell periphery of yeast
+wjd             Gibbs energy minimization: prebiological atmospheres and cell periphery of yeast
 dehydration     log K of dehydration reactions; SVG file contains tooltips and links
+bugstab         formation potential of microbial proteins in colorectal cancer
+Shh             affinities of transcription factors relative to Sonic hedgehog
+activity_ratios mineral stability plots with activity ratios on the axes

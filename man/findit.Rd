@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{findit}
 \alias{findit}
 \alias{plot_findit}
@@ -60,18 +61,19 @@ Detailed studies of a system might have to use more iterations and/or higher res
     7 \tab 12 \tab 4 \tab 16384 \tab 0.95 \cr
   }
 
-  The function performs \code{niter} iterations. At first, the limits of the parameters given in \code{lims} define the extent of a \eqn{nd}-dimensional box around the space of interest. The value of \code{objective} is calculated at each of the \eqn{res^{nd}}{res^nd} grid points and and optimum value located (see \code{\link{revisit}} and \code{\link{optimal.index}}). In the next iteration the new search box is centered on the location of the optimum value, and the edges are shrunk so their length is \code{rat} * the length in the previous step. If the limits of any of the parameters extend beyond those in \code{lims}, they are pushed in to fit (preserving the difference between them).
+The function performs \code{niter} iterations.
+At first, the limits of the parameters given in \code{lims} define the extent of a \eqn{nd}-dimensional box around the space of interest.
+The value of \code{objective} is calculated at each of the \eqn{res^{nd}}{res^nd} grid points and and optimum value located (see \code{\link{revisit}}).
+In the next iteration the new search box is centered on the location of the optimum value, and the edges are shrunk so their length is \code{rat} * the length in the previous step.
+If the limits of any of the parameters extend beyond those in \code{lims}, they are pushed in to fit (preserving the difference between them).
 
-  \code{plot_findit} plots the values of the parameters and the objective function as a function of the number of iterations.
-
+\code{plot_findit} plots the values of the parameters and the objective function as a function of the number of iterations.
 }
 
 \value{
-  \code{findit} returns a list having class \code{findit} with elements \code{value} (values of the parameters, and value of the objective function, at each iteration), \code{lolim} (lower limits of the parameters) and \code{hilim} (upper limits of the parameters).
+\code{findit} returns a list having class \code{findit} with elements \code{value} (values of the parameters, and value of the objective function, at each iteration), \code{lolim} (lower limits of the parameters) and \code{hilim} (upper limits of the parameters).
 }
 
-\seealso{
-  The calculations can take a long time, so examples are not shown here. Instead, see \code{demo("findit")} and \code{tests/test-findit.R} for examples.
-}
+\seealso{ \code{demo("findit")} and \code{test-findit.R} for examples. }
 
 \concept{Secondary thermodynamic modeling}

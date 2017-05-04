@@ -9,8 +9,6 @@ test_that("unbalanced reactions give a warning", {
 
 test_that("unbalanced reactions are balanced given sufficient basis species", {
   basis("CHNOS")
-  # since it doesn't alter the species indices of the basis species, this can come second ...
-  add.obigt()
   s <- subcrt(c("malic acid", "citric acid"), c(-1, 1))
   expect_equal(s$reaction$coeff, c(-1, 1, -2, -1, 1.5))
   expect_equal(s$reaction$name, c("malic acid", "citric acid", "CO2", "water", "oxygen"))
@@ -56,10 +54,10 @@ test_that("standard Gibbs energies of reactions involving aqueous species are co
   # 5S2O3-2 + H2O(l) + 4O2(aq) = 6SO4-2 + 2H+ + 4S(s)
   s.C7 <- subcrt(c("S2O3-2", "H2O", "O2", "SO4-2", "H+", "S"), c("aq", "liq", "aq", "aq", "aq", "cr"), c(-5, -1, -4, 6, 2, 4), T=T)
   sout.C7 <- s.C7$out
-  # from Amend and Shock, 2001 Table 8.3 Reaction E12
-  DG0.E12 <- c(132.52, 132.26, 132.29, 132.49, 132.74, 133.15, 133.98, 135.04, 136.31, 137.79, 141.97, 149.53)
-  # 4(2-)propanol(aq) + 3CO2(aq) + 2H2O(l) = 3CH4(aq) + 4lactic acid(aq)
-  sout.E12 <- subcrt(c("2-propanol", "CO2", "H2O", "CH4", "lactic acid"), c(-4, -3, -2, 3, 4), T=T)$out
+  ## from Amend and Shock, 2001 Table 8.3 Reaction E12
+  #DG0.E12 <- c(132.52, 132.26, 132.29, 132.49, 132.74, 133.15, 133.98, 135.04, 136.31, 137.79, 141.97, 149.53)
+  ## 4(2-)propanol(aq) + 3CO2(aq) + 2H2O(l) = 3CH4(aq) + 4lactic acid(aq)
+  #sout.E12 <- subcrt(c("2-propanol", "CO2", "H2O", "CH4", "lactic acid"), c(-4, -3, -2, 3, 4), T=T)$out
   # now the tests, tolerances set to lowest order of magnitute to pass
   expect_equal(sout.H2O$G/1000, DG0.H2O, tolerance=1e-4)
   expect_equal(sout.A1$G/1000, DG0.A1, tolerance=1e-4)
@@ -100,7 +98,7 @@ test_that("calculations using IAPWS-95 are possible", {
 
 # Amend, J. P. and Shock, E. L. (2001) 
 #   Energetics of overall metabolic reactions of thermophilic and hyperthermophilic Archaea and Bacteria. 
-#   FEMS Microbiol. Rev. 25, 175--243. http://dx.doi.org/10.1016/S0168-6445(00)00062-0
+#   FEMS Microbiol. Rev. 25, 175--243. https://doi.org/10.1016/S0168-6445(00)00062-0
 
 # Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) 
 #   Summary and critique of the thermodynamic properties of rock-forming minerals. 

@@ -48,9 +48,10 @@ test_that("'groups' and 'alpha' work as expected", {
   e <- equilibrate(a)
   # group the species together
   d <- diagram(e, groups=list(1:2, 3:4), plot.it=FALSE)
-  # we should find that their activities have been summed
-  expect_equal(d$plotvals[[1]], log10(10^e$loga.equil[[1]] + 10^e$loga.equil[[2]]))
-  expect_equal(d$plotvals[[2]], log10(10^e$loga.equil[[3]] + 10^e$loga.equil[[4]]))
+  # we should find that their activities have been multiplied by the balance coefficients and summed
+  n.balance <- balance(a)
+  expect_equal(d$plotvals[[1]], log10(n.balance[1]*10^e$loga.equil[[1]] + n.balance[2]*10^e$loga.equil[[2]]))
+  expect_equal(d$plotvals[[2]], log10(n.balance[3]*10^e$loga.equil[[3]] + n.balance[4]*10^e$loga.equil[[4]]))
   # ask for degrees of formation instead of logarithms of activities
   d <- diagram(e, alpha=TRUE, plot.it=FALSE)
   # we should find that the sum of alphas is one
@@ -83,4 +84,17 @@ test_that("diagram() handles 2D plots with different x and y resolution and warn
   # TODO: fix plot.line() function in diagram() so that the plot can be made
   #expect_equal(diagram(a), diagram(a, plot.it=FALSE))
   expect_warning(diagram(a, what="CO2", plot.it=FALSE), "showing only first species in 2-D property diagram")
+})
+
+test_that("NaN values from equilibrate() are preserved (as NA in predominance calculation)", {
+  # example provided by Grayson Boyer 20170411
+  basis(c("H2", "O2", "CO2"), c(-7.19, -60, -2.65))
+  species(c("n-hexadecanol", "n-hexadecanoic acid", "n-octadecanol", "n-octadecanoic acid"), c("liq", "liq", "liq", "liq"))
+  a <- affinity("H2" = c(-12, 0), "O2" = c(-90, -50), T=30)
+  e <- equilibrate(a, balance = 1)
+  d <- diagram(e, plot.it = FALSE)
+  # equilibrate() here with default "boltzmann" method produces
+  # NaN at very high O2 + low H2 or very low O2 + high H2 
+  expect_equal(d$predominant[1, 128], as.numeric(NA))
+  expect_equal(d$predominant[128, 1], as.numeric(NA))
 })

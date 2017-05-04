@@ -7,9 +7,6 @@ anim.TCA <- function(redox=list(O2=c(-95,-60)),high.T=FALSE,
   # we depend on an empty png directory
   if(!"png" %in% dir()) stop("directory 'png' not present")
   else if(length(dir("png")) > 0) stop("directory 'png' not empty")
-  # add supplementary data (from default location of data/OBIGT-2.csv)
-  # which includes properties for the metabolites
-  add.obigt()
   # expand default logfO2 range if we're at high temperature
   if(high.T & missing(redox)) redox <- list(O2=c(-100,-40))
   # the name of 'redox' should be either O2 or H2
@@ -75,67 +72,6 @@ anim.TCA <- function(redox=list(O2=c(-95,-60)),high.T=FALSE,
   else {
     cat("anim.TCA: error converting to animated GIF\n")
     cat("anim.TCA: check that 'convert' tool from ImageMagick is in your PATH\n")
-  }
-}
-
-anim.plasma <- function(width=480, height=480) {
-  ## animate relative metastabilities of plasma proteins,
-  ## as a function of chemical activities of H2 and O2
-  ## start with 71 proteins; one protein is removed in 
-  ## each successive frame
-  ## 20110804 jmd
-  # make sure we have an empty png directory
-  if(!"png" %in% dir()) stop("directory 'png' not present")
-  else if(length(dir("png")) > 0) stop("directory 'png' not empty")
-  # get list of proteins
-  f <- system.file("extdata/abundance/AA03.csv", package="CHNOSZ")
-  pdata <- read.csv(f, as.is=TRUE)
-  notna <- !is.na(pdata$name)
-  pname <- pdata$name[notna]
-  # set up the system; use O2 aq instead of gas
-  basis(c("CO2","NH3","H2S","H2","O2","H+"))
-  basis("O2","aq")
-  basis(c("CO2","NH3","H2S","H+"),c(-3,-3,-10,-7))
-  species(pname,"HUMAN")
-  a <- affinity(H2=c(-20,0), O2=c(-80,-60))
-  # start with all species
-  ispecies <- 1:length(pname)
-  # open plot file
-  png("png/plasma%03d.png",width=width, height=height)
-  # numbers of proteins for each frame
-  np <- length(pname):2
-  # add some lead-in and lead-out frames
-  np <- c(rep(head(np,1),8),np,rep(tail(np,1),8))
-  # now loop until we get to two proteins
-  for(i in 1:length(np)) {
-    d <- diagram(a, groups=as.list(ispecies), names=pname[ispecies], normalize=TRUE, cex=1.5)
-    # note that the darker colors go with higher abundances
-    # as reported by Anderson and Anderson, 2003
-    # how many show up on the diagram?
-    nshow <- length(unique(as.numeric(d$predominant)))
-    title(main=paste(np[i]," human plasma proteins (",nshow,
-      " showing)",sep=""),cex.main=1)
-    if(c(0,diff(np))[i] != 0) {
-      # identify the protein with the greatest
-      # area on the diagram
-      imost <- which.max(tabulate(as.numeric(d$predominant)))
-      # take out that proteins
-      ispecies <- ispecies[-imost]
-    }
-  }
-  # close PNG plot device
-  dev.off()
-  # make animated GIF using ImageMagick
-  cat("anim.plasma: converting to animated GIF...\n")
-  outfile <- "plasma.gif"
-  syscmd <- paste("convert -loop 0 -delay 25 png/*.png png/", outfile, sep = "")
-  cat(paste(syscmd,"\n"))
-  if(.Platform$OS.type=="unix") sres <- system(syscmd)
-  else sres <- shell(syscmd)
-  if(sres==0) cat(paste("anim.plasma: animation is at png/",outfile,"\n",sep=""))
-  else {
-    cat("anim.plasma: error converting to animated GIF\n")
-    cat("anim.plasma: check that 'convert' tool from ImageMagick is in your PATH\n")
   }
 }
 
@@ -264,5 +200,3 @@ anim.carboxylase <- function(T=25:125,ntop=5,lcex=0.8,width=420,height=320) {
     }
   }
 }
-
-

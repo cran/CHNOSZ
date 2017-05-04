@@ -1,6 +1,22 @@
 # CHNOSZ/util-affinity.R
 # helper functions for affinity()
 
+slice.affinity <- function(affinity,d=1,i=1) {
+  # take a slice of affinity along one dimension
+  a <- affinity
+  for(j in 1:length(a$values)) {
+    # preserve the dimensions (especially: names(mydim))
+    # - fix for change in behavior of aperm in R-devel 2015-11-17
+    mydim <- dim(a$values[[j]])
+    a$values[[j]] <- as.array(slice(a$values[[j]],d=d,i=i))
+    # the dimension from which we take the slice vanishes
+    dim(a$values[[j]]) <- mydim[-d]
+  }
+  return(a)
+}
+
+### unexported functions ###
+
 energy <- function(what,vars,vals,lims,T=get("thermo")$opt$Tr,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,transect=FALSE) {
   # 20090329 extracted from affinity() and made to
   # deal with >2 dimensions (variables)
@@ -162,7 +178,7 @@ energy <- function(what,vars,vals,lims,T=get("thermo")$opt$Tr,P="Psat",IS=0,sout
       isprotein <- grepl("_", myspecies$name)
       if(any(isprotein)) {
         # the rownumbers in thermo$protein
-        ip <- iprotein(myspecies$name[isprotein])
+        ip <- pinfo(myspecies$name[isprotein])
         # get the affinity of ionization
         iHplus <- match("H+", rownames(mybasis))
         # as.numeric is needed in case the logact column is character mode
@@ -248,12 +264,12 @@ energy.args <- function(args) {
   }
   # report non-variables to user
   if(!T.is.var)
-    msgout('energy.args: temperature is ',outvert(T,'K'),' ',T.units(),'\n')
+    message('energy.args: temperature is ',outvert(T,'K'),' ',T.units())
   if(!P.is.var) {
-    if(identical(P,"Psat")) msgout("energy.args: pressure is Psat\n")
-    else msgout('energy.args: pressure is ',outvert(P,'bar'),' ',P.units(),'\n')
+    if(identical(P,"Psat")) message("energy.args: pressure is Psat")
+    else message('energy.args: pressure is ',outvert(P,'bar'),' ',P.units())
   }
-  if(!IS.is.var & !identical(IS,0)) msgout('energy.args: ionic strength is ',IS,'\n')
+  if(!IS.is.var & !identical(IS,0)) message('energy.args: ionic strength is ',IS)
   # default values for resolution
   res <- 128
   # where we store the output
@@ -283,12 +299,12 @@ energy.args <- function(args) {
         if(transect) args[[i]] <- -args[[i]]
         else args[[i]][1:2] <- -args[[i]][1:2]
         if(!'H+' %in% rownames(thermo$basis)) 
-          msgout('energy.args: pH requested, but no H+ in the basis\n')
+          message('energy.args: pH requested, but no H+ in the basis')
       } 
       if(names(args)[i]=="pe") {
         names(args)[i] <- "e-"
         if(!'e-' %in% rownames(thermo$basis)) 
-          msgout('energy.args: pe requested, but no e- in the basis\n')
+          message('energy.args: pe requested, but no e- in the basis')
         if(transect) args[[i]] <- -args[[i]]
         else args[[i]][1:2] <- -args[[i]][1:2]
       }
@@ -316,8 +332,8 @@ energy.args <- function(args) {
       if(nametxt=="T") unittxt <- " K"
       if(nametxt=="P") unittxt <- " bar"
       if(nametxt=="Eh") unittxt <- " V"
-      msgout("energy.args: variable ", length(vars), " is ", nametxt, 
-        " at ", n, " values from ", lims.orig[1], " to ", lims.orig[2], unittxt, "\n")
+      message("energy.args: variable ", length(vars), " is ", nametxt, 
+        " at ", n, " values from ", lims.orig[1], " to ", lims.orig[2], unittxt)
     }
   }
   args <- list(what=what,vars=vars,vals=vals,lims=lims,T=T,P=P,IS=IS,transect=transect)
@@ -353,20 +369,6 @@ energy.args <- function(args) {
     args$vals[[Eh.var]] <- -pe
   }
   return(args)
-}
-
-slice.affinity <- function(affinity,d=1,i=1) {
-  # take a slice of affinity along one dimension
-  a <- affinity
-  for(j in 1:length(a$values)) {
-    # preserve the dimensions (especially: names(mydim))
-    # - fix for change in behavior of aperm in R-devel 2015-11-17
-    mydim <- dim(a$values[[j]])
-    a$values[[j]] <- as.array(slice(a$values[[j]],d=d,i=i))
-    # the dimension from which we take the slice vanishes
-    dim(a$values[[j]]) <- mydim[-d]
-  }
-  return(a)
 }
 
 A.ionization <- function(iprotein, vars, vals, T=get("thermo")$opt$Tr, P="Psat", pH=7, transect=FALSE) {
@@ -420,7 +422,7 @@ A.ionization <- function(iprotein, vars, vals, T=get("thermo")$opt$Tr, P="Psat",
   # initialize output list
   out <- vector("list", length(iprotein))
   # get aa from iprotein
-  aa <- ip2aa(iprotein)
+  aa <- pinfo(iprotein)
   # calculate the values of A/2.303RT as a function of T-P-pH
   A <- ionize.aa(aa=aa, property="A", T=TPpH$T, P=TPpH$P, pH=TPpH$pH)
   if(transect) {

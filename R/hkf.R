@@ -175,6 +175,8 @@ hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','
  return(x)
 }
 
+### unexported functions ###
+
 gfun <- function(rhohat, Tc, P, alpha, daldT, beta) {
   ## g and f functions for describing effective electrostatic radii of ions
   ## split from hkf() 20120123 jmd      

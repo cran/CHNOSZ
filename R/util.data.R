@@ -76,7 +76,7 @@ mod.obigt <- function(...) {
     ntotal <- nrow(thermo$obigt)
     ispecies[inew] <- (ntotal-length(inew)+1):ntotal
     # inform user
-    msgout(paste("mod.obigt: added ", newrows$name, "(", newrows$state, ")", sep="", collapse="\n"), "\n")
+    message(paste("mod.obigt: added ", newrows$name, "(", newrows$state, ")", sep="", collapse="\n"))
   }
   if(length(iold) > 0) {
     # loop over species
@@ -86,25 +86,20 @@ mod.obigt <- function(...) {
       state <- thermo$obigt$state[ispecies[iold[i]]]
       # tell user if they're the same, otherwise update the data entry
       if(isTRUE(all.equal(oldprop, args[iold[i], ], check.attributes=FALSE))) 
-        msgout("mod.obigt: no change for ", args$name[iold[i]], "(", state, ")\n")
+        message("mod.obigt: no change for ", args$name[iold[i]], "(", state, ")")
       else {
         thermo$obigt[ispecies[iold[i]], icol] <- args[iold[i], ]
         assign("thermo", thermo, "CHNOSZ")
-        msgout("mod.obigt: updated ", args$name[iold[i]], "(", state, ")\n")
+        message("mod.obigt: updated ", args$name[iold[i]], "(", state, ")")
       }
     }
   }
   return(ispecies)
 }
 
-add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHNOSZ"),
-  force=FALSE,E.units="cal") {
+add.obigt <- function(file, force=FALSE, E.units="cal") {
   # add/replace entries in thermo$obigt from values saved in a file
   # only replace if force==TRUE
-  if(missing(file)) {
-    # we use force=TRUE for the default data file
-    if(missing(force)) force <- TRUE
-  }
   thermo <- get("thermo")
   to1 <- thermo$obigt
   id1 <- paste(to1$name,to1$state)
@@ -156,26 +151,27 @@ add.obigt <- function(file=system.file("extdata/thermo/OBIGT-2.csv",package="CHN
   assign("thermo", thermo, "CHNOSZ")
   # message about file, if file argument is missing (default)
   if(missing(file)) {
-    msgout("add.obigt: using default file:\n") 
-    msgout(file, "\n")
+    message("add.obigt: using default file:") 
+    message(file)
   }
-  msgout("add.obigt: read ", length(does.exist), " rows; made ", 
-    nexist, " replacements, ", nrow(to2), " additions, units = ", E.units, "\n")
-  msgout("add.obigt: use data(thermo) to restore default database\n")
+  message("add.obigt: read ", length(does.exist), " rows; made ", 
+    nexist, " replacements, ", nrow(to2), " additions, units = ", E.units)
+  message("add.obigt: use data(thermo) to restore default database")
   return(invisible(inew))
 }
 
-browse.refs <- function(key=NULL) {
-  ## browse to web page associated with a given source
-  ## of thermodynamic data. first version: 20110615
+thermo.refs <- function(key=NULL) {
+  ## return references for thermodynamic data.
+  ## 20110615 browse.refs() first version
+  ## 20170212 thermo.refs() remove browsing (except for table of all sources)
   # 'key' can be
   # NULL: show a table of all sources in a browser
-  # character: open a web page for each listed source
+  # character: return data for each listed source key
   # numeric: open one or two web pages for each listed species
   # list: the output of subcrt()
   ## first retrieve the sources table
   thermo <- get("thermo")
-  x <- thermo$refs
+  x <- thermo$refs[order(thermo$refs$note), ]
   ## show a table in the browser if 'key' is NULL 
   if(is.null(key)) {
     # create the html links
@@ -185,62 +181,95 @@ browse.refs <- function(key=NULL) {
     x$citation[notlinked] <- cite[notlinked]
     # remove the last (URL) component
     #x$URL <- NULL
-    x <- x[1:4]
-    # count the times each source is listed in OBIGT.csv
-    ns1 <- sapply(x$key, function(x) length(which(thermo$obigt$ref1==x)) )
-    ns1.2 <- sapply(x$key, function(x) length(which(thermo$obigt$ref2==x)) )
-    ns1 <- ns1 + ns1.2
-    ns1[ns1==0] <- ""
-    # count the times each source is listed in OBIGT-2.csv
-    o2 <- read.csv(system.file("extdata/thermo/OBIGT-2.csv", package = "CHNOSZ"))
-    ns2 <- sapply(x$key, function(x) length(which(o2$ref1==x)) )
-    ns2.2 <- sapply(x$key, function(x) length(which(o2$ref2==x)) )
-    ns2 <- ns2 + ns2.2
-    ns2[ns2==0] <- ""
-    # count the times each source is listed in protein.csv
-    npr <- sapply(x$key, function(x) length(which(thermo$protein$ref==x)) )
-    npr[npr==0] <- ""
-    # count the times each source is listed in stress.csv
-    stressfile <- system.file("extdata/abundance/stress.csv", package="CHNOSZ")
-    stressdat <- read.csv(stressfile, check.names=FALSE, as.is=TRUE)
-    nst <- sapply(x$key, function(x) length(which(stressdat[2,]==x)) )
-    nst[nst==0] <- ""
+    x <- x[1:5]
+    # count the number of times each source is cited in thermo$obigt
+    # e.g. if key is "Kel60" we match "Kel60 [S92]" but not "Kel60.1 [S92]"
+    # http://stackoverflow.com/questions/6713310/how-to-specify-space-or-end-of-string-and-space-or-start-of-string
+    # we also have to escape keys with "+" signs
+    ns1 <- sapply(x$key, function(x) sum(grepl(gsub("+", "\\+", paste0(x, "($|\\s)"), fixed=TRUE), thermo$obigt$ref1)) )
+    ns2 <- sapply(x$key, function(x) sum(grepl(gsub("+", "\\+", paste0(x, "($|\\s)"), fixed=TRUE), thermo$obigt$ref2)) )
+    number <- ns1 + ns2
+    number[number==0] <- ""
+    # now that we're using the sortTable() from w3schools.com, numbers are sorted like text
+    # add leading zeros to make the numbers sortable 20170317
+    # (the zeros disappear somewhere in the rendering of the page)
+    number <- formatC(number, width = 3, format = "d", flag = "0")
     # append the counts to the table to be shown
-    x <- c(x,list(ns1=ns1,ns2=ns2,npr=npr,nst=nst))
+    x <- c(list(number=number), x)
     # title to display for web page
-    title <- "Sources of Thermodynamic Data in CHNOSZ"
+    title <- "References for thermodynamic data in CHNOSZ"
     ### the following is adapted from print.findFn in package 'sos'
     f0 <- tempfile()
     File <- paste(f0, ".html", sep="")
-    Dir <- dirname(File)
-    js <- system.file("extdata/js", "sorttable.js", package = "CHNOSZ")
-    file.copy(js, Dir)
+    #Dir <- dirname(File)
+    #js <- system.file("extdata/js", "sorttable.js", package = "CHNOSZ")
+    #file.copy(js, Dir)
     ## Sundar's original construction:
     con <- file(File, "wt")
     on.exit(close(con))
     .cat <- function(...)
       cat(..., "\n", sep = "", file = con, append = TRUE)
     ## start
-    cat("<html>", file = con)
+    cat('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                "http://www.w3.org/TR/html4/strict.dtd">\n', file = con)
+    .cat("<html>")
     .cat("<head>")
     .cat("<title>", title, "</title>")
-    .cat("<script src=sorttable.js type='text/javascript'></script>")
+    # sorttable.js is "Blocked for security reasons" in Gmail 20170317
+    #.cat("<script src=sorttable.js type='text/javascript'></script>")
+    # https://www.w3schools.com/howto/howto_js_sort_table.asp
+    .cat('<script type="text/javascript">
+	  function sortTable(n) {
+	    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+	    table = document.getElementById("thermorefs");
+	    switching = true;
+	    dir = "asc";
+	    while (switching) {
+	      switching = false;
+	      rows = table.getElementsByTagName("TR");
+	      for (i = 1; i < (rows.length - 1); i++) {
+		shouldSwitch = false;
+		x = rows[i].getElementsByTagName("TD")[n];
+		y = rows[i + 1].getElementsByTagName("TD")[n];
+		if (dir == "asc") {
+		  if (x.innerHTML > y.innerHTML) {
+		    shouldSwitch= true;
+		    break;
+		  }
+		} else if (dir == "desc") {
+		  if (x.innerHTML < y.innerHTML) {
+		    shouldSwitch= true;
+		    break;
+		  }
+		}
+	      }
+	      if (shouldSwitch) {
+		rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+		switching = true;
+		switchcount ++;
+	      } else {
+		if (switchcount == 0 && dir == "asc") {
+		  dir = "desc";
+		  switching = true;
+		}
+	      }
+	    }
+	  }
+</script>')
     .cat("</head>")
     ### boilerplate text
-    .cat("<h1>Listing of all entries in thermo$refs</h1>")
-    .cat("<h3>Click on hyperlinked references to open URL in new window</h3>")
-    .cat("<h3>Click on column headers to sort</h3>")
-    .cat("<h3>Columns 'n..' give number of times each reference appears in data tables:</h3>")
-    .cat("ns1: 'ref1' and 'ref2' in data/OBIGT.csv<br>")
-    .cat("ns2: 'ref1' and 'ref2' in extdata/thermo/OBIGT-2.csv<br>")
-    .cat("npr: 'ref' in data/protein.csv<br>")
-    .cat("nst: second row in data/stress.csv<br><p>")
+    .cat("<body>")
+    .cat('<h1>References for thermodynamic data in <a href="http://chnosz.net"><font color="red">CHNOSZ</font></a></h1>')
+    .cat("<h3>Click on a column header to sort, or on a citation to open the URL in new window.</h3>")
+    .cat("<h4>Column 'number' gives the number of times each reference appears in thermo$obigt.</h4>")
+    .cat('<p>See also the vignette <a href="http://chnosz.net/vignettes/obigt.html">Thermodynamic data in CHNOSZ</a>.</p>')
     ### start table and headers
-    .cat("<table class='sortable' border='1'>\n<thead>")
+    .cat("<table id='thermorefs' border='1'>")
     .cat("<tr>")
-    .cat(sprintf("  <th>%s</th>\n</tr>",
-                 paste(names(x), collapse = "</th>\n  <th>")))
-    .cat("</thead>\n<tbody>")
+    #.cat(sprintf("  <th>%s</th>\n</tr>",
+    #             paste(names(x), collapse = "</th>\n  <th>")))
+    for(i in 1:length(x)) .cat(sprintf('  <th onclick="sortTable(%s)">%s</th>', i-1, names(x)[i]))
+    .cat("</tr>")
     ### now preparing the body of the table
     paste.list <- c(lapply(x, as.character), sep = "</td>\n  <td>")
     tbody.list <- do.call("paste", paste.list)
@@ -248,70 +277,33 @@ browse.refs <- function(key=NULL) {
     tbody <- sub("<td><a", "<td class=link><a", tbody, useBytes = TRUE)
     .cat(tbody)
     ### finish it!
-    .cat("</tbody></table></body></html>")
+    .cat("</table></body></html>")
     ### end adaptation from print.findFn
     # show table in browser
     browseURL(File)
-    cat("browse.refs: table of references is shown in browser\n")
+    cat("thermo.refs: table of references is shown in browser\n")
   } else if(is.character(key)) {
-    # open the URL(s) of the given source(s)
-    for(i in seq_along(key)) {
-      ix <- match(key[i],x$key)
-      if(is.na(ix)) {
-        cat(paste("browse.refs: reference key",key[i],"not found\n"))
-        next
-      } 
-      URL <- x$URL[ix]
-      if(URL=="" | is.na(URL)) {
-        cat(paste("browse.refs: no URL available for reference key",key[i],"\n"))
-        next
-      }
-      cat(paste("browse.refs: opening URL for ",key[i]," (",x$author[ix],", ",x$year[ix],")\n",sep=""))
-      browseURL(x$URL[ix])
-    }
-    return(invisible(URL))
+    # return citation information for the given source(s)
+    # we omit the [S92] in "HDNB78 [S92]" etc.
+    key <- gsub("\ .*", "", key)
+    ix <- match(key, x$key)
+    ina <- is.na(ix)
+    if(any(is.na(ix))) message(paste("thermo.refs: reference key(s)",
+      paste(key[ina], collapse = ","), "not found"))
+    return(x[ix, ])
   } else if(is.numeric(key)) {
-    # open the URL(s) of sources associated with the indicated species
+    # get the source keys for the indicated species
     sinfo <- suppressMessages(info(key))
-    mysources <- unique(c(sinfo$ref1,sinfo$ref2))
+    mysources <- unique(c(sinfo$ref1, sinfo$ref2))
     mysources <- mysources[!is.na(mysources)]
-    return(browse.refs(mysources))
+    return(thermo.refs(mysources))
   } else if(is.list(key)) {
     if("species" %in% names(key)) ispecies <- key$species$ispecies
     else if("reaction" %in% names(key)) ispecies <- key$reaction$ispecies
     else stop("list does not appear to be a result from subcrt()")
     if(is.null(ispecies)) stop("list does not appear to be a result from subcrt()")
-    return(browse.refs(ispecies))
+    return(thermo.refs(ispecies))
   }
-}
-
-obigt2eos <- function(obigt,state,fixGHS=FALSE) {
-  # remove scaling factors from EOS parameters
-  # and apply column names depending on the EOS
-  if(identical(state, "aq")) {
-    obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(-1,2,0,4,0,4,5,0))
-    colnames(obigt)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
-  } else {
-    obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(0,-3,5,0,-5,0,0,0))
-    colnames(obigt)[13:20] <- c('a','b','c','d','e','f','lambda','T')
-  }
-  if(fixGHS) {
-    # fill in one of missing G, H, S
-    # for use esp. by subcrt because NA for one of G, H or S 
-    # will hamper calculations at high T
-    # which entries are missing just one
-    imiss <- which(rowSums(is.na(obigt[,8:10]))==1)
-    if(length(imiss) > 0) {
-      for(i in 1:length(imiss)) {
-        # calculate the missing value from the others
-        ii <- imiss[i]
-        GHS <- as.numeric(GHS(as.character(obigt$formula[ii]),G=obigt[ii,8],H=obigt[ii,9],S=obigt[ii,10]))
-        icol <- which(is.na(obigt[ii,8:10]))
-        obigt[ii,icol+7] <- GHS[icol]
-      }
-    }
-  }
-  return(obigt)
 }
 
 checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
@@ -363,8 +355,8 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
     if(!is.na(calcval)) {
       if(!is.na(refval)) {
         if(abs(diff) > tol) {
-          msgout(paste("checkEOS: ", prop, " of ", eos$name, " ", eos$state, " (", rownames(eos),
-            ") differs by ", round(diff,2), " ", units, " from tabulated value\n", sep=""))
+          message(paste("checkEOS: ", prop, " of ", eos$name, " ", eos$state, " (", rownames(eos),
+            ") differs by ", round(diff,2), " ", units, " from tabulated value", sep=""))
           return(calcval)
         }
       } else return(calcval)
@@ -383,7 +375,7 @@ checkGHS <- function(ghs, ret.diff=FALSE) {
   # get calculated value based on H and S
   ina <- is.na(ghs$formula)
   if(any(ina)) {
-    msgout("checkGHS: formula of ", ghs$name[ina], "(", ghs$state[ina], ") is NA\n")
+    message("checkGHS: formula of ", ghs$name[ina], "(", ghs$state[ina], ") is NA")
     Se <- NA
   } else Se <- entropy(as.character(ghs$formula))
   refval <- ghs[,8]
@@ -398,8 +390,8 @@ checkGHS <- function(ghs, ret.diff=FALSE) {
     if(!is.na(refval)) {
       diff <- calcval - refval
       if(abs(diff) > thermo$opt$G.tol) {
-        msgout(paste("checkGHS: G of ", ghs$name, " ", ghs$state, " (", rownames(ghs),
-          ") differs by ", round(diff), " cal mol-1 from tabulated value\n", sep=""))
+        message(paste("checkGHS: G of ", ghs$name, " ", ghs$state, " (", rownames(ghs),
+          ") differs by ", round(diff), " cal mol-1 from tabulated value", sep=""))
         return(calcval)
       }
     } else return(calcval)
@@ -417,12 +409,8 @@ check.obigt <- function() {
   # and among G, H, S values
   # 20110808 jmd replaces 'check=TRUE' argument of info()
   checkfun <- function(what) {
-    # looking at thermo$obigt or OBIGT-2.csv
+    # looking at thermo$obigt
     if(what=="OBIGT") to <- get("thermo")$obigt
-    else if(what=="OBIGT-2") {
-      file <- system.file("extdata/thermo/OBIGT-2.csv",package="CHNOSZ")
-      to <- read.csv(file,as.is=1:7)
-    }
     ntot <- nrow(to)
     # where to keep the results
     DCp <- DV <- DG <- rep(NA,ntot)
@@ -450,10 +438,8 @@ check.obigt <- function() {
     out <- data.frame(table=what,ispecies=1:ntot,name=to$name,state=to$state,DCp=DCp,DV=DV,DG=DG)
     return(out)
   }
-  # check both databases in CHNOSZ
-  out1 <- checkfun("OBIGT")
-  out2 <- checkfun("OBIGT-2")
-  out <- rbind(out1,out2)
+  # check OBIGT database in CHNOSZ
+  out <- checkfun("OBIGT")
   # set differences within a tolerance to NA
   out$DCp[abs(out$DCp) < 1] <- NA
   out$DV[abs(out$DV) < 1] <- NA
@@ -517,4 +503,41 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
     out <- rbind(out, cbind(thishead, thiseos))
   }
   return(out)
+}
+
+### unexported functions ###
+
+# Take a data frame in the format of thermo$obigt of one or more rows,
+#   remove scaling factors from equations-of-state parameters,
+#   and apply new column names depending on the state.
+# If fixGHS is TRUE a missing one of G, H or S for any species is calculated
+#   from the other two and the chemical formula of the species.
+# This function is used by both info and subcrt when retrieving entries from the thermodynamic database.
+obigt2eos <- function(obigt,state,fixGHS=FALSE) {
+  # remove scaling factors from EOS parameters
+  # and apply column names depending on the EOS
+  if(identical(state, "aq")) {
+    obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(-1,2,0,4,0,4,5,0))
+    colnames(obigt)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
+  } else {
+    obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(0,-3,5,0,-5,0,0,0))
+    colnames(obigt)[13:20] <- c('a','b','c','d','e','f','lambda','T')
+  }
+  if(fixGHS) {
+    # fill in one of missing G, H, S
+    # for use esp. by subcrt because NA for one of G, H or S 
+    # will hamper calculations at high T
+    # which entries are missing just one
+    imiss <- which(rowSums(is.na(obigt[,8:10]))==1)
+    if(length(imiss) > 0) {
+      for(i in 1:length(imiss)) {
+        # calculate the missing value from the others
+        ii <- imiss[i]
+        GHS <- as.numeric(GHS(as.character(obigt$formula[ii]),G=obigt[ii,8],H=obigt[ii,9],S=obigt[ii,10]))
+        icol <- which(is.na(obigt[ii,8:10]))
+        obigt[ii,icol+7] <- GHS[icol]
+      }
+    }
+  }
+  return(obigt)
 }

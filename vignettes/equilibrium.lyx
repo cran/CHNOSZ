@@ -1,14 +1,16 @@
-#LyX 2.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 474
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \begin_preamble
 %\VignetteIndexEntry{Equilibrium in CHNOSZ}
 %\VignetteEngine{knitr::knitr}
 
 % so DOIs in bibliography show up as hyperlinks
-\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 \end_preamble
 \options round
 \use_default_options true
@@ -20,16 +22,16 @@ knitr
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman palatino
-\font_sans lmss
-\font_typewriter lmtt
-\font_math auto
+\font_roman "palatino" "default"
+\font_sans "lmss" "default"
+\font_typewriter "lmtt" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -557,6 +559,10 @@ as.residue = TRUE
 
 \begin_layout Enumerate
 Maximum affinity method, balance = 1
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -593,6 +599,10 @@ Algorithm:
 \end_deeper
 \begin_layout Enumerate
 Equilibration method, balance = 1
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -637,6 +647,10 @@ Maximum affinity method, balance
 \end_inset
 
  1
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -673,6 +687,10 @@ Equilibration method, balance
 \end_inset
 
  1
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -705,6 +723,10 @@ Algorithm: Reaction matrix
 \end_deeper
 \begin_layout Enumerate
 Maximum affinity method, normalize = TRUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -737,6 +759,10 @@ Algorithm:
 \end_deeper
 \begin_layout Enumerate
 Equilibration method, normalize = TRUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -900,7 +926,7 @@ aaB <- function() {
 
 \begin_layout Plain Layout
 
-  a <- affinity(O2=c(-90, -70, res), H2O=c(-20, 10, res))
+  a <- affinity(O2=c(-90, -70, 80), H2O=c(-20, 10, 80))
 \end_layout
 
 \begin_layout Plain Layout
@@ -953,7 +979,7 @@ aaD <- function() {
 
 \begin_layout Plain Layout
 
-  a <- affinity(O2=c(-71, -66), H2O=c(-8, 4))
+  a <- affinity(O2=c(-71, -66, 80), H2O=c(-8, 4, 80))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1659,6 +1685,10 @@ D
 \color inherit
  are all equal activity diagrams, but have different constraints on the
  activities:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1788,7 +1818,7 @@ prA <- function() {
 
 \begin_layout Plain Layout
 
-  a <- affinity(O2=c(-90, -70, res), H2O=c(-20, 0, res))
+  a <- affinity(O2=c(-90, -70, 80), H2O=c(-20, 0, 80))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1827,7 +1857,7 @@ prB <- function() {
 
 \begin_layout Plain Layout
 
-  diagram(e, names=organisms, ylim=c(-5, -1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-5, -1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1885,7 +1915,7 @@ prD <- function() {
 
 \begin_layout Plain Layout
 
-  diagram(e, names=organisms, ylim=c(-5, -1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-5, -1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1943,7 +1973,7 @@ prF <- function() {
 
 \begin_layout Plain Layout
 
-  diagram(e, names=organisms, ylim=c(-3, 1), legend.x=NA)
+  diagram(e, names=organisms, ylim=c(-3, 1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -2581,7 +2611,7 @@ Next is an example of using
 unequal activities
 \emph default
  of species (mineral activity = 1; variable aqueous species activity indicated
- by the contours (logarithm of activity)) to plot aqueous species -- mineral
+ by the contours (logarithm of activity)) to plot aqueous species – mineral
  stability boundaries (balance = 1, after Figure 14 of 
 \begin_inset CommandInset citation
 LatexCommand citealp
@@ -2733,7 +2763,7 @@ status open
 
 \begin_layout Plain Layout
 
-<<glutathione, results="hide", message=FALSE, fig.width=5, fig.height=3.5>>=
+<<glutathione, results="hide", message=FALSE, fig.width=5, fig.height=4>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -2826,73 +2856,6 @@ legend("topleft", lty=1:3, legend=paste(mM, "mM GSH"))
 \end_inset
 
 
-\end_layout
-
-\begin_layout Itemize
-Protein examples (with 
-\family typewriter
-normalize = TRUE
-\family default
-): 
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-See 
-\begin_inset Quotes eld
-\end_inset
-
-Subcellular proteins
-\begin_inset Quotes erd
-\end_inset
-
- in the vignette 
-\emph on
-An introduction to CHNOSZ
-\emph default
-, 
-\begin_inset Quotes eld
-\end_inset
-
-speciation diagram for ER.to.Golgi proteins
-\begin_inset Quotes erd
-\end_inset
-
- in 
-\family typewriter
-?read.expr
-\family default
-, and 
-\family typewriter
-demo("yeastgfp")
-\family default
-, after 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "Dic09"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Itemize
-Also see the vignette 
-\emph on
-Hot-spring proteins in CHNOSZ
-\emph default
-.
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-For systems of many proteins, equilibrium diagrams such as this can become
- very cluttered, and it may be desirable to use summary statistics to identify
- trends in the activities or affinities (see 
-\family typewriter
-revisit()
-\family default
-).
 \end_layout
 
 \begin_layout Subsection
@@ -3132,14 +3095,14 @@ th species.
 For the CSG examples below, we would like to reproduce exactly the values
  appearing in publications.
  Because recent versions of CHNOSZ incorporate data updates for the methionine
- sidechain group, we should therefore revert to the previous values before
- proceeding.
- The 
-\family typewriter
-add.obigt()
-\family default
- function does just that, as well as adds other species from the supplemental
- database provided with CHNOSZ:
+ sidechain group, we should therefore revert to the previous values 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "DLH06"
+
+\end_inset
+
+ before proceeding.
 \end_layout
 
 \begin_layout Standard
@@ -3158,7 +3121,7 @@ data(thermo)
 
 \begin_layout Plain Layout
 
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 \end_layout
 
 \begin_layout Plain Layout
@@ -3278,77 +3241,16 @@ Although the basis species are defined, the temperature is not yet specified,
 \end_inset
 
  is zero in the output above.
- To see what the computed protein charges are at 25 
+ Let us now calculate the chemical affinities of formation of the ionized
+ proteins at 25 
 \begin_inset Formula $^{\circ}$
 \end_inset
 
-C and 1 bar and at pH 7 (specified by the logarithm of activity of 
+C, 1 bar, and pH = 7 (specified by the logarithm of activity of 
 \begin_inset Formula $\mathrm{H^{+}}$
 \end_inset
 
- in the basis species), try this:
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<ProteinInfo>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-protein.info(species()$name)
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Note that 
-\family typewriter
-affinity()
-\family default
- is called twice by 
-\family typewriter
-protein.info()
-\family default
-; this so that both charges and standard Gibbs energies of ionization of
- the proteins can be calculated.
- The 
-\family typewriter
-Z
-\family default
- values in the table are the charges of the proteins computed using the
- ionization constants of sidechain and terminal groups, and the 
-\family typewriter
-G.Z
-\family default
- values are the calculated Gibbs energies of formation of the ionized proteins
- 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "DLH06"
-
-\end_inset
-
-.
- The 
-\family typewriter
-ZC
-\family default
- values are the average oxidation states of carbon of the proteins.
- Let us now calculate the chemical affinities of formation of the ionized
- proteins:
+ in the basis species):
 \end_layout
 
 \begin_layout Standard
@@ -3596,7 +3498,7 @@ reference "eq:a_residue"
 
 \end_inset
 
---
+–
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:A_METJA"
@@ -4166,7 +4068,7 @@ status open
 
 \begin_layout Plain Layout
 
-protein <- iprotein(c("CSG_METVO", "CSG_METJA"))
+protein <- pinfo(c("CSG_METVO", "CSG_METJA"))
 \end_layout
 
 \begin_layout Plain Layout
@@ -4326,7 +4228,7 @@ e <- equilibrate(a)
 
 \begin_layout Plain Layout
 
-diagram(e, ylim=c(-2.8, -1.6), legend.x=NA, names=organisms)
+diagram(e, ylim=c(-2.8, -1.6), names=organisms)
 \end_layout
 
 \begin_layout Plain Layout
@@ -4346,7 +4248,7 @@ e <- equilibrate(a, normalize=TRUE)
 
 \begin_layout Plain Layout
 
-diagram(e, ylim=c(-4, -2), legend.x=NA, names=organisms)
+diagram(e, ylim=c(-4, -2), names=organisms)
 \end_layout
 
 \begin_layout Plain Layout

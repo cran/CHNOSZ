@@ -49,7 +49,8 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
     # is needed here
     if(!is.null(iprotein)) {
       # check all proteins are available
-      if(!all(iprotein %in% 1:nrow(thermo$protein))) stop("some value(s) in iprotein not in rownumbers of thermo$protein")
+      if(any(is.na(iprotein))) stop("`iprotein` has some NA values")
+      if(!all(iprotein %in% 1:nrow(thermo$protein))) stop("some value(s) of `iprotein` are not rownumbers of thermo$protein")
       # add protein residues to the species list
       resnames <- c("H2O",aminoacids(3))
       # residue activities set to zero;
@@ -65,7 +66,7 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
     ibufbasis <- which(!can.be.numeric(mybasis$logact))
     if(!is.null(mybasis) & length(ibufbasis) > 0) {
       buffer <- TRUE
-      msgout('affinity: loading buffer species\n')
+      message('affinity: loading buffer species')
       if(!is.null(thermo$species)) is.species <- 1:nrow(thermo$species) else is.species <- numeric()
       is.buffer <- buffer(logK=NULL)
       thermo <- get("thermo", "CHNOSZ")
@@ -153,7 +154,7 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
       loga.protein <- rep(loga.protein,length.out=length(iprotein))
       protein.fun <- function(ip) {
         tpext <- as.numeric(thermo$protein[iprotein[ip],5:25])
-        return(Reduce("+", CHNOSZ::pprod(a[ires],tpext)) - loga.protein[ip])
+        return(Reduce("+", pprod(a[ires],tpext)) - loga.protein[ip])
       }
       # use another level of indexing to let the function
       # report on its progress

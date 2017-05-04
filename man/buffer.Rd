@@ -1,52 +1,49 @@
+\encoding{UTF-8}
 \name{buffer}
 \alias{buffer}
 \alias{mod.buffer}
 \title{Calculating Buffered Chemical Activities}
 \description{
-  Calculate values of activity or fugacity of basis species buffered by an assemblage of one or more species.
+Calculate values of activity or fugacity of basis species buffered by an assemblage of one or more species.
 }
 
 \usage{
-  buffer(logK = NULL, ibasis = NULL, logact.basis = NULL, 
-    is.buffer = NULL, balance = "PBB")
   mod.buffer(name, species = NULL, state = get("thermo")$opt$state, 
     logact = -3)
 }
 
 \arguments{
-  \item{logK}{list, equilibrium constants of formation reactions of species, or NULL, indicates to load the species present in the buffer.}
-  \item{ibasis}{numeric, which of the basis species whose activities are being calculated.}
-  \item{logact.basis}{list, logarithms of activities of the basis species.}
-  \item{is.buffer}{numeric, rownumbers of the buffering species in \code{\link{thermo}$species}.}
-  \item{balance}{character, balance on this (name/formula of basis species or \samp{PBB}) in buffer reactions.}
   \item{name}{character, name of buffer to add to or find in \code{thermo$buffers}.}
   \item{species}{character, names or formulas of species in a buffer.}
   \item{state}{character, physical states of species in buffer.}
   \item{logact}{numeric, logarithms of activities of species in buffer.}
-  
 }
 
 \details{
+A buffer is treated here as assemblage of one or more species whose presence constrains values of the chemical activity (or fugacity) of one or more basis species.
+To perform calculations for buffers use \code{\link{basis}} to associate the name of the buffer with one or more basis species.
+After this, calls to \code{affinity} will invoke the required calculations.
+The calculated values of the buffered activites can be retrieved by setting \code{return.buffer} to \code{TRUE} (in \code{\link{affinity}}).
+The maximum number of buffered chemical activities possible for any buffer is equal to the number of species in the buffer; however, the user may then elect to work with the values for only one or some of the basis species calculated with the buffer. 
 
-  A buffer is treated here as assemblage of one or more species whose presence constrains values of the chemical activity (or fugacity) of one or more basis species. To perform calculations for buffers, the user generally does not call \code{\link{buffer}} directly, but instead uses \code{\link{basis}} to associate the name of the buffer with one or more basis species. After this, calls to \code{affinity} will invoke the required calculations. The calculated values of the buffered activites can be retrieved by setting \code{return.buffer} to \code{TRUE} (in \code{\link{affinity}}). The maximum number of buffered chemical activities possible for any buffer is equal to the number of species in the buffer; however, the user may then elect to work with the values for only one or some of the basis species calculated with the buffer. 
+The identification of a conserved basis species (or other reaction balancing rule) is required in calculations for buffers of more than one species.
+For example, in the pyrite-pyrrhotite-magnetite buffer (\eqn{\mathrm{FeS_2}}{FeS2}-\eqn{\mathrm{FeS}}{FeS}-\eqn{\mathrm{Fe_3O_4}}{Fe3O4}) a basis species common to each species is one representing \eqn{Fe}{Fe}.
+Therefore, when writing reactions between the species in this buffer \eqn{Fe}{Fe} is conserved while \eqn{\mathrm{H_2S}}{H2S} and \eqn{\mathrm{O2}}{O2} are the variables of interest.
+The calculation for buffers attempts to determine which of the available basis species qualifies as a conserved quantity.
+This can be overriden with \code{balance}.
+The default value of \code{balance} is \samp{PBB}, which instructs the function to use the protein backbone group as the conserved quantity in buffers consisting of proteins, but has no overriding effect on the computations for buffers without proteins.
 
-  The identification of a conserved basis species (or other reaction balancing rule) is required in calculations for buffers of more than one species. For example, in the pyrite-pyrrhotite-magnetite buffer (\eqn{\mathrm{FeS_2}}{FeS2}-\eqn{\mathrm{FeS}}{FeS}-\eqn{\mathrm{Fe_3O_4}}{Fe3O4}) a basis species common to each species is one representing \eqn{Fe}{Fe}; hence, when writing reactions between the species in this buffer one may conserve \eqn{Fe}{Fe} while utilizing \eqn{\mathrm{H_2S}}{H2S} and \eqn{\mathrm{O2}}{O2} as the variables of interest. The calculation for buffers attempts to determine which of the available basis species qualifies as a conserved quantity. This can be overriden with \code{balance}. The default value of \code{balance} is \samp{PBB}, which instructs the function to use the protein backbone group as the conserved quantity in buffers consisting of proteins, but has no overriding effect on the computations for buffers without proteins.
+To view the available buffers, print the \code{\link{thermo}$buffer} object.
+Buffer definitions can be added to this dataframe with \code{mod.buffer}.
+It is possible to set the logarithms of activities of the species in the buffer through the \code{logact} argument; if this is missing unit activity is assigned to crystalline species in buffer, otherwise (for aqueous species) the default value of activity is 10\eqn{^{-3}}{^-3}.
+If \code{name} identifies an already defined buffer, this function modifies the logarithms of activities or states of species in that buffer, optionally restricted to only those species given in \code{species}.
 
-  In the calculation of the buffered activities the user calls \code{\link{affinity}} which first determines the affinities of formation of all the species of interest (including species in the buffers) using the current reference activities of the basis species. \code{affinity} then calls \code{buffer} to calculate buffered values of the activities of basis species; the affinities of formation of all the species of interest are regenerated using the new (buffered) activities of basis species and returned to the user.
-
-  To view the available buffers, print the \code{\link{thermo}$buffer} object. Buffer definitions can be added to this dataframe with \code{mod.buffer}. It is possible to set the logarithms of activities of the species in the buffer through the \code{logact} argument; if this is missing unit activity is assigned to crystalline species in buffer, otherwise (for aqueous species) the default value of activity is 10\eqn{^{-3}}{^-3}. If \code{name} identifies an already defined buffer, this function modifies the logarithms of activities or states of species in that buffer, optionally restricted to only those species given in \code{species}.
-
-  It is possible to assign different buffers to different basis species, in which case the order of their calculation depends on their order in \code{thermo$buffers}. This function is compatible with systems of proteins, but note that for buffers \emph{made} of proteins the buffer calculations presently use whole protein formulas (instead of residue equivalents) and consider nonionized proteins only (i.e., calculating values of pH buffered by proteins is so far not implemented).
-
-}
-
-\value{
-
-  List of logarithms of chemical activities (or fugacities) of the basis species derived from chemical activities of the species in the buffer.
+It is possible to assign different buffers to different basis species, in which case the order of their calculation depends on their order in \code{thermo$buffers}.
+This function is compatible with systems of proteins, but note that for buffers \emph{made} of proteins the buffer calculations presently use whole protein formulas (instead of residue equivalents) and consider nonionized proteins only.
 }
 
 \seealso{
-  \code{\link{protein}} for an example using a buffer made of proteins.
+\code{\link{protein}} for an example using a buffer made of proteins.
 }
 
 \examples{
@@ -165,7 +162,7 @@ stopifnot(all.equal(ana, and))
 }
 
 \references{
-  Garrels, R. M. (1960) \emph{Mineral Equilibria}. Harper & Brothers, New York, 254 p. \url{http://www.worldcat.org/oclc/552690}
+Garrels, R. M. (1960) \emph{Mineral Equilibria}. Harper & Brothers, New York, 254 p. \url{http://www.worldcat.org/oclc/552690}
 }
 
 \concept{Secondary thermodynamic modeling}

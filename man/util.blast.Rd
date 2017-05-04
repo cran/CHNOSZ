@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{util.blast}
 \alias{util.blast}
 \alias{read.blast}
@@ -47,7 +48,9 @@
 
   By default, for \code{take.first} equal to TRUE, \code{id.blast} performs a final filtering step (but \code{min.query} must be disabled). Only the first hit for each query sequence is kept.
 
-  \code{write.blast} takes a BLAST table (the output of \code{read.blast}) and writes to \code{outfile} a stripped-down BLAST file with empty values in the columns except for columns 1 (query sequence ID), 2 (hit sequence ID), 3 (similarity), 11 (E value). In the process, \code{\link{def2gi}} is used to extract the GI numbers for the hit sequences that are then kept in the second column. This function is used to reduce the size of the example BLAST files that are packaged with CHNOSZ (see the \sQuote{bison} section in \code{\link{extdata}}).
+\code{write.blast} takes a BLAST table (the output of \code{read.blast}) and writes to \code{outfile} a stripped-down BLAST file with empty values in the columns except for columns 1 (query sequence ID), 2 (hit sequence ID), 3 (similarity), 11 (E value).
+In the process, \code{\link{def2gi}} is used to extract the GI numbers for the hit sequences that are then kept in the second column.
+This function is used to reduce the size of the example BLAST files that are packaged with CHNOSZ (see the \sQuote{bison} section in \code{\link{extdata}}).
 
   \code{def2gi} extracts the GI number from a FASTA defline. 
 
@@ -55,10 +58,6 @@
 
 \value{
   \code{read.blast} returns a dataframe with as many columns (12) as the BLAST file. \code{id.blast} returns a dataframe with columns \code{query}, \code{subject} (i.e., sequence id or gi number), \code{similarity}, \code{evalue}, \code{taxid}, \code{phylum} and \code{species}. \code{write.blast} \code{\link{invisible}}-y returns the results (that are also written to \code{outfile}).
-}
-
-\seealso{
-  The \code{extdata/refseq} directory contains the \code{taxid_names.csv.xz} file for microbial taxa, which can be used for the \code{taxid.names} in \code{id.blast}. 
 }
 
 \examples{
@@ -112,7 +111,7 @@ title(main=paste("Phylum Classification of Protein Sequences",
 }
 
 \references{
-  Altschul, S. F., Madden, T. L., Schaffer, A. A., Zhang, J. H., Zhang, Z., Miller, W. and Lipman, D. J. (1997) Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. \emph{Nucleic Acids Res.} \bold{25}, 3389--3402. \url{http://dx.doi.org/doi:10.1093/nar/25.17.3389} 
+  Altschul, S. F., Madden, T. L., Schaffer, A. A., Zhang, J. H., Zhang, Z., Miller, W. and Lipman, D. J. (1997) Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. \emph{Nucleic Acids Res.} \bold{25}, 3389--3402. \url{https://doi.org/doi:10.1093/nar/25.17.3389} 
 }
 
 \keyword{utilities}

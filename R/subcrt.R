@@ -191,7 +191,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   if(length(species)==1 & convert==FALSE) {
     # we don't think we want messages here
   } else {
-    msgout(paste('subcrt:',length(species),'species at',T.text,'and',P.text,'\n'))
+    message(paste('subcrt:',length(species),'species at',T.text,'and',P.text))
   }
 
   # inform about unbalanced reaction
@@ -206,9 +206,9 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
       miss <- -mss
       # drop elements that are zero
       miss <- miss[miss!=0]
-      msgout("subcrt: reaction is not balanced; it is missing this composition:\n")
-      # we have to do this awkward dance to send a formatted matrix to msgout
-      msgout(paste(capture.output(print(miss)), collapse="\n"), appendLF=TRUE)
+      message("subcrt: reaction is not balanced; it is missing this composition:")
+      # we have to do this awkward dance to send a formatted matrix to message
+      message(paste(capture.output(print(miss)), collapse="\n"))
       # look for basis species that have our compositoin
       tb <- thermo$basis
       if(!is.null(tb)) {
@@ -237,8 +237,8 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
           ispecies.new <- tb$ispecies[match(colnames(bc),rownames(tb))]
           b.species <- thermo$obigt$formula[ispecies.new]
           if(identical(species,b.species) & identical(state,b.state))
-            msgout("subcrt: balanced reaction, but it is a non-reaction; restarting...\n")
-          else msgout('subcrt: adding missing composition from basis definition and restarting...\n')
+            message("subcrt: balanced reaction, but it is a non-reaction; restarting...")
+          else message('subcrt: adding missing composition from basis definition and restarting...')
           newspecies <- c(species, tb$ispecies[match(colnames(bc), rownames(tb))])
           newcoeff <- c(coeff, as.numeric(bc[1, ]))
           newstate <- c(state, b.state)
@@ -327,7 +327,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
               p.cgl[[ncgl[i]]]$G[T<Ttr] <- NA
               status.Ttr <- "(using NA for G)"
             } 
-            msgout(paste('subcrt: some points below transition temperature for',myname, mystate, status.Ttr, '\n'))
+            message(paste('subcrt: some points below transition temperature for',myname, mystate, status.Ttr))
           }
         }
         # check if we're above the transition temperature
@@ -344,7 +344,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
             p.cgl[[ncgl[i]]]$G[T>=Ttr] <- NA
             status.Ttr <- "(using NA for G)"
           }
-          msgout(paste('subcrt: some points above transition temperature for',myname, mystate, status.Ttr, '\n'))
+          message(paste('subcrt: some points above transition temperature for',myname, mystate, status.Ttr))
         }
       }
     }
@@ -355,7 +355,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   if(TRUE %in% isH2O) {
     if(!exists('H2O.PT',inherits=FALSE)) H2O.PT <- water('rho',T=T,P=P)
     if(length(eosprop)==0) eosprop <- 'rho'
-    #msgout(paste('subcrt: water equation of state:',c2s(eosprop),'\n'))
+    #message(paste('subcrt: water equation of state:',c2s(eosprop)))
     p.H2O <- list(tmp=water(eosprop,T=T,P=P))
     out <- c(out,rep(p.H2O,length(which(isH2O==TRUE))))
   }
@@ -392,19 +392,15 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   isaq.new <- logical()
   iscgl.new <- logical()
   isH2O.new <- logical()
-  #print(sinfo)
-  #print(sinph)
-  #print(reaction)
   for(i in 1:length(sinfo)) {
     iphases <- which(sinfo[i]==sinph)
     # deal with repeated species here ... divide iphases 
     # by the number of duplicates
-    #print(iphases)
     if(TRUE %in% duplicated(inpho[iphases])) {
       iphases <- iphases[length(which(sinfo==sinfo[i]))]
     }
     if(length(iphases)>1) {
-      msgout(paste('subcrt:',length(iphases),'phases for',thermo$obigt$name[sinfo[i]],'... '))
+      message(paste('subcrt:',length(iphases),'phases for',thermo$obigt$name[sinfo[i]],'... '), appendLF=FALSE)
       # assemble the Gibbs energies for each species
       for(j in 1:length(iphases)) {
         G.this <- out[[iphases[j]]]$G
@@ -444,7 +440,7 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
       up <- unique(phasestate)
       if(length(up)>1) { word <- 'are'; p.word <- 'phases' }
       else { word <- 'is'; p.word <- 'phase' }
-      msgout(paste(p.word,c2s(unique(phasestate)),word,'stable\n'))
+      message(paste(p.word,c2s(unique(phasestate)),word,'stable'))
     } else {
       # multiple phases aren't involved ... things stay the same
       out.new[[i]] <- out[[iphases]]
@@ -467,11 +463,8 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
   iscgl <- iscgl.new
   isH2O <- isH2O.new
 
-  #print(out)
-
   newprop <- eprop[eprop!='rho']
   # the order of the properties
-  #if(ncol(out[[1]])>1) for(i in 1:length(out)) {
   if(length(newprop)>1) for(i in 1:length(out)) {
     # keep state/loggam columns if they exists
     ipp <- match(newprop,tolower(colnames(out[[i]])))
@@ -548,8 +541,14 @@ subcrt <- function(species, coeff=1, state=NULL, property=c('logK','G','H','S','
       }
     }
   }
+  # convert loggam to common logarithm and
   # put ionic strength next to any loggam columns
-  for(i in 2:length(out)) if('loggam' %in% colnames(out[[i]])) out[[i]] <- cbind(out[[i]],IS=newIS)
+  for(i in 2:length(out)) {
+    if('loggam' %in% colnames(out[[i]])) {
+      out[[i]] <- cbind(out[[i]],IS=newIS)
+      out[[i]][, "loggam"] <- out[[i]][, "loggam"]/log(10)
+    }
+  }
   # more fanagling for species
   if(!do.reaction) {
     out <- list(species=out$species,out=out[2:length(out)])

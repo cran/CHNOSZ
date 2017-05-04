@@ -1,14 +1,16 @@
-#LyX 2.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 474
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \begin_preamble
 %\VignetteIndexEntry{Hot-spring proteins in CHNOSZ}
 %\VignetteEngine{knitr::knitr}
 
 % so DOIs in bibliography show up as hyperlinks
-\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+\newcommand*{\doi}[1]{\href{https://doi.org/#1}{doi: #1}}
 \end_preamble
 \use_default_options true
 \begin_modules
@@ -19,16 +21,16 @@ knitr
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman palatino
-\font_sans lmss
-\font_typewriter lmtt
-\font_math auto
+\font_roman "palatino" "default"
+\font_sans "lmss" "default"
+\font_typewriter "lmtt" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -236,31 +238,29 @@ revisit()
 
 \begin_layout Standard
 Load CHNOSZ and the thermodynamic database.
- The thermodynamic data for the methionine sidechain group used in the 2011
- paper 
+ In order to reproduce the calculations from the 2011 paper, we modify the
+ methionine sidechain group using old values of standard Gibbs energy and
+ enthalpy from 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "DS11"
+key "DLH06"
 
 \end_inset
 
- was updated in CHNOSZ_0.9-9 
+; these are inaccurate values that were updated by 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "LD12"
 
 \end_inset
 
-, but the older dataset is still available using 
-\family typewriter
-add.obigt()
-\family default
-.
+ and are available starting in CHNOSZ_0.9-9 (the current values are used
+ further below).
 \end_layout
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -279,7 +279,7 @@ data(thermo)
 
 \begin_layout Plain Layout
 
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 \end_layout
 
 \begin_layout Plain Layout
@@ -429,7 +429,7 @@ lines(xpoints, pHfun(xpoints))
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0022782.g005"
+target "https://doi.org/10.1371/journal.pone.0022782.g005"
 
 \end_inset
 
@@ -482,12 +482,14 @@ status collapsed
 
 \begin_layout Plain Layout
 
-aa.annot <- read.aa(system.file("extdata/protein/DS11.csv", package="CHNOSZ"))
+aa.annot <- read.csv(system.file("extdata/protein/DS11.csv", package="CHNOSZ"),
+ as.is=TRUE)
 \end_layout
 
 \begin_layout Plain Layout
 
-aa.phyla <- read.aa(system.file("extdata/protein/DS13.csv", package="CHNOSZ"))
+aa.phyla <- read.csv(system.file("extdata/protein/DS13.csv", package="CHNOSZ"),
+ as.is=TRUE)
 \end_layout
 
 \begin_layout Plain Layout
@@ -502,7 +504,7 @@ aa.phyla <- read.aa(system.file("extdata/protein/DS13.csv", package="CHNOSZ"))
 
 \begin_layout Standard
 Here are the site names for the sampling locations (also referred to as
- sites 1--5).
+ sites 1–5).
 \end_layout
 
 \begin_layout Standard
@@ -915,7 +917,7 @@ DOI links for these plots as they appeared in the publications:
 \begin_inset CommandInset href
 LatexCommand href
 name "plot 1"
-target "http://dx.doi.org/10.1371/journal.pone.0022782.g004"
+target "https://doi.org/10.1371/journal.pone.0022782.g004"
 
 \end_inset
 
@@ -923,7 +925,7 @@ target "http://dx.doi.org/10.1371/journal.pone.0022782.g004"
 \begin_inset CommandInset href
 LatexCommand href
 name "plot 2"
-target "http://dx.doi.org/10.1371/journal.pone.0072395.g001"
+target "https://doi.org/10.1371/journal.pone.0072395.g001"
 
 \end_inset
 
@@ -1261,7 +1263,7 @@ a.res
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0022782.t005"
+target "https://doi.org/10.1371/journal.pone.0022782.t005"
 
 \end_inset
 
@@ -1457,7 +1459,7 @@ affinity()
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -1558,7 +1560,7 @@ legend("bottom", lty=1:5, legend=1:5, bty="n", cex=0.6)
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0022782.g005"
+target "https://doi.org/10.1371/journal.pone.0022782.g005"
 
 \end_inset
 
@@ -1700,7 +1702,7 @@ for(i in 1:2) {
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0022782.g007"
+target "https://doi.org/10.1371/journal.pone.0022782.g007"
 
 \end_inset
 
@@ -1734,17 +1736,14 @@ Make some
 
  metastable equilibrium predominance diagrams using different values for
  the thermodynamic properties of the methionine sidechain group [Met].
- The first row shows the results using the old values (since 
-\family typewriter
-add.obigt()
-\family default
- was called above); for the second row (j=2), we reset the database to use
- the current (revised) parameters.
+ The first row shows the results using the old values (defined on page 1);
+ for the second row (j=2), we reset the database to use the current (revised)
+ parameters.
 \end_layout
 
 \begin_layout Standard
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -1866,7 +1865,7 @@ for(j in 1:2) {
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0072395.g002"
+target "https://doi.org/10.1371/journal.pone.0072395.g002"
 
 \end_inset
 
@@ -2277,7 +2276,7 @@ for(i in 1:5) {
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0072395.g003"
+target "https://doi.org/10.1371/journal.pone.0072395.g003"
 
 \end_inset
 
@@ -2787,7 +2786,7 @@ DOI links to published versions:
 \begin_inset CommandInset href
 LatexCommand href
 name "plot 1"
-target "http://dx.doi.org/10.1371/journal.pone.0022782.g009"
+target "https://doi.org/10.1371/journal.pone.0022782.g009"
 
 \end_inset
 
@@ -2795,7 +2794,7 @@ target "http://dx.doi.org/10.1371/journal.pone.0022782.g009"
 \begin_inset CommandInset href
 LatexCommand href
 name "plot 2"
-target "http://dx.doi.org/10.1371/journal.pone.0072395.g004"
+target "https://doi.org/10.1371/journal.pone.0072395.g004"
 
 \end_inset
 
@@ -2973,7 +2972,7 @@ for(iloc in 1:5) {
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0072395.g005"
+target "https://doi.org/10.1371/journal.pone.0072395.g005"
 
 \end_inset
 
@@ -3118,7 +3117,7 @@ legend("bottomleft", legend=rev(phyla.abbrv), fill=rev(phyla.cols), bty="n",
 \begin_inset CommandInset href
 LatexCommand href
 name "DOI link"
-target "http://dx.doi.org/10.1371/journal.pone.0072395.g006"
+target "https://doi.org/10.1371/journal.pone.0072395.g006"
 
 \end_inset
 
@@ -3138,7 +3137,11 @@ Document history
 \family typewriter
 add.obigt()
 \family default
- for superseded properties of methionine sidechain group.
+ for superseded properties of methionine sidechain group (changed to 
+\family typewriter
+mod.obigt()
+\family default
+ on 2016-12-21).
 \end_layout
 
 \begin_layout Itemize

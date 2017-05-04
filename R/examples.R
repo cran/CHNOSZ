@@ -5,14 +5,13 @@
 examples <- function(do.png=FALSE) {
   # run all the examples in CHNOSZ documentation
   .ptime <- proc.time()
-  topics <- c("CHNOSZ-package", "thermo", "sideeffects", "examples",
-    "util.args", "util.array", "util.blast", "util.character", 
-    "util.data", "util.expression", "util.fasta", "util.formula", "util.matrix", 
-    "util.misc", "util.program",
-    "util.seq", "util.units", "taxonomy", "info", "protein.info", "hkf", "water", "subcrt",
-    "makeup", "basis", "swap.basis", "species", "affinity", "util.affinity", "equil.boltzmann", 
-    "diagram", "buffer", "iprotein", "protein", "ionize.aa", "more.aa", "read.expr",
-    "objective", "revisit", "transfer", "anim", "EOSregress", "wjd")
+  topics <- c("thermo", "examples",
+    "util.array", "util.blast", "util.data", "util.expression",
+    "util.fasta", "util.formula", "util.matrix", "util.misc", "util.seq", "util.units",
+    "util.water", "taxonomy", "info", "protein.info", "hkf", "water", "IAPWS95", "subcrt",
+    "makeup", "basis", "swap.basis", "species", "affinity", "equil.boltzmann", 
+    "diagram", "buffer", "nonideal", "add.protein", "protein", "ionize.aa", "more.aa", "read.expr",
+    "anim", "objective", "revisit", "transfer", "EOSregress", "wjd")
   plot.it <- FALSE
   if(is.character(do.png))
     png(paste(do.png,"%d.png",sep=""),width=500,height=500,pointsize=12)
@@ -24,26 +23,27 @@ examples <- function(do.png=FALSE) {
     if(plot.it) dev.off()
   }
   if(is.character(do.png)) dev.off()
-  # at the end we attempt to restore the old par() (active as of the first call of thermo.plot.new)
-  par(get("thermo")$opar)
   cat("Time elapsed: ", proc.time() - .ptime, "\n")
 }
 
-demos <- function(which=c("sources", "NaCl", "density", 
-  "nucleobase", "ORP", "revisit", "findit",
-  "ionize", "buffer", "yeastgfp", "mosaic",
-  "copper", "solubility", "wjd", "dehydration"), to.file=FALSE) {
+demos <- function(which=c("sources", "protein.equil", "affinity", "NaCl", "density", 
+  "ORP", "revisit", "findit", "ionize", "buffer", "protbuff", "yeastgfp", "mosaic",
+  "copper", "solubility", "wjd", "dehydration", "bugstab", "Shh", "activity_ratios"), to.file=FALSE) {
   # run one or more demos from CHNOSZ with ask=FALSE, and return the value of the last one
   for(i in 1:length(which)) {
     # say something so the user sees where we are
-    msgout("------------\n")
+    message("------------")
     if(which[i]=="dehydration" & !to.file) {
-      msgout("demos: skipping dehydration demo as to.file is FALSE\n")
+      message("demos: skipping dehydration demo as to.file is FALSE")
       next 
-    } else msgout(paste("demos: running '", which[i], "'\n", sep=""))
-    if(to.file & !which[i]=="dehydration") png(paste(which[i],"%d.png",sep=""),width=500,height=500,pointsize=12)
+    } else message(paste("demos: running '", which[i], "'", sep=""))
+    if(to.file & !which[i]=="dehydration") {
+      if(which[i]=="bugstab") png(paste(which[i], "%d.png", sep=""), width=700, height=500, pointsize=12)
+      else png(paste(which[i], "%d.png", sep=""), width=500, height=500, pointsize=12)
+    }
     out <- demo(which[i], package="CHNOSZ", character.only=TRUE, echo=FALSE, ask=FALSE)
     if(to.file & !which[i]=="dehydration") dev.off()
   }
   return(invisible(out))
 }
+

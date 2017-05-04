@@ -1,63 +1,36 @@
+\encoding{UTF-8}
 \name{protein}
 \alias{protein}
 \title{Examples of Calculations for Proteins}
 \description{
-  This page contains some examples of using the functions in CHNOSZ to calculate thermodynamic properties and relative stabilities of proteins.
+This page contains some examples of using the functions in CHNOSZ to calculate thermodynamic properties of and make diagrams for proteins.
 }
 
 \examples{\dontshow{data(thermo)}
-## thermodynamic properties and activity diagrams
-prot4 <- c("LYSC_CHICK", "BPT1_BOVIN", "CYC_BOVIN", "MYG_PHYCA")
-# aqueous protein properties (nonionized)
-subcrt(prot4, T=seq(0, 200, 10))$out
-# T-logfO2 activity diagram
-basis("CHNOS")
-species(prot4)
-a <- affinity(T=c(0, 200), O2=c(-80, -40))
-diagram(a)
-
-## one way to calculate the standard Gibbs energy of a 
-## reaction to form an ionized protein at 100 degrees and pH 8
-basis("CHNOS+")   # do this to auto-balance the formation reaction
-Gr.nonionized <- subcrt("LYSC_CHICK", 1, T=100)$out$G
-basis("pH", 8)
-pinfo <- protein.info("LYSC_CHICK", round.it=FALSE, T=100)
-Gr.ionization <- pinfo$G.Z - pinfo$G
-# standard Gibbs energy of the reaction
-# in cal/mol ionized protein:
-Gr.ionized <- Gr.nonionized + Gr.ionization
-# in cal/mol ionized residue:
-Gr.ionized_residue <- Gr.ionized/protein.length("LYSC_CHICK")
-
 ## Standard molal entropy of a protein reaction
 basis("CHNOS")
 # here we provide the reaction coefficients of the 
-# proteins (per protein backbone); 'subcrt' function calculates 
+# proteins (per protein backbone); subcrt() calculates 
 # the coefficients of the basis species in the reaction
-s <- subcrt(c("CSG_METTL","CSG_METJA"), c(-1/530,1/530),
+s <- subcrt(c("CSG_METTL", "CSG_METJA"), c(-1/530, 1/530),
   T=seq(0, 350, length.out=50))
-thermo.plot.new(xlim=range(s$out$T), ylim=range(s$out$S),
-  xlab=axis.label("T"), ylab=axis.label("DS0r"))
-lines(s$out$T, s$out$S)
-# do it at high pressure as well
-s <- subcrt(c("CSG_METTL","CSG_METJA"), c(-1/530,1/530),
-  T=seq(0,350,length.out=50), P=3000)
-lines(s$out$T, s$out$S, lty=2)
-# label the plot
-title(main=paste("Standard molal entropy\n",
-  "P = Psat (solid), P = 3000 bar (dashed)"))
-s$reaction$coeff <- round(s$reaction$coeff, 3)
-dsr <- describe.reaction(s$reaction, iname=c(1,2))
-text(170, -3, dsr, cex=0.8)
+# note: this uses the properties of the nonionized proteins
 
-
-### Equilibrium activity diagrams
+## logfO2-pH potential diagram
+# with a charged basis, we calculate properties of ionized proteins
+basis("CHNOS+")
+file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
+aa <- read.csv(file, as.is=TRUE)
+aa <- aa[grep("transferase", aa$protein), ]
+ip <- add.protein(aa)
+a <- affinity(pH=c(0, 14), O2=c(-64, -61), T=75, iprotein=ip)
+diagram(a)
 
 ## surface-layer proteins from Methanococcus and others
 ## as a function of oxygen fugacity, after Dick, 2008, Fig. 5b
-# use old properties of [Met] to reproduce this example
+# use old properties of [Met] (Dick et al., 2006) to reproduce this example
 data(thermo)
-add.obigt()
+mod.obigt("[Met]", G=-35245, H=-59310)
 # make our protein list
 organisms <- c("METSC", "METJA", "METFE", "HALJP", "METVO",
   "METBU", "ACEKI", "GEOSE", "BACLI", "AERSA")
@@ -71,7 +44,7 @@ species(proteins)
 a <- affinity(O2=c(-100, -65))
 # try normalize=FALSE to make Fig. 5a in the paper
 e <- equilibrate(a, normalize=TRUE)
-d <- diagram(e, ylim=c(-5, -1), legend.x=NA, names=organisms)
+d <- diagram(e, ylim=c(-5, -1), names=organisms, format.names=FALSE)
 # add water stability line
 abline(v=-83.1, lty=2)
 title(main="Surface-layer proteins, after Dick, 2008")
@@ -97,17 +70,10 @@ species(prot, "BOVIN")
 a <- affinity(T=c(0, 200))
 # set line colors according to oxidation state of carbon
 ZC <- ZC(species()$ispecies)
-col <- rep("red", length(prot))
-col[ZC > 0] <- "blue"
+col <- ZC.col(ZC)
 e <- equilibrate(a, normalize=TRUE)
-d <- diagram(e, col=col, legend.x=NA)
+d <- diagram(e, col=col, lwd=3)
 title(main="Bovine proteins, GSH/GSSG redox buffer")
-}
-
-\seealso{
-  For accessing, updating, and downloading amino acid compositions of proteins, see \code{\link{iprotein}}. 
-  For getting chemical formulas and stoichiometric coefficients in reactions of proteins, see \code{\link{protein.info}}.
-For more examples of metastable equilibrium calculations for proteins, see \code{\link{read.expr}}, \code{\link{more.aa}}, \code{\link{ionize.aa}}, and \code{\link{apc}} for reaction-path calculations.
 }
 
 \concept{Protein thermodynamic modeling}

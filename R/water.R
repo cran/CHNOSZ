@@ -83,8 +83,8 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
       rho.out[i] <- NA
     } else {
       # now to the actual calculations
-      H2O <- .Fortran("H2O92", as.integer(specs), as.double(states),
-        as.double(rep(0, 46)), as.integer(0), PACKAGE="CHNOSZ")
+      H2O <- .Fortran(F_h2o92, as.integer(specs), as.double(states),
+        as.double(rep(0, 46)), as.integer(0))
       # errors
       err.out[i] <- H2O[[4]]
       # density of two states
@@ -130,11 +130,11 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
     if(length(T) > 1) plural <- "s" else plural <- ""
     nerr <- length(which(err.out==1))
     if(nerr > 1) plural2 <- "s" else plural2 <- ""
-    if(identical(P, "Psat")) msgout(paste("water.SUPCRT92: error", plural2, " calculating ",
-      nerr, " of ", length(T), " point", plural, "; for Psat we need 273.16 < T < 647.067 K\n", sep=""))
-    else msgout(paste("water.SUPCRT92: error", plural2, " calculating ", nerr,
+    if(identical(P, "Psat")) message(paste("water.SUPCRT92: error", plural2, " calculating ",
+      nerr, " of ", length(T), " point", plural, "; for Psat we need 273.16 < T < 647.067 K", sep=""))
+    else message(paste("water.SUPCRT92: error", plural2, " calculating ", nerr,
       " of ", length(T), " point", plural,
-      "; T < Tfusion@P, T > 2250 degC, or P > 30kb.\n", sep=""))
+      "; T < Tfusion@P, T > 2250 degC, or P > 30kb.", sep=""))
       # that last bit is taken from SUP92D.f in SUPCRT92
   }
   # return only the selected properties
@@ -143,7 +143,7 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
 
 water.IAPWS95 <- function(property, T=298.15, P=1) {
   # to get the properties of water via IAPWS-95
-  msgout(paste("water.IAPWS95: calculating", length(T), "values for"))
+  message(paste("water.IAPWS95: calculating", length(T), "values for"), appendLF=FALSE)
   M <- 18.015268 # g mol-1
   v <- function() return(M*1000/my.rho)
   # Psat stuff
@@ -284,7 +284,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
   if(!identical(tolower(property), "psat")) {
     # calculate values of P for Psat
     if(identical(P, "Psat")) P <- psat()
-    msgout(" rho")
+    message(" rho", appendLF=FALSE)
     my.rho <- rho.IAPWS95(T, P, get("thermo")$opt$IAPWS.sat)
     rho <- function() my.rho
   }
@@ -294,12 +294,12 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
       warning("water.IAPWS95: values of ", property[i], " are NA\n", call.=FALSE)
       inew <- rep(NA, length(T))
     } else {
-      msgout(paste(" ", property[i], sep=""))
+      message(paste(" ", property[i], sep=""), appendLF=FALSE)
       inew <- get(tolower(property[i]))()
     }
     wnew <- data.frame(inew)
     if(i > 1) w.out <- cbind(w.out, wnew) else w.out <- wnew
   }  
-  msgout("\n")
+  message("")
   return(w.out)
 }

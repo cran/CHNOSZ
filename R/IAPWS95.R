@@ -1,6 +1,116 @@
 # functions for properties of water using
 # the IAPWS-95 formulation (Wagner and Pruss, 2002)
 
+IAPWS95 <- function(property,T=298.15,rho=1000) {
+  ## the IAPWS-95 formulation for ordinary water substance
+  ## Wagner and Pruss, 2002
+  property <- tolower(property)
+  # triple point
+  T.triple <- 273.16 # K
+  P.triple <- 611.657 # Pa
+  rho.triple.liquid <- 999.793
+  rho.triple.vapor <- 0.00485458
+  # normal boiling point
+  T.boiling <- 373.124
+  P.boiling <- 0.101325
+  rho.boiling.liquid <- 958.367
+  rho.boiling.vapor <- 0.597657
+  # critical point constants
+  T.critical <- 647.096 # K
+  rho.critical <- 322 # kg m-3
+  # specific and molar gas constants
+  R <- 0.46151805 # kJ kg-1 K-1
+  # R.M <- 8.314472 # J mol-1 K-1
+  # molar mass
+  M <- 18.015268 # g mol-1
+  ## define functions idealgas and residual, supplying arguments delta and tau
+  idealgas <- function(p) IAPWS95.idealgas(p, delta, tau)
+  residual <- function(p) IAPWS95.residual(p, delta, tau)
+  ## relation of thermodynamic properties to Helmholtz free energy
+  a <- function() {
+    x <- idealgas('phi')+residual('phi')
+    return(x*R*T)
+  }
+  # Table 6.3 
+  p <- function() {
+    x <- 1 + delta*residual('phi.delta')
+    return(x*rho*R*T/1000)  # for MPa
+  }
+  s <- function() {
+    x <- tau * (idealgas('phi.tau')+residual('phi.tau'))-idealgas('phi')-residual('phi')
+    return(x*R)
+  }
+  u <- function() {
+    x <- tau * (idealgas('phi.tau')+residual('phi.tau'))
+    return(x*R*T)
+  }
+  h <- function() {
+    x <- 1 + tau * (idealgas('phi.tau')+residual('phi.tau')) + delta*residual('phi.delta')
+    return(x*R*T)
+  }
+  g <- function() {
+    x <- 1 + idealgas('phi') + residual('phi') + delta*residual('phi.delta')
+    return(x*R*T)
+  }
+  cv <- function() {
+    x <- -tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau'))
+    return(x*R)
+  }
+  cp <- function() {
+    x <- -tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau')) +
+         (1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau'))^2 /
+         (1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta'))
+    return(x*R)
+  }
+# 20090420 speed of sound calculation is incomplete
+# (delta.liquid and drhos.dT not visible)
+#  cs <- function() {
+#    x <- -tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau')) +
+#         (1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau'))^2 /
+#         (1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')) *
+#         ((1+delta.liquid*residual('phi.delta')-delta.liquid*tau*residual('phi.tau.tau'))-rho.critical/(R*delta.liquid)*drhos.dT)
+#    return(x*R)
+#  }
+  w <- function() {
+    x <- 1 + 2*delta*residual('phi.delta') + delta^2*residual('phi.delta.delta') - 
+         (1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau'))^2 /
+         tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau'))
+    return(sqrt(x*R*T))
+  }
+  mu <- function() {
+    x <- -(delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')+delta*tau*residual('phi.delta.tau')) /
+          ( ( 1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau')^2 ) - tau^2 *
+          (idealgas('phi.tau.tau')+residual('phi.tau.tau'))*(1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')) ) 
+    return(x/(R*rho))
+  }
+  ## run the calculations
+  ww <- NULL
+  my.T <- T
+  my.rho <- rho
+  for(j in 1:length(property)) {
+    t <- numeric()
+    for(i in 1:length(my.T)) {
+      T <- my.T[i]
+      rho <- my.rho[i]
+      # Equation 6.4
+      delta <- rho / rho.critical
+      tau <- T.critical / T
+      t <- c(t,get(property[j])())
+    }
+    t <- data.frame(t)
+    if(j==1) ww <- t else ww <- cbind(ww,t)
+  }
+  colnames(ww) <- property
+  return(ww)
+}
+
+### unexported functions ###
+
+# IAPWS95.idealgas and IAPWS95.residual are supporting functions to IAPWS95 for calculating
+#   the ideal-gas and residual parts in the IAPWS-95 formulation.
+# The value of p can be one of phi, phi.delta, phi.delta.delta, phi.tau, phi.tau.tau, or phi.delta.tau, 
+#   to calculate the specific dimensionless Helmholtz free energy (phi) or one of its derivatives.
+
 IAPWS95.idealgas <- function(p, delta, tau) {
   ## the ideal gas part in the IAPWS-95 formulation
   # from Table 6.1 of Wagner and Pruss, 2002
@@ -142,107 +252,3 @@ IAPWS95.residual <- function(p, delta, tau) {
   }
   return(get(p)())
 }
-
-IAPWS95 <- function(property,T=298.15,rho=1000) {
-  ## the IAPWS-95 formulation for ordinary water substance
-  ## Wagner and Pruss, 2002
-  property <- tolower(property)
-  # triple point
-  T.triple <- 273.16 # K
-  P.triple <- 611.657 # Pa
-  rho.triple.liquid <- 999.793
-  rho.triple.vapor <- 0.00485458
-  # normal boiling point
-  T.boiling <- 373.124
-  P.boiling <- 0.101325
-  rho.boiling.liquid <- 958.367
-  rho.boiling.vapor <- 0.597657
-  # critical point constants
-  T.critical <- 647.096 # K
-  rho.critical <- 322 # kg m-3
-  # specific and molar gas constants
-  R <- 0.46151805 # kJ kg-1 K-1
-  # R.M <- 8.314472 # J mol-1 K-1
-  # molar mass
-  M <- 18.015268 # g mol-1
-  ## define functions idealgas and residual, supplying arguments delta and tau
-  idealgas <- function(p) IAPWS95.idealgas(p, delta, tau)
-  residual <- function(p) IAPWS95.residual(p, delta, tau)
-  ## relation of thermodynamic properties to Helmholtz free energy
-  a <- function() {
-    x <- idealgas('phi')+residual('phi')
-    return(x*R*T)
-  }
-  # Table 6.3 
-  p <- function() {
-    x <- 1 + delta*residual('phi.delta')
-    return(x*rho*R*T/1000)  # for MPa
-  }
-  s <- function() {
-    x <- tau * (idealgas('phi.tau')+residual('phi.tau'))-idealgas('phi')-residual('phi')
-    return(x*R)
-  }
-  u <- function() {
-    x <- tau * (idealgas('phi.tau')+residual('phi.tau'))
-    return(x*R*T)
-  }
-  h <- function() {
-    x <- 1 + tau * (idealgas('phi.tau')+residual('phi.tau')) + delta*residual('phi.delta')
-    return(x*R*T)
-  }
-  g <- function() {
-    x <- 1 + idealgas('phi') + residual('phi') + delta*residual('phi.delta')
-    return(x*R*T)
-  }
-  cv <- function() {
-    x <- -tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau'))
-    return(x*R)
-  }
-  cp <- function() {
-    x <- -tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau')) +
-         (1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau'))^2 /
-         (1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta'))
-    return(x*R)
-  }
-# 20090420 speed of sound calculation is incomplete
-# (delta.liquid and drhos.dT not visible)
-#  cs <- function() {
-#    x <- -tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau')) +
-#         (1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau'))^2 /
-#         (1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')) *
-#         ((1+delta.liquid*residual('phi.delta')-delta.liquid*tau*residual('phi.tau.tau'))-rho.critical/(R*delta.liquid)*drhos.dT)
-#    return(x*R)
-#  }
-  w <- function() {
-    x <- 1 + 2*delta*residual('phi.delta') + delta^2*residual('phi.delta.delta') - 
-         (1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau'))^2 /
-         tau^2*(idealgas('phi.tau.tau')+residual('phi.tau.tau'))
-    return(sqrt(x*R*T))
-  }
-  mu <- function() {
-    x <- -(delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')+delta*tau*residual('phi.delta.tau')) /
-          ( ( 1+delta*residual('phi.delta')-delta*tau*residual('phi.delta.tau')^2 ) - tau^2 *
-          (idealgas('phi.tau.tau')+residual('phi.tau.tau'))*(1+2*delta*residual('phi.delta')+delta^2*residual('phi.delta.delta')) ) 
-    return(x/(R*rho))
-  }
-  ## run the calculations
-  ww <- NULL
-  my.T <- T
-  my.rho <- rho
-  for(j in 1:length(property)) {
-    t <- numeric()
-    for(i in 1:length(my.T)) {
-      T <- my.T[i]
-      rho <- my.rho[i]
-      # Equation 6.4
-      delta <- rho / rho.critical
-      tau <- T.critical / T
-      t <- c(t,get(property[j])())
-    }
-    t <- data.frame(t)
-    if(j==1) ww <- t else ww <- cbind(ww,t)
-  }
-  colnames(ww) <- property
-  return(ww)
-}
-

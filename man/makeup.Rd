@@ -1,17 +1,14 @@
+\encoding{UTF-8}
 \name{makeup}
 \alias{makeup}
-\alias{count.charge}
-\alias{count.formulas}
 \alias{count.elements}
 \title{Parse Chemical Formulas}
 \description{
-  Count the charge and number of elements in a chemical formula.
+Count the elements and charges in a chemical formula.
 }
 
 \usage{
   makeup(formula, multiplier = 1, sum = FALSE, count.zero = FALSE)
-  count.charge(formula)
-  count.formulas(formula)
   count.elements(formula)
 }
 
@@ -23,21 +20,29 @@
 }
 
 \details{
-  \code{makeup} parses a chemical formula expressed in string notation, returning the numbers of each element in the formula. The formula may carry a charge, indicated by a + or - sign, possibly followed by a magnitude, after the uncharged part of the formula. The formula may have multiple subformulas enclosed in parentheses (but the parentheses may not be nested), each one optionally followed by a numeric coefficient. The formula may have one suffixed subformula, separated by \samp{*} or \samp{:}, optionally preceded by a numeric coefficient. All numbers may contain a decimal point.
+\code{makeup} parses a chemical formula expressed in string notation, returning the numbers of each element in the formula.
+The formula may carry a charge, indicated by a + or - sign, possibly followed by a magnitude, after the uncharged part of the formula.
+The formula may have multiple subformulas enclosed in parentheses (but the parentheses may not be nested), each one optionally followed by a numeric coefficient.
+The formula may have one suffixed subformula, separated by \samp{*} or \samp{:}, optionally preceded by a numeric coefficient. All numbers may contain a decimal point.
 
-  \code{makeup} calls a sequence of supporting functions depending on specific characters present in the formula. If the formula has a charge, it is first parsed using \code{count.charge}. If the formula has subformulas, in parentheses or as a suffix, they are separated and counted using \code{count.formulas}. Finally, the elements in each subformula are counted using \code{count.elements}.
+Each subformula (or the entire formula without subformulas) should be a simple formula.
+A simple formula, processed by \code{count.elements}, must adhere to the following pattern: it starts with an elemental symbol; all elemental symbols start with an uppercase letter, and are followed by another elemental symbol, a number (possibly fractional, possibly signed), or nothing (the end of the formula).
+Any sequence of one uppercase letter followed by zero or more lowercase letters is recognized as an elemental symbol.
+\code{makeup} will issue a warning for elemental symbols that are not present in \code{\link{thermo}$element}.
 
- \code{count.elements} processes a simple chemical formula that must adhere to the following pattern: it starts with an elemental symbol; all elemental symbols start with an uppercase letter, and are followed by another elemental symbol, a number (possibly fractional, possibly signed), or nothing (the end of the formula).
+\code{makeup} can handle numeric and length > 1 values for the \code{formula} argument.
+If the argument is numeric, it identifies row number(s) in \code{thermo$obigt} from which to take the formulas of species.
+If \code{formula} has length > 1, the function returns a list containing the elemental counts in each of the formulas.
+If \code{count.zero} is TRUE, the elemental counts for each formula include zeros to indicate elements that are only present in any of the other formulas.
 
-  Any sequence of one uppercase letter followed by zero or more lowercase letters is recognized as an elemental symbol by \code{count.elements}, but \code{makeup} will issue a warning for elemental symbols that are not present in \code{\link{thermo}$element}.
-
-  \code{makeup} can handle numeric and length > 1 values for the \code{formula} argument. If the argument is numeric, it identifies row number(s) in \code{thermo$obigt} from which to take the formulas of species. If \code{formula} has length > 1, the function returns a list containing the elemental counts in each of the formulas. If \code{count.zero} is TRUE, the elemental counts for each formula include zeros to indicate elements that are only present in any of the other formulas.
-
-  The \code{multiplier} argument must have either length = 1 or length equal to the number of formulas. The elemental count in each formula is multiplied by the respective value. If \code{sum} is true, the elemental counts in all formulas (after any multiplying) are summed together to yield a single bulk formula. 
+The \code{multiplier} argument must have either length = 1 or length equal to the number of formulas.
+The elemental count in each formula is multiplied by the respective value.
+If \code{sum} is true, the elemental counts in all formulas (after any multiplying) are summed together to yield a single bulk formula. 
 }
 
 \value{
-  \code{count.charge} returns a list with named elements \code{charge} and \code{uncharged}, indicating, respectively, the numeric value of the charge, and the original formula string excluding the charge. \code{count.formulas} returns a numeric vector with names refering to each of the subformulas or the whole formula if there are no subformulas. \code{count.elements} and \code{makeup} return numeric vectors with names refering to each of the elemental symbols in the formula. For \code{makeup}, if more than one formula is provided, a list of numeric vectors is returned, unless \code{sum} is TRUE.
+A numeric vector with names refering to each of the elemental symbols in the formula.
+If more than one formula is provided, a list of numeric vectors is returned, unless \code{sum} is TRUE.
 }
 
 \examples{
@@ -76,8 +81,6 @@ formula <- c("H2O", "H+", "Z0-1", "O2")
 stopifnot(all(mf==0))
 }
 
-\seealso{
-  Many other functions in CHNOSZ rely on \code{makeup} for their operation: \code{\link{mass}} and \code{\link{entropy}} for calculating properties of chemical compounds from their elements; \code{\link{basis}} and \code{\link{i2A}} for constructing stoichiometric matrices (with \code{count.zero=TRUE}); \code{\link{subcrt}} for checking mass balance of chemical reactions; and others.
-}
+\seealso{ \code{\link{mass}}, \code{\link{entropy}}, \code{\link{basis}}, \code{\link{i2A}} }
 
 \concept{Secondary thermodynamic modeling}

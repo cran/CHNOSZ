@@ -15,7 +15,7 @@
   \item{aa}{data frame, amino acid composition in the format of \code{thermo$protein}}
   \item{property}{character, property to calculate}
   \item{T}{numeric, temperature in \eqn{^{\circ}}{°}C}
-  \item{P}{numeric, pressure in bar, or \samp{Psat} for vapor pressure of \eqn{\mathrm{H_2O}}{H2O} above 100 \eqn{^{\circ}}{°}C}
+  \item{P}{numeric, pressure in bar, or \samp{Psat} for vapor pressure of \H2O above 100 \eqn{^{\circ}}{°}C}
   \item{pH}{numeric, pH}
   \item{ret.val}{character, return the indicated value from intermediate calculations}
   \item{suppress.Cys}{logical, suppress (ignore) the ionization of the cysteine groups?}
@@ -31,21 +31,15 @@
   The function returns a matrix (possibly with only one row or column) with number of rows corresponding to the longest of \code{T}, \code{P} or \code{pH} (values of any of these with shorter length are recycled) and a column for each of the amino acid compositions in \code{aa}.
 }
 
-\seealso{
-  The amino acid composition in \code{aa} can be generated using e.g. \code{\link{ip2aa}}. 
-
-  \code{\link{protein.info}} and \code{\link{protein.basis}} use this function to compute the properties of ionized proteins.
-
-  This function is called by \code{\link{A.ionization}} as part of a calculation of \code{\link{affinity}} if proteins are among the species of interest, \samp{H+} is in the basis, and \code{thermo$opt$ionize} is TRUE. 
-}
+\seealso{ \code{\link{pinfo}}, \code{\link{affinity}} }
 
 \examples{\dontshow{data(thermo)}
 ## Charge of LYSC_CHICK as a function of pH and T
 # After Fig. 10 of Dick et al., 2006
 # the rownumber of the protein in thermo$protein
-ip <- iprotein("LYSC_CHICK")
+ip <- pinfo("LYSC_CHICK")
 # its amino acid composition
-aa <- ip2aa(ip)
+aa <- pinfo(ip)
 # additive charges of unfolded protein at 25, 100, 150 degrees C
 # as a function of pH
 pH <- seq(0, 14, 0.1)
@@ -74,7 +68,7 @@ Cp.nonion <- subcrt("LYSC_CHICK", T=T)$out[[1]]$Cp
 plot(T, Cp.nonion, xlab=axis.label("T"), type="l",
   ylab=axis.label("Cp"), ylim=c(5000, 8000))
 # Cp of ionization and ionized protein
-aa <- ip2aa("LYSC_CHICK")
+aa <- pinfo(pinfo("LYSC_CHICK"))
 for(pH in c(5, 9, 3)) {
   Cp.ionized <- Cp.nonion + ionize.aa(aa, "Cp", T=T, pH=pH)[, 1]
   lines(T, Cp.ionized, lty=2)
@@ -85,8 +79,7 @@ T <- c(5, 25, 50, 75, 100, 125)
 points(T, convert(MP90.cp("LYSC_CHICK", T), "cal"))
 # Privalov and Makhatadze's experimental values
 e <- read.csv(system.file("extdata/cpetc/PM90.csv", package="CHNOSZ"))
-e <- e[e$protein=="LYSC_CHICK",]
-points(e$T, convert(e$Cp, "cal"), pch=16)
+points(e$T, convert(e$LYSC_CHICK, "cal"), pch=16)
 legend("bottomright", pch=c(16, 1, NA, NA), lty=c(NA, NA, 1, 2),
   legend=c("PM90 experiment", "MP90 groups", 
   "DLH06 groups no ion", "DLH06 groups ionized"))
@@ -96,9 +89,9 @@ title("Heat capacity of unfolded LYSC_CHICK")
 \references{
   Dick, J. M., LaRowe, D. E. and Helgeson, H. C. (2006) Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences} \bold{3}, 311--336. \url{http://www.biogeosciences.net/3/311/2006/bg-3-311-2006.html}
 
-  Makhatadze, G. I. and Privalov, P. L. (1990) Heat capacity of proteins. 1. Partial molar heat capacity of individual amino acid residues in aqueous solution: Hydration effect. \emph{J. Mol. Biol.} \bold{213}, 375--384. \url{http://dx.doi.org/10.1016/S0022-2836(05)80197-4}
+  Makhatadze, G. I. and Privalov, P. L. (1990) Heat capacity of proteins. 1. Partial molar heat capacity of individual amino acid residues in aqueous solution: Hydration effect. \emph{J. Mol. Biol.} \bold{213}, 375--384. \url{https://doi.org/10.1016/S0022-2836(05)80197-4}
 
-  Privalov, P. L. and Makhatadze, G. I. (1990) Heat capacity of proteins. II. Partial molar heat capacity of the unfolded polypeptide chain of proteins: Protein unfolding effects. \emph{J. Mol. Biol.} \bold{213}, 385--391. \url{http://dx.doi.org/10.1016/S0022-2836(05)80198-6}
+  Privalov, P. L. and Makhatadze, G. I. (1990) Heat capacity of proteins. II. Partial molar heat capacity of the unfolded polypeptide chain of proteins: Protein unfolding effects. \emph{J. Mol. Biol.} \bold{213}, 385--391. \url{https://doi.org/10.1016/S0022-2836(05)80198-6}
 }
 
 \concept{Protein thermodynamic modeling}

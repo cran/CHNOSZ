@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{nonideal}
 \alias{nonideal}
 \title{Activity coefficients of aqueous species}
@@ -10,7 +11,7 @@ Calculate activity coefficients and non-ideal contributions to apparent standard
 }
 
 \arguments{
-  \item{species}{Names or indices of species for which to calculate nonideal properties (\code{nonideal}), or dataframe, species definition such as that in \code{\link{thermo}$species} (\code{which.balance})}
+  \item{species}{names or indices of species for which to calculate nonideal properties}
   \item{proptable}{list of dataframes of species properties}
   \item{IS}{numeric, ionic strength(s) used in nonideal calculations, mol kg\eqn{^{-1}}{^-1}}
   \item{T}{numeric, temperature (K) (\code{lines.water}, \code{nonideal})}
@@ -18,16 +19,18 @@ Calculate activity coefficients and non-ideal contributions to apparent standard
 
 \details{
 \code{nonideal} takes a list of dataframes (in \code{proptable}) containing the standard molal properties of the identified \code{species}.
-The function bypasses (leaves unchanged) properties of the proton (H+), electron (e-), and all species whose charge (determined by the number of Z in their \code{\link{makeup}}) is equal to zero.
-The values of \code{IS} are combined with Alberty's (2003) equation 3.6-1 (Debye-Huckel equation) and its derivatives, to calculate apparent molal properties at the specified ionic strength(s) and temperature(s).
+The function bypasses (leaves unchanged) properties of all species whose charge (determined by the number of Z in their \code{\link{makeup}}) is equal to zero.
+The proton (H+) and electron (e-) are also bypassed by default; to apply the calculations to H+ and/or e-, change \code{\link{thermo}$opt$ideal.H} or \code{ideal.e} to FALSE.
+The values of \code{IS} are combined with Alberty's (2003) equation 3.6-1 (extended Debye-Hückel equation) and its derivatives, to calculate apparent molal properties at the specified ionic strength(s) and temperature(s).
 The lengths of \code{IS} and \code{T} supplied in the arguments should be equal to the number of rows of each dataframe in \code{proptable}, or one to use single values throughout.
 The apparent molal properties that can be calculated include \code{G}, \code{H}, \code{S} and \code{Cp}; any columns in the dataframes of \code{proptable} with other names are left untouched.
 A column named \code{loggam} (logarithm of gamma, the activity coefficient) is appended to the output dataframe of species properties.
 }
 
 \section{Warning}{
-The activity coefficients (gamma) in the first example below are lower than those shown on p. 274-276 of Alberty, 2003 (compare gamma near 0.75 in for charge = -1, IS = 0.25, T = 25 on p. 274 with gamma near 0.5 here).
-This may be due to an unidentified bug in the function.
+The logarithms of activity coefficients (\code{loggam}) returned by \code{nonideal} use the natural logarithm (cf. Alberty, 2003 Eq. 3.6-1).
+To maintain consistency with the conventions used elsewhere in the package (i.e. for logarithms of equilibrium constants and of chemical activities), the values of \code{loggam} returned by \code{\link{subcrt}} are expressed using the common (base 10) logarithm.
+Note that the first example below uses \code{loggam} returned by \code{subcrt}, therefore requiring a base of 10 for calculating gamma.
 }
 
 \examples{\dontshow{data(thermo)}
@@ -43,9 +46,10 @@ for(j in 1:3) {
   s <- subcrt(c("H2PO4-", "HADP-2", "HATP-3", "ATP-4"), IS=IS, grid="IS", T=T[j])
   for(i in 1:4) lines(IS, 10^s$out[[i]]$loggam, col=col[j])
 }
-text(0.1, 0.62, "Z = -1")
-text(0.075, 0.18, "Z = -2")
-text(0.05, 0.06, "Z = -3")
+text(0.125, 0.8, "Z = -1")
+text(0.1, 0.42, "Z = -2")
+text(0.075, 0.18, "Z = -3")
+text(0.05, 0.08, "Z = -4")
 title(main=paste("activity coefficient (gamma) of -1,-2,-3,-4",
   "charged species at 0, 25, 40 deg C, after Alberty, 2003",
   sep="\n"), cex.main=0.95)
@@ -62,7 +66,7 @@ subcrt(c("acetic acid", "acetate", "H+"), c(-1, 1, 1),
   IS=c(0, 0.1, 0.25), T=25, property="logK")
 # note that *apparent* values equal *standard* values at IS=0
 # reset option to default
-thermo$opt$ideal.H <<- FALSE
+thermo$opt$ideal.H <<- TRUE
 
 ## p. 95: basis and elemental stoichiometries of species 
 # (this example doesn't use activity coefficients)
@@ -70,9 +74,6 @@ basis(c("ATP-4", "H+", "H2O", "HPO4-2", "O2", "NH3"))
 # cf Eq. 5.1-33: basis composition
 species(c("ATP-4", "H+", "H2O", "HPO4-2", "ADP-3", "HATP-3", "HADP-2",
   "H2PO4-"))
-# cf Eq. 5.1-32: elemental composition
-species.basis() %*% basis.elements()
-
 
 ### A different example
 
@@ -102,7 +103,7 @@ par(opar)
 }
 
 \references{
-  Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
+Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
 }
 
 \concept{Secondary thermodynamic modeling}

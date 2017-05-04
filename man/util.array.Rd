@@ -1,3 +1,4 @@
+\encoding{UTF-8}
 \name{util.array}
 \alias{util.array}
 \alias{list2array}
@@ -30,11 +31,9 @@
 
   \code{slice} extracts or assigns values from/to the \code{i}th slice(s) in the \code{d}th dimension of an array. Values are assigned to an array if \code{value} is not NULL. This function works by building an expression containing the extraction operator (\code{\link{[}}).
 
-  \code{slice.affinity} performs a slice operation on the \samp{values} element of the \samp{affinity} variable (which should be the output of \code{\link{affinity}}). This function is used e.g. by \code{\link{anim.TCA}} to extract slices that are the basis for frames of an animated stability diagram.
+  \code{slice.affinity} performs a slice operation on the \samp{values} element of the \samp{affinity} variable (which should be the output of \code{\link{affinity}}). This function is used e.g. by \code{\link{anim.TCA}} to extract slices that are the used to make frames of an animated stability diagram.
 
   \code{dimSums} sums an array along the \code{d}th dimension using only the \code{i}th slices in that dimension. If \code{i} is NULL, all slices in that dimension are summed together. For matrices, \code{dimSums(x,1)} has the same result as \code{\link{colSums}(x)} and \code{dimSums(x,2)} has the same result as \code{\link{rowSums}(x)}.
-
-  In the examples below, the \dQuote{stopifnot} tests fail unless \samp{a} and \samp{b} are both created as multiples of the starting matrix \samp{x}. This behavior probably reflects the internal representation of these matrices in \R.
 }
 
 \examples{
