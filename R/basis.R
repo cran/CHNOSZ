@@ -3,11 +3,13 @@
 
 basis <- function(species=NULL, state=NULL, logact=NULL, delete=FALSE) {
   thermo <- get("thermo")
-  ## delete the basis species if requested
   oldbasis <- thermo$basis
-  if(delete) {
+  ## delete the basis species if requested
+  if(delete | identical(species, "")) {
     thermo$basis <- NULL
+    thermo$species <- NULL
     assign("thermo", thermo, "CHNOSZ")
+    return(invisible(oldbasis))
   }
   ## return the basis definition if requested
   if(is.null(species)) return(oldbasis)
@@ -104,7 +106,7 @@ put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
   rownames(comp) <- as.character(thermo$obigt$formula[ispecies])
   # FIXME: the electron doesn't look like a chemical formula
   # this is needed for affinity() to understand a 'pe' or 'Eh' variable
-  if("Z0-1" %in% rownames(comp)) rownames(comp)[rownames(comp)=="Z0-1"] <- "e-"
+  if("(Z-1)" %in% rownames(comp)) rownames(comp)[rownames(comp)=="(Z-1)"] <- "e-"
   # now check it for validity of basis species
   # the first test: matrix is square
   if( nrow(comp) > ncol(comp) ) stop("overdetermined system; square stoichiometric matrix needed")
@@ -150,7 +152,7 @@ mod.basis <- function(species, state=NULL, logact=NULL) {
           ispecies <- suppressMessages(info(as.character(thermo$buffers$species)[ibuff[k]],
             as.character(thermo$buffers$state)[ibuff[k]], check.it=FALSE))
           bufmakeup <- makeup(ispecies)
-          inbasis <- rownames(bufmakeup) %in% colnames(basis()) 
+          inbasis <- names(bufmakeup) %in% colnames(basis()) 
           if(FALSE %in% inbasis) {
             stop(paste("the elements '",c2s(rownames(bufmakeup)[!inbasis]),
               "' of species '",thermo$buffers$species[ibuff[k]],"' in buffer '",state[i],
@@ -159,10 +161,19 @@ mod.basis <- function(species, state=NULL, logact=NULL) {
         }
         thermo$basis$logact[ib] <- state[i]
       } else {
-        # look for a species with this name in the requested state
-        ispecies <- suppressMessages(info(thermo$obigt$name[thermo$basis$ispecies[ib]], state[i], check.it=FALSE))
-        if(is.na(ispecies) | is.list(ispecies)) 
-          stop(paste("state or buffer '", state[i], "' not found for ", thermo$obigt$name[thermo$basis$ispecies[ib]], "\n", sep=""))
+        # first, look for a species with the same _name_ in the requested state
+        myname <- thermo$obigt$name[thermo$basis$ispecies[ib]]
+        ispecies <- suppressMessages(info(myname, state[i], check.it=FALSE))
+        if(is.na(ispecies) | is.list(ispecies)) {
+          # if that failed, look for a species with the same _formula_ in the requested state
+          myformula <- thermo$obigt$formula[thermo$basis$ispecies[ib]]
+          ispecies <- suppressMessages(info(myformula, state[i], check.it=FALSE))
+          if(is.na(ispecies) | is.list(ispecies)) {
+            # if that failed, we're out of luck
+            if(myname==myformula) nametxt <- myname else nametxt <- paste(myname, "or", myformula)
+            stop(paste0("state or buffer '", state[i], "' not found for ", nametxt, "\n"))
+          }
+        }
         thermo$basis$ispecies[ib] <- ispecies
         thermo$basis$state[ib] <- state[i]
       }
@@ -182,7 +193,7 @@ preset.basis <- function(key=NULL) {
   # just list the keywords if none is specified
   if(is.null(key)) return(basis.key)
   # delete any previous basis definition
-  basis(delete=TRUE)
+  basis("")
   # match the keyword to the available ones
   ibase <- match(key, basis.key)
   if(is.na(ibase)) stop(paste(key, "is not a keyword for preset basis species"))

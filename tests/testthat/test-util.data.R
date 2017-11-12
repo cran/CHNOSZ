@@ -39,13 +39,21 @@ test_that("add.obigt() replaces existing entries without changing species index"
   iCdCl2 <- info("CdCl2", "aq")
   # add supplemental database - includes CdCl2
   file <- system.file("extdata/thermo/BZA10.csv", package="CHNOSZ")
-  isp <- add.obigt(file, force=TRUE)
+  isp <- add.obigt(file)
   # species index of CdCl2 should not have changed
   expect_equal(info("CdCl2", "aq"), iCdCl2)
   # check that names of species modified are same as in file
   newdat <- read.csv(file, stringsAsFactors=FALSE)
   # the order isn't guaranteed ... just make sure they're all there
   expect_true(all(newdat$name %in% thermo$obigt$name[isp]))
+})
+
+test_that("data(thermo) and data(OBIGT) produce the same database", {
+  data(thermo)
+  d1 <- get("thermo")$obigt
+  data(OBIGT)
+  d2 <- get("thermo")$obigt
+  expect_equal(d1, d2)
 })
 
 # reference

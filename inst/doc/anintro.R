@@ -64,6 +64,13 @@ knit_hooks$set(timeit = function(before) {
 })
 timeit <- NULL
 
+## colorize messages 20171031
+## adapted from https://gist.github.com/yihui/2629886#file-knitr-color-msg-rnw
+color_block = function(color) {
+  function(x, options) sprintf('<pre style="color:%s">%s</pre>', color, x)
+}
+knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), message = color_block('blue'))
+
 ## ----install_CHNOSZ, eval=FALSE-----------------------------------------------
 #  install.packages("CHNOSZ")
 
@@ -74,12 +81,49 @@ library(CHNOSZ)
 data(thermo)
 
 ## ----pseudocode, eval=FALSE---------------------------------------------------
+#  data(thermo)         ## initialize system settings
 #  basis(...)
 #  species(...)
 #  a <- affinity(...)
 #  e <- equilibrate(a)  ## optional
 #  diagram(e)           ## or diagram(a)
-#  data(thermo)         ## clear system settings
+#  data(thermo)         ## clear settings for next calculation
+
+## ----info_adenine-------------------------------------------------------------
+info("aden ")
+info("adenine")
+iadenine <- info("adenine")
+info(iadenine)
+
+## ----refs_adenine-------------------------------------------------------------
+thermo.refs(iadenine)
+
+## ----bsad_adenine, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Nucleobase equal-activity diagram.", cache=TRUE, pngquant=pngquant, timeit=timeit----
+basis("CHNOSe")
+species(c("adenine", "cytosine", "guanine", "thymine", "uracil"))
+a <- affinity(H2O = c(-12, -0), Eh = c(-0.5, 0), T = 100)
+diagram(a)
+
+## ----subcrt_adenine-----------------------------------------------------------
+subcrt("adenine", T = 100)
+
+## ----equil_adenine, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Activities of nucleobases in metastable equilibrium.", cache=TRUE, pngquant=pngquant, timeit=timeit----
+basis("e-", 3.6)
+a <- affinity(H2O = c(-12, 0), T = 100)
+e <- equilibrate(a)
+diagram(e, ylim = c(-8, 0))
+
+## ----bsad_adenine, eval=FALSE-------------------------------------------------
+#  basis("CHNOSe")
+#  species(c("adenine", "cytosine", "guanine", "thymine", "uracil"))
+#  a <- affinity(H2O = c(-12, -0), Eh = c(-0.5, 0), T = 100)
+#  diagram(a)
+
+## ----equil_adenine, eval=FALSE------------------------------------------------
+#  basis("e-", 3.6)
+#  a <- affinity(H2O = c(-12, 0), T = 100)
+#  e <- equilibrate(a)
+#  diagram(e, ylim = c(-8, 0))
 
 ## ----info_methane-------------------------------------------------------------
 info("methane")
@@ -87,8 +131,15 @@ info("methane")
 ## ----info_methane_gas---------------------------------------------------------
 info("methane", "gas")
 
-## ----info_910, message=FALSE--------------------------------------------------
-info(910)
+## ----info_methane_test, echo=FALSE, results="hide"----------------------------
+# this prevents the vignette from compiling in case
+# database updates cause the species index of methane to change
+stopifnot(info("methane")==859)
+# it is up to the editor of this vignette to ensure that number
+# is used in the hard-coded examples below!
+
+## ----info_859, message=FALSE--------------------------------------------------
+info(859)
 
 ## ----info_info_water----------------------------------------------------------
 info(info("water"))
@@ -105,17 +156,17 @@ options(width = 80)
 ## ----info_ribose--------------------------------------------------------------
 info(" ribose")
 
-## ----info_910_formula, message=FALSE------------------------------------------
-info(910)$formula
+## ----info_859_formula, message=FALSE------------------------------------------
+info(859)$formula
 
-## ----makeup_910---------------------------------------------------------------
-makeup(910)
-as.chemical.formula(makeup(910))
+## ----makeup_859---------------------------------------------------------------
+makeup(859)
+as.chemical.formula(makeup(859))
 
-## ----ZC_910, message=FALSE----------------------------------------------------
-ZC(910)
-ZC(info(910)$formula)
-ZC(makeup(910))
+## ----ZC_859, message=FALSE----------------------------------------------------
+ZC(859)
+ZC(info(859)$formula)
+ZC(makeup(859))
 
 ## ----subcrt_water-------------------------------------------------------------
 subcrt("water")
@@ -274,17 +325,17 @@ swap.basis("O2", "e-")
 ## ----EhpH_plot, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, cache=TRUE, fig.cap="Aqueous sulfur species at 25 °C.", pngquant=pngquant, timeit=timeit----
 a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
 diagram(a, fill = "heat")
-water.lines()
+water.lines(a)
 
 ## ----EhpH_plot, echo=1, eval=FALSE--------------------------------------------
 #  a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
 #  diagram(a, fill = "heat")
-#  water.lines()
+#  water.lines(a)
 
 ## ----EhpH_plot, echo=-1, eval=FALSE-------------------------------------------
 #  a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
 #  diagram(a, fill = "heat")
-#  water.lines()
+#  water.lines(a)
 
 ## ----EhpH_plot_color, fig.margin=TRUE, fig.width=4, fig.height=4, smallish.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, cache=TRUE, fig.cap="The same plot, with different colors and labels.", pngquant=pngquant, timeit=timeit----
 diagram(a, fill = "terrain", lwd = 3, lty = 3,
@@ -300,7 +351,7 @@ diagram(a, fill = "terrain", lwd = 3, lty = 3,
 info(" CuCl")
 
 ## ----info_chalcocite, message=FALSE-------------------------------------------
-info(info("chalcocite", c("cr1", "cr2", "cr3")))$T
+info(info("chalcocite", c("cr", "cr2", "cr3")))$T
 
 ## ----copper_setup, echo=TRUE, results="hide"----------------------------------
 basis(c("Cu", "H2S", "Cl-", "H2O", "H+", "e-"))
@@ -318,9 +369,9 @@ m1 <- mosaic(bases, blend = TRUE, pH = c(0, 12, res), Eh=c(-1.2, 0.75, res), T=T
 diagram(m1$A.species, lwd = 2, fill = NA, limit.water = FALSE)
 diagram(m1$A.bases, add = TRUE, col = "blue", col.names = "blue", lty = 2,
         limit.water = FALSE)
-water.lines("pH", "Eh", T = convert(T, "K"), col = "red", lwd = 2, lty = 2)
+water.lines(m1$A.species, col = "red", lwd = 2, lty = 3)
 
-## ----mosaicfun, fig.fullwidth=TRUE, fig.width=9, fig.height=3, small.mar=TRUE, dpi=dpi, out.width="85%", message=FALSE, results="hide", cache=TRUE, fig.cap="Different projections (defined by the basis species) of the same thermodynamic system.", pngquant=pngquant, timeit=timeit----
+## ----mosaicfun, fig.fullwidth=TRUE, fig.width=9, fig.height=3, small.mar=TRUE, dpi=dpi, out.width="85%", message=FALSE, results="hide", cache=TRUE, fig.cap="The same chemical system projected into different sets of basis species.", pngquant=pngquant, timeit=timeit----
 mosaicfun <- function(newvar, T = 200) {
   swap.basis("e-", names(newvar))
   if (names(newvar) == "O2") basis("O2", "gas")
@@ -330,12 +381,13 @@ mosaicfun <- function(newvar, T = 200) {
           limit.water = FALSE)
   diagram(m1$A.bases, add = TRUE, col = "blue", col.names = "blue", lty = 3,
           limit.water = FALSE)
+  water.lines(m1$A.species, col = "red", lwd = 2, lty = 3)
   swap.basis(names(newvar), "e-")
 }
 par(mfrow = c(1, 3))
 mosaicfun(list(Eh = c(-1, 1, res)))
-mosaicfun(list(H2 = c(-15, 5, res)))
-mosaicfun(list(O2 = c(-70, 0, res)))
+mosaicfun(list(H2 = c(-30, 10, res)))
+mosaicfun(list(O2 = c(-70, 5, res)))
 
 ## ----rainbow_data-------------------------------------------------------------
 file <- system.file("extdata/cpetc/SC10_Rainbow.csv", package = "CHNOSZ")
@@ -537,473 +589,8 @@ aafun <- function(balance) {
 par(mfrow = c(1, 5))
 lapply(c("1", "CO2", "H2O", "N2", "volume"), aafun)
 
-## ----pinfo_LYSC_CHICK---------------------------------------------------------
-p1 <- pinfo("LYSC_CHICK")
-p2 <- pinfo(c("SHH", "OLIG2"), "HUMAN")
-pinfo(c(p1, p2))
-
-## ----formula_LYSC_CHICK-------------------------------------------------------
-pl <- protein.length("LYSC_CHICK")
-pf <- protein.formula("LYSC_CHICK")
-list(length = pl, protein = pf, residue = pf / pl,
-     ZC_protein = ZC(pf), ZC_residue = ZC(pf / pl))
-
-## ----subcrt_LYSC_CHICK, message=FALSE-----------------------------------------
-subcrt("LYSC_CHICK")$out[[1]][1:6, ]
-
-## ----protein_Cp, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, fig.cap='The heat capacity calculated by group additivity closely approximates experimental values for aqueous proteins. For a related figure showing the effects of ionization in the calculations, see <span style="color:blue">?ionize.aa</span>.', cache=TRUE, pngquant=pngquant, timeit=timeit----
-PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
-plength <- protein.length(colnames(PM90)[2:5])
-Cp_expt <- t(t(PM90[, 2:5]) / plength)
-matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
-        xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
-for(i in 1:4) {
-  pname <- colnames(Cp_expt)[i]
-  aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
-  cr <- subcrt(pname, "cr", T = seq(0, 150))$out[[1]]
-  lines(aq$T, aq$Cp / plength[i], col = i)
-  lines(cr$T, cr$Cp / plength[i], col = i, lty = 2)
-}
-legend("right", legend = colnames(Cp_expt),
-       col = 1:4, pch = 19, lty = 1, bty = "n", cex = 0.9)
-legend("bottomright", legend = c("experimental", "calculated (aq)",
-       "calculated (cr)"), lty = c(NA, 1, 2), pch = c(19, NA, NA), bty = "n")
-
-## ----protein_Cp, eval=FALSE, echo=1:5-----------------------------------------
-#  PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
-#  plength <- protein.length(colnames(PM90)[2:5])
-#  Cp_expt <- t(t(PM90[, 2:5]) / plength)
-#  matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
-#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
-#  for(i in 1:4) {
-#    pname <- colnames(Cp_expt)[i]
-#    aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
-#    cr <- subcrt(pname, "cr", T = seq(0, 150))$out[[1]]
-#    lines(aq$T, aq$Cp / plength[i], col = i)
-#    lines(cr$T, cr$Cp / plength[i], col = i, lty = 2)
-#  }
-#  legend("right", legend = colnames(Cp_expt),
-#         col = 1:4, pch = 19, lty = 1, bty = "n", cex = 0.9)
-#  legend("bottomright", legend = c("experimental", "calculated (aq)",
-#         "calculated (cr)"), lty = c(NA, 1, 2), pch = c(19, NA, NA), bty = "n")
-
-## ----protein_Cp, eval=FALSE, echo=-(1:5)--------------------------------------
-#  PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
-#  plength <- protein.length(colnames(PM90)[2:5])
-#  Cp_expt <- t(t(PM90[, 2:5]) / plength)
-#  matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
-#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
-#  for(i in 1:4) {
-#    pname <- colnames(Cp_expt)[i]
-#    aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
-#    cr <- subcrt(pname, "cr", T = seq(0, 150))$out[[1]]
-#    lines(aq$T, aq$Cp / plength[i], col = i)
-#    lines(cr$T, cr$Cp / plength[i], col = i, lty = 2)
-#  }
-#  legend("right", legend = colnames(Cp_expt),
-#         col = 1:4, pch = 19, lty = 1, bty = "n", cex = 0.9)
-#  legend("bottomright", legend = c("experimental", "calculated (aq)",
-#         "calculated (cr)"), lty = c(NA, 1, 2), pch = c(19, NA, NA), bty = "n")
-
-## ----protein_ionization, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Affinity of ionization of proteins. See <span style="color:blue">demo(ionize)</span> for ionization properties calculated as a function of temperature and pH.', cache=TRUE, pngquant=pngquant, timeit=timeit----
-ip <- pinfo(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
-basis("CHNOS+")
-a_ion <- affinity(pH = c(0, 14), iprotein = ip)
-basis("CHNOS")
-a_nonion <- affinity(iprotein = ip)
-plot(c(0, 14), c(50, 300), xlab = "pH", ylab = axis.label("A"), type = "n")
-for(i in 1:4) {
-  A_ion <- as.numeric(a_ion$values[[i]])
-  A_nonion <- as.numeric(a_nonion$values[[i]])
-  lines(a_ion$vals[[1]], A_ion - A_nonion, col=i)
-}
-legend("topright", legend = a_ion$species$name,
-       col = 1:4, lty = 1, bty = "n", cex = 0.9)
-
-## ----protein_ionization, eval=FALSE-------------------------------------------
-#  ip <- pinfo(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
-#  basis("CHNOS+")
-#  a_ion <- affinity(pH = c(0, 14), iprotein = ip)
-#  basis("CHNOS")
-#  a_nonion <- affinity(iprotein = ip)
-#  plot(c(0, 14), c(50, 300), xlab = "pH", ylab = axis.label("A"), type = "n")
-#  for(i in 1:4) {
-#    A_ion <- as.numeric(a_ion$values[[i]])
-#    A_nonion <- as.numeric(a_nonion$values[[i]])
-#    lines(a_ion$vals[[1]], A_ion - A_nonion, col=i)
-#  }
-#  legend("topright", legend = a_ion$species$name,
-#         col = 1:4, lty = 1, bty = "n", cex = 0.9)
-
-## ----basis_CHNOS, echo=FALSE, results="hide"----------------------------------
-basis("CHNOS")
-
-## ----species_protein, results="hide", message=FALSE, echo=1:2-----------------
-species(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
-a_nonion_species <- affinity()
-
-## ----nonion_species_values----------------------------------------------------
-unlist(a_nonion_species$values)
-
-## ----nonion_values------------------------------------------------------------
-unlist(a_nonion$values)
-
-## ----rubisco_svg, echo=FALSE, results="hide", fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, out.width="100%", fig.ext='svg', custom.plot=TRUE, embed.tag=TRUE, fig.cap='Average oxidation state of carbon in Rubisco compared with optimal growth temperature of organisms. **This is an interactive image.** Move the mouse over the points to show the names of the organisms, and click to open a reference in a new window. (Made with [**RSVGTipsDevice**](https://cran.r-project.org/package=RSVGTipsDevice) using code that can be found in the source of this document.)'----
-## copies the premade SVG image to the knitr figure path
-file.copy("rubisco.svg", fig_path(".svg"))
-## the code for making the SVG image -- not "live" in the vignette because RSVGTipsDevice isn't available on Windows
-#if(require(RSVGTipsDevice)) {
-#  datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
-#  fastafile <- system.file("extdata/fasta/rubisco.fasta", package = "CHNOSZ")
-#  dat <- read.csv(datfile)
-#  aa <- read.fasta(fastafile)
-#  Topt <- (dat$T1 + dat$T2) / 2
-#  idat <- match(dat$ID, substr(aa$protein, 4, 9))
-#  aa <- aa[idat, ]
-#  ZC <- ZC(protein.formula(aa))
-#  pch <- match(dat$domain, c("E", "B", "A")) - 1
-#  col <- match(dat$domain, c("A", "B", "E")) + 1
-#  # because the tooltip titles in the SVG file are shown by recent browsers,
-#  # we do not need to draw the tooltips explicitly, so set toolTipMode=0
-#  devSVGTips("rubisco.svg", toolTipMode=0, title="Rubisco")
-#  par(cex=1.4)
-#  # unfortunately, plotmath can't be used with devSVGTips,
-#  # so axis labels here don't contain italics.
-#  plot(Topt, ZC, type="n", xlab="T, &#176;C", ylab="ZC")
-#  n <- rep(1:9, 3)
-#  for(i in seq_along(Topt)) {
-#    # adjust cex to make the symbols look the same size
-#    cex <- ifelse(pch[i]==1, 2.5, 3.5)
-#    points(Topt[i], ZC[i], pch=pch[i], cex=cex, col=col[i])
-#    URL <- dat$URL[i]
-#    setSVGShapeURL(URL, target="_blank")
-#    setSVGShapeContents(paste0("<title>", dat$species[i], "</title>"))
-#    text(Topt[i], ZC[i], n[i], cex = 1.2)
-#  }
-#  abline(v = c(36, 63), lty = 2, col = "grey")
-#  legend("topright", legend = c("Archaea", "Bacteria", "Eukaryota"),
-#         pch = c(2, 1, 0), col = 2:4, cex=1.5, pt.cex = c(3, 2.3, 3), bty="n")
-#  dev.off()
-#}
-
-## ----rubisco_ZC, fig.keep="none", message=FALSE-------------------------------
-datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
-fastafile <- system.file("extdata/fasta/rubisco.fasta", package = "CHNOSZ")
-dat <- read.csv(datfile)
-aa <- read.fasta(fastafile)
-Topt <- (dat$T1 + dat$T2) / 2
-idat <- match(dat$ID, substr(aa$protein, 4, 9))
-aa <- aa[idat, ]
-ZC <- ZC(protein.formula(aa))
-pch <- match(dat$domain, c("E", "B", "A")) - 1
-col <- match(dat$domain, c("A", "B", "E")) + 1
-plot(Topt, ZC, pch = pch, cex = 2, col = col,
-     xlab = expression(list(italic(T)[opt], degree*C)),
-     ylab = expression(italic(Z)[C]))
-text(Topt, ZC, rep(1:9, 3), cex = 0.8)
-abline(v = c(36, 63), lty = 2, col = "grey")
-legend("topright", legend = c("Archaea", "Bacteria", "Eukaryota"),
-       pch = c(2, 1, 0), col = 2:4, pt.cex = 2)
-
-## ----rubisco_O2, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Compositions of proteins projected into different sets of basis species.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-layout(matrix(1:4, nrow = 2))
-par(mgp = c(1.8, 0.5, 0))
-pl <- protein.length(aa)
-ZClab <- axis.label("ZC")
-nO2lab <- expression(bar(italic(n))[O[2]])
-nH2Olab <- expression(bar(italic(n))[H[2]*O])
-lapply(c("CHNOS", "QEC"), function(thisbasis) {
-  basis(thisbasis)
-  pb <- protein.basis(aa)
-  nO2 <- pb[, "O2"] / pl
-  plot(ZC, nO2, pch = pch, col = col, xlab = ZClab, ylab = nO2lab)
-  nH2O <- pb[, "H2O"] / pl
-  plot(ZC, nH2O, pch = pch, col = col, xlab = ZClab, ylab = nH2Olab)
-  mtext(thisbasis, font = 2)
-})
-
-## ----rubisco_O2, eval=FALSE---------------------------------------------------
-#  layout(matrix(1:4, nrow = 2))
-#  par(mgp = c(1.8, 0.5, 0))
-#  pl <- protein.length(aa)
-#  ZClab <- axis.label("ZC")
-#  nO2lab <- expression(bar(italic(n))[O[2]])
-#  nH2Olab <- expression(bar(italic(n))[H[2]*O])
-#  lapply(c("CHNOS", "QEC"), function(thisbasis) {
-#    basis(thisbasis)
-#    pb <- protein.basis(aa)
-#    nO2 <- pb[, "O2"] / pl
-#    plot(ZC, nO2, pch = pch, col = col, xlab = ZClab, ylab = nO2lab)
-#    nH2O <- pb[, "H2O"] / pl
-#    plot(ZC, nH2O, pch = pch, col = col, xlab = ZClab, ylab = nH2Olab)
-#    mtext(thisbasis, font = 2)
-#  })
-
-## ----yeastgfp-----------------------------------------------------------------
-y <- yeastgfp("ER.to.Golgi")
-ina <- is.na(y$abundance)
-
-## ----add_protein_yeast, message=FALSE-----------------------------------------
-aa <- more.aa(y$protein[!ina], "Sce")
-ip <- add.protein(aa)
-
-## ----unitize------------------------------------------------------------------
-pl <- protein.length(ip)
-logact <- unitize(numeric(5), pl)
-logabundance <- unitize(log10(y$abundance[!ina]), pl)
-
-## ----yeastplot, eval=FALSE, echo=1:6------------------------------------------
-#  par(mfrow = c(1, 3))
-#  basis("CHNOS+")
-#  #mod.obigt("[Met]", G = -35245, H = -59310)
-#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
-#  e <- equilibrate(a)
-#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
-#  e <- equilibrate(a, normalize = TRUE)
-#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
-#  abline(h = logabundance, lty = 1:5, col = 1:5)
-#  revisit(e, "DGinf", logabundance)
-
-## ----yeastplot, eval=FALSE, echo=7:9------------------------------------------
-#  par(mfrow = c(1, 3))
-#  basis("CHNOS+")
-#  #mod.obigt("[Met]", G = -35245, H = -59310)
-#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
-#  e <- equilibrate(a)
-#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
-#  e <- equilibrate(a, normalize = TRUE)
-#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
-#  abline(h = logabundance, lty = 1:5, col = 1:5)
-#  revisit(e, "DGinf", logabundance)
-
-## ----yeastplot, eval=FALSE, echo=10-------------------------------------------
-#  par(mfrow = c(1, 3))
-#  basis("CHNOS+")
-#  #mod.obigt("[Met]", G = -35245, H = -59310)
-#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
-#  e <- equilibrate(a)
-#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
-#  e <- equilibrate(a, normalize = TRUE)
-#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
-#  abline(h = logabundance, lty = 1:5, col = 1:5)
-#  revisit(e, "DGinf", logabundance)
-
-## ----yeastplot, fig.fullwidth=TRUE, fig.width=7.5, fig.height=2.5, small.mar=TRUE, dpi=ifelse(dpi==50, 50, 100), out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="ER-to-Golgi proteins: calculations without and with length normalization, and free energy difference between experimental and calculated abundances in metastable equilibrium with normalization.", pngquant=pngquant, timeit=timeit----
-par(mfrow = c(1, 3))
-basis("CHNOS+")
-#mod.obigt("[Met]", G = -35245, H = -59310)
-a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
-e <- equilibrate(a)
-diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
-e <- equilibrate(a, normalize = TRUE)
-diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
-abline(h = logabundance, lty = 1:5, col = 1:5)
-revisit(e, "DGinf", logabundance)
-
-## ----Shh_pname----------------------------------------------------------------
-pname <- c("SHH", "OLIG2", "NKX22", "FOXA2", "IRX3",
-  "PAX6", "NKX62", "DBX1", "DBX2", "NKX61", "PAX7")
-ip <- pinfo(pname, "HUMAN")
-
-## ----Shh_basis, results="hide"------------------------------------------------
-basis("CHNOS")
-basis("NH3", -7)
-
-## ----Shh_affinity, message=FALSE----------------------------------------------
-O2 <- seq(-70, -106, length.out = 50)
-H2O <- seq(0.5, -5.5, length.out = 50)
-a <- affinity(H2O = H2O, O2 = O2, iprotein = ip)
-
-## ----Shh_residue--------------------------------------------------------------
-pl <- protein.length(ip)
-for(i in seq_along(a$values)) a$values[[i]] <- a$values[[i]] / pl[i]
-
-## ----Shh_minusShh-------------------------------------------------------------
-a.Shh <- a$values[[1]]
-for(i in 1:length(a$values)) a$values[[i]] <- a$values[[i]] - a.Shh
-
-## ----Shh_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Per-residue affinities for formation of transcription factors relative to Shh.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-# line type, width, and color
-twc <- lapply(c(3, 1, 1), rep, length(pname))
-ihigh <- c(2, 5, 7, 8, 1)
-twc[[1]][ihigh] <- 1
-twc[[2]][ihigh] <- 3
-col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
-twc[[3]][ihigh] <- col
-names <- rep("", length(pname))
-names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
-ylab <- substitute(italic(A) / 2.303 * italic(RT) * " relative to Shh")
-diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
-  lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
-  names = names, adj = 0, dy = 0.1, format.names = FALSE)
-par(usr = c(-70, -106, -0.5, 5), tcl = -0.3)
-axis(3, at = seq(-70, -106, by = -10))
-mtext(axis.label("O2"), line = 1.2)
-
-## ----Shh_diagram, eval=FALSE--------------------------------------------------
-#  # line type, width, and color
-#  twc <- lapply(c(3, 1, 1), rep, length(pname))
-#  ihigh <- c(2, 5, 7, 8, 1)
-#  twc[[1]][ihigh] <- 1
-#  twc[[2]][ihigh] <- 3
-#  col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
-#  twc[[3]][ihigh] <- col
-#  names <- rep("", length(pname))
-#  names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
-#  ylab <- substitute(italic(A) / 2.303 * italic(RT) * " relative to Shh")
-#  diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
-#    lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
-#    names = names, adj = 0, dy = 0.1, format.names = FALSE)
-#  par(usr = c(-70, -106, -0.5, 5), tcl = -0.3)
-#  axis(3, at = seq(-70, -106, by = -10))
-#  mtext(axis.label("O2"), line = 1.2)
-
-## ----read_csv-----------------------------------------------------------------
-file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-aa_bison <- read.csv(file, as.is = TRUE, nrows = 5)
-
-## ----more_aa------------------------------------------------------------------
-aa_YML020W <- more.aa("YML020W", "Sce")
-aa_ILVE <- more.aa("ILVE", "Eco")
-
-## ----read_fasta, message=FALSE------------------------------------------------
-file <- system.file("extdata/fasta/EF-Tu.aln", package = "CHNOSZ")
-aa_Ef <- read.fasta(file, iseq = 1:2)
-
-## ----seq2aa-------------------------------------------------------------------
-aa_PRIO <- seq2aa("PRIO_HUMAN", "
-MANLGCWMLVLFVATWSDLGLCKKRPKPGGWNTGGSRYPGQGSPGGNRYPPQGGGGWGQP
-HGGGWGQPHGGGWGQPHGGGWGQPHGGGWGQGGGTHSQWNKPSKPKTNMKHMAGAAAAGA
-VVGGLGGYMLGSAMSRPIIHFGSDYEDRYYRENMHRYPNQVYYRPMDEYSNQNNFVHDCV
-NITIKQHTVTTTTKGENFTETDVKMMERVVEQMCITQYERESQAYYQRGSSMVLFSSPPV
-ILLISFLIFLIVG
-")
-
-## ----uniprot_aa, eval=FALSE---------------------------------------------------
-#  IDs <- c("ALAT1_HUMAN", "P02452")
-#  aa <- lapply(IDs, uniprot.aa)
-#  ## uniprot.aa: trying http://www.uniprot.org/uniprot/ALAT1_HUMAN ... accession P24298 ...
-#  ## >sp|P24298|ALAT1_HUMAN Alanine aminotransferase 1 OS=Homo sapiens GN=GPT PE=1 SV=3 (length 496)
-#  ## uniprot.aa: trying http://www.uniprot.org/uniprot/P02452 ... accession P02452 ...
-#  ## >sp|P02452|CO1A1_HUMAN Collagen alpha-1(I) chain OS=Homo sapiens GN=COL1A1 PE=1 SV=5 (length 1464)
-#  aa_UniProt <- do.call(rbind, aa)
-
-## ----uniprot_aa_offline, echo=FALSE-------------------------------------------
-aa_ALAT1 <- seq2aa("sp|P24298_HUMAN", "
-MASSTGDRSQAVRHGLRAKVLTLDGMNPRVRRVEYAVRGPIVQRALELEQELRQGVKKPF
-TEVIRANIGDAQAMGQRPITFLRQVLALCVNPDLLSSPNFPDDAKKRAERILQACGGHSL
-GAYSVSSGIQLIREDVARYIERRDGGIPADPNNVFLSTGASDAIVTVLKLLVAGEGHTRT
-GVLIPIPQYPLYSATLAELGAVQVDYYLDEERAWALDVAELHRALGQARDHCRPRALCVI
-NPGNPTGQVQTRECIEAVIRFAFEERLFLLADEVYQDNVYAAGSQFHSFKKVLMEMGPPY
-AGQQELASFHSTSKGYMGECGFRGGYVEVVNMDAAVQQQMLKLMSVRLCPPVPGQALLDL
-VVSPPAPTDPSFAQFQAEKQAVLAELAAKAKLTEQVFNEAPGISCNPVQGAMYSFPRVQL
-PPRAVERAQELGLAPDMFFCLRLLEETGICVVPGSGFGQREGTYHFRMTILPPLEKLRLL
-LEKLSRFHAKFTLEYS
-")
-aa_CO1A1 <- seq2aa("sp|P02452_HUMAN", "
-MFSFVDLRLLLLLAATALLTHGQEEGQVEGQDEDIPPITCVQNGLRYHDRDVWKPEPCRI
-CVCDNGKVLCDDVICDETKNCPGAEVPEGECCPVCPDGSESPTDQETTGVEGPKGDTGPR
-GPRGPAGPPGRDGIPGQPGLPGPPGPPGPPGPPGLGGNFAPQLSYGYDEKSTGGISVPGP
-MGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGR
-PGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQ
-MGPRGLPGERGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGP
-RGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGP
-QGPGGPPGPKGNSGEPGAPGSKGDTGAKGEPGPVGVQGPPGPAGEEGKRGARGEPGPTGL
-PGPPGERGGPGSRGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGLPGAKGL
-TGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGV
-PGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGLPGPAGPPGEAGKPGE
-QGVPGDLGAPGPSGARGERGFPGERGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGS
-QGAPGLQGMPGERGAAGLPGPKGDRGDAGPKGADGSPGKDGVRGLTGPIGPPGPAGAPGD
-KGESGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGEPGDAGAKGDAGP
-PGPAGPAGPPGPIGNVGAPGAKGARGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGP
-AGKEGGKGPRGETGPAGRPGEVGPPGPPGPAGEKGSPGADGPAGAPGTPGPQGIAGQRGV
-VGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGESGREGAPGA
-EGSPGRDGSPGAKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPTGPVGP
-VGARGPAGPQGPRGDKGETGEQGDRGIKGHRGFSGLQGPPGPPGSPGEQGPSGASGPAGP
-RGPPGSAGAPGKDGLNGLPGPIGPPGPRGRTGDAGPVGPPGPPGPPGPPGPPSAGFDFSF
-LPQPPQEKAHDGGRYYRADDANVVRDRDLEVDTTLKSLSQQIENIRSPEGSRKNPARTCR
-DLKMCHSDWKSGEYWIDPNQGCNLDAIKVFCNMETGETCVYPTQPSVAQKNWYISKNPKD
-KRHVWFGESMTDGFQFEYGGQGSDPADVAIQLTFLRLMSTEASQNITYHCKNSVAYMDQQ
-TGNLKKALLLQGSNEIEIRAEGNSRFTYSVTVDGCTSHTGAWGKTVIEYKTTKTSRLPII
-DVAPLDVGAPDQEFGFDVGPVCFL
-")
-aa_UniProt <- rbind(aa_ALAT1, aa_CO1A1)
-aa_UniProt$abbrv <- c("ALAT1", "CO1A1")
-
-## ----aa_UniProt, cache=TRUE---------------------------------------------------
-aa_UniProt
-
-## ----protein_length-----------------------------------------------------------
-myaa <- rbind(aa_YML020W, aa_ILVE, aa_Ef, aa_PRIO)
-protein.length(myaa)
-
-## ----add_protein--------------------------------------------------------------
-add.protein(myaa)
-
-## ----subcrt_PRIO, message=FALSE-----------------------------------------------
-subcrt("PRIO_HUMAN", T = 25)
-
-## ----basis_CHNOS, results="hide"----------------------------------------------
-basis("CHNOS")
-
-## ----YML020W_affinity, message=FALSE------------------------------------------
-species("YML020W_Sce")
-a <- affinity()
-
-## ----affinity_iprotein, message=FALSE-----------------------------------------
-ip <- add.protein(aa_UniProt)
-a <- affinity(iprotein = ip)
-
-## ----bison_transferase, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Potential diagram for metagenomically identified sequences of transferases in Bison Pool hot spring. See also the vignette [<span style="color:blue">*Hot-spring proteins in CHNOSZ*</span>](hotspring.pdf).', cache=TRUE, pngquant=pngquant, timeit=timeit----
-file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-aa <- read.csv(file, as.is = TRUE)
-aa <- aa[grep("transferase", aa$protein), ]
-ip <- add.protein(aa)
-basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
-basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
-T <- c(50, 100)
-res <- 300
-a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
-fill <- ZC.col(ZC(protein.formula(ip)))
-diagram(a, normalize = TRUE, fill = fill, names = 1:5)
-T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
-logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
-lines(T, logaH2, lty = 2, lwd = 2)
-points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
-
-## ----bison_transferase, eval=FALSE, echo=1:11---------------------------------
-#  file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-#  aa <- read.csv(file, as.is = TRUE)
-#  aa <- aa[grep("transferase", aa$protein), ]
-#  ip <- add.protein(aa)
-#  basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
-#  basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
-#  T <- c(50, 100)
-#  res <- 300
-#  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
-#  fill <- ZC.col(ZC(protein.formula(ip)))
-#  diagram(a, normalize = TRUE, fill = fill, names = 1:5)
-#  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
-#  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
-#  lines(T, logaH2, lty = 2, lwd = 2)
-#  points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
-
-## ----bison_transferase, eval=FALSE, echo=12:15--------------------------------
-#  file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-#  aa <- read.csv(file, as.is = TRUE)
-#  aa <- aa[grep("transferase", aa$protein), ]
-#  ip <- add.protein(aa)
-#  basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
-#  basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
-#  T <- c(50, 100)
-#  res <- 300
-#  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
-#  fill <- ZC.col(ZC(protein.formula(ip)))
-#  diagram(a, normalize = TRUE, fill = fill, names = 1:5)
-#  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
-#  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
-#  lines(T, logaH2, lty = 2, lwd = 2)
-#  points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
+## ----Alberty------------------------------------------------------------------
+oldnon <- nonideal("Alberty")
 
 ## ----subcrt_IS----------------------------------------------------------------
 subcrt(c("MgATP-2", "MgHATP-", "MgH2ATP"),
@@ -1473,6 +1060,476 @@ plot(c(2, 7), c(0, 1.2), type = "n", xlab = "pMg", ylab = Mglab)
 lapply(3:9, Mgplot)
 legend("topright", legend = paste("pH = ", 3:9), lty = 7:1, col = 7:1, cex = 0.8)
 title(main = ATP.H.Mg)
+
+## ----oldnon-------------------------------------------------------------------
+nonideal(oldnon)
+
+## ----pinfo_LYSC_CHICK---------------------------------------------------------
+p1 <- pinfo("LYSC_CHICK")
+p2 <- pinfo(c("SHH", "OLIG2"), "HUMAN")
+pinfo(c(p1, p2))
+
+## ----formula_LYSC_CHICK-------------------------------------------------------
+pl <- protein.length("LYSC_CHICK")
+pf <- protein.formula("LYSC_CHICK")
+list(length = pl, protein = pf, residue = pf / pl,
+     ZC_protein = ZC(pf), ZC_residue = ZC(pf / pl))
+
+## ----subcrt_LYSC_CHICK, message=FALSE-----------------------------------------
+subcrt("LYSC_CHICK")$out[[1]][1:6, ]
+
+## ----protein_Cp, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, fig.cap='The heat capacity calculated by group additivity closely approximates experimental values for aqueous proteins. For a related figure showing the effects of ionization in the calculations, see <span style="color:blue">?ionize.aa</span>.', cache=TRUE, pngquant=pngquant, timeit=timeit----
+PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
+plength <- protein.length(colnames(PM90)[2:5])
+Cp_expt <- t(t(PM90[, 2:5]) / plength)
+matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
+        xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
+for(i in 1:4) {
+  pname <- colnames(Cp_expt)[i]
+  aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
+  cr <- subcrt(pname, "cr", T = seq(0, 150))$out[[1]]
+  lines(aq$T, aq$Cp / plength[i], col = i)
+  lines(cr$T, cr$Cp / plength[i], col = i, lty = 2)
+}
+legend("right", legend = colnames(Cp_expt),
+       col = 1:4, pch = 19, lty = 1, bty = "n", cex = 0.9)
+legend("bottomright", legend = c("experimental", "calculated (aq)",
+       "calculated (cr)"), lty = c(NA, 1, 2), pch = c(19, NA, NA), bty = "n")
+
+## ----protein_Cp, eval=FALSE, echo=1:5-----------------------------------------
+#  PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
+#  plength <- protein.length(colnames(PM90)[2:5])
+#  Cp_expt <- t(t(PM90[, 2:5]) / plength)
+#  matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
+#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
+#  for(i in 1:4) {
+#    pname <- colnames(Cp_expt)[i]
+#    aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
+#    cr <- subcrt(pname, "cr", T = seq(0, 150))$out[[1]]
+#    lines(aq$T, aq$Cp / plength[i], col = i)
+#    lines(cr$T, cr$Cp / plength[i], col = i, lty = 2)
+#  }
+#  legend("right", legend = colnames(Cp_expt),
+#         col = 1:4, pch = 19, lty = 1, bty = "n", cex = 0.9)
+#  legend("bottomright", legend = c("experimental", "calculated (aq)",
+#         "calculated (cr)"), lty = c(NA, 1, 2), pch = c(19, NA, NA), bty = "n")
+
+## ----protein_Cp, eval=FALSE, echo=-(1:5)--------------------------------------
+#  PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
+#  plength <- protein.length(colnames(PM90)[2:5])
+#  Cp_expt <- t(t(PM90[, 2:5]) / plength)
+#  matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
+#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
+#  for(i in 1:4) {
+#    pname <- colnames(Cp_expt)[i]
+#    aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
+#    cr <- subcrt(pname, "cr", T = seq(0, 150))$out[[1]]
+#    lines(aq$T, aq$Cp / plength[i], col = i)
+#    lines(cr$T, cr$Cp / plength[i], col = i, lty = 2)
+#  }
+#  legend("right", legend = colnames(Cp_expt),
+#         col = 1:4, pch = 19, lty = 1, bty = "n", cex = 0.9)
+#  legend("bottomright", legend = c("experimental", "calculated (aq)",
+#         "calculated (cr)"), lty = c(NA, 1, 2), pch = c(19, NA, NA), bty = "n")
+
+## ----protein_ionization, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Affinity of ionization of proteins. See [<span style="color:blue">demo(ionize)</span>](../demo) for ionization properties calculated as a function of temperature and pH.', cache=TRUE, pngquant=pngquant, timeit=timeit----
+ip <- pinfo(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
+basis("CHNOS+")
+a_ion <- affinity(pH = c(0, 14), iprotein = ip)
+basis("CHNOS")
+a_nonion <- affinity(iprotein = ip)
+plot(c(0, 14), c(50, 300), xlab = "pH", ylab = axis.label("A"), type = "n")
+for(i in 1:4) {
+  A_ion <- as.numeric(a_ion$values[[i]])
+  A_nonion <- as.numeric(a_nonion$values[[i]])
+  lines(a_ion$vals[[1]], A_ion - A_nonion, col=i)
+}
+legend("topright", legend = a_ion$species$name,
+       col = 1:4, lty = 1, bty = "n", cex = 0.9)
+
+## ----protein_ionization, eval=FALSE-------------------------------------------
+#  ip <- pinfo(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
+#  basis("CHNOS+")
+#  a_ion <- affinity(pH = c(0, 14), iprotein = ip)
+#  basis("CHNOS")
+#  a_nonion <- affinity(iprotein = ip)
+#  plot(c(0, 14), c(50, 300), xlab = "pH", ylab = axis.label("A"), type = "n")
+#  for(i in 1:4) {
+#    A_ion <- as.numeric(a_ion$values[[i]])
+#    A_nonion <- as.numeric(a_nonion$values[[i]])
+#    lines(a_ion$vals[[1]], A_ion - A_nonion, col=i)
+#  }
+#  legend("topright", legend = a_ion$species$name,
+#         col = 1:4, lty = 1, bty = "n", cex = 0.9)
+
+## ----basis_CHNOS, echo=FALSE, results="hide"----------------------------------
+basis("CHNOS")
+
+## ----species_protein, results="hide", message=FALSE, echo=1:2-----------------
+species(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
+a_nonion_species <- affinity()
+
+## ----nonion_species_values----------------------------------------------------
+unlist(a_nonion_species$values)
+
+## ----nonion_values------------------------------------------------------------
+unlist(a_nonion$values)
+
+## ----rubisco_svg, echo=FALSE, results="hide", fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, out.width="100%", fig.ext='svg', custom.plot=TRUE, embed.tag=TRUE, fig.cap='Average oxidation state of carbon in Rubisco compared with optimal growth temperature of organisms. **This is an interactive image.** Move the mouse over the points to show the names of the organisms, and click to open a reference in a new window. (Made with [**RSVGTipsDevice**](https://cran.r-project.org/package=RSVGTipsDevice) using code that can be found in the source of this document.)'----
+## copies the premade SVG image to the knitr figure path
+file.copy("rubisco.svg", fig_path(".svg"))
+## the code for making the SVG image -- not "live" in the vignette because RSVGTipsDevice isn't available on Windows
+#if(require(RSVGTipsDevice)) {
+#  datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
+#  fastafile <- system.file("extdata/fasta/rubisco.fasta", package = "CHNOSZ")
+#  dat <- read.csv(datfile)
+#  aa <- read.fasta(fastafile)
+#  Topt <- (dat$T1 + dat$T2) / 2
+#  idat <- match(dat$ID, substr(aa$protein, 4, 9))
+#  aa <- aa[idat, ]
+#  ZC <- ZC(protein.formula(aa))
+#  pch <- match(dat$domain, c("E", "B", "A")) - 1
+#  col <- match(dat$domain, c("A", "B", "E")) + 1
+#  # because the tooltip titles in the SVG file are shown by recent browsers,
+#  # we do not need to draw the tooltips explicitly, so set toolTipMode=0
+#  devSVGTips("rubisco.svg", toolTipMode=0, title="Rubisco")
+#  par(cex=1.4)
+#  # unfortunately, plotmath can't be used with devSVGTips,
+#  # so axis labels here don't contain italics.
+#  plot(Topt, ZC, type="n", xlab="T, &#176;C", ylab="ZC")
+#  n <- rep(1:9, 3)
+#  for(i in seq_along(Topt)) {
+#    # adjust cex to make the symbols look the same size
+#    cex <- ifelse(pch[i]==1, 2.5, 3.5)
+#    points(Topt[i], ZC[i], pch=pch[i], cex=cex, col=col[i])
+#    URL <- dat$URL[i]
+#    setSVGShapeURL(URL, target="_blank")
+#    setSVGShapeContents(paste0("<title>", dat$species[i], "</title>"))
+#    text(Topt[i], ZC[i], n[i], cex = 1.2)
+#  }
+#  abline(v = c(36, 63), lty = 2, col = "grey")
+#  legend("topright", legend = c("Archaea", "Bacteria", "Eukaryota"),
+#         pch = c(2, 1, 0), col = 2:4, cex=1.5, pt.cex = c(3, 2.3, 3), bty="n")
+#  dev.off()
+#}
+
+## ----rubisco_ZC, fig.keep="none", message=FALSE-------------------------------
+datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
+fastafile <- system.file("extdata/fasta/rubisco.fasta", package = "CHNOSZ")
+dat <- read.csv(datfile)
+aa <- read.fasta(fastafile)
+Topt <- (dat$T1 + dat$T2) / 2
+idat <- match(dat$ID, substr(aa$protein, 4, 9))
+aa <- aa[idat, ]
+ZC <- ZC(protein.formula(aa))
+pch <- match(dat$domain, c("E", "B", "A")) - 1
+col <- match(dat$domain, c("A", "B", "E")) + 1
+plot(Topt, ZC, pch = pch, cex = 2, col = col,
+     xlab = expression(list(italic(T)[opt], degree*C)),
+     ylab = expression(italic(Z)[C]))
+text(Topt, ZC, rep(1:9, 3), cex = 0.8)
+abline(v = c(36, 63), lty = 2, col = "grey")
+legend("topright", legend = c("Archaea", "Bacteria", "Eukaryota"),
+       pch = c(2, 1, 0), col = 2:4, pt.cex = 2)
+
+## ----rubisco_O2, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Compositions of proteins projected into different sets of basis species.", cache=TRUE, pngquant=pngquant, timeit=timeit----
+layout(matrix(1:4, nrow = 2))
+par(mgp = c(1.8, 0.5, 0))
+pl <- protein.length(aa)
+ZClab <- axis.label("ZC")
+nO2lab <- expression(bar(italic(n))[O[2]])
+nH2Olab <- expression(bar(italic(n))[H[2]*O])
+lapply(c("CHNOS", "QEC"), function(thisbasis) {
+  basis(thisbasis)
+  pb <- protein.basis(aa)
+  nO2 <- pb[, "O2"] / pl
+  plot(ZC, nO2, pch = pch, col = col, xlab = ZClab, ylab = nO2lab)
+  nH2O <- pb[, "H2O"] / pl
+  plot(ZC, nH2O, pch = pch, col = col, xlab = ZClab, ylab = nH2Olab)
+  mtext(thisbasis, font = 2)
+})
+
+## ----rubisco_O2, eval=FALSE---------------------------------------------------
+#  layout(matrix(1:4, nrow = 2))
+#  par(mgp = c(1.8, 0.5, 0))
+#  pl <- protein.length(aa)
+#  ZClab <- axis.label("ZC")
+#  nO2lab <- expression(bar(italic(n))[O[2]])
+#  nH2Olab <- expression(bar(italic(n))[H[2]*O])
+#  lapply(c("CHNOS", "QEC"), function(thisbasis) {
+#    basis(thisbasis)
+#    pb <- protein.basis(aa)
+#    nO2 <- pb[, "O2"] / pl
+#    plot(ZC, nO2, pch = pch, col = col, xlab = ZClab, ylab = nO2lab)
+#    nH2O <- pb[, "H2O"] / pl
+#    plot(ZC, nH2O, pch = pch, col = col, xlab = ZClab, ylab = nH2Olab)
+#    mtext(thisbasis, font = 2)
+#  })
+
+## ----yeastgfp-----------------------------------------------------------------
+y <- yeastgfp("ER.to.Golgi")
+ina <- is.na(y$abundance)
+
+## ----add_protein_yeast, message=FALSE-----------------------------------------
+aa <- yeast.aa(y$protein[!ina])
+ip <- add.protein(aa)
+
+## ----unitize------------------------------------------------------------------
+pl <- protein.length(ip)
+logact <- unitize(numeric(5), pl)
+logabundance <- unitize(log10(y$abundance[!ina]), pl)
+
+## ----yeastplot, eval=FALSE, echo=1:6------------------------------------------
+#  par(mfrow = c(1, 3))
+#  basis("CHNOS+")
+#  #mod.obigt("[Met]", G = -35245, H = -59310)
+#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
+#  e <- equilibrate(a)
+#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
+#  e <- equilibrate(a, normalize = TRUE)
+#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
+#  abline(h = logabundance, lty = 1:5, col = 1:5)
+#  revisit(e, "DGinf", logabundance)
+
+## ----yeastplot, eval=FALSE, echo=7:9------------------------------------------
+#  par(mfrow = c(1, 3))
+#  basis("CHNOS+")
+#  #mod.obigt("[Met]", G = -35245, H = -59310)
+#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
+#  e <- equilibrate(a)
+#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
+#  e <- equilibrate(a, normalize = TRUE)
+#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
+#  abline(h = logabundance, lty = 1:5, col = 1:5)
+#  revisit(e, "DGinf", logabundance)
+
+## ----yeastplot, eval=FALSE, echo=10-------------------------------------------
+#  par(mfrow = c(1, 3))
+#  basis("CHNOS+")
+#  #mod.obigt("[Met]", G = -35245, H = -59310)
+#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
+#  e <- equilibrate(a)
+#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
+#  e <- equilibrate(a, normalize = TRUE)
+#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
+#  abline(h = logabundance, lty = 1:5, col = 1:5)
+#  revisit(e, "DGinf", logabundance)
+
+## ----yeastplot, fig.fullwidth=TRUE, fig.width=7.5, fig.height=2.5, small.mar=TRUE, dpi=ifelse(dpi==50, 50, 100), out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="ER-to-Golgi proteins: calculations without and with length normalization, and free energy difference between experimental and calculated abundances in metastable equilibrium with normalization.", pngquant=pngquant, timeit=timeit----
+par(mfrow = c(1, 3))
+basis("CHNOS+")
+#mod.obigt("[Met]", G = -35245, H = -59310)
+a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
+e <- equilibrate(a)
+diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
+e <- equilibrate(a, normalize = TRUE)
+diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
+abline(h = logabundance, lty = 1:5, col = 1:5)
+revisit(e, "DGinf", logabundance)
+
+## ----Shh_pname----------------------------------------------------------------
+pname <- c("SHH", "OLIG2", "NKX22", "FOXA2", "IRX3",
+  "PAX6", "NKX62", "DBX1", "DBX2", "NKX61", "PAX7")
+ip <- pinfo(pname, "HUMAN")
+
+## ----Shh_basis, results="hide"------------------------------------------------
+basis("CHNOS")
+basis("NH3", -7)
+
+## ----Shh_affinity, message=FALSE----------------------------------------------
+O2 <- seq(-70, -106, length.out = 50)
+H2O <- seq(0.5, -5.5, length.out = 50)
+a <- affinity(H2O = H2O, O2 = O2, iprotein = ip)
+
+## ----Shh_residue--------------------------------------------------------------
+pl <- protein.length(ip)
+for(i in seq_along(a$values)) a$values[[i]] <- a$values[[i]] / pl[i]
+
+## ----Shh_minusShh-------------------------------------------------------------
+a.Shh <- a$values[[1]]
+for(i in 1:length(a$values)) a$values[[i]] <- a$values[[i]] - a.Shh
+
+## ----Shh_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Per-residue affinities for formation of transcription factors relative to Shh.", cache=TRUE, pngquant=pngquant, timeit=timeit----
+# line type, width, and color
+twc <- lapply(c(3, 1, 1), rep, length(pname))
+ihigh <- c(2, 5, 7, 8, 1)
+twc[[1]][ihigh] <- 1
+twc[[2]][ihigh] <- 3
+col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
+twc[[3]][ihigh] <- col
+names <- rep("", length(pname))
+names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
+ylab <- substitute(italic(A) / (2.303 * italic(RT)) * " relative to Shh")
+diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
+  lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
+  names = names, adj = 0, dy = 0.1, format.names = FALSE)
+par(usr = c(-70, -106, -0.5, 5), tcl = -0.3)
+axis(3, at = seq(-70, -106, by = -10))
+mtext(axis.label("O2"), line = 1.2)
+
+## ----Shh_diagram, eval=FALSE--------------------------------------------------
+#  # line type, width, and color
+#  twc <- lapply(c(3, 1, 1), rep, length(pname))
+#  ihigh <- c(2, 5, 7, 8, 1)
+#  twc[[1]][ihigh] <- 1
+#  twc[[2]][ihigh] <- 3
+#  col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
+#  twc[[3]][ihigh] <- col
+#  names <- rep("", length(pname))
+#  names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
+#  ylab <- substitute(italic(A) / (2.303 * italic(RT)) * " relative to Shh")
+#  diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
+#    lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
+#    names = names, adj = 0, dy = 0.1, format.names = FALSE)
+#  par(usr = c(-70, -106, -0.5, 5), tcl = -0.3)
+#  axis(3, at = seq(-70, -106, by = -10))
+#  mtext(axis.label("O2"), line = 1.2)
+
+## ----read_csv-----------------------------------------------------------------
+file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
+aa_bison <- read.csv(file, as.is = TRUE, nrows = 5)
+
+## ----yeast_aa-----------------------------------------------------------------
+aa_YML020W <- yeast.aa("YML020W")
+
+## ----read_fasta, message=FALSE------------------------------------------------
+file <- system.file("extdata/fasta/EF-Tu.aln", package = "CHNOSZ")
+aa_Ef <- read.fasta(file, iseq = 1:2)
+
+## ----seq2aa-------------------------------------------------------------------
+aa_PRIO <- seq2aa("PRIO_HUMAN", "
+MANLGCWMLVLFVATWSDLGLCKKRPKPGGWNTGGSRYPGQGSPGGNRYPPQGGGGWGQP
+HGGGWGQPHGGGWGQPHGGGWGQPHGGGWGQGGGTHSQWNKPSKPKTNMKHMAGAAAAGA
+VVGGLGGYMLGSAMSRPIIHFGSDYEDRYYRENMHRYPNQVYYRPMDEYSNQNNFVHDCV
+NITIKQHTVTTTTKGENFTETDVKMMERVVEQMCITQYERESQAYYQRGSSMVLFSSPPV
+ILLISFLIFLIVG
+")
+
+## ----uniprot_aa, eval=FALSE---------------------------------------------------
+#  IDs <- c("ALAT1_HUMAN", "P02452")
+#  aa <- lapply(IDs, uniprot.aa)
+#  ## uniprot.aa: trying http://www.uniprot.org/uniprot/ALAT1_HUMAN ... accession P24298 ...
+#  ## >sp|P24298|ALAT1_HUMAN Alanine aminotransferase 1 OS=Homo sapiens GN=GPT PE=1 SV=3 (length 496)
+#  ## uniprot.aa: trying http://www.uniprot.org/uniprot/P02452 ... accession P02452 ...
+#  ## >sp|P02452|CO1A1_HUMAN Collagen alpha-1(I) chain OS=Homo sapiens GN=COL1A1 PE=1 SV=5 (length 1464)
+#  aa_UniProt <- do.call(rbind, aa)
+
+## ----uniprot_aa_offline, echo=FALSE-------------------------------------------
+aa_ALAT1 <- seq2aa("sp|P24298_HUMAN", "
+MASSTGDRSQAVRHGLRAKVLTLDGMNPRVRRVEYAVRGPIVQRALELEQELRQGVKKPF
+TEVIRANIGDAQAMGQRPITFLRQVLALCVNPDLLSSPNFPDDAKKRAERILQACGGHSL
+GAYSVSSGIQLIREDVARYIERRDGGIPADPNNVFLSTGASDAIVTVLKLLVAGEGHTRT
+GVLIPIPQYPLYSATLAELGAVQVDYYLDEERAWALDVAELHRALGQARDHCRPRALCVI
+NPGNPTGQVQTRECIEAVIRFAFEERLFLLADEVYQDNVYAAGSQFHSFKKVLMEMGPPY
+AGQQELASFHSTSKGYMGECGFRGGYVEVVNMDAAVQQQMLKLMSVRLCPPVPGQALLDL
+VVSPPAPTDPSFAQFQAEKQAVLAELAAKAKLTEQVFNEAPGISCNPVQGAMYSFPRVQL
+PPRAVERAQELGLAPDMFFCLRLLEETGICVVPGSGFGQREGTYHFRMTILPPLEKLRLL
+LEKLSRFHAKFTLEYS
+")
+aa_CO1A1 <- seq2aa("sp|P02452_HUMAN", "
+MFSFVDLRLLLLLAATALLTHGQEEGQVEGQDEDIPPITCVQNGLRYHDRDVWKPEPCRI
+CVCDNGKVLCDDVICDETKNCPGAEVPEGECCPVCPDGSESPTDQETTGVEGPKGDTGPR
+GPRGPAGPPGRDGIPGQPGLPGPPGPPGPPGPPGLGGNFAPQLSYGYDEKSTGGISVPGP
+MGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGR
+PGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQ
+MGPRGLPGERGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGP
+RGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGP
+QGPGGPPGPKGNSGEPGAPGSKGDTGAKGEPGPVGVQGPPGPAGEEGKRGARGEPGPTGL
+PGPPGERGGPGSRGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGLPGAKGL
+TGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGV
+PGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGLPGPAGPPGEAGKPGE
+QGVPGDLGAPGPSGARGERGFPGERGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGS
+QGAPGLQGMPGERGAAGLPGPKGDRGDAGPKGADGSPGKDGVRGLTGPIGPPGPAGAPGD
+KGESGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGEPGDAGAKGDAGP
+PGPAGPAGPPGPIGNVGAPGAKGARGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGP
+AGKEGGKGPRGETGPAGRPGEVGPPGPPGPAGEKGSPGADGPAGAPGTPGPQGIAGQRGV
+VGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGESGREGAPGA
+EGSPGRDGSPGAKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPTGPVGP
+VGARGPAGPQGPRGDKGETGEQGDRGIKGHRGFSGLQGPPGPPGSPGEQGPSGASGPAGP
+RGPPGSAGAPGKDGLNGLPGPIGPPGPRGRTGDAGPVGPPGPPGPPGPPGPPSAGFDFSF
+LPQPPQEKAHDGGRYYRADDANVVRDRDLEVDTTLKSLSQQIENIRSPEGSRKNPARTCR
+DLKMCHSDWKSGEYWIDPNQGCNLDAIKVFCNMETGETCVYPTQPSVAQKNWYISKNPKD
+KRHVWFGESMTDGFQFEYGGQGSDPADVAIQLTFLRLMSTEASQNITYHCKNSVAYMDQQ
+TGNLKKALLLQGSNEIEIRAEGNSRFTYSVTVDGCTSHTGAWGKTVIEYKTTKTSRLPII
+DVAPLDVGAPDQEFGFDVGPVCFL
+")
+aa_UniProt <- rbind(aa_ALAT1, aa_CO1A1)
+aa_UniProt$abbrv <- c("ALAT1", "CO1A1")
+
+## ----aa_UniProt, cache=TRUE---------------------------------------------------
+aa_UniProt
+
+## ----protein_length-----------------------------------------------------------
+myaa <- rbind(aa_YML020W, aa_Ef, aa_PRIO)
+protein.length(myaa)
+
+## ----add_protein--------------------------------------------------------------
+add.protein(myaa)
+
+## ----subcrt_PRIO, message=FALSE-----------------------------------------------
+subcrt("PRIO_HUMAN", T = 25)
+
+## ----basis_CHNOS, results="hide"----------------------------------------------
+basis("CHNOS")
+
+## ----YML020W_affinity, message=FALSE------------------------------------------
+species("YML020W_Sce")
+a <- affinity()
+
+## ----affinity_iprotein, message=FALSE-----------------------------------------
+ip <- add.protein(aa_UniProt)
+a <- affinity(iprotein = ip)
+
+## ----bison_transferase, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Potential diagram for metagenomically identified sequences of transferases in Bison Pool hot spring. See also the vignette [<span style="color:blue">*Hot-spring proteins in CHNOSZ*</span>](hotspring.pdf).', cache=TRUE, pngquant=pngquant, timeit=timeit----
+file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
+aa <- read.csv(file, as.is = TRUE)
+aa <- aa[grep("transferase", aa$protein), ]
+ip <- add.protein(aa)
+basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
+basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
+T <- c(50, 100)
+res <- 300
+a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
+fill <- ZC.col(ZC(protein.formula(ip)))
+diagram(a, normalize = TRUE, fill = fill, names = 1:5)
+T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
+logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
+lines(T, logaH2, lty = 2, lwd = 2)
+points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
+
+## ----bison_transferase, eval=FALSE, echo=1:11---------------------------------
+#  file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
+#  aa <- read.csv(file, as.is = TRUE)
+#  aa <- aa[grep("transferase", aa$protein), ]
+#  ip <- add.protein(aa)
+#  basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
+#  basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
+#  T <- c(50, 100)
+#  res <- 300
+#  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
+#  fill <- ZC.col(ZC(protein.formula(ip)))
+#  diagram(a, normalize = TRUE, fill = fill, names = 1:5)
+#  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
+#  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
+#  lines(T, logaH2, lty = 2, lwd = 2)
+#  points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
+
+## ----bison_transferase, eval=FALSE, echo=12:15--------------------------------
+#  file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
+#  aa <- read.csv(file, as.is = TRUE)
+#  aa <- aa[grep("transferase", aa$protein), ]
+#  ip <- add.protein(aa)
+#  basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
+#  basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
+#  T <- c(50, 100)
+#  res <- 300
+#  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
+#  fill <- ZC.col(ZC(protein.formula(ip)))
+#  diagram(a, normalize = TRUE, fill = fill, names = 1:5)
+#  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
+#  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
+#  lines(T, logaH2, lty = 2, lwd = 2)
+#  points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
 
 ## ----smoker_vars--------------------------------------------------------------
 vars <- list(O2 = c(-50, -25), NH3 = c(-15, 10), H2O = c(-15, 10))

@@ -30,7 +30,7 @@
 \code{swap.basis} allows to change the basis definition by swapping out a basis species for a new one.
 Specify the names or formulas of the old and replacement basis species in the first argument.
 When the basis definition is changed, any species of interest that were present are deleted, unless the new basis definition has exactly the same elements as before.
-In that case, the species are kept; also, the activities of the new basis species are set in order to maintain the chemical potentials of the elements at \code{T} \eqn{^{\circ}}{°}C and 1 bar.
+In that case, the species are kept; also, the activities of the new basis species are set in order to maintain the chemical potentials of the elements at \code{T} \degC and 1 bar.
 
 The other functions are supporting functions: \code{basis.elements} returns the stoichiometric matrix for the current basis definition, \code{element.mu} calculates the chemical potentials of elements corresponding to the activities of the basis species, \code{basis.logact} does the inverse operation, and \code{ibasis} returns the index in the basis set for a given species index (in \code{\link{thermo}$obigt}), name or formula.
 }
@@ -92,4 +92,4 @@ stopifnot(all.equal(a1$values, a2$values))
 stopifnot(all.equal(a1$values, a3$values))
 }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Extended workflow}

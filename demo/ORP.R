@@ -1,10 +1,12 @@
-# yell2010/orp.R 20100715 jmd
+# CHNOSZ/demo/ORP.R 
+# first version 20100715 jmd
+
 # calculate the temperature dependence of 
 # potentials vs. standard hydrogen electrode (SHE) of various electrodes (Ag/AgCl)
 # and ORP standards (ZoBell, Light's, (tri)iodide) 
 
-# CHNOSZ provides functions subcrt() and convert() 
-# used in this example
+# use the extended Debye-Huckel equation with Alberty's parameters
+oldnon <- nonideal("Alberty")
 
 # Bard et al.'s fit to the potential
 # (Bard, Parson, Jordan, Standard Potentials In Aqueous Solution, 1985)
@@ -167,3 +169,6 @@ figure <- function() {
 
 # finally, make the plot
 figure()
+
+# reset the nonideality method to default
+nonideal(oldnon)

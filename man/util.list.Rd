@@ -23,4 +23,4 @@
 If \code{na.rm} is \code{TRUE}, values of \code{NA} are removed; if \code{pmin} is \code{TRUE} the function finds locations of the minimum values instead.
 }
 
-\keyword{utilities}
+\concept{Utility functions}

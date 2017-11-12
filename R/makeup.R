@@ -68,7 +68,7 @@ makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
     mcc <- lapply(seq_along(cf), function(i) ce[[i]]*cf[i])
     # unlist the subformula counts and sum them together by element
     um <- unlist(mcc)
-    out <- tapply(um, names(um), sum)
+    out <- unlist(tapply(um, names(um), sum, simplify=FALSE))
   }
   # all done with the counting, now apply the multiplier
   out <- out * multiplier
@@ -123,7 +123,8 @@ count.elements <- function(formula) {
   count <- c(count, mycount)
   # in case there are repeated elements, sum all of their counts
   # (tapply hint from https://stat.ethz.ch/pipermail/r-help/2011-January/265341.html)
-  out <- tapply(count, element, sum)
+  # use simplify=FALSE followed by unlist to get a vector, not array 20171005
+  out <- unlist(tapply(count, element, sum, simplify=FALSE))
   # tapply returns alphabetical sorted list. keep the order appearing in the formula
   out <- out[match(unique(element), names(out))]
   return(out)

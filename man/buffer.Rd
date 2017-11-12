@@ -165,4 +165,4 @@ stopifnot(all.equal(ana, and))
 Garrels, R. M. (1960) \emph{Mineral Equilibria}. Harper & Brothers, New York, 254 p. \url{http://www.worldcat.org/oclc/552690}
 }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Extended workflow}

@@ -1,5 +1,19 @@
 context("eos")
 
+test_that("cgl() with NA volume produces reasonable results", {
+  # 20171006: after rewriting much of the code in cgl(), melanterite and hydronium jarosite
+  # disappeared from the example diagram after Majzlan et al., 2006.
+  # Because the volumes are NA, the integral properties became NA,
+  # but it makes more sense to set them to zero.
+  ispecies <- info("melanterite")
+  expect_equal(info(ispecies)$V, NA_real_)
+  sout <- subcrt(ispecies, T=c(25, 25, 100, 100), P=c(1, 100, 1, 100))$out[[1]]
+  expect_false(any(is.na(sout$H)))
+  # for melanterite, which is listed in the database with zero heat capacity,
+  # all Cp and V integrals evaluate to zero
+  expect_length(unique(sout$H), 1)
+})
+
 test_that("gfun() gives expected results", {
   # calculate values of g and its derivatives 
   # up to 350 degrees C at Psat

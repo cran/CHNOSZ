@@ -4,8 +4,6 @@
 \title{Define Basis Species}
 \description{
 Define the basis species of a chemical system.
-Change their physical states or chemical activities or fugacities.
-Get the reaction coefficients of basis species in formation reactions of species.
 }
 
 \usage{
@@ -20,8 +18,6 @@ Get the reaction coefficients of basis species in formation reactions of species
 }
 
 \details{
-\code{basis} is used to define the basis species in a thermodynamic system.
-
 The basis species represent the possible range of chemical compositions for all the species of interest.
 Any valid set of basis species used here must meet two conditions: 1) the number of basis species is the same as the number of chemical elements (including charge) in those species and 2) the square matrix representing the elemental stoichiometries of the basis species has a real inverse.
 
@@ -37,14 +33,12 @@ For example, a value of 7 for pH is stored as a logarithm of activity of -7.
 
 Whenever \code{basis} is called with NULL values of both \code{state} and \code{logact}, the new set of species, if they are a valid basis set, completely replaces any existing basis definition.
 If this occurs, any existing species definition (created by the \code{species} function) is deleted.
-However, \code{\link{swap.basis}} can be used to change the species (the compositions and/or physical states thereof) in the basis set while maintaining the list of species of interest, with the added benefit of equivalence of the chemical potentials of the elements before and after the swap.
-
-Call \code{basis} with \code{delete} set to TRUE to clear the basis definition.
-Any current basis definition (before being deleted) is returned by this call or by calling \code{basis} with all default arguments.
+Call \code{basis} with \code{delete} set to TRUE or \code{species} set to \samp{""} to clear the basis definition.
+This also deletes the \code{\link{species}} list, if any.
 
 If the value of \code{basis} is one of the keywords in the following table, the corresponding set of basis species is loaded, and their activities are given preset values.
 This approach is used by many of the examples in the package.
-The basis species identified by these keywords are aqueous except for \H2O (liq), \O2 (gas) and \Fe2O3 (hematite, cr1).
+The basis species identified by these keywords are aqueous except for \H2O (liq), \O2 (gas) and \Fe2O3 (hematite).
 
   \tabular{ll}{
     \code{CHNOS} \tab \CO2, \H2O, \NH3, \H2S, \O2 \cr
@@ -63,11 +57,7 @@ The logarithms of activities of amino acids in the \samp{QEC4} basis are -4 (i.e
 }
 
 \value{
-Returns the value of \code{thermo$basis} after any modifications; or, if \code{delete} is TRUE, its value before deletion.
-}
-
-\section{Side Effects}{
-If the new basis definition meets all requirements, it is stored in \code{\link{thermo}$basis}, replacing any previous basis definition.
+Returns the value of \code{thermo$basis} after any modifications; or, if \code{delete} is TRUE, its value before deletion (invisibly).
 }
 
 \seealso{
@@ -80,7 +70,7 @@ If the new basis definition meets all requirements, it is stored in \code{\link{
 \references{
 Dick, J. M. (2016) Proteomic indicators of oxidation and hydration state in colorectal cancer. \emph{PeerJ} \bold{4}:e2238. \url{https://doi.org/10.7717/peerj.2238}
 
-Dick, J. M. (2017) Chemical composition and the potential for proteomic transformation in cancer, hypoxia, and hyperosmotic stress. \emph{bioRxiv} \url{https://doi.org/10.1101/097667}
+Dick, J. M. (2017) Chemical composition and the potential for proteomic transformation in cancer, hypoxia, and hyperosmotic stress. \emph{PeerJ} \bold{5}:e3421 \url{https://doi.org/10.7717/peerj.3421}
 }
 
 \examples{
@@ -91,7 +81,7 @@ basis("O2")
 basis(c("H2O", "O2"))
 basis(c("H2O", "O2", "H+"))
 ## clear the basis species
-basis(delete=TRUE)
+basis("")
 
 \dontrun{
 ## marked dontrun because they produce errors
@@ -110,4 +100,4 @@ basis(c("H2O", "O2"), c(0, -80))
 basis("CO2", "gas")
 }
 
-\concept{Primary thermodynamic modeling}
+\concept{Main workflow}

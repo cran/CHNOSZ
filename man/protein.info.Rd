@@ -29,7 +29,7 @@
   \item{regexp}{logical, find matches using regular expressions?}
   \item{normalize}{logical, return per-residue values (those of the proteins divided by their lengths)?}
   \item{state}{character, physical state}
-  \item{T}{numeric, temperature in \eqn{^{\circ}}{°}C}
+  \item{T}{numeric, temperature in \degC}
   \item{loga.protein}{numeric, decimal logarithms of reference activities of proteins}
   \item{digits}{integer, number of significant digits (see \code{\link{signif}})}
 }
@@ -188,4 +188,4 @@ for(cluster in c("A", "B", "C", "D")) {
   Dick, J. M. (2014) Average oxidation state of carbon in proteins. \emph{J. R. Soc. Interface} \bold{11}, 20131095. \url{https://doi.org/10.1098/rsif.2013.1095}
 }
 
-\concept{Protein thermodynamic modeling}
+\concept{Protein properties}

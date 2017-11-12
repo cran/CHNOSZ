@@ -17,7 +17,7 @@ slice.affinity <- function(affinity,d=1,i=1) {
 
 ### unexported functions ###
 
-energy <- function(what,vars,vals,lims,T=get("thermo")$opt$Tr,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,transect=FALSE) {
+energy <- function(what,vars,vals,lims,T=298.15,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,transect=FALSE) {
   # 20090329 extracted from affinity() and made to
   # deal with >2 dimensions (variables)
 
@@ -235,7 +235,7 @@ energy.args <- function(args) {
   transect <- any(sapply(args,length) > 3)
   ## convert T, P args and take care of 
   # single values for T, P or IS
-  T <- thermo$opt$Tr
+  T <- 298.15
   P <- "Psat"
   IS <- 0
   T.is.var <- P.is.var <- IS.is.var <- FALSE
@@ -371,7 +371,7 @@ energy.args <- function(args) {
   return(args)
 }
 
-A.ionization <- function(iprotein, vars, vals, T=get("thermo")$opt$Tr, P="Psat", pH=7, transect=FALSE) {
+A.ionization <- function(iprotein, vars, vals, T=298.15, P="Psat", pH=7, transect=FALSE) {
   # a function to build a list of values of A/2.303RT of protein ionization
   # that can be used by energy(); 20120527 jmd
   # some of the variables might not affect the values (e.g. logfO2)

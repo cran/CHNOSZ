@@ -16,6 +16,11 @@ test_that("water.SUPCRT92() gives expected values for E and kT", {
   expect_equal(water.SUPCRT92("alpha", T, P)[, 1] * 1e6, c(268.06, 625.55), tolerance=1e-2)
 })
 
+test_that("water.DEW() gives expected erros and messages", {
+  expect_error(water.DEW("G", P="Psat"), "Psat isn\'t supported")
+  expect_message(water.DEW("G", T=c(298.15, 373.15), P=c(1, 1000)), "using SUPCRT calculations")
+})
+
 # reference
 
 # Fine, R. A. and Millero, F. J. (1973)

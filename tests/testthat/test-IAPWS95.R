@@ -62,9 +62,9 @@ test_that("calculations of thermodynamic properties are consistent with referenc
   expect_equal(round(signif(vapor.calc$p, 5), 6), P.ref, tolerance=1e-4)
   # take H to 6 significant digits but not more than 3 decimals
   expect_equal(round(signif(liquid.calc$h, 6), 3), H.liquid.ref, tolerance=1e-5)
-  expect_that(round(signif(vapor.calc$h, 6), 3), equals(H.vapor.ref))  # spot on!
+  expect_equal(round(signif(vapor.calc$h, 6), 3), H.vapor.ref)  # spot on!
   # round S to 4 decimals
-  expect_that(round(liquid.calc$s, 4), equals(S.liquid.ref))  # spot on!
+  expect_equal(round(liquid.calc$s, 4), S.liquid.ref)  # spot on!
   expect_equal(round(vapor.calc$s, 4), S.vapor.ref, tolerance=1e-4)
   # round cv to 4 decimals
   expect_equal(round(liquid.calc$cv, 4), cv.liquid.ref, tolerance=1e-4)
@@ -78,8 +78,8 @@ test_that("calculations of thermodynamic properties are consistent with referenc
 test_that("calculations are possible at low temperatures", {
   # the sequences start at the lowest whole-number temperature (K) 
   # where the function returns a value of density at the given pressure
-  expect_that(any(is.na(water.IAPWS95("rho", T=seq(234, 274, 3), P=rep(1, 14)))), is_false())
-  expect_that(any(is.na(water.IAPWS95("rho", T=seq(227, 272, 3), P=rep(1000, 16)))), is_false())
+  expect_false(any(is.na(water.IAPWS95("rho", T=seq(234, 274, 3), P=rep(1, 14)))))
+  expect_false(any(is.na(water.IAPWS95("rho", T=seq(227, 272, 3), P=rep(1000, 16)))))
 })
 
 # reference

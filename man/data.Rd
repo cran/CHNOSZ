@@ -8,44 +8,48 @@
 \alias{refs}
 \alias{groups}
 \alias{buffers}
-\title{Thermodynamic Database and System Definition}
+\title{Thermodynamic Database and System Settings}
 \description{
-Data files provided with CHNOSZ are in the \code{data} and \code{extdata} directories of the package.
-The \code{*.csv} files under \code{data} and \code{extdata/OBIGT} are used to build the \code{thermo} data object on loading the package.
-Other data files, supporting the examples and vignettes, are documented separately at \code{\link{extdata}}. 
+Run \code{data(thermo)} to initialize or reset all of the data used in CHNOSZ.
+This includes the computational settings, thermodynamic database, and system settings (chemical species).
 
-The \code{thermo} object holds the thermodynamic database of properties of species, some thermodynamic constants and operational parameters for functions in CHNOSZ, the properties of elements, references to literature sources of thermodynamic data, compositions of chemical activity buffers, and amino acid compositions of proteins.
-The \code{thermo} object also holds intermediate data used in calculations, in particular the definitions of basis species and species of interest input by the user, and the calculated properties of \code{\link{water}} so that subsequent calculations at the same temperature-pressure conditions can be accelerated.
+The system settings are changed using \code{\link{basis}} and \code{\link{species}}.
+To restore the default system settings (no species loaded), run \code{basis("")}.
 
-The \code{thermo} object is a \code{\link{list}} composed of \code{\link{data.frame}}s or lists each representing a class of data.
-The object is created in an environment named \code{thermo}.
-At any time, the user can restore the data object to its initial state by calling \code{data(thermo)}.
-This is sometimes a useful command to use during an interactive session, when previous definitions of basis species and species of interest are longer desired.
+The thermodynamic database is changed using \code{\link{add.obigt}} and \code{\link{mod.obigt}}.
+To restore the default database, run \code{data(OBIGT)}.
+
+The computational settings are changed using \code{\link{water}}, \code{\link{P.units}}, \code{\link{T.units}}, \code{\link{E.units}}, and some other commands (e.g. \code{\link{mod.buffer}}).
+
+Some settings can only be changed by direct manipulation of \code{thermo$opt}.
+In an interactive session, this should be done using the super-assignment operator (e.g. \code{thermo$opt$Berman <<- TRUE}) so that the \code{thermo} object is not copied to the global environment.
+(Doing so would cause problems, as many functions are designed to access the \code{thermo} object in the \code{CHNOSZ} environment.)
+
+To restore the default computational settings, thermodynamic database, and system settings, run \code{data(thermo)}.
+
+The data files provided with CHNOSZ are in the \code{data} and \code{extdata/OBIGT} directories of the package.
+The \code{*.csv} files in these directories are used to build the \code{thermo} data object in an environment named \code{CHNOSZ}.
+The structure of the \code{thermo} object is described below.
 }
 
-\usage{data(thermo)}
+\usage{
+  data(thermo)
+  data(OBIGT)
+}
 
 \format{
-
-  The items in the \code{thermo} object are documented below.
 
   \itemize{
      
     \item \code{thermo$opt} 
-    List of operational parameters. Square brackets indicate default values.
+    List of computational settings. Square brackets indicate default values.
     \tabular{lll}{
-      \code{Tr} \tab numeric \tab Reference temperature (K) [298.15]\cr 
-      \code{Pr} \tab numeric \tab Reference pressure (bar) [1]\cr 
-      \code{Theta} \tab numeric \tab \eqn{\Theta}{Theta} in the revised HKF equations of state (K) [228]\cr 
-      \code{Psi} \tab numeric \tab \eqn{\Psi}{Psi} in the revised HKF equations of state (bar) [2600]\cr
-      \code{R} \tab numeric \tab Value of the gas constant (cal K\ifelse{latex}{\eqn{^{-1}}}{\ifelse{html}{\out{<sup>-1</sup>}}{^-1}} mol\ifelse{latex}{\eqn{^{-1}}}{\ifelse{html}{\out{<sup>-1</sup>}}{^-1}}) [1.9872]\cr
       \code{cutoff} \tab numeric \tab Cutoff below which values are taken to be zero [1e-10] (see \code{\link{makeup}})\cr
-      \code{E.units} \tab character \tab The user's units of energy ([\samp{cal}] or \samp{J})\cr
+      \code{E.units} \tab character \tab The user's units of energy ([\samp{cal}] or \samp{J}) (see \code{\link{subcrt}})\cr
       \code{T.units} \tab character \tab The user's units of temperature ([\samp{C}] or \samp{K})\cr
       \code{P.units} \tab character \tab The user's units of pressure ([\samp{bar}] or \samp{MPa})\cr
-      \code{state} \tab character \tab The default physical state for searching species [\samp{aq}]\cr
-      \code{water} \tab character \tab Computational option for properties of water ([\samp{SUPCRT}] or \samp{IAPWS})\cr
-      \code{online} \tab logical \tab Allow online searches of protein composition? Default [\code{NA}] is to ask the user.\cr
+      \code{state} \tab character \tab The default physical state for searching species [\samp{aq}] (see \code{\link{info}})\cr
+      \code{water} \tab character \tab Computational option for properties of water ([\samp{SUPCRT}] or \samp{IAPWS}; see \code{\link{water}})\cr
       \code{G.tol} \tab numeric \tab Difference in G above which \code{\link{checkGHS}} produces a message (cal mol\ifelse{latex}{\eqn{^{-1}}}{\ifelse{html}{\out{<sup>-1</sup>}}{^-1}}) [100]\cr
       \code{Cp.tol} \tab numeric \tab Difference in Cp above which \code{\link{checkEOS}} produces a message (cal K\ifelse{latex}{\eqn{^{-1}}}{\ifelse{html}{\out{<sup>-1</sup>}}{^-1}} mol\ifelse{latex}{\eqn{^{-1}}}{\ifelse{html}{\out{<sup>-1</sup>}}{^-1}}) [1]\cr
       \code{V.tol} \tab numeric \tab Difference in V above which \code{\link{checkEOS}} produces a message (cm\ifelse{latex}{\eqn{^{3}}}{\ifelse{html}{\out{<sup>3</sup>}}{^3}} mol\ifelse{latex}{\eqn{^{-1}}}{\ifelse{html}{\out{<sup>-1</sup>}}{^-1}}) [1]\cr
@@ -53,24 +57,26 @@ This is sometimes a useful command to use during an interactive session, when pr
       \code{IAPWS.sat} \tab character \tab State of water for saturation properties [\samp{liquid}] (see \code{\link{util.water}})\cr
       \code{paramin} \tab integer \tab Minimum number of calculations to launch parallel processes [1000] (see \code{\link{palply}}) \cr
       \code{ideal.H} \tab logical \tab Should \code{\link{nonideal}} ignore the proton? [\code{TRUE}] \cr
-      \code{ideal.e} \tab logical \tab Should \code{\link{nonideal}} ignore the electron? [\code{TRUE}]
+      \code{ideal.e} \tab logical \tab Should \code{\link{nonideal}} ignore the electron? [\code{TRUE}] \cr
+      \code{nonideal} \tab character \tab Method for \code{\link{nonideal}} [\code{Helgeson}] \cr
+      \code{Berman} \tab logical \tab Should \code{\link{info}} preferentially return Berman minerals? [\code{FALSE}]
 }
 
     \item \code{thermo$element}
   Dataframe containing the thermodynamic properties of elements taken from Cox et al., 1989 and Wagman et al., 1982.
-  The standard molal entropy (\eqn{S}(\code{Z})) at 25 \eqn{^{\circ}}{°}C and 1 bar for the \dQuote{element} of charge (\code{Z}) was calculated from \eqn{S}(H2,g) + 2\eqn{S}(\code{Z}) =  2\eqn{S}(H+), where the standard molal entropies of H2,g and H+ were taken from Cox et al., 1989.
+  The standard molal entropy (\eqn{S}(\code{Z})) at 25 \degC and 1 bar for the \dQuote{element} of charge (\code{Z}) was calculated from \eqn{S}(H2,g) + 2\eqn{S}(\code{Z}) =  2\eqn{S}(H+), where the standard molal entropies of H2,g and H+ were taken from Cox et al., 1989.
   The mass of \code{Z} is taken to be zero.
   Accessing this data frame using \code{\link{mass}} or \code{\link{entropy}} will select the first entry found for a given element; i.e., values from Wagman et al., 1982 will only be retrieved if the properties of the element are not found from Cox et al., 1989.
       \tabular{lll}{
       \code{element}  \tab character  \tab Symbol of element\cr
-      \code{state}  \tab character \tab Stable state of element at 25 \eqn{^{\circ}}{°}C and 1 bar\cr
+      \code{state}  \tab character \tab Stable state of element at 25 \degC and 1 bar\cr
       \code{source} \tab character \tab Source of data\cr
       \code{mass}  \tab numeric \tab Mass of element (in natural isotopic distribution;\cr
       \tab \tab referenced to a mass of 12 for \eqn{^{12}}{12}C)\cr
       \code{s}   \tab numeric \tab Entropy of the compound of the element in its stable\cr
-      \tab \tab state at 25 \eqn{^{\circ}}{°}C and 1 bar (cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1})\cr
+      \tab \tab state at 25 \degC and 1 bar (cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1})\cr
       \code{n}  \tab numeric \tab Number of atoms of the element in its stable\cr
-      \tab \tab compound at 25 \eqn{^{\circ}}{°}C and 1 bar
+      \tab \tab compound at 25 \degC and 1 bar
     }
 
     \item \code{thermo$obigt}
@@ -93,14 +99,14 @@ This is sometimes a useful command to use during an interactive session, when pr
   Other additions or modifications used in CHNOSZ are indicated by having \samp{CHNOSZ} as one of the sources of data.
   See the vignette \emph{Thermodynamic data in CHNOSZ} for a complete description of the sources of data.
 
-In order to represent thermodynamic data for minerals with phase transitions, the different phases of these minerals are represented as phase species that have states denoted by \samp{cr1}, \samp{cr2}, etc.
-The standard molar thermodynamic properties at 25 \eqn{^{\circ}}{°}C and 1 bar (\eqn{T_r}{Pr} and \eqn{P_r}{Pr}) of the \samp{cr2} phase species of minerals were generated by first calculating those of the \samp{cr1} phase species at the transition temperature (\eqn{T_{tr}}{Ttr}) and 1 bar then taking account of the volume and entropy of transition (the latter can be retrieved by combining the former with the Clausius-Clapeyron equation and values of \eqn{(dP/dT)} of transitions taken from the \acronym{SUPCRT92} data file) to calculate the standard molar entropy of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr}, and taking account of the enthalpy of transition (\eqn{{\Delta}H^{\circ}}{DeltaH0}, taken from the \acronym{SUPCRT92} data file) to calculate the standard molar enthalpy of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr}.
-The standard molar properties of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr} and 1 bar calculated in this manner were combined with the equations-of-state parameters of the species to generate values of the standard molar properties at 25 \eqn{^{\circ}}{°}C and 1 bar.
+In order to represent thermodynamic data for minerals with phase transitions, the higher-temperature phases of these minerals are represented as phase species that have states denoted by \samp{cr2}, \samp{cr3}, etc.
+The standard molar thermodynamic properties at 25 \degC and 1 bar (\eqn{T_r}{Pr} and \eqn{P_r}{Pr}) of the \samp{cr2} phase species of minerals were generated by first calculating those of the \samp{cr} (lowest-T) phase species at the transition temperature (\eqn{T_{tr}}{Ttr}) and 1 bar then taking account of the volume and entropy of transition (the latter can be retrieved by combining the former with the Clausius-Clapeyron equation and values of \eqn{(dP/dT)} of transitions taken from the \acronym{SUPCRT92} data file) to calculate the standard molar entropy of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr}, and taking account of the enthalpy of transition (\eqn{{\Delta}H^{\circ}}{DeltaH0}, taken from the \acronym{SUPCRT92} data file) to calculate the standard molar enthalpy of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr}.
+The standard molar properties of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr} and 1 bar calculated in this manner were combined with the equations-of-state parameters of the species to generate values of the standard molar properties at 25 \degC and 1 bar.
 This process was repeated as necessary to generate the standard molar properties of phase species represented by \samp{cr3} and \samp{cr4}, referencing at each iteration the previously calculated values of the standard molar properties of the lower-temperature phase species (i.e., \samp{cr2} and \samp{cr3}).
 A consequence of tabulating the standard molar thermodynamic properties of the phase species is that the values of \eqn{(dP/dT)} and \eqn{{\Delta}H^{\circ}}{DeltaH0} of phase transitions can be calculated using the equations of state and therefore do not need to be stored in the thermodynamic database.
 However, the transition temperatures (\eqn{T_{tr}}{Ttr}) generally can not be assessed by comparing the Gibbs energies of phase species and are tabulated in the database.
 
-The identification of species and their standard molal thermodynamic properties at 25 \eqn{{^\circ}}{°}C and 1 bar are located in the first 12 columns of \code{thermo$obigt}:
+The identification of species and their standard molal thermodynamic properties at 25 \degC and 1 bar are located in the first 12 columns of \code{thermo$obigt}:
 
     \tabular{lll}{
       \code{name}     \tab character \tab Species name\cr
@@ -212,7 +218,9 @@ Columns 13-20 for crystalline, gas and liquid species (\eqn{Cp=a+bT+cT^{-2}+dT^{
 
 } % end of format
 
-\seealso{ \code{\link{add.obigt}} }
+\seealso{
+Other data files, including those supporting the examples and vignettes, are documented separately at \code{\link{extdata}}. 
+}
 
 \examples{
 \dontshow{data(thermo)}
@@ -231,7 +239,7 @@ thermo$obigt$formula[runif(10)*n]
 \references{
 Cox, J. D., Wagman, D. D. and Medvedev, V. A., eds. (1989) \emph{CODATA Key Values for Thermodynamics}. Hemisphere Publishing Corporation, New York, 271 p. \url{http://www.worldcat.org/oclc/18559968}
 
-Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\eqn{^{\circ}}{°}C. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
+Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
 
 Shock, E. L. et al. {1998} \emph{SLOP98.dat} (computer data file). http://geopig.asu.edu/supcrt92_data/slop98.dat, accessed on 2005-11-05. Current location: \url{http://geopig.asu.edu/?q=tools}.
 

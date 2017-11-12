@@ -5,6 +5,11 @@
 #   gather plotvals independently of plot parameters (including nd),
 #   single return statement
 
+## if this file is interactively sourced, the following are also needed to provide unexported functions:
+#source("equilibrate.R")
+#source("util.plot.R")
+#source("util.character.R")
+
 diagram <- function(
   # primary input
   eout, 
@@ -48,7 +53,7 @@ diagram <- function(
   } else if(what %in% rownames(eout$basis)) {
     # to calculate the loga of basis species at equilibrium
     if(!missing(groups)) stop("can't plot equilibrium activities of basis species for grouped species")
-    if(alpha) stop("equilibrium activities of basis species not available with alpha=TRUE")
+    if(isTRUE(alpha) | is.character(alpha)) stop("equilibrium activities of basis species not available with alpha=TRUE")
     plot.loga.basis <- TRUE
   } else if(what=="loga.equil" & !"loga.equil" %in% names(eout)) stop("'eout' is not the output from equil()") 
   else if(what!="loga.equil") stop(what, " is not a basis species or 'loga.equil'")
@@ -71,15 +76,21 @@ diagram <- function(
       eout$values[[i]] / n.balance[i]
     })
     plotvar <- eout$property
-    # we change 'A' to 'A/2.303RT' so the axis label is made correctly
-    if(plotvar=="A") plotvar <- "A/2.303RT"
-    message(paste("diagram: plotting", plotvar, "from affinity(), divided by balancing coefficients"))
+    # we change 'A' to 'A/(2.303RT)' so the axis label is made correctly
+    # 20171027 use parentheses to avoid ambiguity about order of operations
+    if(plotvar=="A") {
+      plotvar <- "A/(2.303RT)"
+      message("diagram: plotting A/(2.303RT) / n.balance (maximum affinity method for 2-D diagrams)")
+    } else message(paste("diagram: plotting", plotvar, " / n.balance"))
   }
 
   ## number of dimensions (T, P or chemical potentials that are varied)
   # length(eout$vars) - the number of variables = the maximum number of dimensions
   # length(dim(eout$values[[1]])) - nd=1 if it was a transect along multiple variables
   nd <- min(length(eout$vars), length(dim(eout$values[[1]])))
+
+  ## use molality instead of activity if the affinity calculation include ionic strength 20171101
+  use.molality <- "IS" %in% names(eout)
 
   ## when can normalize and as.residue be used
   if(normalize | as.residue) {
@@ -127,10 +138,12 @@ diagram <- function(
   }
 
   ## alpha: plot fractional degree of formation
-  ## scale the activities to sum=1  ... 20091017
-  if(alpha) {
+  # scale the activities to sum=1  ... 20091017
+  # allow scaling by balancing component 20171008
+  if(isTRUE(alpha) | is.character(alpha)) {
     # remove the logarithms
     act <- lapply(plotvals, function(x) 10^x)
+    if(identical(alpha, "balance")) for(i in 1:length(act)) act[[i]] <- act[[i]] * eout$n.balance[i]
     # sum the activities
     sumact <- Reduce("+", act)
     # divide activities by the total
@@ -141,7 +154,7 @@ diagram <- function(
 
   ## identify predominant species
   predominant <- NA
-  if(plotvar %in% c("loga.equil", "alpha", "A/2.303RT")) {
+  if(plotvar %in% c("loga.equil", "alpha", "A/(2.303RT)")) {
     pv <- plotvals
     # some additional steps for affinity values, but not for equilibrated activities
     if(eout.is.aout) {
@@ -157,17 +170,26 @@ diagram <- function(
       }
     }
     predominant <- which.pmax(pv)
-    # for an Eh-pH or pe-pH diagram, clip plot to water stability region
-    if(limit.water & eout$vars[1] == "pH" & eout$vars[2] %in% c("Eh", "pe")) {
-      wl <- water.lines(xaxis=eout$vars[1], yaxis=eout$vars[2], T=eout$T, P=eout$P, xpoints=eout$vals[[1]], plot.it=FALSE)
-      # for each x-point, find the y-values that are outside the water stability limits
-      for(i in seq_along(wl$xpoints)) {
-        ymin <- min(c(wl$y.oxidation[i], wl$y.reduction[i]))
-        ymax <- max(c(wl$y.oxidation[i], wl$y.reduction[i]))
-        # the actual calculation
-        iNA <- eout$vals[[2]] < ymin | eout$vals[[2]] > ymax
-        # assign NA to the predominance matrix
-        predominant[i, iNA] <- NA
+    # clip plot to water stability region
+    if(limit.water) {
+      wl <- water.lines(eout, plot.it=FALSE)
+      # proceed if water.lines produced calculations for this plot
+      if(!identical(wl, NA)) {
+        # for each x-point, find the y-values that are outside the water stability limits
+        for(i in seq_along(wl$xpoints)) {
+          ymin <- min(c(wl$y.oxidation[i], wl$y.reduction[i]))
+          ymax <- max(c(wl$y.oxidation[i], wl$y.reduction[i]))
+          if(!wl$swapped) {
+            # the actual calculation
+            iNA <- eout$vals[[2]] < ymin | eout$vals[[2]] > ymax
+            # assign NA to the predominance matrix
+            predominant[i, iNA] <- NA
+          } else {
+            # as above, but x- and y-axes are swapped
+            iNA <- eout$vals[[1]] < ymin | eout$vals[[1]] > ymax
+            predominant[iNA, i] <- NA
+          }
+        }
       }
     }
   }
@@ -232,7 +254,7 @@ diagram <- function(
 
       ### 0-D diagram - bar graph of properties of species or reactions
       # plot setup
-      if(missing(ylab)) ylab <- axis.label(plotvar, units="")
+      if(missing(ylab)) ylab <- axis.label(plotvar, units="", use.molality=use.molality)
       barplot(unlist(plotvals), names.arg=names, ylab=ylab, cex.names=cex.names, col=col, ...)
       if(!is.null(main)) title(main=main)
 
@@ -242,9 +264,9 @@ diagram <- function(
       xvalues <- eout$vals[[1]]
       # initialize the plot
       if(!add) {
-        if(missing(xlab)) xlab <- axis.label(eout$vars[1], basis=eout$basis)
-        if(missing(xlim)) xlim <- range(xvalues)  # FIXME: this is backward if the vals are not increasing
-        if(missing(ylab)) ylab <- axis.label(plotvar, units="")
+        if(missing(xlab)) xlab <- axis.label(eout$vars[1], basis=eout$basis, use.molality=use.molality)
+        if(missing(xlim)) xlim <- range(xvalues)  # TODO: this is backward if the vals are not increasing
+        if(missing(ylab)) ylab <- axis.label(plotvar, units="", use.molality=use.molality)
         # to get range for y-axis, use only those points that are in the xrange
         if(is.null(ylim)) {
           isx <- xvalues >= min(xlim) & xvalues <= max(xlim)
@@ -261,13 +283,16 @@ diagram <- function(
         # 20120521: use legend.x=NA to label lines rather than make legend
         if(is.na(legend.x)) {
           maxvals <- do.call(pmax, pv)
+          dy <- rep(dy, length.out=length(plotvals))
+          # don't assign to adj becuase that messes up the missing test below
+          alladj <- rep(adj, length.out=length(plotvals))
           for(i in 1:length(plotvals)) {
             # y-values for this line
             myvals <- as.numeric(plotvals[[i]])
             # don't take values that lie close to or above the top of plot
             myvals[myvals > ylim[1] + 0.95*diff(ylim)] <- ylim[1]
             # the starting x-adjustment
-            thisadj <- adj
+            thisadj <- alladj[i]
             # if this line has any of the overall maximum values, use only those values
             # (useful for labeling straight-line affinity comparisons 20170221)
             is.max <- myvals==maxvals
@@ -290,7 +315,7 @@ diagram <- function(
               }
             }
             # also include y-offset (dy) and y-adjustment (labels bottom-aligned with the line)
-            text(xvalues[imax], plotvals[[i]][imax] + dy, labels=names[i], adj=c(thisadj, 0))
+            text(xvalues[imax], plotvals[[i]][imax] + dy[i], labels=names[i], adj=c(thisadj, 0), cex=cex.names)
           }
         } else legend(x=legend.x, lty=lty, legend=names, col=col, cex=cex.names, lwd=lwd, ...)
       }
@@ -484,10 +509,10 @@ diagram <- function(
       ylim <- c(ys[1], tail(ys, 1))
       # initialize the plot
       if(!add) {
-        if(is.null(xlab)) xlab <- axis.label(eout$vars[1], basis=eout$basis)
-        if(is.null(ylab)) ylab <- axis.label(eout$vars[2], basis=eout$basis)
+        if(is.null(xlab)) xlab <- axis.label(eout$vars[1], basis=eout$basis, use.molality=use.molality)
+        if(is.null(ylab)) ylab <- axis.label(eout$vars[2], basis=eout$basis, use.molality=use.molality)
         if(tplot) thermo.plot.new(xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab,
-          cex=cex, cex.axis=cex.axis, mar=mar, yline=yline, side=side)
+          cex=cex, cex.axis=cex.axis, mar=mar, yline=yline, side=side, ...)
         else plot(0, 0, type="n", xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, ...)
         # add a title
         if(!is.null(main)) title(main=main)

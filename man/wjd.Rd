@@ -64,7 +64,7 @@
   \item{iguess}{numeric, which guess to return}
   \item{ic}{numeric, which combination(s) of variable species to use (NULL for all)}
   \item{ispecies}{numeric, species indices (rownumbers of \code{thermo}$obigt)}
-  \item{T}{numeric, temperature in \eqn{^{\circ}}{°}C}
+  \item{T}{numeric, temperature in \degC}
 }
 
 \details{
@@ -89,7 +89,7 @@ However, some tests are available to help assess the likelihood that a solution 
 A necessary condition of equilibrium is that the chemical potentials of the elements be independent of the particular combination of species used to compute them.
 \code{is.near.equil} compares the chemical potentials for each element, computed using \code{element.potentials}, with the value of \code{tol}.
 If, for each element, the range of potentials/RT (difference between minimum and maximum) is less than \code{tol}, the result is TRUE, otherwise the function returns FALSE, and prints a message unless \code{quiet} is TRUE.
-The default value of \code{tol} corresponds to an energy of 0.01 * 1.9872 * 298.15 = ca. 6 cal/mol at 25 \eqn{^{\circ}}{°}C.
+The default value of \code{tol} corresponds to an energy of 0.01 * 1.9872 * 298.15 = ca. 6 cal/mol at 25 \degC.
 
 One of the constraints of the algorithm coded in \code{wjd} is that the initial solution, and all iterations, require positive (non-zero) numbers of moles of every species.
 Often, when investigating an equilibrium problem, the stoichiometric constraints are expressed most readily in terms of bulk composition -- numbers of moles of each element.
@@ -176,4 +176,4 @@ sum(w$X)  # <20
 White, W. B., Johnson, S. M. and Dantzig, G. B. (1958) Chemical equilibrium in complex mixtures. \emph{J. Chem. Phys.} \bold{28}, 751--755. \url{https://doi.org/10.1063/1.1744264}
 }
 
-\concept{Extra thermodynamic modeling}
+\concept{Extended workflow}

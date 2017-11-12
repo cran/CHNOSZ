@@ -191,7 +191,8 @@ protein.equil <- function(protein, T=25, loga.protein=0, digits=4) {
     G0protform <- G0protform + G0ionization
   }
   # standard Gibbs energy of formation reaction of non/ionized residue equivalents, dimensionless
-  G0res.RT <- G0protform/thermo$opt$R/TK/plength
+  R <- 1.9872  # gas constant, cal K^-1 mol^-1
+  G0res.RT <- G0protform/R/TK/plength
   message("protein.equil [1]: per residue, reaction to form ", iword, " protein from basis species has G0/RT of ", signif(G0res.RT[1], digits))
   # coefficients of basis species in formation reactions of residues
   resbasis <- suppressMessages(protein.basis(aa, T=T, normalize=TRUE))

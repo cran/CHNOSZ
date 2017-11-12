@@ -14,6 +14,7 @@ test_that("unparseable chemical formulas cause an error", {
 test_that("numeric species indices, and coefficients indicating charge can be parsed", {
   # these are all equivalent formulas for the electron
   expect_equal(makeup("-1"), makeup("Z0-1"))
+  expect_equal(makeup("-1"), makeup("(Z-1)"))
   expect_equal(makeup("-1"), makeup("Z-1+0"))
   # the species index of the electron in thermo$obigt
   ie <- info("e-")
@@ -55,7 +56,7 @@ test_that("makeup has a fall-through mechanism for matrices and named objects", 
   pf <- protein.formula(protein)  # a matrix with elements on the columns
   basis(protein)          # yup, a basis set made of proteins, just for fun
   bmat <- basis.elements()  # a matrix with elements on the columns
-  expect_equal(as.array(makeup(pf)[[1]]), makeup(as.chemical.formula(pf)[1]))
+  expect_equal(makeup(pf)[[1]], makeup(as.chemical.formula(pf)[1]))
   expect_equal(makeup(pf), makeup(bmat))
 })
 

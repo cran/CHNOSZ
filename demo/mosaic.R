@@ -25,7 +25,7 @@ bases2 <- c("CO3-2", "HCO3-", "CO2")
 m1 <- mosaic(bases, bases2, TRUE, pH=pH, Eh=Eh, T=T)
 # make a diagram and add water stability lines
 diagram(m1$A.species, lwd=2)
-water.lines("pH", "Eh", T=convert(T, "K"), col="seagreen", lwd=1.5)
+water.lines(m1$A.species, col="seagreen", lwd=1.5)
 # show lines for Fe(aq) = 10^-4 M
 species(c("Fe+2", "Fe+3"), -4)
 m2 <- mosaic(bases, bases2, TRUE, pH=pH, Eh=Eh, T=T)

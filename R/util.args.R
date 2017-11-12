@@ -3,44 +3,6 @@
 
 ### unexported functions ###
 
-# These functions are used to normalize user-input arguments, which are case-insensitive.
-
-# return a list with elements:
-#   `prop` for all the properties available for the specified equations-of-state
-#   `prop` for the lower-case version of property
-#   `Prop` for the upper-case (of first letter) version of property
-# produces an error if any of `property` is not in the list of available properties.
-# (See water() and subcrt() for the available properties for different species.)
-eos.args <- function(eos='',property=NULL,T=NULL,P=NULL) {
-  # the available properties for supcrt, probably
-  props <- c('G','H','S','Cp','V','kT','E')
-  if(eos=='water') {
-    # things we also get with water
-    props <- c(props,'A','U','Cv','Psat','rho','Q','X','Y','epsilon','w')
-    # they keep on coming: things we also get with SUPCRT92
-    if(get("thermo")$opt$water == "SUPCRT92")
-      props <- c(props,'Z','visc','tcond','tdiff','Prndtl','visck','albe','daldT','alpha','beta')
-    else 
-      props <- c(props,'P','N','UBorn','de.dT','de.dP')
-  }
-  # so others can find out what we're about
-  if(is.null(property)) return(props)
-  # default: all properties and contributions
-  if(is.null(property)) property <- props
-  # the lowercase equivalent of the argument
-  prop <- tolower(property)
-  # and returns its lower- and upper- case equivalents
-  # (prop and Prop) and the available properties
-  Prop <- props[match(prop,tolower(props))]
-  #contrib <- tolower(contrib)
-  # error: not a property
-  notprop <- ! prop %in% tolower(props)
-  if(TRUE %in% notprop) 
-    stop('thermo.args: properties ',c2s(prop[notprop]),' not in ',c2s(props),'\n')
-  # return arguments
-  return(list(props=props,prop=prop,Prop=Prop))
-}
-
 # force T and P to equal length
 # also looks for the keyword Psat in the value of P and substitutes calculated values of the saturation vapor pressure
 TP.args <- function(T=NULL, P=NULL) {

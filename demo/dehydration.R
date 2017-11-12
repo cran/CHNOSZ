@@ -17,7 +17,7 @@ title(main="Dehydration reactions")
 reactants <- c("[AABB]", "[AABB]", "malate-2", "goethite", "gypsum", "epsomite", "ethanol")
 products <- c("[UPBB]", "[PBB]", "fumarate-2", "hematite", "anhydrite", "hexahydrite", "ethylene")
 rstate <- c("aq", "cr", "aq", "cr", "cr", "cr", "aq")
-pstate <- c("aq", "cr", "aq", "cr1", "cr", "cr", "gas")
+pstate <- c("aq", "cr", "aq", "cr", "cr", "cr", "gas")
 rcoeff <- c(-1, -1, -1, -2, -0.5, -1, -1)
 pcoeff <- c(1, 1, 1, 1, 0.5, 1, 1)
 # position and rotation of the names

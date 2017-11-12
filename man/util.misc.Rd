@@ -33,7 +33,7 @@ Calculate \eqn{dP/dT}{dP/dT} and temperature of phase transitions; scale logarit
 Using values of \code{dPdT} calculated using \code{dPdTtr} or supplied in the arguments, \code{Ttr} returns as a function of \code{P} values of the upper transition temperature of the mineral phase represented by \code{ispecies}.
 
 \code{GHS_Tr} can be used to calculate values of G, H, and S at Tr for the cr2, cr3, and cr4 phases in the database.
-It combines the given \code{Htr} (enthalpies of transition) with the database values of GHS @ Tr only for the phase that is stable at 298.15 K (cr1) and the transition temperatures and Cp coefficients for higher-temperature phases, to calculate the GHS @ Tr (i.e. low-temperature metastable conditions) of the phases that are stable at higher temperatures.
+It combines the given \code{Htr} (enthalpies of transition) with the database values of GHS @ Tr only for the phase that is stable at 298.15 K (cr) and the transition temperatures and Cp coefficients for higher-temperature phases, to calculate the GHS @ Tr (i.e. low-temperature metastable conditions) of the phases that are stable at higher temperatures.
 
 \code{unitize} scales the logarithms of activities given in \code{logact} so that the logarithm of total activity of residues is equal to zero (i.e. total activity of residues is one), or to some other value set in \code{logact.tot}.
 \code{length} indicates the number of residues in each species.
@@ -90,4 +90,4 @@ stopifnot(isTRUE(all.equal(loga[2]-loga[1],1)))
 stopifnot(isTRUE(all.equal(sum(10^loga * length),1)))
 }
 
-\keyword{utilities}
+\concept{Thermodynamic calculations}

@@ -66,8 +66,9 @@ makeup("Fe3+")
 
 # these all represent a single negative charge, i.e., electron
 makeup("-1")
-makeup("Z0-1")
 makeup("Z-1+0")
+makeup("Z0-1")   # the "old" formula for the electron in thermo$obigt
+makeup("(Z-1)")  # the current formula in thermo$obigt
 
 # hypothetical compounds with negative numbers of elements
 makeup("C-4(O-2)")   # -4 carbon, -2 oxygen
@@ -76,11 +77,11 @@ makeup("C-4O-2-2")   # -4 carbon, -2 oxygen, -2 charge
 
 # the 'sum' argument can be used to check mass and charge
 # balance in a chemical reaction
-formula <- c("H2O", "H+", "Z0-1", "O2")
+formula <- c("H2O", "H+", "(Z-1)", "O2")
 (mf <- makeup(formula, c(-1, 2, 2, 0.5), sum=TRUE))
 stopifnot(all(mf==0))
 }
 
 \seealso{ \code{\link{mass}}, \code{\link{entropy}}, \code{\link{basis}}, \code{\link{i2A}} }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Thermodynamic calculations}

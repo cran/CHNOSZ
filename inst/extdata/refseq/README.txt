@@ -2,7 +2,7 @@
 # RefSeq database (release 61, 2013-09-09)
 protein_refseq.csv: overall (average) amino acid composition of all proteins for each
   microbial genome in the RefSeq collection (n=6758)
-taxid_names.csv: taxid, phylum name and species name for 6758 microbial taxa
+taxid_names.csv: taxid, phylum name and species name for 788 microbial taxa
 
 # these functions/scripts have the following purpose (output files listed in parentheses):
 gencat.sh - extract gi number, taxid, sequence length from RefSeq release catalog (gi.taxid.txt)
@@ -39,6 +39,8 @@ mkfaa.sh - combine gzipped sequence files into one big FASTA file (refseq61.faa)
     'names.dmp' and 'nodes.dmp' are present. these files can be downloaded from
     ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz (accessed on 2013-09-18)
 10. source 'taxid.names.R' to generate the file 'taxid_names.csv' [~5.5 hours]
+10a. 20170926: To save space for the package, the file has been trimmed to
+     hold only those taxids listed in extdata/bison/gi.taxid.txt.
 
 # BLAST stuff (optional)
 11. run ls protein/*.gz > filelist

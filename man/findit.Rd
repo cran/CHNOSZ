@@ -50,16 +50,16 @@ Taking \eqn{nd} as the number of dimensions (number of variables in \code{lims})
 These settings have been selected to be able to run the function quickly in the higher dimensions.
 Detailed studies of a system might have to use more iterations and/or higher resolutions.
 
-  \tabular{rrrrr}{
-    \code{nd} \tab \code{niter} \tab \code{res} \tab grid points (\code{res^nd}) \tab \code{rat} \cr
-    1 \tab 4 \tab 128 \tab 128 \tab 0.7 \cr
-    2 \tab 6 \tab 64 \tab 4096 \tab 0.7 \cr
-    3 \tab 6 \tab 16 \tab 4096 \tab 0.8 \cr
-    4 \tab 8 \tab 8 \tab  4096 \tab 0.9 \cr
-    5 \tab 12 \tab 6 \tab 7776 \tab 0.9 \cr
-    6 \tab 12 \tab 4 \tab 4096 \tab 0.95 \cr
-    7 \tab 12 \tab 4 \tab 16384 \tab 0.95 \cr
-  }
+\tabular{rrrrr}{
+  \code{nd} \tab \code{niter} \tab \code{res} \tab grid points (\code{res^nd}) \tab \code{rat} \cr
+  1 \tab 4 \tab 128 \tab 128 \tab 0.7 \cr
+  2 \tab 6 \tab 64 \tab 4096 \tab 0.7 \cr
+  3 \tab 6 \tab 16 \tab 4096 \tab 0.8 \cr
+  4 \tab 8 \tab 8 \tab  4096 \tab 0.9 \cr
+  5 \tab 12 \tab 6 \tab 7776 \tab 0.9 \cr
+  6 \tab 12 \tab 4 \tab 4096 \tab 0.95 \cr
+  7 \tab 12 \tab 4 \tab 16384 \tab 0.95 \cr
+}
 
 The function performs \code{niter} iterations.
 At first, the limits of the parameters given in \code{lims} define the extent of a \eqn{nd}-dimensional box around the space of interest.
@@ -76,4 +76,4 @@ If the limits of any of the parameters extend beyond those in \code{lims}, they 
 
 \seealso{ \code{demo("findit")} and \code{test-findit.R} for examples. }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Extended workflow}

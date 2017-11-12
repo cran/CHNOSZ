@@ -14,7 +14,6 @@
   Initialize a new plot window using preset parameters, add an axis or title to a plot, generate labels for axes and subplots, add stability lines for water, get colors for a set of numeric values.
 }
 
-
 \usage{
   thermo.plot.new(xlim, ylim, xlab, ylab, cex = par("cex"),
     mar = NULL, lwd = par("lwd"), side = c(1,2,3,4), 
@@ -26,10 +25,9 @@
   usrfig()
   label.figure(x, xfrac = 0.05, yfrac = 0.95, paren = FALSE,
     italic = FALSE, ...)
-  water.lines(xaxis = "pH", yaxis = "Eh", T = 298.15, P = "Psat", 
-    which = c("oxidation","reduction"), logaH2O = 0, lty = 2, lwd=1,
-    col = par("fg"), xpoints = NULL, O2state="gas", plot.it = TRUE)
-  mtitle(main, line=0, ...)
+  water.lines(eout, which = c("oxidation","reduction"),
+    lty = 2, lwd=1, col = par("fg"), plot.it = TRUE)
+  mtitle(main, line=0, spacing=1, ...)
   ZC.col(z)
 }
 
@@ -51,23 +49,18 @@
   \item{las}{numeric, style for axis labels}
   \item{xline}{numeric, margin line on which to plot \eqn{x}{x}-axis name}
   \item{...}{further arguments passed to \code{par} or \code{mtext}}
-  \item{T}{numeric, temperature (K)}
   \item{x}{character, label to place on plot}
   \item{xfrac}{numeric, fractional location on \eqn{x}{x}-axis for placement of label}
   \item{yfrac}{numeric, fractional location on \eqn{y}{y}-axis for placement of label}
   \item{paren}{logical, add parentheses around label text?}
   \item{italic}{logical, italicize label text?}
-  \item{xaxis}{character, description of \eqn{x}{x}-axis}
-  \item{yaxis}{character, description of \eqn{y}{y}-axis}
-  \item{P}{numeric, pressure (bar)}
+  \item{eout}{data frame, output of \code{\link{affinity}}, \code{\link{equilibrate}}, or \code{\link{diagram}}}
   \item{which}{character, which of oxidation/reduction lines to plot}
-  \item{logaH2O}{numeric, logarithm of the activity of \eqn{\mathrm{H_2O}}{H2O}}
   \item{lty}{numeric, line type}
-  \item{xpoints}{numeric, points to plot on \eqn{x}{x} axis}
-  \item{O2state}{character, state of O2}
   \item{plot.it}{logical, plot the lines?}
   \item{main}{character, text for plot title}
   \item{line}{numeric, margin line to place title}
+  \item{spacing}{numeric, spacing between multiple lines}
   \item{z}{numeric, set of values}
 }
 
@@ -75,12 +68,12 @@
 
   \code{thermo.plot.new} sets parameters for a new plot, creates a new plot using \code{\link{plot.new}}, and adds axes and major and minor tick marks to the plot. Plot parameters (see \code{\link{par}}) including \code{cex}, \code{mar}, \code{lwd}, \code{mgp} and \code{axs} can be given, as well as a numeric vector in \code{side} identifying which sides of the plot receive tick marks. \code{yline}, if present, denotes the margin line (default \code{\link{par}('mgp')[1]}) where the y-axis name is plotted.
 
-\code{water.lines} plots lines representing the oxidation and reduction stability limits of water on \code{yaxis}-\code{xaxis} diagrams, where \code{yaxis} can be \samp{Eh} or \samp{O2}, and \code{xaxis} can be \samp{pH} or \samp{T}.
+\code{water.lines} plots lines representing the oxidation and reduction stability limits of water on Eh/pe/\logfO2/\logfH2 vs pH/\T/\P diagrams.
+The x- and y-variables and their ranges are taken from \code{eout}.
+Values of \T, \P, pH, and \logaH2O, not corresponding to either axis, are also taken from \code{eout}.
 \code{which} controls which lines are drawn (\samp{oxidation}, \samp{reduction}, or both (the default)).
-\code{logaH2O} denotes the logarithm of the activity of water.
-With \code{O2state} set to \samp{gas} (the default), the logarithm of oxygen fugacity is plotted.
-Change this to \samp{aq} to plot the logarithm of oxygen activity (do not change it if plotting \samp{Eh}).
-\code{xpoints} is an optional list of points on the x axis to which to restrict the plotting (default of \code{NULL} refers to the axis limits).
+The value of \code{swapped} in the output reflects whether pH, \T, or \P is on the x-axis (TRUE) or y-axis (FALSE).
+\code{NA} is returned for any diagram for variables that can not be processed (including diagrams with more than 2 variables).
 
 \code{label.plot} and \code{label.figure} add identifying text within the plot region and figure region.
 The value given for \code{x} is made into a label, optionally italicized and with parentheses (like \ifelse{latex}{\eqn{(a)}}{\ifelse{html}{\out{(<i>a</i>)}}{(a)}}).
@@ -100,4 +93,4 @@ This function is intended to generate colors for distinguishing average oxidatio
 
 }
 
-\keyword{utilities}
+\concept{Utility functions}

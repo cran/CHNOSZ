@@ -12,9 +12,9 @@ GLUCOSE,glucose,aq,-3
 CYSTINE,cystine,aq,-3
 ETHANOL,ethanol,aq,-3
 MAMINE,methanamine,aq,-3
-HM,hematite,cr1,0
-HM,magnetite,cr1,0
-FeFeO,iron,cr1,0
+HM,hematite,cr,0
+HM,magnetite,cr,0
+FeFeO,iron,cr,0
 FeFeO,FeO,cr,0
 CO2-AC,CO2,aq,-3
 CO2-AC,"acetic acid",aq,-3
@@ -30,11 +30,11 @@ GSH-GSSG,GSH,aq,-3
 GSH-GSSG,GSSG,aq,-9
 NADred-NADox,HNAD(red)-,aq,-3
 NADred-NADox,NAD(ox)-,aq,-3
-QFM,quartz,cr1,0
+QFM,quartz,cr,0
 QFM,fayalite,cr,0
-QFM,magnetite,cr1,0
+QFM,magnetite,cr,0
 PPM,pyrite,cr,0
-PPM,pyrrhotite,cr1,0
-PPM,magnetite,cr1,0
+PPM,pyrrhotite,cr,0
+PPM,magnetite,cr,0
 water,water,liq,0
-quartz,quartz,cr1,0
+quartz,quartz,cr,0

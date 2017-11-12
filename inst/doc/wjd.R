@@ -2,7 +2,7 @@
 ### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: wjd.Rnw:24-25
+### code chunk number 1: wjd.Rnw:23-24
 ###################################################
   if(exists(".orig.enc")) options(encoding = .orig.enc)
 
@@ -54,7 +54,7 @@ iterfun <- function(imax, i) {
 
 
 ###################################################
-### code chunk number 7: wjd.Rnw:131-131
+### code chunk number 7: wjd.Rnw:129-129
 ###################################################
 
 
@@ -88,7 +88,7 @@ diff(w$F.Y)/w$F.Y[1:7]
 
 
 ###################################################
-### code chunk number 12: wjd.Rnw:206-206
+### code chunk number 12: wjd.Rnw:203-203
 ###################################################
 
 
@@ -101,7 +101,7 @@ par(mgp = c(2, 1, 0))
 
 
 ###################################################
-### code chunk number 14: wjd.Rnw:212-212
+### code chunk number 14: wjd.Rnw:209-209
 ###################################################
 
 
@@ -116,7 +116,7 @@ ep3 <- element.potentials(w3, plot.it=TRUE)
 
 
 ###################################################
-### code chunk number 16: wjd.Rnw:228-228
+### code chunk number 16: wjd.Rnw:224-224
 ###################################################
 
 
@@ -148,7 +148,7 @@ Y1
 
 
 ###################################################
-### code chunk number 20: wjd.Rnw:294-294
+### code chunk number 20: wjd.Rnw:289-289
 ###################################################
 
 
@@ -163,7 +163,7 @@ is.near.equil(wY1, tol=0.0001)
 
 
 ###################################################
-### code chunk number 22: wjd.Rnw:312-312
+### code chunk number 22: wjd.Rnw:307-307
 ###################################################
 
 
@@ -232,7 +232,9 @@ t(dlen[, 1, drop=FALSE])
 # turn formulas into a stoichiometric matrix
 A <- i2A(dlen$formula)
 # assemble Gibbs energies/RT at 500 K
-G0.RT <- 1000 * dlen$G500 / thermo$opt$R / thermo$opt$Tr
+T <- 500  # K
+R <- 1.9872  # gas constant, cal K^-1 mol^-1
+G0.RT <- 1000 * dlen$G500 / R / T
 # a function to minimize Gibbs energy for system with 
 # given mole fraction of carbon (xC)
 min.atmos <- function(xC) {

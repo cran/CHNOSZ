@@ -122,6 +122,38 @@ test_that("equilibrate() can be used for huge values of Astar", {
   expect_error(equilibrate(a, balance=1.000001, method="boltzmann"), "won't run equil.boltzmann")
 })
 
+test_that("equilibrate() can be used with a vector of loga.balance values", {
+  # system is balanced on CO2; species have different number of C, so loga.balance affects the equilibrium activities
+  basis("CHNOS")
+  species(c("formic acid", "acetic acid", "propanoic acid"))
+  # calculate reference values at logfO2 = -80, log(aCO2tot) = -6
+  basis("O2", -80)
+  a <- affinity()
+  e80.6 <- unlist(equilibrate(a, loga.balance = -6)$loga.equil)
+  # calculate reference values at logfO2 = -60, log(aCO2tot) = -8
+  basis("O2", -60)
+  a <- affinity()
+  e60.8 <- unlist(equilibrate(a, loga.balance = -8)$loga.equil)
+  # calculate affinity on a transect: logfO2 from -80 to -60
+  O2 <- seq(-80, -60)
+  aO2 <- affinity(O2=O2)
+  # values calculated at the ends of the transect should be the same as above
+  eO2.6 <- equilibrate(aO2, loga.balance = -6)$loga.equil
+  expect_equal(list2array(eO2.6)[1, ], e80.6)
+  eO2.8 <- equilibrate(aO2, loga.balance = -8)$loga.equil
+  expect_equal(list2array(eO2.8)[21, ], e60.8)
+  # make an vector of loga.balance to go with the logfO2 transect
+  # first we make a vector with non-matching length, and get an error
+  logaCO2.wronglen <- seq(-6, -8)
+  expect_error(equilibrate(aO2, loga.balance=logaCO2.wronglen), "length of loga.balance \\(3) doesn't match the affinity values \\(21)")
+  # now do it with the correct length
+  logaCO2 <- seq(-6, -8, length.out=length(O2))
+  eO2 <- equilibrate(aO2, loga.balance=logaCO2)
+  # now the first set of conditions is logfO2 = -80, log(aCO2tot) = -6
+  expect_equal(list2array(eO2$loga.equil)[1, ], e80.6)
+  # and the final set is logfO2 = -80, log(aCO2tot) = -6
+  expect_equal(list2array(eO2$loga.equil)[21, ], e60.8)
+})
 
 # references
 

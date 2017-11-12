@@ -359,7 +359,8 @@ run.wjd <- function(ispecies, B=NULL, method="stoich", Y=run.guess(ispecies, B, 
   ## assemble the standard molal Gibbs energies of the species
   s <- subcrt(ispecies, P=P, T=T, property="G", exceed.Ttr=TRUE)
   G0 <- sapply(1:length(s$out), function(i) s$out[[i]]$G)
-  G0.RT <- G0/get("thermo")$opt$R/convert(T, "K")
+  R <- 1.9872  # gas constant, cal K^-1 mol^-1
+  G0.RT <- G0/R/convert(T, "K")
   ## if Y is provided use that as initial guess
   if(!missing(Y)) {
     # giving both Y and B is not allowed
@@ -416,6 +417,7 @@ run.guess <- function(ispecies, B=NULL, method="stoich", iguess=NULL) {
 
 equil.potentials <- function(w, tol=0.01, T=25) {
   ## return the average of the element.potentials, only if w is.near.equil  20120613
+  R <- 1.9872  # gas constant, cal K^-1 mol^-1
   if(!is.near.equil(w, tol=tol)) return(NULL)
-  else return(colMeans(element.potentials(w)) * get("thermo")$opt$R * convert(T, "K"))
+  else return(colMeans(element.potentials(w)) * R * convert(T, "K"))
 }

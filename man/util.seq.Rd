@@ -51,4 +51,4 @@ RNA.comp <- nucleic.complement(DNA.comp, type="RNA")
 nucleic.formula(RNA.comp)  # C40H42N32O11
 }
 
-\keyword{utilities}
+\concept{Protein properties}

@@ -65,75 +65,112 @@ label.figure <- function(x, xfrac=0.05, yfrac=0.95, paren=FALSE, italic=FALSE, .
   par(opar)
 }
 
-water.lines <- function(xaxis='pH', yaxis='Eh', T=298.15, P='Psat', which=c('oxidation','reduction'),
-  logaH2O=0, lty=2, lwd=1, col=par('fg'), xpoints=NULL, O2state="gas", plot.it=TRUE) {
+water.lines <- function(eout, which=c('oxidation','reduction'),
+  lty=2, lwd=1, col=par('fg'), plot.it=TRUE) {
   # draw water stability limits
   # for Eh-pH, logfO2-pH, logfO2-T or Eh-T diagrams
   # (i.e. redox variable is on the y axis)
+  # get axes, T, P, and xpoints from output of affinity() or equilibrate()
+  if(missing(eout)) stop("'eout' (the output of affinity(), equilibrate(), or diagram()) is missing")
+  # number of variables used in affinity()
+  nvar1 <- length(eout$vars)
+  # if these were on a transect, the actual number of variables is less
+  dim <- dim(eout$loga.equil[[1]]) # for output from equilibrate()
+  if(is.null(dim)) dim <- dim(eout$values[[1]]) # for output from affinity()
+  nvar2 <- length(dim)
+  # we only work on diagrams with 2 variables
+  if(nvar1 != 2 | nvar2 != 2) return(NA)
+  # if needed, swap axes so T or P is on x-axis
+  swapped <- FALSE
+  if(eout$vars[2] %in% c("T", "P")) {
+    eout$vars <- rev(eout$vars)
+    eout$vals <- rev(eout$vals)
+    swapped <- TRUE
+  }
+  xaxis <- eout$vars[1]
+  yaxis <- eout$vars[2]
+  xpoints <- eout$vals[[1]]
+  # T and P are constants unless they are plotted on one of the axes
+  T <- eout$T
+  if(eout$vars[1]=="T") T <- envert(xpoints, "K")
+  P <- eout$P
+  if(eout$vars[1]=="P") P <- envert(xpoints, "bar")
+  # logaH2O is 0 unless given in eout$basis
+  iH2O <- match("H2O", rownames(eout$basis))
+  if(is.na(iH2O)) logaH2O <- 0 else logaH2O <- eout$basis$logact[iH2O]
+  # pH is 7 unless given in eout$basis or plotted on one of the axes
+  iHplus <- match("H+", rownames(eout$basis))
+  if(eout$vars[1]=="pH") pH <- xpoints
+  else if(!is.na(iHplus)) {
+    minuspH <- eout$basis$logact[iHplus]
+    # special treatment for non-numeric value (happens when a buffer is used, even for another basis species)
+    if(can.be.numeric(minuspH)) pH <- -as.numeric(minuspH) else pH <- NA
+  }
+  else pH <- 7
+  # O2state is gas unless given in eout$basis
+  iO2 <- match("O2", rownames(eout$basis))
+  if(is.na(iO2)) O2state <- "gas" else O2state <- eout$basis$state[iO2]
+  # H2state is gas unles given in eout$basis
+  iH2 <- match("H2", rownames(eout$basis))
+  if(is.na(iH2)) H2state <- "gas" else H2state <- eout$basis$state[iH2]
+  # where the calculated values will go
   y.oxidation <- y.reduction <- NULL
-  # if they are not provided, get the x points from the plot limits
-  if(is.null(xpoints)) {
-    pu <- par('usr')
-    xlim <- pu[1:2]
-    xpoints <- seq(xlim[1], xlim[2], length.out=100)
-  }
-  # note: Eh calculations are valid at a single T only
-  if(xaxis=="O2" | (xaxis=='pH' & (yaxis=='Eh' | yaxis=='O2' | yaxis=="pe"))) {
+  if(xaxis %in% c("pH", "T", "P") & yaxis %in% c("Eh", "pe", "O2", "H2")) {
+    # Eh/pe/logfO2/logaO2/logfH2/logaH2 vs pH/T/P
     if('reduction' %in% which) {
-      logfH2 <- 0
-      logK <- subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", O2state, "gas"), T=T, P=P, convert=FALSE)$out$logK 
-      # this is logfO2 if O2state=="gas", or logaO2 if O2state=="aq"
-      logfO2 <- 2 * logK - logfH2 + 2 * logaH2O
-      #if(xaxis=='O2') abline(v=logfO2,lty=lty,lwd=lwd,col=col) 
-      #if(yaxis=='O2') abline(h=logfO2,lty=lty,lwd=lwd,col=col) 
-      if(yaxis=="Eh") y.reduction <- convert(logfO2, 'E0', T=T, P=P, pH=xpoints)
-      else if(yaxis=="pe") y.reduction <- convert(convert(logfO2, 'E0', T=T, P=P, pH=xpoints), "pe", T=T)
+      logfH2 <- logaH2O # usually 0
+      if(yaxis=="H2") {
+        logK <- subcrt(c("H2", "H2"), c(-1, 1), c("gas", H2state), T=T, P=P, convert=FALSE)$out$logK 
+        # this is logfH2 if H2state=="gas", or logaH2 if H2state=="aq"
+        logfH2 <- logfH2 + logK
+        y.reduction <- rep(logfH2, length.out=length(xpoints))
+      } else {
+        logK <- subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", O2state, "gas"), T=T, P=P, convert=FALSE)$out$logK 
+        # this is logfO2 if O2state=="gas", or logaO2 if O2state=="aq"
+        logfO2 <- 2 * (logK - logfH2 + logaH2O)
+        if(yaxis=="O2") y.reduction <- rep(logfO2, length.out=length(xpoints))
+        else if(yaxis=="Eh") y.reduction <- convert(logfO2, 'E0', T=T, P=P, pH=pH, logaH2O=logaH2O)
+        else if(yaxis=="pe") y.reduction <- convert(convert(logfO2, 'E0', T=T, P=P, pH=pH, logaH2O=logaH2O), "pe", T=T)
+      }
     }
     if('oxidation' %in% which) {
-      logfO2 <- 0
-      logK <- subcrt(c("O2", "O2"), c(-1, 1), c("gas", O2state), T=T, P=P, convert=FALSE)$out$logK 
-      # this is logfO2 if O2state=="gas", or logaO2 if O2state=="aq"
-      logfO2 <- logfO2 + logK
-      #if(xaxis=='O2') abline(v=logfO2,lty=lty,lwd=lwd,col=col) 
-      #if(yaxis=='O2') abline(h=logfO2,lty=lty,lwd=lwd,col=col) 
-      if(yaxis=="Eh") y.oxidation <- convert(logfO2, 'E0', T=T, P=P, pH=xpoints)
-      else if(yaxis=="pe") y.oxidation <- convert(convert(logfO2, 'E0', T=T, P=P, pH=xpoints), "pe", T=T)
+      logfO2 <- logaH2O # usually 0
+      if(yaxis=="H2") {
+        logK <- subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", "gas", H2state), T=T, P=P, convert=FALSE)$out$logK 
+        # this is logfH2 if H2state=="gas", or logaH2 if H2state=="aq"
+        logfH2 <- logK - 0.5*logfO2 + logaH2O
+        y.oxidation <- rep(logfH2, length.out=length(xpoints))
+      } else {
+        logK <- subcrt(c("O2", "O2"), c(-1, 1), c("gas", O2state), T=T, P=P, convert=FALSE)$out$logK 
+        # this is logfO2 if O2state=="gas", or logaO2 if O2state=="aq"
+        logfO2 <- logfO2 + logK
+        if(yaxis=="O2") y.oxidation <- rep(logfO2, length.out=length(xpoints))
+        else if(yaxis=="Eh") y.oxidation <- convert(logfO2, 'E0', T=T, P=P, pH=pH, logaH2O=logaH2O)
+        else if(yaxis=="pe") y.oxidation <- convert(convert(logfO2, 'E0', T=T, P=P, pH=pH, logaH2O=logaH2O), "pe", T=T)
+      }
     }
-  } else if(xaxis %in% c('T','P') & yaxis %in% c('Eh','O2') ) {
-    #if(xaxis=='T') if(is.null(xpoints)) xpoints <- T
-    # 20090212 get T values from plot limits
-    # TODO: make this work for T on y-axis too
-    if(xaxis=='T' & missing(T)) T <- envert(xpoints, "K")
-    if(xaxis=='P') if(missing(xpoints)) xpoints <- P
-    if('oxidation' %in% which) {
-      logfO2 <- rep(0,length(xpoints))
-      if(yaxis=='Eh') y.oxidation <- convert(logfO2, 'E0', T=T, P=P, pH=xpoints)
-      else y.oxidation <- logfO2
-    }
-    if('reduction' %in% which) {
-      logfH2 <- 0
-      logK <- subcrt(c('H2O','oxygen','hydrogen'),c(-1,0.5,1),T=T,P=P,convert=FALSE)$out$logK 
-      logfO2 <- 2 * logK - logfH2 + 2 * logaH2O
-      if(yaxis=='Eh') y.reduction <- convert(logfO2, 'E0', T=T, P=P, pH=xpoints)
-      else y.reduction <- logfO2
-    }
-  }
-  if(yaxis=="Eh") y.oxidation <- convert(logfO2, 'E0', T=T, P=P, pH=xpoints)
+  } else return(NA)
   # now plot the lines
   if(plot.it) {
-    lines(xpoints, y.oxidation, lty=lty, lwd=lwd, col=col)
-    lines(xpoints, y.reduction, lty=lty, lwd=lwd, col=col)
+    if(swapped) {
+      # xpoints above is really the ypoints
+      lines(y.oxidation, xpoints, lty=lty, lwd=lwd, col=col)
+      lines(y.reduction, xpoints, lty=lty, lwd=lwd, col=col)
+    } else {
+      lines(xpoints, y.oxidation, lty=lty, lwd=lwd, col=col)
+      lines(xpoints, y.reduction, lty=lty, lwd=lwd, col=col)
+    }
   }
   # return the values
-  return(invisible(list(xpoints=xpoints, y.oxidation=y.oxidation, y.reduction=y.reduction)))
+  return(invisible(list(xpoints=xpoints, y.oxidation=y.oxidation, y.reduction=y.reduction, swapped=swapped)))
 }
 
-mtitle <- function(main, line=0, ...) {
+mtitle <- function(main, line=0, spacing=1, ...) {
   # make a possibly multi-line plot title 
   # useful for including expressions on multiple lines 
   # 'line' is the margin line of the last (bottom) line of the title
-  l <- length(main)
-  for(i in 1:l) mtext(main[i], line=line+l-i, ...)
+  len <- length(main)
+  for(i in 1:len) mtext(main[i], line = line + (len - i)*spacing, ...)
 }
 
 # get colors for range of ZC values 20170206
@@ -142,7 +179,10 @@ ZC.col <- function(z) {
   z <- z * 999/diff(range(z))
   z <- round(z - min(z)) + 1
   # diverging (blue - light grey - red) palette
-  dcol <- colorspace::diverge_hcl(1000, c = 100, l = c(50, 90), power = 1)
+  # dcol <- colorspace::diverge_hcl(1000, c = 100, l = c(50, 90), power = 1)
+  # use precomputed values
+  file <- system.file("extdata/cpetc/bluered.txt", package = "CHNOSZ")
+  dcol <- read.table(file, as.is=TRUE)[[1]]
   # reverse the palette so red is at lower ZC (more reduced)
   rev(dcol)[z]
 }

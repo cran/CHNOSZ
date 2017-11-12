@@ -91,4 +91,4 @@ names <- getnames(taxdir=taxdir)
 sciname(id8,names=names)
 }
 
-\concept{Extra thermodynamic modeling}
+\concept{Other tools}

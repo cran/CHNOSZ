@@ -7,7 +7,9 @@ dlen <- read.csv(file, as.is=TRUE, row.names=1)
 # turn formulas into a stoichiometric matrix
 A <- i2A(dlen$formula)
 # assemble Gibbs energies/RT at 500 K
-G0.RT <- 1000 * dlen$G500 / thermo$opt$R / thermo$opt$Tr
+T <- 500  # K
+R <- 1.9872  # gas constant, cal K^-1 mol^-1
+G0.RT <- 1000 * dlen$G500 / R / T
 # a function to minimize Gibbs energy for system with 
 # given mole fraction of carbon (xC)
 min.atmos <- function(xC) {
@@ -36,7 +38,7 @@ title(main="Prebiological atmospheres (Dayhoff et al., 1964)")
 # get the proteins in the requested location
 y <- yeastgfp("cell.periphery")
 # get the amino acid compositions of the proteins
-aa <- more.aa(y$protein, "Sce")
+aa <- yeast.aa(y$protein)
 # don't use those with NA abundance or sequence
 ina <- is.na(y$abundance) | is.na(aa$chains)
 aa <- aa[!ina, ]

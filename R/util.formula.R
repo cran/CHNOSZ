@@ -80,7 +80,7 @@ entropy <- function(formula) {
   return(entropy)
 }
 
-GHS <- function(formula, G=NA, H=NA, S=NA, T=get("thermo")$opt$Tr) {
+GHS <- function(formula, G=NA, H=NA, S=NA, T=298.15) {
   # for all NA in G, H and S, do nothing
   # for no  NA in G, H and S, do nothing
   # for one NA in G, H and S, calculate its value from the other two:

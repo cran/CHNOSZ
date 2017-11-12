@@ -2,177 +2,179 @@
 # calculate thermodynamic properties using equations of state
 # 11/17/03 jmd
 
-hkf <- function(property=NULL,T=298.15,P=1,ghs=NULL,eos=NULL,contrib=c('n','s','o'),
-  H2O.PT=NULL,H2O.PrTr=NULL,domega=TRUE) {
+## if this file is interactively sourced, the following is also needed to provide unexported functions:
+#source("util.args.R")
+
+hkf <- function(property = NULL, parameters = NULL, T = 298.15, P = 1,
+  contrib = c("n", "s", "o"), H2O.props="rho") {
   # calculate G, H, S, Cp, V, kT, and/or E using
   # the revised HKF equations of state
-  thermo <- get("thermo")
+  # H2O.props - H2O properties needed for subcrt() output
   # constants
-  Tr <- thermo$opt$Tr
-  Pr <- thermo$opt$Pr
-  Theta <- thermo$opt$Theta
-  Psi <- thermo$opt$Psi
-  # argument handling
-  eargs <- eos.args('hkf',property)
-  property <- eargs$prop
-  props <- eargs$props
-  Prop <- eargs$Prop
-  domega <- rep(domega,length.out=nrow(eos))
+  Tr <- 298.15 # K
+  Pr <- 1      # bar
+  Theta <- 228 # K
+  Psi <- 2600  # bar
+  # make T and P equal length
+  if(!identical(P, "Psat")) {
+    if(length(P) < length(T)) P <- rep(P, length.out = length(T))
+    if(length(T) < length(P)) T <- rep(T, length.out = length(P))
+  }
   # nonsolvation, solvation, and origination contribution
-  contribs <- c('n','s','o')
-  notcontrib <- ! contrib %in% contribs
-  if(TRUE %in% notcontrib)
-    stop(paste('argument',c2s(contrib[notcontrib]),'not in',c2s(contribs),'n'))
-  # get water properties, if they weren't supplied in arguments (and we want solvation props)
-  if('s' %in% contrib) {
-    H2O.props <- c("QBorn", "XBorn", "YBorn", "diel")
-    # only take these ones if we're in SUPCRT92 compatibility mode
-    dosupcrt <- thermo$opt$water != "IAPWS95"
-    if(dosupcrt) {
-      # (rho, alpha, daldT, beta - for partial derivatives of omega (g function))
-      H2O.props <- c(H2O.props, "rho", "alpha", "daldT", "beta")
-    } else {
-      # (NBorn, UBorn - for compressibility, expansibility)
-      H2O.props <- c(H2O.props,'NBorn','UBorn')
+  notcontrib <- ! contrib %in% c("n", "s", "o")
+  if(TRUE %in% notcontrib) stop(paste("contrib must be in c('n', 's', 'o); got", c2s(contrib[notcontrib])))
+  # get water properties
+  # rho - for subcrt() output and g function
+  # Born functions and epsilon - for HKF calculations
+  H2O.props <- c(H2O.props, "QBorn", "XBorn", "YBorn", "epsilon")
+  thermo <- get("thermo")
+  if(grepl("SUPCRT", thermo$opt$water)) {
+    # using H2O92D.f from SUPCRT92: alpha, daldT, beta - for partial derivatives of omega (g function)
+    H2O.props <- c(H2O.props, "alpha", "daldT", "beta")
+  }
+  if(grepl("IAPWS", thermo$opt$water)) {
+    # using IAPWS-95: NBorn, UBorn - for compressibility, expansibility
+    H2O.props <- c(H2O.props, "NBorn", "UBorn")
+  }
+  if(grepl("DEW", thermo$opt$water)) {
+    # using DEW model: get beta to calculate dgdP
+    H2O.props <- c(H2O.props, "beta")
+  }
+  H2O <- water(H2O.props, T = c(Tr, T), P = c(Pr, P))
+  H2O.PrTr <- H2O[1, ]
+  H2O.PT <- H2O[-1, ]
+  ZBorn <- -1 / H2O.PT$epsilon
+  ZBorn.PrTr <- -1 / H2O.PrTr$epsilon
+  # a list to store the result
+  aq.out <- list()
+  nspecies <- nrow(parameters)
+  for(k in 1:nspecies) {
+    # loop over each species
+    PAR <- parameters[k, ]
+    # substitute Cp and V for missing EoS parameters
+    # here we assume that the parameters are in the same position as in thermo$obigt
+    # we don't need this if we're just looking at solvation properties (Cp_s_var, V_s_var)
+    if("n" %in% contrib) {
+      # put the heat capacity in for c1 if both c1 and c2 are missing
+      if(all(is.na(PAR[, 17:18]))) PAR[, 17] <- PAR$Cp
+      # put the volume in for a1 if a1, a2, a3 and a4 are missing
+      if(all(is.na(PAR[, 13:16]))) PAR[, 13] <- convert(PAR$V, "calories")
+      # test for availability of the EoS parameters
+      hasEOS <- any(!is.na(PAR[, 13:20]))
+      # if at least one of the EoS parameters is available, zero out any NA's in the rest
+      if(hasEOS) PAR[, 13:20][, is.na(PAR[, 13:20])] <- 0
     }
-    if(is.null(H2O.PT)) H2O.PT <- water(H2O.props,T=T,P=P)
-    if(is.null(H2O.PrTr)) H2O.PrTr <- water(H2O.props,T=thermo$opt$Tr,P=thermo$opt$Pr)
-    ZBorn <- -1/H2O.PT$diel
-    ZBorn.PrTr <- -1/H2O.PrTr$diel
-  }
- # a list to store the result
- x <- list()
- nspecies <- nrow(ghs)
- # we can be called with NULL ghs (by Cp_s_var, V_s_var)
- if(is.null(nspecies)) nspecies <- nrow(eos)
- for(k in 1:nspecies) {
-  # loop over each species
-  GHS <- ghs[k,]
-  EOS <- eos[k,]
-  # substitute Cp and V for missing EoS parameters
-  # here we assume that the parameters are in the same position as in thermo$obigt
-  # we don't need this if we're just looking at solvation properties (Cp_s_var, V_s_var)
-  if("n" %in% contrib) {
-    # put the heat capacity in for c1 if both c1 and c2 are missing
-    if(all(is.na(EOS[, 17:18]))) EOS[, 17] <- EOS$Cp
-    # put the volume in for a1 if a1, a2, a3 and a4 are missing
-    if(all(is.na(EOS[, 13:16]))) EOS[, 13] <- convert(EOS$V, "calories")
-    # test for availability of the EoS parameters
-    hasEOS <- any(!is.na(EOS[, 13:20]))
-    # if at least one of the EoS parameters is available, zero out any NA's in the rest
-    if(hasEOS) EOS[, 13:20][, is.na(EOS[, 13:20])] <- 0
-  }
-  # compute values of omega(P,T) from those of omega(Pr,Tr)
-  # using g function etc. (Shock et al., 1992 and others)
-  omega <- EOS$omega  # omega.PrTr
-  # its derivatives are zero unless the g function kicks in
-  dwdP <- dwdT <- d2wdT2 <- numeric(length(T))
-  Z <- EOS$Z
-  omega.PT <- rep(EOS$omega,length(T))
-  if(!is.na(Z)) if(Z != 0) if(domega[k]) if(dosupcrt) {
-    # g and f function stuff (Shock et al., 1992; Johnson et al., 1992)
-    rhohat <- H2O.PT$rho/1000  # just converting kg/m3 to g/cm3
-    g <- gfun(rhohat, convert(T, "C"), P, H2O.PT$alpha, H2O.PT$daldT, H2O.PT$beta)
-    # after SUPCRT92/reac92.f
-    eta <- 1.66027E5
-    reref <- Z^2 / (omega/eta + Z/(3.082 + 0))
-    re <- reref + abs(Z) * g$g
-    omega.PT <- eta * (Z^2/re - Z/(3.082 + g$g))
-    Z3 <- abs(Z^3)/re^2 - Z/(3.082 + g$g)^2
-    Z4 <- abs(Z^4)/re^3 - Z/(3.082 + g$g)^3
-    dwdP <- (-eta * Z3 * g$dgdP)
-    dwdT <- (-eta * Z3 * g$dgdT)
-    d2wdT2 <- (2 * eta * Z4 * g$dgdT^2 - eta * Z3 * g$d2gdT2)
-  }
-  # loop over each property
-  w <- NULL
-  for(i in 1:length(property)) {
-    prop <- property[i]
-    # over nonsolvation, solvation, or origination contributions
-    hkf.p <- numeric(length(T))
-    for(icontrib in contrib) {
-      # various contributions to the properties
-      if( icontrib=="n") {
-        # nonsolvation ghs equations
-        if(prop=="h") {
-          p.c <- EOS$c1*(T-Tr) - EOS$c2*(1/(T-Theta)-1/(Tr-Theta))
-          p.a <- EOS$a1*(P-Pr) + EOS$a2*log((Psi+P)/(Psi+Pr)) + 
-            ((2*T-Theta)/(T-Theta)^2)*(EOS$a3*(P-Pr)+EOS$a4*log((Psi+P)/(Psi+Pr)))
-          p <- p.c + p.a
-        } else if(prop=="s") {
-          p.c <- EOS$c1*log(T/Tr) - 
-            (EOS$c2/Theta)*( 1/(T-Theta)-1/(Tr-Theta) + 
-            log( (Tr*(T-Theta))/(T*(Tr-Theta)) )/Theta )
-          p.a <- (T-Theta)^(-2)*(EOS$a3*(P-Pr)+EOS$a4*log((Psi+P)/(Psi+Pr)))
-          p <- p.c + p.a
-        } else if(prop=="g") {
-          p.c <- -EOS$c1*(T*log(T/Tr)-T+Tr) - 
-            EOS$c2*( (1/(T-Theta)-1/(Tr-Theta))*((Theta-T)/Theta) - 
-            (T/Theta^2)*log((Tr*(T-Theta))/(T*(Tr-Theta))) )
-          p.a <- EOS$a1*(P-Pr) + EOS$a2*log((Psi+P)/(Psi+Pr)) + 
-            (EOS$a3*(P-Pr) + EOS$a4*log((Psi+P)/(Psi+Pr)))/(T-Theta)
-          p <- p.c + p.a
-          # at Tr,Pr, if the origination contribution is not NA, ensure the solvation contribution is 0, not NA
-          if(!is.na(GHS$G)) p[T==Tr & P==Pr] <- 0
-        # nonsolvation cp v kt e equations
-        } else if(prop=='cp') {
-          p <- EOS$c1 + EOS$c2 * ( T - Theta ) ^ (-2)        
-        } else if(prop=='v') {
-          p <- convert(EOS$a1,'cm3bar') + 
-            convert(EOS$a2,'cm3bar') / ( Psi + P) +
-            ( convert(EOS$a3,'cm3bar') + convert(EOS$a4,'cm3bar') / ( Psi + P ) ) / ( T - Theta)
-        } else if(prop=='kt') {
-          p <- ( convert(EOS$a2,'cm3bar') + 
-            convert(EOS$a4,'cm3bar') / (T - Theta) ) * (Psi + P) ^ (-2)
-        } else if(prop=='e') {
-          p <- convert( - ( EOS$a3 + EOS$a4 / convert((Psi + P),'calories') ) * 
-            (T - Theta) ^ (-2),'cm3bar')
-        }
-      }
-      if( icontrib=="s") {
-        # solvation ghs equations
-        if(prop=="g") {
-          p <- -omega.PT*(ZBorn+1) + omega*(ZBorn.PrTr+1) + omega*H2O.PrTr$YBorn*(T-Tr)
-          # at Tr,Pr, if the origination contribution is not NA, ensure the solvation contribution is 0, not NA
-          if(!is.na(GHS$G)) p[T==Tr & P==Pr] <- 0
-        }
-        if(prop=="h") 
-          p <- -omega.PT*(ZBorn+1) + omega.PT*T*H2O.PT$YBorn + T*(ZBorn+1)*dwdT +
-                 omega*(ZBorn.PrTr+1) - omega*Tr*H2O.PrTr$YBorn
-        if(prop=="s") 
-          p <- omega.PT*H2O.PT$YBorn + (ZBorn+1)*dwdT - omega*H2O.PrTr$YBorn
-        # solvation cp v kt e equations
-        if(prop=='cp') p <- omega.PT*T*H2O.PT$XBorn + 2*T*H2O.PT$YBorn*dwdT + 
-          T*(ZBorn+1)*d2wdT2
-        if(prop=='v') p <- -convert(omega.PT,'cm3bar') * 
-          H2O.PT$QBorn + convert(dwdP,'cm3bar') * (-ZBorn - 1)
-        # WARNING: the partial derivatives of omega are not included here here for kt and e
-        # (to do it, see p. 820 of SOJ+92 ... but kt requires d2wdP2 which we don't have yet)
-        if(prop=='kt') p <- convert(omega,'cm3bar') * H2O.PT$N
-        if(prop=='e') p <- -convert(omega,'cm3bar') * H2O.PT$UBorn
-      }
-      if( icontrib=='o') {
-        # origination ghs equations
-        if(prop=='g') {
-          p <- GHS$G - GHS$S * (T-Tr)
-          # don't inherit NA from GHS$S at Tr
-          p[T==Tr] <- GHS$G
-        }
-        else if(prop=='h') p <- GHS$H
-        else if(prop=='s') p <- GHS$S
-        # origination eos equations: senseless
-        else if(prop %in% tolower(props)) p <- 0 * T
-      }
-      # accumulate the contribution
-      hkf.p <- hkf.p + p
+    # compute values of omega(P,T) from those of omega(Pr,Tr)
+    # using g function etc. (Shock et al., 1992 and others)
+    omega <- PAR$omega  # omega.PrTr
+    # its derivatives are zero unless the g function kicks in
+    dwdP <- dwdT <- d2wdT2 <- numeric(length(T))
+    Z <- PAR$Z
+    omega.PT <- rep(PAR$omega, length(T))
+    if(!identical(Z, 0) & !identical(PAR$name, "H+")) {
+      # compute derivatives of omega: g and f functions (Shock et al., 1992; Johnson et al., 1992)
+      rhohat <- H2O.PT$rho/1000  # just converting kg/m3 to g/cm3
+      g <- gfun(rhohat, convert(T, "C"), P, H2O.PT$alpha, H2O.PT$daldT, H2O.PT$beta)
+      # after SUPCRT92/reac92.f
+      eta <- 1.66027E5
+      reref <- Z^2 / (omega/eta + Z/(3.082 + 0))
+      re <- reref + abs(Z) * g$g
+      omega.PT <- eta * (Z^2/re - Z/(3.082 + g$g))
+      Z3 <- abs(Z^3)/re^2 - Z/(3.082 + g$g)^2
+      Z4 <- abs(Z^4)/re^3 - Z/(3.082 + g$g)^3
+      dwdP <- (-eta * Z3 * g$dgdP)
+      dwdT <- (-eta * Z3 * g$dgdT)
+      d2wdT2 <- (2 * eta * Z4 * g$dgdT^2 - eta * Z3 * g$d2gdT2)
     }
-    wnew <- data.frame(hkf.p)
-    if(i>1) w <- cbind(w,wnew) else w <- wnew
+    # loop over each property
+    w <- NULL
+    for(i in 1:length(property)) {
+      PROP <- property[i]
+      # over nonsolvation, solvation, or origination contributions
+      hkf.p <- numeric(length(T))
+      for(icontrib in contrib) {
+        # various contributions to the properties
+        if(icontrib == "n") {
+          # nonsolvation ghs equations
+          if(PROP == "H") {
+            p.c <- PAR$c1*(T-Tr) - PAR$c2*(1/(T-Theta)-1/(Tr-Theta))
+            p.a <- PAR$a1*(P-Pr) + PAR$a2*log((Psi+P)/(Psi+Pr)) + 
+              ((2*T-Theta)/(T-Theta)^2)*(PAR$a3*(P-Pr)+PAR$a4*log((Psi+P)/(Psi+Pr)))
+            p <- p.c + p.a
+          } else if(PROP == "S") {
+            p.c <- PAR$c1*log(T/Tr) - 
+              (PAR$c2/Theta)*( 1/(T-Theta)-1/(Tr-Theta) + 
+              log( (Tr*(T-Theta))/(T*(Tr-Theta)) )/Theta )
+            p.a <- (T-Theta)^(-2)*(PAR$a3*(P-Pr)+PAR$a4*log((Psi+P)/(Psi+Pr)))
+            p <- p.c + p.a
+          } else if(PROP == "G") {
+            p.c <- -PAR$c1*(T*log(T/Tr)-T+Tr) - 
+              PAR$c2*( (1/(T-Theta)-1/(Tr-Theta))*((Theta-T)/Theta) - 
+              (T/Theta^2)*log((Tr*(T-Theta))/(T*(Tr-Theta))) )
+            p.a <- PAR$a1*(P-Pr) + PAR$a2*log((Psi+P)/(Psi+Pr)) + 
+              (PAR$a3*(P-Pr) + PAR$a4*log((Psi+P)/(Psi+Pr)))/(T-Theta)
+            p <- p.c + p.a
+            # at Tr,Pr, if the origination contribution is not NA, ensure the solvation contribution is 0, not NA
+            if(!is.na(PAR$G)) p[T==Tr & P==Pr] <- 0
+          # nonsolvation cp v kt e equations
+          } else if(PROP == "Cp") {
+            p <- PAR$c1 + PAR$c2 * ( T - Theta ) ^ (-2)        
+          } else if(PROP == "V") {
+            p <- convert(PAR$a1, "cm3bar") + 
+              convert(PAR$a2, "cm3bar") / (Psi + P) +
+              (convert(PAR$a3, "cm3bar") + convert(PAR$a4, "cm3bar") / (Psi + P)) / (T - Theta)
+          } else if(PROP == "kT") {
+            p <- (convert(PAR$a2, "cm3bar") + 
+              convert(PAR$a4, "cm3bar") / (T - Theta)) * (Psi + P) ^ (-2)
+          } else if(PROP == "E") {
+            p <- convert( - (PAR$a3 + PAR$a4 / convert((Psi + P), "calories")) * 
+              (T - Theta) ^ (-2), "cm3bar")
+          }
+        }
+        if(icontrib == "s") {
+          # solvation ghs equations
+          if(PROP == "G") {
+            p <- -omega.PT*(ZBorn+1) + omega*(ZBorn.PrTr+1) + omega*H2O.PrTr$YBorn*(T-Tr)
+            # at Tr,Pr, if the origination contribution is not NA, ensure the solvation contribution is 0, not NA
+            if(!is.na(PAR$G)) p[T==Tr & P==Pr] <- 0
+          }
+          if(PROP == "H") 
+            p <- -omega.PT*(ZBorn+1) + omega.PT*T*H2O.PT$YBorn + T*(ZBorn+1)*dwdT +
+                   omega*(ZBorn.PrTr+1) - omega*Tr*H2O.PrTr$YBorn
+          if(PROP == "S") 
+            p <- omega.PT*H2O.PT$YBorn + (ZBorn+1)*dwdT - omega*H2O.PrTr$YBorn
+          # solvation cp v kt e equations
+          if(PROP == "Cp") p <- omega.PT*T*H2O.PT$XBorn + 2*T*H2O.PT$YBorn*dwdT + 
+            T*(ZBorn+1)*d2wdT2
+          if(PROP == "V") p <- -convert(omega.PT, "cm3bar") * 
+            H2O.PT$QBorn + convert(dwdP, "cm3bar") * (-ZBorn - 1)
+          # TODO: the partial derivatives of omega are not included here here for kt and e
+          # (to do it, see p. 820 of SOJ+92 ... but kt requires d2wdP2 which we don"t have yet)
+          if(PROP == "kT") p <- convert(omega, "cm3bar") * H2O.PT$NBorn
+          if(PROP == "E") p <- -convert(omega, "cm3bar") * H2O.PT$UBorn
+        }
+        if(icontrib == "o") {
+          # origination ghs equations
+          if(PROP == "G") {
+            p <- PAR$G - PAR$S * (T-Tr)
+            # don"t inherit NA from PAR$S at Tr
+            p[T==Tr] <- PAR$G
+          }
+          else if(PROP == "H") p <- PAR$H
+          else if(PROP == "S") p <- PAR$S
+          # origination eos equations (Cp, V, kT, E): senseless
+          else p <- 0 * T
+        }
+        # accumulate the contribution
+        hkf.p <- hkf.p + p
+      }
+      wnew <- data.frame(hkf.p)
+      if(i > 1) w <- cbind(w, wnew) else w <- wnew
+    }
+    colnames(w) <- property
+    aq.out[[k]] <- w
   }
-  colnames(w) <- Prop
-  x[[k]] <- w
- }
- return(x)
+  return(list(aq=aq.out, H2O=H2O.PT))
 }
 
 ### unexported functions ###
@@ -229,12 +231,20 @@ gfun <- function(rhohat, Tc, P, alpha, daldT, beta) {
   ifg <- ifg & !is.na(ifg)
   # Eq. 32
   g[ifg] <- g[ifg] - f[ifg]
+  # at P > 6000 bar (in DEW calculations), g is zero 20170926
+  g[P > 6000] <- 0
   ## now we have g at P, T
+  # put the results in their right place (where rhohat < 1)
+  out$g[idoit] <- g
   ## the rest is to get its partial derivatives with pressure and temperature
   ## after Johnson et al., 1992
   # alpha - coefficient of isobaric expansivity (K^-1)
   # daldT - temperature derivative of coefficient of isobaric expansivity (K^-2)
   # beta - coefficient of isothermal compressibility (bar^-1)
+  # if these are NULL or NA (for IAPWS-95 and DEW), we skip the calculation
+  if(is.null(alpha)) alpha <- NA
+  if(is.null(daldT)) daldT <- NA
+  if(is.null(beta)) beta <- NA
   # Eqn. 76
   d2fdT2 <- (0.0608/300*((Tc-155)/300)^2.8 + af1/375*((Tc-155)/300)^14) * (af2*(1000-P)^3 + af3*(1000-P)^4)
   # Eqn. 75
@@ -245,30 +255,32 @@ gfun <- function(rhohat, Tc, P, alpha, daldT, beta) {
   d2adT2 <- 2 * ag3  # Eqn. 72
   dbdT <- bg2 + 2*bg3*Tc  # Eqn. 71
   dadT <- ag2 + 2*ag3*Tc  # Eqn. 70
-  # Eqn. 69
-  dgadT <- bg*rhohat*alpha*(1-rhohat)^(bg-1) + log(1-rhohat)*g/ag*dbdT  
-  D <- rhohat
-  # transcribed from SUPCRT92/reac92.f
-  dDdT <- -D * alpha
-  dDdP <- D * beta
-  dDdTT <- -D * (daldT - alpha^2)
-  Db <- (1-D)^bg
-  dDbdT <- -bg*(1-D)^(bg-1)*dDdT + log(1-D)*Db*dbdT
-  dDbdTT <- -(bg*(1-D)^(bg-1)*dDdTT + (1-D)^(bg-1)*dDdT*dbdT + 
-    bg*dDdT*(-(bg-1)*(1-D)^(bg-2)*dDdT + log(1-D)*(1-D)^(bg-1)*dbdT)) +
-    log(1-D)*(1-D)^bg*d2bdT2 - (1-D)^bg*dbdT*dDdT/(1-D) + log(1-D)*dbdT*dDbdT
-  d2gdT2 <- ag*dDbdTT + 2*dDbdT*dadT + Db*d2adT2
-  d2gdT2[ifg] <- d2gdT2[ifg] - d2fdT2[ifg]
-  dgdT <- g/ag*dadT + ag*dgadT  # Eqn. 67
-  dgdT[ifg] <- dgdT[ifg] - dfdT[ifg]
-  dgdP <- -bg*rhohat*beta*g*(1-rhohat)^-1  # Eqn. 66
-  dgdP[ifg] <- dgdP[ifg] - dfdP[ifg]
-  # phew! done with those derivatives
-  # put the results in their right place (where rhohat < 1)
-  out$g[idoit] <- g
-  out$dgdT[idoit] <- dgdT
-  out$d2gdT2[idoit] <- d2gdT2
-  out$dgdP[idoit] <- dgdP
+  if(!all(is.na(alpha)) & !all(is.na(daldT))) {
+    # Eqn. 69
+    dgadT <- bg*rhohat*alpha*(1-rhohat)^(bg-1) + log(1-rhohat)*g/ag*dbdT  
+    D <- rhohat
+    # transcribed from SUPCRT92/reac92.f
+    dDdT <- -D * alpha
+    #dDdP <- D * beta
+    dDdTT <- -D * (daldT - alpha^2)
+    Db <- (1-D)^bg
+    dDbdT <- -bg*(1-D)^(bg-1)*dDdT + log(1-D)*Db*dbdT
+    dDbdTT <- -(bg*(1-D)^(bg-1)*dDdTT + (1-D)^(bg-1)*dDdT*dbdT + 
+      bg*dDdT*(-(bg-1)*(1-D)^(bg-2)*dDdT + log(1-D)*(1-D)^(bg-1)*dbdT)) +
+      log(1-D)*(1-D)^bg*d2bdT2 - (1-D)^bg*dbdT*dDdT/(1-D) + log(1-D)*dbdT*dDbdT
+    d2gdT2 <- ag*dDbdTT + 2*dDbdT*dadT + Db*d2adT2
+    d2gdT2[ifg] <- d2gdT2[ifg] - d2fdT2[ifg]
+    dgdT <- g/ag*dadT + ag*dgadT  # Eqn. 67
+    dgdT[ifg] <- dgdT[ifg] - dfdT[ifg]
+    # phew! done with those derivatives
+    out$dgdT[idoit] <- dgdT
+    out$d2gdT2[idoit] <- d2gdT2
+  }
+  if(!all(is.na(beta))) {
+    dgdP <- -bg*rhohat*beta*g*(1-rhohat)^-1  # Eqn. 66
+    dgdP[ifg] <- dgdP[ifg] - dfdP[ifg]
+    out$dgdP[idoit] <- dgdP
+  }
   return(out)
 }
 

@@ -13,7 +13,7 @@ export(
   "describe.property", "describe.basis", "equilibrate",
   "aminoacids", "ZC.col",
   "pinfo", "protein.length", "protein.formula",
-  "read.fasta", "protein.basis", "yeastgfp", "more.aa", "add.protein",
+  "read.fasta", "protein.basis", "yeastgfp", "yeast.aa", "add.protein",
   "unitize", "revisit", "seq2aa", "findit",
   "thermo.refs", "mod.obigt", "today",
 # examples
@@ -30,10 +30,9 @@ export(
   "getrank", "parent", "sciname", "allparents", "getnodes", "getnames",
   "protein.obigt", "hkf", "cgl", "which.pmax",
   "equil.boltzmann", "equil.reaction", "find.tp",
-  "ionize.aa", "MP90.cp", "aasum", "read.expr",
-  "anim.carboxylase",
+  "ionize.aa", "MP90.cp", "aasum",
   "qqr", "RMSD", "CVRMSD", "spearman", "DGmix", "DDGmix", "DGtr",
-  "ratlab", "transfer", "draw.transfer",
+  "ratlab",
   "EOSregress", "EOScoeffs", "EOSplot", "EOSvar",
   "wjd", "element.potentials", "is.near.equil", "guess", "run.wjd",
 # demos
@@ -52,12 +51,14 @@ export(
   "write.blast", "checkEOS", "checkGHS", "check.obigt",
   "V_s_var", "Cp_s_var",
   "DGinf", "SD", "pearson", "shannon", "CV", "logact",
-  "feldspar", "apc", "EOSlab", "EOScalc",
+  "EOSlab", "EOScalc",
   "basis.elements", "element.mu", "ibasis",
-  "water.SUPCRT92", "water.props", "eqdata", "plot_findit",
-  "nonideal", "anim.TCA", "uniprot.aa", "run.guess",
+  "water.SUPCRT92", "eqdata", "plot_findit",
+  "nonideal", "uniprot.aa", "run.guess",
 # added 20170301 or later
-  "GHS_Tr"
+  "GHS_Tr", "calculateDensity", "calculateGibbsOfWater",
+  "calculateEpsilon", "calculateQ", "water.DEW", "berman",
+  "maxdiff", "expect_maxdiff", "Bdot"
 )
 
 # Load shared objects
@@ -65,7 +66,7 @@ useDynLib(CHNOSZ, .registration = TRUE, .fixes = "F_")
 
 # Imports from default packages
 importFrom("grDevices", "dev.cur", "dev.off", "extendrange",
-  "heat.colors", "png", "rainbow")
+  "heat.colors", "png", "rainbow", "topo.colors")
 importFrom("graphics", "abline", "axTicks", "axis", "barplot", "box",
   "contour", "image", "legend", "lines", "mtext", "par", "plot",
   "plot.new", "plot.window", "points", "rect", "text", "title")
@@ -74,7 +75,4 @@ importFrom("stats", "D", "as.formula", "cor", "lm", "loess.smooth",
   "uniroot", "median")
 importFrom("utils", "browseURL", "capture.output", "combn", "demo",
   "example", "head", "installed.packages", "read.csv", "tail",
-  "write.csv", "write.table")
-
-# Imports from colorspace
-importFrom("colorspace", "diverge_hcl")
+  "write.csv", "write.table", "read.table")

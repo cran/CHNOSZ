@@ -1,3 +1,196 @@
+CHANGES IN CHNOSZ 1.1.3 (2017-11-13)
+------------------------------------
+
+MAJOR CHANGES:
+
+- Add berman() function and extdata/Berman/*.csv files for calculating
+  thermodynamic properties of minerals using equations of Berman, 1988.
+
+- Calculations related to Berman's (1988) Figs. 1 and 2 for the lambda
+  transition of quartz are available in the new demo lambda.R.
+
+- Add functions implementing the Deep Earth Water (DEW) model
+  (Sverjensky et al., 2014): water.DEW() and its supporting functions
+  calculateDensity(), calculateGibbsofWater(), calculateEpsilon(),
+  calculateQ().
+
+- The computational setting for water (thermo$opt$water) can now be set
+  using water("DEW"), water("IAPWS"), etc.
+
+- Usage of the DEW model is shown in the new demo DEW.R. This demo also
+  depends on the Berman equations (above) and, for the last diagram in
+  the demo, the following *four* NEWS items:
+
+- In equilibrate(), it is now possible to combine affinity calculations
+  with variable activity of the balancing basis species (loga.balance).
+  For example, in the last plot of the DEW demo, the calculation
+  involves simultaneously varying temperature and logfO2 (given as
+  arguments to affinity()) as well as total concentration of carbon
+  (given by the loga.balance argument in equilibrate()).
+
+COMPUTATIONAL IMPROVEMENTS:
+
+- The 'alpha' argument of diagram() can be set to 'balance' to scale
+  the values by the balancing component. This is useful for making
+  "percent carbon" plots for systems where the species have different
+  carbon numbers.
+
+- nonideal() now has three methods for calculating activity
+  coefficients: 'Helgeson' and 'Helgeson0', which utilize the
+  Debye-Huckel equation with parameters as described by Helgeson, 1969,
+  and 'Alberty' (the only method previously available). The 'Helgeson'
+  method depends on the following *two* NEWS items (but the 'Helgeson0'
+  method omits the B-dot term):
+
+- All three water options (SUPCRT92, IAPWS95, DEW) can be used to
+  calculate 'A_DH' and 'B_DH', i.e. A and B coefficients in the extended
+  Debye-Huckel equation as described by Helgeson, 1969.
+
+- Add Bdot() to calculate the "B-dot" (or b_gamma) extended term
+  parameter for activity coefficients in NaCl solutions at high
+  temperature and pressure (Helgeson et al., 1981), including
+  very high pressures (> 10 kbar) based on extrapolations from Manning
+  et al., 2013.
+
+- For minerals with phase transitions (states 'cr2' 'cr3' etc.) in
+  thermo$obigt (i.e. the Helgeson minerals), it is now possible to use
+  the minerals in basis(), species(), affinity() with proper accounting
+  for transition effects. Just set the state to 'cr' or omit it,
+  e.g. species("quartz").
+
+- Implement SUPCRT92's handling of variable volume for quartz and
+  coesite. Calculations for other minerals still assume constant
+  volume of each phase.
+
+- Calculations of the g function are now enabled for DEW (with
+  pressure derivative) and IAPWS-95 (no derivatives included).
+
+- water.lines() now works for diagrams of Eh, pe, logfO2, logaO2,
+  logfH2, or logaH2 vs pH, T, or P. It is possible to have T or P on
+  either the x- or y-axis.
+
+- Variables that are in the aguments to affinity() now override any
+  buffers previously specified using basis().
+
+DATABASE UPDATES:
+
+- Add data(OBIGT) command to reset only the thermodynamic database
+  (OBIGT) to its default. data(thermo) is still used to reset
+  *everything* (the database and all computational and system settings).
+
+- In add.obigt(), using 'file' without a file suffix now can be used to
+  locate corresponding files (such as DEW_aq.csv or SUPCRTBL.csv) in the
+  extdata/OBIGT package directory.
+
+- add.obigt() gets new argument 'species' for selecting species to add.
+
+- Add Berman_cr.csv with names and formulas for minerals whose
+  thermodynamic properties are calculated using the Berman, 1988
+  equations. The state "cr_Berman" is used to distinguish these
+  minerals from the Helgeson data. The parameters themselves are
+  stored in extdata/Berman/*.csv.
+
+- Add DEW_aq.csv with aqueous species data from the DEW spreadsheet
+  (May 2017 version). Species with data that do not differ from the
+  default database in CHNOSZ are not included. Currently, detailed
+  reference keys and descriptions (in thermo$refs) are given for
+  selected species only. [Optional Data; not loaded by data(thermo)]
+
+- Add SUPCRTBL.csv with mineral and aqueous species data compiled by
+  Zimmer et al., 2016. Data were taken from original references or
+  from spronsbl.dat (http://www.indiana.edu/~hydrogeo/supcrtbl.html).
+  The new demo/go-IU.R uses these data. [Optional Data]
+
+- Update HKF parameters of adenine based on experimental heat capacity
+  and volume data (Lowe et al., 2017). Add demo/adenine.R comparing
+  the updates with the previous data (LaRowe and Helgeson, 2006).
+
+- Remove H2O(gas) from the database (taken from SUPCRT92), as it gives
+  inconsistent results for metastable steam (Zavarin et al., 2016,
+  LLNL-TR-701407, doi: 10.2172/1325873).
+
+- Change the formula of the electron from "Z0-1" (parsed as "zero Z
+  with minus one charge") to the equivalent but nicer-to-read "(Z-1)"
+  (parsed as "minus one Z"; the parentheses cause "-1" to be interpreted
+  as the coefficient on Z instead of the charge in the formula).
+
+- Add data for hedenbergite, andradite, ferro-actinolite, grunerite, and
+  ilvaite from Delgado Martin and Soler i Gil, 2010 (using the Berman
+  equations).
+
+OTHER CHANGES:
+
+- Add test-logmolality.R to demonstrate transformation of variables from
+  activity to molality in the main workflow; refer to this test and
+  describe these transformations in anintro.Rmd; remove "experimental"
+  labeling of activity coefficient calculations in CHNOSZ-package.Rd.
+
+- Add 'use.molality' argument to axis.label() and supporting functions.
+  So that the labels on diagrams are changed from activity (a) to
+  molality (m), this argument is set to TRUE by diagram() when IS is
+  supplied as an argument to affinity().
+
+- Add demo TCA.R for standard Gibbs energies of steps of the
+  citric acid cycle (Canovas and Shock, 2016).
+
+- Components of subcrt() output indicating the stable polymorph of
+  minerals with phase transitions are now named 'polymorph', not
+  'state'.
+
+- Add maxdiff() and expect_maxdiff() for calculating and testing the
+  maximum absolute pairwise difference between two objects.
+  expect_maxdiff() is used in tests/testthat/*.R as a more
+  straightforward alternative for checking differences than using
+  'tolerance' in expect_equal().
+
+- Add 'tol' argument to equil.reaction() (convergence tolerance for
+  uniroot()).
+
+- Add thermo$opt$Berman to signal info(), subcrt(), etc. to prefer
+  minerals in Berman dataset over Helgeson dataset (default: FALSE).
+
+REFACTORING AND CLEANUP:
+
+- In hkf() and cgl(), combine 'ghs' and 'eos' arguments into single
+  argument named 'parameters'.
+
+- Remove 'H2O.PrTr' and 'domega' arguments from hkf(). Properties of
+  water at Pr and Tr and the logic for when to find derivatives of omega
+  are now calculated within the function, thereby simplifying the
+  function call from subcrt().
+
+- Add 'H2O.props' argument to hkf(). This lists the properties of water
+  to calculate (at P, T); these are now included in the results, in
+  order to avoid duplicating the calculations in subcrt().
+
+- In water.* functions, rename the "diel" variable to "epsilon".
+
+- To save space, taxid_names.csv has been trimmed to hold only those
+  taxids listed in extdata/bison/gi.taxid.txt.
+
+- Remove Eco.csv.xz and rename more.aa() to yeast.aa().
+
+- Remove transfer() and associated functions draw.transfer(), apc(), and
+  feldspar().
+
+- Remove read.expr() and extdata/abundance/ISR+08.csv (protein abundance
+  in E. coli).
+
+- Reduce the size of obigt.html by ~450 KB. This was done by 1) using
+  rmarkdown with files in rmd/h/bootstrap-3.3.5/fonts/ replaced with
+  empty files (291 KB), and 2) changing the theme from "cosmo" to
+  "default" (151 KB).
+
+- Remove extdata/OBIGT/CHNOSZ_aq.csv and move the entry for
+  pseudo-H4SiO4 to inorganic_aq.csv.
+
+- Reorganize concept index entries in Rd files: Main workflow, Extended
+  workflow, Thermodynamic data, Thermodynamic calculations, Water
+  properties, Protein properties, Other tools, Utility functions.
+
+- Remove anim.TCA() and anim.carboxylase(); move the latter code to
+  demo/carboxylase.R.
+
 CHANGES IN CHNOSZ 1.1.0 (2017-05-04)
 ------------------------------------
 
@@ -342,7 +535,8 @@ NEW FEATURES:
   species. See also new 'mosaic.R' demo.
 
 - Add thermo$opt$varP option for subcrt() to calculate Gibbs energies
-  of gases using a variable-pressure standard state.
+  of gases using a variable-pressure standard state. Thanks to Kirt
+  Robinson for the submitting the problem that led to this change.
 
 - Add 'solubility.R' demo, and add calcite solubility plot to
   anintro.Rnw.

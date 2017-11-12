@@ -49,6 +49,7 @@ Possible models include the Helgeson-Kirkham-Flowers (HKF) equations of state, o
 
 \details{
 \code{EOSregress} uses a linear model (\code{\link{lm}}) to regress the experimental heat capacity or volume data in \code{exptdata}, which is a data frame with columns \samp{T} (temperature in degrees Kelvin), \samp{P} (pressure in bars), and \samp{Cp} or \samp{V} (heat capacity in cal/mol.K or volume in cm3/mol).
+The \samp{Cp} or \samp{V} data must be in the third column.
 Only data below the temperature of \code{T.max} are included in the regression.
 The regression formula is specified by a vector of names in \code{var}.
 The names of the variables can be any combination of the following (listed in the order of search): variables listed in the following table, any available property of \code{\link{water}} (e.g. \samp{V}, \samp{alpha}, \samp{QBorn}), or the name of a function that can be found using \code{\link{get}} in the default environment.
@@ -89,7 +90,7 @@ If the \code{property} is \samp{V}, the data frame has column names of \samp{(In
 Here, \eqn{\sigma}{sigma} and \eqn{\xi}{xi} are calculated from a1, a2, a3 and a4 in \code{thermo$obigt} at the pressure indicated by \code{P} (default 1 bar).
 
 The original motivation for writing these functions was to explore alternatives or possible modifications to the revised Helgeson-Kirkham-Flowers equations applied to aqueous nonelectrolytes.
-As pointed out by Schulte et al., 2001, the functional forms of the equations do not permit retrieving values of the solvation parameter (\eqn{\omega}{omega}) that closely represent the observed trends in both heat capacity and volume at high temperatures (above ca. 200 \eqn{^{\circ}}{°}C).
+As pointed out by Schulte et al., 2001, the functional forms of the equations do not permit retrieving values of the solvation parameter (\eqn{\omega}{omega}) that closely represent the observed trends in both heat capacity and volume at high temperatures (above ca. 200 \degC).
 
 The examples below assume that the \eqn{\omega}{omega} parameter in the HKF functions is a constant (does not depend on T and P), as is appropriate for nonelectrolytes.
 For charged species, the variables \code{Cp_s_var} and \code{V_s_var} can be used in the regressions.
@@ -130,6 +131,8 @@ d$P <- convert(d$P, "bar")
 var <- c("invTTheta2", "TXBorn")
 # perform regression, with a temperature limit
 EOSlm <- EOSregress(d, var, T.max=600)
+# calculate the Cp at some temperature and pressure
+EOScalc(EOSlm$coefficients, 298.15, 1)
 # get the database values of c1, c2 and omega for CH4(aq)
 CH4coeffs <- EOScoeffs("CH4", "Cp")
 ## make plots comparing the regressions
@@ -146,7 +149,8 @@ EOSplot(d, coefficients=CH4coeffs, T.plot=600)
 title("Cp from EOS parameters in database")
 
 # continuing from above, with user-defined variables
-invTTTheta3 <- function(T, P) (2*T)/(T-T*thermo$opt$Theta)^3
+Theta <- 228  # K 
+invTTTheta3 <- function(T, P) (2*T)/(T-T*Theta)^3
 invTX <- function(T, P) 1/T*water("XBorn", T=T, P=P)[,1]
 # print the calculated values of invTTTheta3
 EOSvar("invTTTheta3", d$T, d$P)
@@ -186,4 +190,4 @@ title("V of CH4(aq), expansivity equation")
 # not consistent with the high-T heat capacities
 }
 
-\concept{Extra thermodynamic modeling}
+\concept{Extended workflow}

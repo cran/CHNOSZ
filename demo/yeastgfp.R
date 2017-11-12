@@ -18,7 +18,7 @@ basis("CHNOS+")
 # get protein names and abundances in each location
 gfp <- yeastgfp(names)
 # get amino acid compositions of proteins
-aa <- more.aa(gfp$protein, "Sce")
+aa <- yeast.aa(gfp$protein)
 # calculate average amino acid compositions 
 for(i in 1:length(names)) {
   avgaa <- aasum(aa[[i]], gfp$abundance[[i]], average=TRUE, protein=names[i])
@@ -53,7 +53,7 @@ par(opar)
 ## This figure is similar to Fig. 3 of Dick (2009). 
 locations <- yeastgfp()
 gfp <- yeastgfp(locations)
-aa <- more.aa(gfp$protein, "Sce")
+aa <- yeast.aa(gfp$protein)
 for(i in 1:length(locations)) {
   avgaa <- aasum(aa[[i]], gfp$abundance[[i]], average=TRUE, protein=locations[i])
   add.protein(avgaa)

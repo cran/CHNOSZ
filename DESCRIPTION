@@ -1,27 +1,33 @@
-Date: 2017-05-04
+Date: 2017-11-13
 Package: CHNOSZ
-Version: 1.1.0
-Title: Chemical Thermodynamics and Activity Diagrams
-Author: Jeffrey Dick
+Version: 1.1.3
+Title: Thermodynamic Calculations for Geobiochemistry
+Authors@R: c(
+    person("Jeffrey", "Dick", , "j3ffdick@gmail.com", role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-0687-5890")),
+    person("R Core Team", role = "ctb",
+      comment = "code derived from R's pmax()")
+    )
+Author: Jeffrey Dick [aut, cre] (0000-0002-0687-5890),
+  R Core Team [ctb] (code derived from R's pmax())
 Maintainer: Jeffrey Dick <j3ffdick@gmail.com>
 Depends: R (>= 3.1.0)
 Suggests: limSolve, testthat, knitr, rmarkdown, tufte, RSVGTipsDevice
-Imports: grDevices, graphics, stats, utils, colorspace
-Description: An integrated set of tools for thermodynamic calculations in compositional
-  biology and geochemistry. Thermodynamic properties are taken from a database for minerals
+Imports: grDevices, graphics, stats, utils
+Description: An integrated set of tools for thermodynamic calculations in geochemistry and
+  compositional biology. Thermodynamic properties are taken from a database for minerals
   and inorganic and organic aqueous species including biomolecules, or from amino acid
   group additivity for proteins. High-temperature properties are calculated using the
-  revised Helgeson-Kirkham-Flowers equations of state for aqueous species. Functions are
+  revised Helgeson-Kirkham-Flowers equations of state for aqueous species, and activity
+  coefficients can be calculated for specified ionic strength. Functions are
   provided to define a system using basis species, automatically balance reactions,
-  calculate the chemical affinities of reactions for selected species, and plot the results
-  on potential diagrams or equilibrium activity diagrams. Experimental features are
-  available to calculate activity coefficients for aqueous species or for multidimensional
-  optimization of thermodynamic variables using an objective function.
+  calculate the chemical affinities of formation reactions for selected species, calculate
+  equilibrium activities, and plot the results on chemical activity diagrams.
 License: GPL (>= 2)
 BuildResaveData: no
 VignetteBuilder: knitr
 URL: http://www.chnosz.net/, http://chnosz.r-forge.r-project.org/
 NeedsCompilation: yes
-Packaged: 2017-05-04 11:34:06 UTC; jedick
+Packaged: 2017-11-12 16:50:54 UTC; jedick
 Repository: CRAN
-Date/Publication: 2017-05-04 17:48:31 UTC
+Date/Publication: 2017-11-13 00:06:59 UTC

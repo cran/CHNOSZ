@@ -20,9 +20,9 @@ vignette: >
   \usepackage[utf8]{inputenc}
 bibliography: vig.bib
 link-citations: yes
-# The custom CSL file gives a build error on R-Forge (20170212):
-#   pandoc-citeproc: error while parsing the XML string
 csl: elementa.csl
+# note: this may be needed for margin references in next version of tufte:
+#tufte_features: ["background", "margin_references"]
 ---
 
 ```{r options, include=FALSE}
@@ -92,9 +92,16 @@ knit_hooks$set(timeit = function(before) {
     }
 })
 timeit <- NULL
+
+## colorize messages 20171031
+## adapted from https://gist.github.com/yihui/2629886#file-knitr-color-msg-rnw
+color_block = function(color) {
+  function(x, options) sprintf('<pre style="color:%s">%s</pre>', color, x)
+}
+knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), message = color_block('blue'))
 ```
 
-# First steps
+# Overview
 
 This document introduces the usage of CHNOSZ, a package for the [R software environment](http://r-project.org).
 For more information on R, see "[An Introduction to R](https://cran.r-project.org/manuals.html)" and the [contributed documentation](https://cran.r-project.org/other-docs.html) for R.
@@ -109,7 +116,6 @@ A major feature of the package is the production of diagrams to visualize the ef
 After starting R, install CHNOSZ by selecting the "Install packages from CRAN" or similar menu item in the R GUI or by using the following command:
 ```{marginfigure}
 Or, install the package from a package file, which you can download from [CRAN](https://cran.r-project.org/package=CHNOSZ) or (for the development version) from [R-Forge](https://r-forge.r-project.org/projects/chnosz/).
-This vignette depends on some features that are available only in the development version of CHNOSZ.
 ```
 ```{r install_CHNOSZ, eval=FALSE}
 install.packages("CHNOSZ")
@@ -125,6 +131,9 @@ Then load the `thermo` object, which contains the thermodynamic database and sys
 data(thermo)
 ```
 
+Note: Throughout this document, syntax highlighting is applied to the *input* of the code chunks.
+Double hash marks (`##`) precede the *output*, where black text denotes *results* and blue text is used for *messages*.
+
 ## Getting help
 
 After CHNOSZ is installed, type <span style="color:blue">`help.start()`</span> to browse the R help documents, then choose "Packages" followed by "CHNOSZ".
@@ -132,7 +141,11 @@ That shows an index of the *manual* (help pages) for each function; many of the 
 There are also links to the *demos* (longer examples) and *vignettes* (more in-depth documentation; this document is a vignette).
 
 Suggestions for accessing the documentation are indicated here with <span style="color:blue">blue text</span>.
-For example, read <span style="color:blue">`?"CHNOSZ-package"`</span> to get an overview of the package and a list of features.
+For example, read <span style="color:blue">``?`CHNOSZ-package` ``</span> to get an overview of the package and a list of features.
+```{marginfigure}
+"`?`" is a shortcut to R's `help()` function.
+The command here is equivalent to <span style="color:blue">`help("CHNOSZ-package")`</span>.
+```
 
 ## Organization of major functions
 
@@ -140,13 +153,15 @@ CHNOSZ is made up of a set of functions and supporting datasets.
 The major components of the package are shown in the figure below, which is an updated version of the diagram in @Dic08.
 Rectangles and ellipses represent functions and datasets; bold text indicates primary functions.
 
-![Structure of CHNOSZ.](CHNOSZ.png)
+<!-- https://stackoverflow.com/questions/14675913/how-to-change-image-size-markdown -->
+![Structure of CHNOSZ.](CHNOSZ.png){ width=75% }
 
 Many functions in CHNOSZ have no side effects.
 That is, the function only returns a result; to use the result elsewhere, it can be assigned to a variable with `<-`.
 In this document, the names of these functions are set in <span style="color:green">green text</span> (not applicable to the code chunks).
 ```{marginfigure}
-When they are mentioned, names of functions in the base and recommended packages of R are said to belong to R. Example: Use R's `plot()` to plot the data.
+When they are mentioned, names of functions in the base and recommended packages of R are said to belong to R.
+Example: Use R's `plot()` to plot the data.
 ```
 Major functions without side effects in CHNOSZ are:
 
@@ -157,7 +172,7 @@ Major functions without side effects in CHNOSZ are:
 * <span style="color:green">`diagram()`</span>: plot the results.
 
 Some functions in CHNOSZ do have side effects: they modify the `thermo` data object in the current R session.
-In this document, the names of these functions are set in <span style="color:red">red text</span> (not in the code chunks).
+In this document, the names of these functions are set in <span style="color:red">red text</span> (but not in the code chunks).
 Major functions with side effects are:
 
 * <span style="color:red">`basis()`</span>: set the basis species and their chemical activities;
@@ -167,15 +182,62 @@ Major functions with side effects are:
 The following pseudocode shows a common sequence of commands.
 In actual usage, the `...` are replaced by arguments that define the chemical species and variables:
 ```{r pseudocode, eval=FALSE}
+data(thermo)         ## initialize system settings
 basis(...)
 species(...)
 a <- affinity(...)
 e <- equilibrate(a)  ## optional
 diagram(e)           ## or diagram(a)
-data(thermo)         ## clear system settings
+data(thermo)         ## clear settings for next calculation
 ```
 
-# Thermodynamic database and chemical formulas
+# The basics
+
+* Use <span style="color:green">`info()`</span> to search the thermodynamic database.
+
+```{r info_adenine}
+info("aden ")
+info("adenine")
+iadenine <- info("adenine")
+info(iadenine)
+```
+
+* Use <span style="color:green">`thermo.refs()`</span> to look up references.
+```{r refs_adenine}
+thermo.refs(iadenine)
+```
+
+* Use <span style="color:green">`subcrt()`</span> to calculate standard molal thermodynamic properties.
+
+```{r bsad_adenine, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Nucleobase equal-activity diagram.", cache=TRUE, pngquant=pngquant, timeit=timeit}
+basis("CHNOSe")
+species(c("adenine", "cytosine", "guanine", "thymine", "uracil"))
+a <- affinity(H2O = c(-12, -0), Eh = c(-0.5, 0), T = 100)
+diagram(a)
+```
+
+```{r subcrt_adenine}
+subcrt("adenine", T = 100)
+```
+
+```{r equil_adenine, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Activities of nucleobases in metastable equilibrium.", cache=TRUE, pngquant=pngquant, timeit=timeit}
+basis("e-", 3.6)
+a <- affinity(H2O = c(-12, 0), T = 100)
+e <- equilibrate(a)
+diagram(e, ylim = c(-8, 0))
+```
+
+* Use <span style="color:red">`basis()`</span> &ndash; <span style="color:red">`species()`</span> &ndash; <span style="color:green">`affinity()`</span> &ndash; <span style="color:green">`diagram()`</span> (BSAD) to construct equal-activity (equipotential) diagrams.
+
+```{r bsad_adenine, eval=FALSE}
+```
+
+* Use <span style="color:green">`equilibrate()`</span> to calculate equilibrium activities.
+
+```{r equil_adenine, eval=FALSE}
+```
+
+# Thermodynamic database
 
 An attempt has been made to provide a primary database (OBIGT) that has no major inconsistencies.
 As the database includes datasets from many sources, it can not be guaranteed to be fully internally consistent.
@@ -198,9 +260,17 @@ A second argument can be used to specify a different physical state:
 info("methane", "gas")
 ```
 
-Knowing that aqueous methane is species number 910 in the database, you can again use <span style="color:green">`info()`</span> to retrieve the set of standard molal thermodynamic properties and equations of state parameters:
-```{r info_910, message=FALSE}
-info(910)
+```{r info_methane_test, echo=FALSE, results="hide"}
+# this prevents the vignette from compiling in case
+# database updates cause the species index of methane to change
+stopifnot(info("methane")==859)
+# it is up to the editor of this vignette to ensure that number
+# is used in the hard-coded examples below!
+```
+
+Knowing that aqueous methane is species number 859 in the database, you can again use <span style="color:green">`info()`</span> to retrieve the set of standard molal thermodynamic properties and equations of state parameters:
+```{r info_859, message=FALSE}
+info(859)
 ```
 
 This number can be used as an argument (`ispecies`) for other functions in CHNOSZ to uniquely identify any species; some commonly used functions also accept the species names.
@@ -234,21 +304,21 @@ The messages may be useful for browsing the database, but owing to their ambiguo
 ## Counting elements, chemical formulas, <span style="color:green">`ZC()`</span>
 
 Continuing with the example of methane, let's look at its chemical formula:
-```{r info_910_formula, message=FALSE}
-info(910)$formula
+```{r info_859_formula, message=FALSE}
+info(859)$formula
 ```
 
 We can use <span style="color:green">`makeup()`</span> to count the elements in the formula, followed by <span style="color:green">`as.chemical.formula()`</span> to rewrite the formula on one line:
-```{r makeup_910}
-makeup(910)
-as.chemical.formula(makeup(910))
+```{r makeup_859}
+makeup(859)
+as.chemical.formula(makeup(859))
 ```
 
 For organic species, a calculation of the average oxidation state of carbon (`r zc`) is possible given the species index, chemical formula, or elemental count:
-```{r ZC_910, message=FALSE}
-ZC(910)
-ZC(info(910)$formula)
-ZC(makeup(910))
+```{r ZC_859, message=FALSE}
+ZC(859)
+ZC(info(859)$formula)
+ZC(makeup(859))
 ```
 
 # Calculating thermodynamic properties
@@ -275,7 +345,7 @@ The corresponding units are °C (`T`), bar (`P`), g cm<sup>-3</sup> (`rho`), cal
 A custom temperature-pressure grid can be specified.
 Here, we calculate the properties of `r h2o` on a *T*, *P* grid in the supercritical region, with conditions grouped by pressure:
 ```{marginfigure}
-See also <span style="color:blue">`demo(density)`</span>.
+See also [<span style="color:blue">`demo(density)`</span>](../demo).
 ```
 ```{r subcrt_water_grid}
 subcrt("water", T = c(400, 500, 600), P = c(200, 400, 600), grid = "P")$out$water
@@ -322,7 +392,7 @@ To calculate the thermodynamic properties of reactions, give the names of specie
 Here we calculate properties for the dissolution of CO<sub>2</sub>:
 ```{marginfigure}
 Because of aqueous speciation, this doesn't give the _solubility_ of CO<sub>2</sub>.
-For an example of a solubility calculation, see <span style="color:blue">`demo(solubility)`</span>, which is based on a figure in Manning et al. (2013).
+For an example of a solubility calculation, see [<span style="color:blue">`demo(solubility)`</span>](../demo), which is based on a figure in Manning et al. (2013).
 ```
 ```{r subcrt_CO2}
 subcrt(c("CO2", "CO2"), c("gas", "aq"), c(-1, 1), T = seq(0, 250, 50))
@@ -525,7 +595,7 @@ Aqueous species are assigned default activities of 10<sup>-3</sup> (`logact` is 
 Now, we can use <span style="color:green">`affinity()`</span> to calculate the affinities of the formation reactions of each of the species.
 R's `unlist()` is used here to turn the list of values of affinity into a numeric object that can be printed in a couple of lines (note that the names correspond to `ispecies` above):
 ```{marginfigure}
-The values returned by <span style="color:green">`affinity()`</span> are dimensionless, i.e. *A*/2.303*RT*.
+The values returned by <span style="color:green">`affinity()`</span> are dimensionless, i.e. *A*/(2.303*RT*).
 ```
 ```{r affinity}
 unlist(affinity()$values)
@@ -547,7 +617,7 @@ That is, running <span style="color:green">`affinity()`</span>`$values` again wo
 ```{r EhpH_plot, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, cache=TRUE, fig.cap="Aqueous sulfur species at 25 °C.", pngquant=pngquant, timeit=timeit}
 a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
 diagram(a, fill = "heat")
-water.lines()
+water.lines(a)
 ```
 
 Now we can calculate the affinities on an Eh-pH grid:
@@ -582,7 +652,7 @@ Additional arguments are passed to R's plotting functions; here, we use `bty` to
 Mineral stability diagrams often depict activity ratios, e.g. log (*a*<sub>Ca<sup>+2</sup></sub>/*a*<sub>H<sup>+</sup></sub><sup>2</sup>), on one or both axes.
 The variables used for potential calculations in CHNOSZ include only a single chemical activity, e.g. log *a*<sub>Ca<sup>+2</sup></sub>.
 However, you can set pH = 0 to generate diagrams that are geometrically equivalent to those calculated using activity ratios, and use <span style="color:green">`ratlab()`</span> to make the axes labels for the ratios.
-See <span style="color:blue">`demo(activity_ratios)`</span> for some examples.
+See [<span style="color:blue">`demo(activity_ratios)`</span>](../demo) for some examples.
 
 ## Mosaic diagrams
 
@@ -600,7 +670,7 @@ info(" CuCl")
 We wish to include chalcocite (Cu<sub>2</sub>S) in the system.
 This mineral undergoes phase transitions; to find out the temperatures of the phase transitions, we can also use <span style="color:green">`info()`</span>:
 ```{r info_chalcocite, message=FALSE}
-info(info("chalcocite", c("cr1", "cr2", "cr3")))$T
+info(info("chalcocite", c("cr", "cr2", "cr3")))$T
 ```
 
 Those are temperatures in Kelvin (regardless of the <span style="color:red">`T.units()`</span>); at 200 °C we should use the second phase.
@@ -621,7 +691,7 @@ We use <span style="color:green">`mosaic()`</span> to generate and combine diagr
 The key argument is `bases`, which identifies the candidate basis species, starting with the one in the current basis.
 The other arguments, like those of <span style="color:green">`affinity()`</span>, specify the ranges of the variables; `res` indicates the grid resolution to use for each variable (the default is 128).
 The first call to <span style="color:green">`diagram()`</span> plots the species of interest; the second adds the predominance fields of the basis species.
-We turn off the gray coloring beyond the water stability limits (`limit.water`) but plot the lines using <span style="color:green">`water.lines()`</span>:
+We turn off the gray coloring beyond the water stability limits (`limit.water`) but plot the red dotted lines using <span style="color:green">`water.lines()`</span>:
 
 ```{r copper_mosaic, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", message=FALSE, cache=TRUE, fig.cap="Copper minerals and aqueous complexes with chloride, 200 °C.", pngquant=pngquant, timeit=timeit}
 T <- 200
@@ -631,7 +701,7 @@ m1 <- mosaic(bases, blend = TRUE, pH = c(0, 12, res), Eh=c(-1.2, 0.75, res), T=T
 diagram(m1$A.species, lwd = 2, fill = NA, limit.water = FALSE)
 diagram(m1$A.bases, add = TRUE, col = "blue", col.names = "blue", lty = 2,
         limit.water = FALSE)
-water.lines("pH", "Eh", T = convert(T, "K"), col = "red", lwd = 2, lty = 2)
+water.lines(m1$A.species, col = "red", lwd = 2, lty = 3)
 ```
 
 The argument `blend = TRUE` is used to combine the diagrams according to the equilibrium activities of the basis species by themselves ([see below](#equilibration)).
@@ -644,7 +714,7 @@ However, the choice of other basis species can also affect the diagram.
 For instance, we can use H<sub>2</sub> or `r o2` in place of *e*<sup>-</sup>.
 To do that, let's write a function to swap those basis species and make a diagram.
 We use R's `do.call()` to construct the argument list for <span style="color:green">`mosaic()`</span>; this way, the name of the `newvar` argument to our function indicates the chosen variable.
-```{r mosaicfun, fig.fullwidth=TRUE, fig.width=9, fig.height=3, small.mar=TRUE, dpi=dpi, out.width="85%", message=FALSE, results="hide", cache=TRUE, fig.cap="Different projections (defined by the basis species) of the same thermodynamic system.", pngquant=pngquant, timeit=timeit}
+```{r mosaicfun, fig.fullwidth=TRUE, fig.width=9, fig.height=3, small.mar=TRUE, dpi=dpi, out.width="85%", message=FALSE, results="hide", cache=TRUE, fig.cap="The same chemical system projected into different sets of basis species.", pngquant=pngquant, timeit=timeit}
 mosaicfun <- function(newvar, T = 200) {
   swap.basis("e-", names(newvar))
   if (names(newvar) == "O2") basis("O2", "gas")
@@ -654,12 +724,13 @@ mosaicfun <- function(newvar, T = 200) {
           limit.water = FALSE)
   diagram(m1$A.bases, add = TRUE, col = "blue", col.names = "blue", lty = 3,
           limit.water = FALSE)
+  water.lines(m1$A.species, col = "red", lwd = 2, lty = 3)
   swap.basis(names(newvar), "e-")
 }
 par(mfrow = c(1, 3))
 mosaicfun(list(Eh = c(-1, 1, res)))
-mosaicfun(list(H2 = c(-15, 5, res)))
-mosaicfun(list(O2 = c(-70, 0, res)))
+mosaicfun(list(H2 = c(-30, 10, res)))
+mosaicfun(list(O2 = c(-70, 5, res)))
 ```
 
 ## *T*, *P*, activity transects
@@ -699,7 +770,7 @@ The target of the conversion is `G`, or free energy, from `logK`.
 That conversion requires temperature in Kelvin, which is obtained by conversion from °C.
 We finish with a negation (affinity is negative Gibbs energy) and scaling from cal to kcal.
 ```
-Using R's `lapply()` to run <span style="color:green">`convert()`</span> for each species, we convert the affinity from dimensionless values (*A*/2.303*RT*) to cal/mol.
+Using R's `lapply()` to run <span style="color:green">`convert()`</span> for each species, we convert the affinity from dimensionless values (*A*/(2.303*RT*)) to cal/mol, then kcal/mol.
 ```{r rainbow_affinity, message=FALSE}
 a <- affinity(T = rb$T, CO2 = rb$CO2, H2 = rb$H2,
               `NH4+` = rb$`NH4+`, H2S = rb$H2S, pH = rb$pH)
@@ -735,14 +806,14 @@ In CHNOSZ there are two ways to perform buffer calculations:
 * more versatile (multiple activities can be buffered, e.g. both S<sub>2</sub> and O<sub>2</sub> by pyrite-pyrrhotite-magnetite);
 * the buffers are active in calculations of affinity of other species;
 * use <span style="color:red">`mod.buffer()`</span> to change or add buffers in `thermo$buffer`;
-* <span style="color:blue">`demo(buffer)`</span> uses it for mineral buffers (solid lines).
+* [<span style="color:blue">`demo(buffer)`</span>](../demo) uses it for mineral buffers (solid lines).
 2. Use the `what` argument of <span style="color:green">`diagram()`</span> to solve for the activity of the indicated basis species:
 * more convenient (the buffers come from the currently defined species of interest), but only a single basis species can be buffered, and it's not used in the calculation of affinity;
-* <span style="color:blue">`demo(buffer)`</span> uses it for aqueous organic species as buffers (dotted and dashed lines).
+* [<span style="color:blue">`demo(buffer)`</span>](../demo) uses it for aqueous organic species as buffers (dotted and dashed lines).
 
 As an example of method 1, let's look at the pyrite-pyrrhotite-magnetite (PPM) buffer at 300 °C.
 ```{marginfigure}
-For other examples, see <span style="color:blue">`?buffer`</span> and <span style="color:blue">`demo(protbuff)`</span> (hypothetical buffer made of proteins).
+For other examples, see <span style="color:blue">`?buffer`</span> and [<span style="color:blue">`demo(protbuff)`</span>](../demo) (hypothetical buffer made of proteins).
 ```
 Without the buffer, the basis species have default activities of zero.
 Under these conditions, the minerals are not in equilibrium, as shown by their different affinities of formation:
@@ -780,7 +851,7 @@ Under these conditions, the affinities of formation reactions of the minerals in
 ```{r PPM_affinity, eval=FALSE}
 ```
 
-Another example, based on Figure 6 of @SS95, is given in <span style="color:blue">`demo(buffer)`</span>.
+Another example, based on Figure 6 of @SS95, is given in [<span style="color:blue">`demo(buffer)`</span>](../demo).
 Here, values of log*f*<sub>H<sub>2</sub></sub> buffered by minerals or set by equilibrium with given activities of aqueous species are calculated using the two methods:
 ```{r demo_buffer, eval=FALSE}
 demo(buffer)
@@ -796,8 +867,8 @@ Before presenting some examples, it is helpful to know about the limitations of 
 CHNOSZ does not take account of all possible reactions in the speciation of a system.
 Instead, it assumes that the total activity of species in the system is set by the activity of *one* basis species.
 ```{marginfigure}
-If activity coefficients are assumed to be zero, activities are equal to concentration and we can refer to "total activity".
-<span style="color:green">`nonideal()`</span> ([see below](#activity-coefficients)) is an experimental feature to deal with activity coefficients.
+When activity coefficients are assumed to be zero, activities are equal to concentration and we can refer to "total activity".
+If the ionic strength is specified, <span style="color:green">`nonideal()`</span> ([see below](#activity-coefficients)) can be used to calculate activity coefficients.
 ```
 This balanced, or conserved, basis species must be present (with a positive or negative coefficient) in the formation reactions of all species considered.
 
@@ -853,7 +924,7 @@ To display the species distribution, or degree of formation, add `alpha = TRUE` 
 The possible reactions between species are all balanced on 1 C.
 Therefore, although pH alters the total activity of C, in a system with ideal mixing the total activity of C doesn't affect the relative activities of these species.
 ```{marginfigure}
-See <span style="color:blue">`demo(solubility)`</span> for calculations of the total activity of C in this ideal system; uncomment a line in the demo to run calculations for CO<sub>2</sub> instead of calcite.
+See [<span style="color:blue">`demo(solubility)`</span>](../demo) for calculations of the total activity of C in this ideal system; uncomment a line in the demo to run calculations for CO<sub>2</sub> instead of calcite.
 ```
 
 ## Groups of species
@@ -930,7 +1001,7 @@ diagram(e, alpha = TRUE, ylim = c(0, 0.16), lty = lty, names = names)
 
 That makes a diagram that is similar to Figure 6b of Shock and Schulte (1998).
 ```{marginfigure}
-Some differences from the original diagrams may be caused by the sensitivity of the calculations to log*f*<sub>O<sub>2</sub></sub>, for which the values we use here may carry artifacts introduced by digitization of their plot.
+Some differences from the original diagrams could be caused by the sensitivity of the calculations to log*f*<sub>O<sub>2</sub></sub>, for which the values we use here may carry artifacts introduced by digitization of their plot.
 ```
 It is also possible to plot the distribution of species within individual groups, such as alcohols and ketones.
 We do this by setting the names and line types for the *other* species to values that prevent them from being plotted:
@@ -980,6 +1051,182 @@ It does seem odd to balance on a fugacious component like `r o2` or `r h2o`.
 Unlike different choices of basis species, which are thermodynamically equivalent ([see above](#mosaicfun)), the choice of balance reflects extra-thermodynamic factors.
 For instance, the widespread rule of thumb for balancing mineral reactions on a chemical component is unrealistic for processes where volume is conserved [@MD98].
 While choosing an inappropriate balance leads to infeasible models, consideration of the different possibilities might give insight into the conditions affecting the dynamics of some systems.
+
+# Activity coefficients
+
+For calculating activity coefficients of charged species, <span style="color:green">`nonideal()`</span> uses the extended Debye--Hückel equation as parameterized by @HKF81 for NaCl-dominated solutions to high pressure and temperature, or optionally using parameters described in Chapter 3 of @Alb03, which are applicable to relatively low-temperature biochemical reactions.
+The activity coefficients are calculated as a function of ionic strength (*I*), temperature, and charge of each species, without any other species-specific parameters.
+Using the default `Helgeson` method, the extended term parameter ("B-dot") is derived from data of @Hel69 and Helgeson et al. (1981), and extrapolations of @MSS13.
+
+## Transformation of variables
+
+Following the main workflow of CHNOSZ, <span style="color:green">`nonideal()`</span> normally does not need to be used directly.
+Intead, invoke the calculations by setting the `IS` argument in <span style="color:green">`subcrt()`</span> or <span style="color:green">`affinity()`</span>.
+There are a few things to remember when using activity coefficients:
+
+* H<sup>+</sup> is assumed to behave ideally, so its activity coefficient is 1 for any ionic strength. You can calculate activity coefficients of H<sup>+</sup> by setting `thermo$opt$ideal.H <<- FALSE`.
+
+* Using <span style="color:green">`subcrt()`</span> with `IS` not equal to zero, calculated values of `G` are the **adjusted** Gibbs energy at specified ionic strength [denoted by &Delta;*G*°(*I*); @Alb96].
+
+* Using <span style="color:green">`subcrt()`</span> with `IS` not equal to zero, values in the `logact` argument stand for **log molality** of aqueous species in affinity calculations.
+
+* Using <span style="color:green">`affinity()`</span> with `IS` not equal to zero, the following values stand for **log molality** of aqueous species:
+    + values of `logact` set by <span style="color:green">`basis()`</span>;
+    + values of `logact` set by <span style="color:green">`species()`</span>.
+
+* Using <span style="color:green">`equilibrate()`</span> on the output of affinity calculated with `IS` not equal to zero, the following values stand for **log molality** of aqueous species:
+    + the value of `loga.balance` used by <span style="color:green">`equilibrate()`</span> (i.e., logarithm of total molality of the balancing basis species);
+    + values of `loga.equil` returned by <span style="color:green">`equilibrate()`</span>.
+
+In other words, the activation of activity coefficients effects a transformation from activity to molality in the main workflow.
+A simple but comprehensive series of calculations demonstrating these tranformations is in `tests/testthat/test-logmolality.R`.
+
+Because it is not possible to dynamically change the names of arguments in the functions, the user should be aware of the transformations mentioned above.
+However, the labels on diagrams *can* be automatically adjusted; accordingly, activities of aqueous species are relabeled as molalities by <span style="color:green">`diagram()`</span> when `IS` is used in the calculation of <span style="color:green">`affinity()`</span>.
+
+## Biochemical example
+
+For the following calculations, we change the nonideality method to `Alberty`; this is a simpler formulation with parameters that are suitable for biochemical species at relatively low temperatures:
+```{r Alberty}
+oldnon <- nonideal("Alberty")
+```
+
+Let's take a look at calculated activity coefficients at two temperatures and their effect on the standard Gibbs energies of formation (Δ*G*°<sub>*f*</sub>) of species with different charge:
+```{r subcrt_IS}
+subcrt(c("MgATP-2", "MgHATP-", "MgH2ATP"),
+       T = c(25, 100), IS = c(0, 0.25), property = "G")$out
+```
+
+The logarithms of the activity coefficients (`loggam`) are more negative for the higher-charged species, as well as at higher temperature, and have a stabilizing effect.
+That is, the adjusted Gibbs energies at *I* > 0 are less than the standard Gibbs energies at *I* = 0.
+
+We can use these calculations to make some speciation plots, similar to Figures 1.2--1.5 in Alberty (2003).
+These figures show the distribution of differently charged species of adenosine triphosphate (ATP) as a function of pH, and the average number of H<sup>+</sup> and Mg<sup>+2</sup> bound to ATP in solution as a function of pH or pMg (-log*a*<sub>Mg<sup>+2</sup></sub>).
+
+Use <span style="color:green">`info()`</span> to see what ATP species are available.
+The sources of high-temperature thermodynamic data for these species are two papers by LaRowe and Helgeson [-@LH06a; -@LH06b].
+```{r info_ATP, results="hide"}
+info(" ATP")
+```
+
+The plots for this system in Alberty's book were made for *I* = 0.25 M and *T* = 25 °C.
+As a demonstration of CHNOSZ's capabilities, we can assign a temperature of 100 °C.
+```{r T_100}
+T <- 100
+```
+
+Use the following commands to set the basis species, add the variously protonated ATP species, calculate the affinities of the formation reactions, equilibrate the system, and make a degree of formation (α) or mole fraction diagram.
+This is similar to Figure 1.3 of Alberty (2003), but is calculated for *I* = 0 M and *T* = 100 °C:
+```{marginfigure}
+To make the code more readable, commands for plotting titles and legends are not shown.
+All of the commands are available in the source of this document.
+```
+
+```{r ATP, eval=FALSE, echo=2:6}
+par(mfrow = c(1, 4), mar = c(3.1, 3.6, 2.1, 1.6), mgp = c(1.8, 0.5, 0))
+basis("MgCHNOPS+")
+species(c("ATP-4", "HATP-3", "H2ATP-2", "H3ATP-", "H4ATP"))
+a <- affinity(pH = c(3, 9), T = T)
+e <- equilibrate(a)
+d <- diagram(e, alpha = TRUE, tplot = FALSE)
+title(main = describe.property("T", T))
+alphas <- do.call(rbind, d$plotvals)
+nH <- alphas * 0:4
+Hlab <- substitute(italic(N)[H^`+`])
+plot(a$vals[[1]], colSums(nH), type = "l", xlab = "pH", ylab=Hlab, lty=2, col=2)
+a <- affinity(pH = c(3, 9), IS = 0.25, T = T)
+e <- equilibrate(a)
+d <- diagram(e, alpha = TRUE, plot.it = FALSE)
+alphas <- do.call(rbind, d$plotvals)
+nH <- alphas * 0:4
+lines(a$vals[[1]], colSums(nH))
+legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
+ATP.H <- substitute("ATP and H"^`+`)
+title(main = ATP.H)
+species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+Hplot <- function(pMg, IS = 0.25) {
+  basis("Mg+2", -pMg)
+  a <- affinity(pH = c(3, 9), IS = IS, T = T)
+  e <- equilibrate(a)
+  d <- diagram(e, alpha = TRUE, plot.it = FALSE)
+  alphas <- do.call(rbind, d$plotvals)
+  NH <- alphas * c(0:4, 0, 1, 2, 0)
+  lines(a$vals[[1]], colSums(NH), lty = 7 - pMg, col = 7 - pMg)
+}
+plot(c(3, 9), c(0, 2), type = "n", xlab = "pH", ylab = Hlab)
+lapply(2:6, Hplot)
+legend("topright", legend = paste("pMg = ", 2:6), lty = 5:1, col = 5:1, cex = 0.8)
+ATP.H.Mg <- substitute("ATP and H"^`+`~"and Mg"^`+2`)
+title(main = ATP.H.Mg)
+Mgplot <- function(pH, IS = 0.25) {
+  basis("pH", pH)
+  a <- affinity(`Mg+2` = c(-2, -7), IS = IS, T = T)
+  e <- equilibrate(a)
+  d <- diagram(e, alpha = TRUE, plot.it = FALSE)
+  alphas <- do.call(rbind, d$plotvals)
+  NMg <- alphas * species()$`Mg+`
+  lines(-a$vals[[1]], colSums(NMg), lty = 10 - pH, col = 10 - pH)
+}
+Mglab <- substitute(italic(N)[Mg^`+2`])
+plot(c(2, 7), c(0, 1.2), type = "n", xlab = "pMg", ylab = Mglab)
+lapply(3:9, Mgplot)
+legend("topright", legend = paste("pH = ", 3:9), lty = 7:1, col = 7:1, cex = 0.8)
+title(main = ATP.H.Mg)
+```
+
+Note that we have saved the numeric results of <span style="color:green">`diagram()`</span>, i.e. the degrees of formation of the species (α).
+With that, we can calculate and plot the average number of protons bound per ATP molecule.
+To do so, we use R's `rbind()` and `do.call()` to turn `alpha` into a matrix, then multiply by the number of protons bound to each species, and sum the columns to get the total (i.e. average proton number, *N*<sub>H<sup>+</sup></sub>):
+```{r ATP, eval=FALSE, echo=8:11}
+```
+
+Adding the `IS` argument to <span style="color:green">`affinity()`</span>, we can now plot *N*<sub>H<sup>+</sup></sub> at the given ionic strength.
+Here we set `plot.it = FALSE` in `diagram()` because we use the computed α to make our own plot.
+This is similar to Figure 1.3 of Alberty (2003), but at higher temperature:
+```{r ATP, eval=FALSE, echo=12:17}
+```
+
+Next, we add the Mg<sup>+2</sup>-complexed ATP species:
+```{r ATP, eval=FALSE, echo=21}
+```
+
+Here is a function to calculate and plot *N*<sub>H<sup>+</sup></sub> for a given pMg:
+```{r ATP, eval=FALSE, echo=22:30}
+```
+
+With that function in hand, we plot the lines corresponding to pMg = 2 to 6.
+This is similar to Figure 1.4 of Alberty (2003):
+```{r ATP, eval=FALSE, echo=31:32}
+```
+
+The next function calculates and plots the average number of Mg<sup>+2</sup> bound to ATP (*N*<sub>Mg<sup>+2</sup></sub>) for a given pH.
+Here we multiply `alpha` by the number of Mg<sup>+2</sup> in each species, and negate log*a*<sub>Mg<sup>+2</sup></sub> (the variable used in <span style="color:green">`affinity()`</span>) to get pMg:
+```{r ATP, eval=FALSE, echo=36:44}
+```
+
+Using that function, we plot the lines corresponding to pH = 3 to 9.
+This is similar to Figure 1.5 of Alberty (2003):
+```{r ATP, eval=FALSE, echo=45:47}
+```
+
+<p>
+```{r ATP, fig.fullwidth=TRUE, fig.width=10, fig.height=2.5, dpi=ifelse(dpi==50, 50, 100), out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Binding of H<sup>+</sup> and Mg<sup>+2</sup> to ATP at 100 °C and *I* = 0 M (first plot) or *I* = 0.25 M (third and fourth plots).", cache=TRUE, pngquant=pngquant, timeit=timeit}
+```
+</p>
+
+We have calculated the distribution of ATP species and average binding number of H<sup>+</sup> and Mg<sup>+2</sup> for given pH, pMg, ionic strength, and temperature.
+Accounting for the distribution of chemical species lends itself to thermodynamic models for reactions between reactants that have multiple ionized and complexed states.
+In contrast, Alberty (2003) and others propose models for biochemical reactions where the ionized and complexed species are combined into a single representation.
+Those models invoke Legendre-transformed thermodynamic properties, such as transformed Gibbs energies that are tabulated for specified pH, pMg, and ionic strength.
+Although the conceptual pathways are different, the two approaches lead to equivalent results concerning the energetics of the overall reactions and the conditions for equilibrium [@SVI12].
+The example here shows how the required calculations can be performed at the species level using conventional standard Gibbs energies for species referenced to infinite dilution (zero ionic strength).
+The effects of ionic strength are modeled "on the fly" in CHNOSZ by setting the `IS` argument in <span style="color:green">`subcrt()`</span> or <span style="color:green">`affinity()`</span> to invoke the nonideality model on top of the standard Gibbs energies of species.
+
+Now that we're finished, we can reset the nonideality method to the default.
+(This really isn't needed here, because there aren't any nonideality calculations below):
+```{r oldnon}
+nonideal(oldnon)
+```
 
 # Proteins
 
@@ -1054,7 +1301,7 @@ The following plot shows the calculated affinity of reaction between nonionized 
 Charged and uncharged sets of basis species are used to to activate and suppress the ionization calculations.
 The calculation of affinity for the ionized proteins returns multiple values (as a function of pH), but there is only one value of affinity returned for the nonionized proteins, so we need to use R's `as.numeric()` to avoid subtracting nonconformable arrays:
 
-```{r protein_ionization, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Affinity of ionization of proteins. See <span style="color:blue">demo(ionize)</span> for ionization properties calculated as a function of temperature and pH.', cache=TRUE, pngquant=pngquant, timeit=timeit}
+```{r protein_ionization, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Affinity of ionization of proteins. See [<span style="color:blue">demo(ionize)</span>](../demo) for ionization properties calculated as a function of temperature and pH.', cache=TRUE, pngquant=pngquant, timeit=timeit}
 ip <- pinfo(c("CYC_BOVIN", "LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN"))
 basis("CHNOS+")
 a_ion <- affinity(pH = c(0, 14), iprotein = ip)
@@ -1198,7 +1445,7 @@ lapply(c("CHNOS", "QEC"), function(thisbasis) {
 ```
 
 By projecting the compositions of proteins into the `QEC` set of basis species, *n*&#773;<sub>`r o2`</sub> emerges as a strong indicator of oxidation state, while *n*&#773;<sub>`r h2o`</sub> is a relatively uncorrelated (i.e. independent) compositional variable.
-These independent variables make it easier to distinguish the effects of oxidation and hydration state in proteomic datasets [@Dic17a].
+These independent variables make it easier to distinguish the effects of oxidation and hydration state in proteomic datasets [@Dic17].
 
 ## Normalization to residues
 
@@ -1225,7 +1472,7 @@ ina <- is.na(y$abundance)
 
 Next, we get the amino acid compositions of the proteins and add them to `thermo$protein`:
 ```{r add_protein_yeast, message=FALSE}
-aa <- more.aa(y$protein[!ina], "Sce")
+aa <- yeast.aa(y$protein[!ina])
 ip <- add.protein(aa)
 ```
 
@@ -1319,7 +1566,7 @@ for(i in 1:length(a$values)) a$values[[i]] <- a$values[[i]] - a.Shh
 Next we use <span style="color:green">`diagram()`</span> to plot the affinities.
 We set `balance = 1` to plot the values as they are---without that, <span style="color:green">`diagram()`</span> divides the values by protein length, which we have already done!
 ```{marginfigure}
-See <span style="color:blue">`demo(Shh)`</span> for a plot with more interpretive labels and comments.
+See [<span style="color:blue">`demo(Shh)`</span>](../demo) for a plot with more interpretive labels and comments.
 ```
 For this plot, we highlight and label the proteins with the highest relative affinity at some combination of `r logfO2` and log*a*<sub>`r h2o`</sub> along the transect.
 Those proteins are Olig2, Irx3, Nkx6.2, Dbx1, and Shh (numbers 2, 5, 7, 8, 1 in the set we have identified).
@@ -1336,7 +1583,7 @@ col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
 twc[[3]][ihigh] <- col
 names <- rep("", length(pname))
 names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
-ylab <- substitute(italic(A) / 2.303 * italic(RT) * " relative to Shh")
+ylab <- substitute(italic(A) / (2.303 * italic(RT)) * " relative to Shh")
 diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
   lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
   names = names, adj = 0, dy = 0.1, format.names = FALSE)
@@ -1362,10 +1609,9 @@ The `nrows` argument can be added to read that number of rows:
 file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
 aa_bison <- read.csv(file, as.is = TRUE, nrows = 5)
 ```
-<span style="color:green">`more.aa()`</span> retrieves amino acid composition of proteins in *Saccharomyces cerevisiae* and *Escherichia coli* from data files that are included with CHNOSZ:
-```{r more_aa}
-aa_YML020W <- more.aa("YML020W", "Sce")
-aa_ILVE <- more.aa("ILVE", "Eco")
+<span style="color:green">`yeast.aa()`</span> retrieves amino acid composition of proteins in *Saccharomyces cerevisiae* from a data file that is included with CHNOSZ:
+```{r yeast_aa}
+aa_YML020W <- yeast.aa("YML020W")
 ```
 <span style="color:green">`read.fasta()`</span> reads a FASTA file and returns the amino acid compositions of the sequences.
 The `iseq` argument can be used to read those sequences from the file:
@@ -1446,7 +1692,7 @@ aa_UniProt
 
 These amino acid compositions can be processed using functions such as <span style="color:green">`protein.length()`</span> and <span style="color:green">`protein.formula()`</span>:
 ```{r protein_length}
-myaa <- rbind(aa_YML020W, aa_ILVE, aa_Ef, aa_PRIO)
+myaa <- rbind(aa_YML020W, aa_Ef, aa_PRIO)
 protein.length(myaa)
 ```
 
@@ -1506,150 +1752,9 @@ The points indicate the *T* and log*a*<sub>H<sub>2</sub></sub> that optimize a t
 ```{r bison_transferase, eval=FALSE, echo=12:15}
 ```
 
-# Experimental features
+# Optimization of chemical activities
 
-Some experimental features in CHNOSZ implement provisional algorithms and/or have not been extensively tested.
-Two experimental features are described here; <span style="color:green">`transfer()`</span> ([see below](#reaction-paths-experimental-feature)) provides another experimental feature.
-
-## Activity coefficients
-
-<span style="color:green">`nonideal()`</span> uses the extended Debye--Hückel equation, described in Chapter 3 of @Alb03, to calculate activity coefficients of charged species.
-The calculations can be invoked by setting the `IS` argument in <span style="color:green">`subcrt()`</span> or <span style="color:green">`affinity()`</span>.
-The activity coefficients are calculated as a function of ionic strength (*I*), temperature, and charge of each species, without any other species-specific parameters.
-Due to these assumptions, as well as the limited applicability of the implemented equations to very high *I* and/or *T*, <span style="color:green">`nonideal()`</span> is presented as an experimental feature.
-
-Let's take a look at calculated activity coefficients at two temperatures and their effect on the standard Gibbs energies of formation (Δ*G*°<sub>*f*</sub>) of species with different charge:
-```{r subcrt_IS}
-subcrt(c("MgATP-2", "MgHATP-", "MgH2ATP"),
-       T = c(25, 100), IS = c(0, 0.25), property = "G")$out
-```
-
-The logarithms of the activity coefficients (`loggam`) are more negative for the higher-charged species, as well as at higher temperature, and have a stabilizing effect.
-That is, the apparent Gibbs energies at *I* > 0 are less than the standard Gibbs energies at *I* = 0.
-
-We can use these calculations to make some speciation plots, similar to Figures 1.2--1.5 in Alberty (2003).
-These figures show the distribution of differently charged species of adenosine triphosphate (ATP) as a function of pH, and the average number of H<sup>+</sup> and Mg<sup>+2</sup> bound to ATP in solution as a function of pH or pMg (-log*a*<sub>Mg<sup>+2</sup></sub>).
-
-Use <span style="color:green">`info()`</span> to see what ATP species are available.
-The sources of high-temperature thermodynamic data for these species are two papers by LaRowe and Helgeson [-@LH06a; -@LH06b].
-```{r info_ATP, results="hide"}
-info(" ATP")
-```
-
-The plots for this system in Alberty's book were made for *I* = 0.25 M and *T* = 25 °C.
-As a demonstration of CHNOSZ's capabilities, we can assign a temperature of 100 °C.
-```{r T_100}
-T <- 100
-```
-
-Use the following commands to set the basis species, add the variously protonated ATP species, calculate the affinities of the formation reactions, equilibrate the system, and make a degree of formation (α) or mole fraction diagram.
-This is similar to Figure 1.3 of Alberty (2003), but is calculated for *I* = 0 M and *T* = 100 °C:
-```{marginfigure}
-To make the code more readable, commands for plotting titles and legends are not shown.
-All of the commands are available in the source of this document.
-```
-
-```{r ATP, eval=FALSE, echo=2:6}
-par(mfrow = c(1, 4), mar = c(3.1, 3.6, 2.1, 1.6), mgp = c(1.8, 0.5, 0))
-basis("MgCHNOPS+")
-species(c("ATP-4", "HATP-3", "H2ATP-2", "H3ATP-", "H4ATP"))
-a <- affinity(pH = c(3, 9), T = T)
-e <- equilibrate(a)
-d <- diagram(e, alpha = TRUE, tplot = FALSE)
-title(main = describe.property("T", T))
-alphas <- do.call(rbind, d$plotvals)
-nH <- alphas * 0:4
-Hlab <- substitute(italic(N)[H^`+`])
-plot(a$vals[[1]], colSums(nH), type = "l", xlab = "pH", ylab=Hlab, lty=2, col=2)
-a <- affinity(pH = c(3, 9), IS = 0.25, T = T)
-e <- equilibrate(a)
-d <- diagram(e, alpha = TRUE, plot.it = FALSE)
-alphas <- do.call(rbind, d$plotvals)
-nH <- alphas * 0:4
-lines(a$vals[[1]], colSums(nH))
-legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
-ATP.H <- substitute("ATP and H"^`+`)
-title(main = ATP.H)
-species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
-Hplot <- function(pMg, IS = 0.25) {
-  basis("Mg+2", -pMg)
-  a <- affinity(pH = c(3, 9), IS = IS, T = T)
-  e <- equilibrate(a)
-  d <- diagram(e, alpha = TRUE, plot.it = FALSE)
-  alphas <- do.call(rbind, d$plotvals)
-  NH <- alphas * c(0:4, 0, 1, 2, 0)
-  lines(a$vals[[1]], colSums(NH), lty = 7 - pMg, col = 7 - pMg)
-}
-plot(c(3, 9), c(0, 2), type = "n", xlab = "pH", ylab = Hlab)
-lapply(2:6, Hplot)
-legend("topright", legend = paste("pMg = ", 2:6), lty = 5:1, col = 5:1, cex = 0.8)
-ATP.H.Mg <- substitute("ATP and H"^`+`~"and Mg"^`+2`)
-title(main = ATP.H.Mg)
-Mgplot <- function(pH, IS = 0.25) {
-  basis("pH", pH)
-  a <- affinity(`Mg+2` = c(-2, -7), IS = IS, T = T)
-  e <- equilibrate(a)
-  d <- diagram(e, alpha = TRUE, plot.it = FALSE)
-  alphas <- do.call(rbind, d$plotvals)
-  NMg <- alphas * species()$`Mg+`
-  lines(-a$vals[[1]], colSums(NMg), lty = 10 - pH, col = 10 - pH)
-}
-Mglab <- substitute(italic(N)[Mg^`+2`])
-plot(c(2, 7), c(0, 1.2), type = "n", xlab = "pMg", ylab = Mglab)
-lapply(3:9, Mgplot)
-legend("topright", legend = paste("pH = ", 3:9), lty = 7:1, col = 7:1, cex = 0.8)
-title(main = ATP.H.Mg)
-```
-
-Note that we have saved the numeric results of <span style="color:green">`diagram()`</span>, i.e. the degrees of formation of the species (α).
-With that, we can calculate and plot the average number of protons bound per ATP molecule.
-To do so, we use R's `rbind()` and `do.call()` to turn `alpha` into a matrix, then multiply by the number of protons bound to each species, and sum the columns to get the total (i.e. average proton number, *N*<sub>H<sup>+</sup></sub>):
-```{r ATP, eval=FALSE, echo=8:11}
-```
-
-Adding the `IS` argument to <span style="color:green">`affinity()`</span>, we can now plot *N*<sub>H<sup>+</sup></sub> at the given ionic strength.
-Here we set `plot.it = FALSE` in `diagram()` because we use the computed α to make our own plot.
-This is similar to Figure 1.3 of Alberty (2003), but at higher temperature:
-```{r ATP, eval=FALSE, echo=12:17}
-```
-
-Next, we add the Mg<sup>+2</sup>-complexed ATP species:
-```{r ATP, eval=FALSE, echo=21}
-```
-
-Here is a function to calculate and plot *N*<sub>H<sup>+</sup></sub> for a given pMg:
-```{r ATP, eval=FALSE, echo=22:30}
-```
-
-With that function in hand, we plot the lines corresponding to pMg = 2 to 6.
-This is similar to Figure 1.4 of Alberty (2003):
-```{r ATP, eval=FALSE, echo=31:32}
-```
-
-The next function calculates and plots the average number of Mg<sup>+2</sup> bound to ATP (*N*<sub>Mg<sup>+2</sup></sub>) for a given pH.
-Here we multiply `alpha` by the number of Mg<sup>+2</sup> in each species, and negate log*a*<sub>Mg<sup>+2</sup></sub> (the variable used in <span style="color:green">`affinity()`</span>) to get pMg:
-```{r ATP, eval=FALSE, echo=36:44}
-```
-
-Using that function, we plot the lines corresponding to pH = 3 to 9.
-This is similar to Figure 1.5 of Alberty (2003):
-```{r ATP, eval=FALSE, echo=45:47}
-```
-
-<p>
-```{r ATP, fig.fullwidth=TRUE, fig.width=10, fig.height=2.5, dpi=ifelse(dpi==50, 50, 100), out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Binding of H<sup>+</sup> and Mg<sup>+2</sup> to ATP at 100 °C and *I* = 0 M (first plot) or *I* = 0.25 M (third and fourth plots).", cache=TRUE, pngquant=pngquant, timeit=timeit}
-```
-</p>
-
-We have calculated the distribution of ATP species and average binding number of H<sup>+</sup> and Mg<sup>+2</sup> for given pH, pMg, ionic strength, and temperature.
-Accounting for the distribution of chemical species lends itself to thermodynamic models for reactions between reactants that have multiple ionized and complexed states.
-In contrast, Alberty (2003) and others propose models for biochemical reactions where the ionized and complexed species are combined into a single representation.
-Those models invoke Legendre-transformed thermodynamic properties, such as transformed Gibbs energies that are tabulated for specified pH, pMg, and ionic strength.
-Although the conceptual pathways are different, the two approaches lead to equivalent results concerning the energetics of the overall reactions and the conditions for equilibrium [@SVI12].
-The example here shows how the required calculations can be performed at the species level using conventional standard Gibbs energies for species referenced to infinite dilution (zero ionic strength).
-The effects of ionic strength are modeled "on the fly" in CHNOSZ by setting the `IS` argument in <span style="color:green">`subcrt()`</span> or <span style="color:green">`affinity()`</span> to invoke the nonideality model on top of the standard Gibbs energies of species.
-
-## Optimization of chemical activities
+**NOTE: This is an experimental feature.**
 
 What are the conditions that minimize the standard deviation of calculated activities of species?
 What are the conditions that minimize the energetic difference between measured and calculated abundances?
@@ -1818,9 +1923,27 @@ ref <- thermo.refs(iFo)
 browseURL(ref$URL)  ## opens a link to worldcat.org
 ```
 
+## Optional data
+
+Thermodynamic properties of minerals in the default database are mostly taken from @HDNB78.
+These are identified by the state `cr`, and `cr2`, `cr3`, etc. for higher-temperature polymorphs.
+Optionally, thermodynamic properties of minerals can be calculated using the equations and dataset of @Ber88; these minerals are identified in the database by having the state `cr_Berman`.
+
+Two other optional datasets can be activated by using <span style="color:red">`add.obigt()`</span>:
+
+<span style="color:red">`add.obigt("SUPCRTBL")`</span> -- This loads updated thermodynamic parameters for aqueous SiO<sub>2</sub>, aluminum and arsenic species, and minerals, as compiled in the [SUPCRTBL package](http://www.indiana.edu/~hydrogeo/supcrtbl.html) [@ZZL_16].
+SUPCRTBL also includes modifications to SUPCRT92 for calculating thermodynamic properties of minerals using the @HP11 dataset, but that is not available in CHNOSZ.
+Instead, the Berman mineral data can be used with similar results; see [<span style="color:blue">`demo(go-IU)`</span>](../demo).
+
+<span style="color:red">`add.obigt("DEW")`</span> -- These are aqueous species, with modified parameters, that are intended for use with the [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model [@SHA14].
+You should also run <span style="color:red">`water("DEW")`</span> to activate the equations in the model; then, they will be used by <span style="color:green">`subcrt()`</span> and <span style="color:green">`affinity()`</span>.
+Examples are in [<span style="color:blue">`demo(DEW)`</span>](../demo).
+
+Detailed lists of sources for these Optional Data are in the vignette [<span style="color:blue">*Thermodynamic data in CHNOSZ*</span>](obigt.html) (look under **Solids** / **Berman**, **Optional Data** / **SUPCRTBL** and **Optional Data** / **DEW**).
+
 ## Adding data
 
-Use <span style="color:red">`add.obigt()`</span> to add data from a file to the database in the current session.
+You can also use <span style="color:red">`add.obigt()`</span> to add data from a user-specified file to the database in the current session.
 The file must be a CSV (comma separated value) file with column headers that match those in the main database.
 To show the required format, take a look at `BZA10.csv`, a supplemental data file provided in CHNOSZ.
 Missing values are indicated by `NA`:
@@ -1837,6 +1960,10 @@ read.csv(file, as.is = TRUE)
 The column names with a dot (`.`) refer to different sets of equations for calculating standard thermodynamic properties.
 Aqueous species use the revised Helgeson-Kirkham-Flowers (HKF) equations (symbols before the dot), and crystalline, gas and liquid species other than `r h2o` use a general heat capacity equation.
 See <span style="color:blue">`?thermo`</span> for details about what's in the data table, and <span style="color:blue">`?hkf`</span> and <span style="color:blue">`?cgl`</span> for information about the thermodynamic equations.
+
+Another use of <span style="color:red">`add.obigt()`</span> is to add data from the file `CHNOSZ_aq.csv`, which holds provisional updates that aren't loaded by default (i.e., using <span style="color:red">`data(thermo)`</span>).
+In this mode, only the name of the species is used as the argument.
+Currently available species are `adenine-old` and `pseudo-H4SiO4` (see [<span style="color:blue">`demo(adenine)`</span>](../demo) and the vignette, [<span style="color:blue">*Regressing thermodynamic data*</span>](eos-regress.html)).
 
 ## Modifying data
 
@@ -1903,7 +2030,7 @@ Without additional information, there is often no clear strategy for "fixing" th
 See the [Numerical Tools from GEOPIG](http://geopig.asu.edu/?q=tools) for SUPCRT updates (slop files), including corrections that have not yet been ported to CHNOSZ.
 ```
 
-## Water: SUPCRT92 or IAPWS-95
+## Water: SUPCRT92 or IAPWS-95 or DEW
 
 For calculations of the thermodynamic and dielectric properties of liquid and supercritical H<sub>2</sub>O, CHNOSZ uses a Fortran subroutine (`H2O92`) from SUPCRT92 (Johnson et al., 1992).
 Alternatively, the IAPWS-95 formulation for thermodynamic properties [@WP02] can be utilized.
@@ -1911,11 +2038,12 @@ In part because of intrinsic thermodynamic differences between SUPCRT92 and IAPW
 However, the IAPWS-95 equations are useful for other applications, and may be extrapolated to a greater range of *T* and *P* than SUPCRT.
 See <span style="color:blue">`?water`</span> for more information, as well as the last example in <span style="color:blue">`?subcrt`</span>, where uncommenting the line for the `IAPWS95` option allows extrapolation to lower temperatures for supercooled water.
 
+More recently (late 2017), an implementation of the [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model was added; see [Optional data](#optional-data) for more information.
+
 # Messages and errors
 
 As you get started writing your own code and functions that use CHNOSZ, it is not uncommon to encounter problems.
 For example, mixing data types can cause problems (the important difference between factor and character was mentioned [above](#adding-data)).
-There are many tricks to learn; becoming familiar with functions like R's `lapply()`, `rbind()`, and `do.call()` will make your programming life easier.
 
 Some functions in CHNOSZ perform "sanity checks" on the arguments and will report errors if an inconsistency is detected.
 For example, unequal lengths of variables in the transect mode of <span style="color:green">`affinity()`</span> (when the variables have more than 3 values) cause an error:
@@ -1994,21 +2122,11 @@ Some functions in CHNOSZ lie outside the main workflow described above.
 <span style="color:green">`wjd()`</span> implements a Gibbs energy minimization using the method of steepest descent described by @WJD58.
 See <span style="color:blue">`?wjd`</span> as well as the vignette, [<span style="color:blue">*Winding journey down (in Gibbs energy)*</span>](wjd.pdf).
 
-## Reaction paths (experimental feature)
-
-<span style="color:green">`transfer()`</span> offers an implementation of a reaction path model (mass transfer combined with chemical equilibrium).
-This is an experimental feature; the example in <span style="color:blue">`?transfer`</span> shows a calculated reaction path for weathering of potassium feldspar in a closed system [@HGM69; @SLS94].
-
-## Animations
-
-A few functions have been written (see <span style="color:blue">`?anim`</span>) to make GIF animations of chemical activity diagrams from a series of PNG files.
-The functions require the `convert` system command from [ImageMagick](http://www.imagemagick.org).
-
 ## Group additivity and EQ3/6 output
 
 <span style="color:green">`RH2obigt()`</span> implements a group additivity calculation of standard molal thermodynamic properties and equations of state parameters of crystalline and liquid organic molecules from @RH98.
 
-<span style="color:green">`eqdata()`</span> reads data, including concentrations of aqueous species, numbers of moles of solid phases, and mineral saturation states (affinities), from an EQ6 output file [[@Wol92]](http://www.wipp.energy.gov/library/cra/2009_cra/references/Others/Wolery_1992_EQ36_A_Software_Package_for_Geochemical_Modeling_of_Aqueous_Systems_ERMS241375.pdf).
+<span style="color:green">`eqdata()`</span> reads data, including concentrations of aqueous species, numbers of moles of solid phases, and mineral saturation states (affinities), from an EQ6 output file [@Wol92].
 
 ## NCBI taxonomy files
 
@@ -2034,6 +2152,10 @@ Thank you for reading, and have fun!
 > "As any practitioner knows, the effort of research is so tedious and time consuming that when the work stops being fun, there's no sense in continuing. The best scientists live a life of keen amusement."
 >
 > `r tufte::quote_footer('--- Stephen Jay Gould')`
+
+> "The real fun of life is this perpetual testing to realize how far out you can go with any potentialities."
+>
+> `r tufte::quote_footer('--- Richard P. Feynman')`
 
 
 # Document history

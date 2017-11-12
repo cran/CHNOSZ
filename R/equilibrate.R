@@ -2,9 +2,13 @@
 # functions to calculation logarithm of activity
 # of species in (metastable) equilibrium
 
+## if this file is interactively sourced, the following are also needed to provide unexported functions:
+#source("util.misc.R")
+#source("util.character.R")
+
 equilibrate <- function(aout, balance=NULL, loga.balance=NULL, 
   ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE,
-  method=c("boltzmann", "reaction")) {
+  method=c("boltzmann", "reaction"), tol=.Machine$double.eps^0.25) {
   ### set up calculation of equilibrium activities of species from the affinities 
   ### of their formation reactions from basis species at known activities
   ### split from diagram() 20120925 jmd
@@ -28,14 +32,25 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   nspecies <- length(aout$values)
   ## say what the balancing coefficients are
   if(length(n.balance) < 100) message(paste("equilibrate: n.balance is", c2s(n.balance)))
-  ## logarithm of total activity of the balance
+  ## logarithm of total activity of the balancing basis species
   if(is.null(loga.balance)) {
     # sum up the activities, then take absolute value
     # in case n.balance is negative
     sumact <- abs(sum(10^aout$species$logact * n.balance))
     loga.balance <- log10(sumact)
   }
-  message(paste0("equilibrate: loga.balance is ", loga.balance))
+  # make loga.balance the same length as the values of affinity
+  loga.balance <- unlist(loga.balance)
+  nvalues <- length(unlist(aout$values[[1]]))
+  if(length(loga.balance) == 1) {
+    # we have a constant loga.balance
+    message(paste0("equilibrate: loga.balance is ", loga.balance))
+    loga.balance <- rep(loga.balance, nvalues)
+  } else {
+    # we are using a variable loga.balance (supplied by the user)
+    if(!identical(length(loga.balance), nvalues)) stop("length of loga.balance (", length(loga.balance), ") doesn't match the affinity values (", nvalues, ")")
+    message(paste0("equilibrate: loga.balance has same length as affinity values (", length(loga.balance), ")"))
+  }
   ## normalize -- normalize the molar formula by the balance coefficients
   m.balance <- n.balance
   isprotein <- grepl("_", as.character(aout$species$name))
@@ -59,7 +74,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   }
   message(paste("equilibrate: using", method[1], "method"))
   if(method[1]=="boltzmann") loga.equil <- equil.boltzmann(Astar, n.balance, loga.balance)
-  else if(method[1]=="reaction") loga.equil <- equil.reaction(Astar, n.balance, loga.balance)
+  else if(method[1]=="reaction") loga.equil <- equil.reaction(Astar, n.balance, loga.balance, tol)
   ## if we normalized the formulas, get back to activities to species
   if(normalize & !as.residue) {
     loga.equil <- lapply(1:nspecies, function(i) {
@@ -94,6 +109,7 @@ equil.boltzmann <- function(Astar, n.balance, loga.balance) {
   Anames <- names(Astar)
   # first loop: make vectors
   A <- palply("", 1:length(A), function(i) as.vector(A[[i]]))
+  loga.balance <- as.vector(loga.balance)
   # second loop: get the exponentiated Astars (numerators)
   # need to convert /2.303RT to /RT
   #A[[i]] <- exp(log(10)*Astar[[i]]/n.balance[i])/n.balance[i]
@@ -103,7 +119,7 @@ equil.boltzmann <- function(Astar, n.balance, loga.balance) {
   At <- A[[1]]
   At[] <- 0
   for(i in 1:length(A)) At <- At + A[[i]]*n.balance[i]
-  # fourth loop: calculate log abundances and replace the dimensions
+  # fourth loop: calculate log abundances
   A <- palply("", 1:length(A), function(i) loga.balance + log10(A[[i]]/At))
   # fifth loop: replace dimensions
   for(i in 1:length(A)) dim(A[[i]]) <- Astardim
@@ -112,7 +128,7 @@ equil.boltzmann <- function(Astar, n.balance, loga.balance) {
   return(A)
 }
 
-equil.reaction <- function(Astar, n.balance, loga.balance) {
+equil.reaction <- function(Astar, n.balance, loga.balance, tol=.Machine$double.eps^0.25) {
   # to turn the affinities/RT (A) of formation reactions into 
   # logactivities of species (logact(things)) at metastable equilibrium
   # 20090217 extracted from diagram and renamed to abundance.old
@@ -139,6 +155,7 @@ equil.reaction <- function(Astar, n.balance, loga.balance) {
   Anames <- names(Astar)
   # make a matrix out of the list of Astar
   Astar <- list2array(lapply(Astar, c))
+  if(length(loga.balance) != nrow(Astar)) stop("length of loga.balance must be equal to the number of conditions for affinity()")
   # that produces the same result (other than colnames) and is much faster than
   #Astar <- sapply(Astar, c)  
   # also, latter has NULL nrow for length(Astar[[x]])==1
@@ -148,7 +165,7 @@ equil.reaction <- function(Astar, n.balance, loga.balance) {
   # to calculate logact(thing) from Abar for the ith condition [2]
   logactfun <- function(Abar, i) Astar[i,] - Abar * n.balance
   # to calculate difference between logafun and loga.balance for the ith condition
-  logadiff <- function(Abar, i) loga.balance - logafun(logactfun(Abar, i))
+  logadiff <- function(Abar, i) loga.balance[i] - logafun(logactfun(Abar, i))
   # to calculate a range of Abar that gives negative and positive values of logadiff for the ith condition
   Abarrange <- function(i) {
     # starting guess of Abar (min/max) from range of Astar / n.balance
@@ -206,7 +223,7 @@ equil.reaction <- function(Astar, n.balance, loga.balance) {
     # get limits of Abar where logadiff brackets zero
     Abar.range <- Abarrange(i)
     # now for the real thing: uniroot!
-    Abar <- uniroot(logadiff, interval=Abar.range, i=i)$root
+    Abar <- uniroot(logadiff, interval=Abar.range, i=i, tol=tol)$root
     return(Abar)
   }
   # calculate the logact(thing) for each condition

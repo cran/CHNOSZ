@@ -60,5 +60,5 @@ test_that("index_return provides indices for touched species", {
   # here it's "touched" (but not added or modified)
   expect_equal(species("CO2", index.return=TRUE), 1)
   expect_equal(species(c("H2O", "NH3"), index.return=TRUE), c(2, 3))
-  expect_equal(species(2, "gas", index.return=TRUE), 2)
+  expect_equal(species(1, "gas", index.return=TRUE), 1)
 })

@@ -1,164 +1,5 @@
 # CHNOSZ/util.data.R
-# add or change entries in the thermodynamic database
-
-today <- function() {
-  # write today's date in the format used in SUPCRT data files
-  # e.g. 13.May.12 for 2012-05-13
-  t <- date()
-  tt <- unlist(strsplit(t, " "))
-  # for single-digit days there is an extra space
-  tt <- tt[!tt==""]
-  tday <- tt[3]
-  tmonth <- tt[2]
-  tyear <- substr(tt[5], start=3, stop=4)
-  return(paste(tday, tmonth, tyear, sep="."))
-}
-
-mod.obigt <- function(...) {
-  # add or modify species in thermo$obigt
-  thermo <- get("thermo")
-  # the names and values are in the arguments
-  # this works for providing arguments via do.call
-  args <- list(...)
-  # this is needed if we are called with a list as the actual argument
-  if(is.list(args[[1]])) args <- args[[1]]
-  if(length(args) < 2) stop("please supply at least a species name and a property to update")
-  if(is.null(names(args))) stop("please supply named arguments")
-  # if the first argument is numeric, it's the species index
-  if(is.numeric(args[[1]][1])) {
-    ispecies <- args[[1]]
-  } else {
-    # if the name of the first argument is missing, assume it's the species name
-    if(names(args)[1]=="") names(args)[1] <- "name"
-    # search for this species, use check.protein=FALSE to avoid infinite loop when adding proteins
-    # and suppressMessages to not show messages about matches of this name to other states
-    if("state" %in% names(args)) ispecies <- suppressMessages(mapply(info.character, 
-      species=args$name, state=args$state, check.protein=FALSE, SIMPLIFY=TRUE, USE.NAMES=FALSE))
-    else ispecies <- suppressMessages(mapply(info.character, 
-      species=args$name, check.protein=FALSE, SIMPLIFY=TRUE, USE.NAMES=FALSE))
-  }
-  # the column names of thermo$obigt, split at the "."
-  cnames <- c(do.call(rbind, strsplit(colnames(thermo$obigt), ".", fixed=TRUE)), colnames(thermo$obigt))
-  # the columns we are updating
-  icol <- match(names(args), cnames)
-  if(any(is.na(icol))) stop(paste("properties not in thermo$obigt:", paste(names(args)[is.na(icol)], collapse=" ")) )
-  # the column numbers for properties that matched after the split
-  icol[icol > 40] <- icol[icol > 40] - 40
-  icol[icol > 20] <- icol[icol > 20] - 20
-  # which species are new and which are old
-  inew <- which(is.na(ispecies))
-  iold <- which(!is.na(ispecies))
-  # the arguments as data frame
-  args <- data.frame(args, stringsAsFactors=FALSE)
-  if(length(inew) > 0) {
-    # the right number of blank rows of thermo$obigt
-    newrows <- thermo$obigt[1:length(inew), ]
-    # if we don't know something it's NA
-    newrows[] <- NA
-    # put in a default state
-    newrows$state <- thermo$opt$state
-    # the formula defaults to the name
-    newrows$formula <- args$name[inew]
-    # fill in the columns
-    newrows[, icol] <- args[inew, ]
-    # now check the formulas
-    e <- tryCatch(makeup(newrows$formula), error=function(e) e)
-    if(inherits(e, "error")) {
-      warning("please supply a valid chemical formula as the species name or in the 'formula' argument")
-      # transmit the error from makeup
-      stop(e)
-    }
-    # assign to thermo$obigt
-    thermo$obigt <- rbind(thermo$obigt, newrows)
-    rownames(thermo$obigt) <- NULL
-    assign("thermo", thermo, "CHNOSZ")
-    # update ispecies
-    ntotal <- nrow(thermo$obigt)
-    ispecies[inew] <- (ntotal-length(inew)+1):ntotal
-    # inform user
-    message(paste("mod.obigt: added ", newrows$name, "(", newrows$state, ")", sep="", collapse="\n"))
-  }
-  if(length(iold) > 0) {
-    # loop over species
-    for(i in 1:length(iold)) {
-      # the old values and the state
-      oldprop <- thermo$obigt[ispecies[iold[i]], icol]
-      state <- thermo$obigt$state[ispecies[iold[i]]]
-      # tell user if they're the same, otherwise update the data entry
-      if(isTRUE(all.equal(oldprop, args[iold[i], ], check.attributes=FALSE))) 
-        message("mod.obigt: no change for ", args$name[iold[i]], "(", state, ")")
-      else {
-        thermo$obigt[ispecies[iold[i]], icol] <- args[iold[i], ]
-        assign("thermo", thermo, "CHNOSZ")
-        message("mod.obigt: updated ", args$name[iold[i]], "(", state, ")")
-      }
-    }
-  }
-  return(ispecies)
-}
-
-add.obigt <- function(file, force=FALSE, E.units="cal") {
-  # add/replace entries in thermo$obigt from values saved in a file
-  # only replace if force==TRUE
-  thermo <- get("thermo")
-  to1 <- thermo$obigt
-  id1 <- paste(to1$name,to1$state)
-  to2 <- read.csv(file,as.is=TRUE)
-  id2 <- paste(to2$name,to2$state)
-  # check if the file is compatible with thermo$obigt
-  tr <- try(rbind(to1,to2),silent=TRUE)
-  if(identical(class(tr),'try-error')) stop(paste(file,"is not compatible with thermo$obigt data table."))
-  # match the new species to existing ones
-  does.exist <- id2 %in% id1
-  ispecies.exist <- na.omit(match(id2, id1))
-  nexist <- sum(does.exist)
-  # convert from J if necessary
-  if(tolower(E.units)=="j") {
-    # loop over each row
-    for(i in 1:nrow(to2)) {
-      # GHS and EOS parameters
-      icol <- (8:18)
-      # if it's aqueous, also include omega
-      if(to2$state[i]=="aq") icol <-(8:19)
-      # don't touch volume (in column 12)
-      icol <- icol[icol!=12]
-      # convert to calories
-      to2[i,icol] <- convert(to2[i,icol],"cal")
-    }
-  }
-  # keep track of the species we've added
-  inew <- numeric()
-  if(force) {
-    # replace existing entries
-    if(nexist > 0) {
-      to1[ispecies.exist, ] <- to2[does.exist, ]
-      to2 <- to2[!does.exist, ]
-      inew <- c(inew, ispecies.exist)
-    }
-  } else {
-    # ignore any new entries that already exist
-    to2 <- to2[!does.exist, ]
-    nexist <- 0
-  }
-  # add new entries
-  if(nrow(to2) > 0) {
-    to1 <- rbind(to1, to2)
-    inew <- c(inew, (length(id1)+1):nrow(to1))
-  }
-  # commit the change
-  thermo$obigt <- to1
-  rownames(thermo$obigt) <- 1:nrow(thermo$obigt)
-  assign("thermo", thermo, "CHNOSZ")
-  # message about file, if file argument is missing (default)
-  if(missing(file)) {
-    message("add.obigt: using default file:") 
-    message(file)
-  }
-  message("add.obigt: read ", length(does.exist), " rows; made ", 
-    nexist, " replacements, ", nrow(to2), " additions, units = ", E.units)
-  message("add.obigt: use data(thermo) to restore default database")
-  return(invisible(inew))
-}
+# check entries in the thermodynamic database
 
 thermo.refs <- function(key=NULL) {
   ## return references for thermodynamic data.
@@ -315,6 +156,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
   # 20110808 jmd
   thermo <- get("thermo")
   # get calculated value based on EOS
+  Theta <- 228  # K
   if(identical(state, "aq")) {
     if(prop=="Cp") {
       # value of X consistent with IAPWS95
@@ -322,7 +164,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       # we use the value of X consistent with SUPCRT
       X <- -3.055586E-7
       refval <- eos$Cp
-      calcval <- eos$c1 + eos$c2/(298.15-thermo$opt$Theta)^2 + eos$omega*298.15*X
+      calcval <- eos$c1 + eos$c2/(298.15-Theta)^2 + eos$omega*298.15*X
       tol <- thermo$opt$Cp.tol
       units <- "cal K-1 mol-1"
     } else if(prop=="V") {
@@ -332,7 +174,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       Q <- 0.00002775729
       refval <- eos$V
       calcval <- 41.84*eos$a1 + 41.84*eos$a2/2601 + 
-        (41.84*eos$a3 + 41.84*eos$a4/2601) / (298.15-thermo$opt$Theta) - Q * eos$omega
+        (41.84*eos$a3 + 41.84*eos$a4/2601) / (298.15-Theta) - Q * eos$omega
       tol <- thermo$opt$V.tol
       units <- "cm3 mol-1"
     }
@@ -340,7 +182,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
     # all other states
     if(prop=="Cp") {
       refval <- eos$Cp
-      Tr <- thermo$opt$Tr
+      Tr <- 298.15
       calcval <- eos$a + eos$b*Tr + eos$c*Tr^-2 + eos$d*Tr^-0.5 + eos$e*Tr^2 + eos$f*Tr^eos$lambda
       tol <- thermo$opt$Cp.tol
       units <- "cal K-1 mol-1"
@@ -381,7 +223,8 @@ checkGHS <- function(ghs, ret.diff=FALSE) {
   refval <- ghs[,8]
   DH <- ghs[,9]
   S <- ghs[,10]
-  calcval <- DH - thermo$opt$Tr * (S - Se)
+  Tr <- 298.15
+  calcval <- DH - Tr * (S - Se)
   # now on to the comparison
   # calculate the difference
   diff <- calcval - refval
@@ -410,13 +253,15 @@ check.obigt <- function() {
   # 20110808 jmd replaces 'check=TRUE' argument of info()
   checkfun <- function(what) {
     # looking at thermo$obigt
-    if(what=="OBIGT") to <- get("thermo")$obigt
-    ntot <- nrow(to)
+    if(what=="OBIGT") tdata <- get("thermo")$obigt
+    else if(what=="DEW") tdata <- read.csv(system.file("extdata/OBIGT/DEW_aq.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="SUPCRTBL") tdata <- read.csv(system.file("extdata/OBIGT/SUPCRTBL.csv", package="CHNOSZ"), as.is=TRUE)
+    ntot <- nrow(tdata)
     # where to keep the results
     DCp <- DV <- DG <- rep(NA,ntot)
     # first get the aqueous species
-    isaq <- to$state=="aq"
-    eos.aq <- obigt2eos(to[isaq,],"aq")
+    isaq <- tdata$state=="aq"
+    eos.aq <- obigt2eos(tdata[isaq,],"aq")
     DCp.aq <- checkEOS(eos.aq,"aq","Cp",ret.diff=TRUE)
     DV.aq <- checkEOS(eos.aq,"aq","V",ret.diff=TRUE)
     cat(paste("check.obigt: GHS for",sum(isaq),"aq species in",what,"\n"))
@@ -427,7 +272,7 @@ check.obigt <- function() {
     DG[isaq] <- DG.aq
     # then other species, if they are present
     if(sum(!isaq) > 0) {
-      eos.cgl <- obigt2eos(to[!isaq,],"cgl")
+      eos.cgl <- obigt2eos(tdata[!isaq,],"cgl")
       DCp.cgl <- checkEOS(eos.cgl,"cgl","Cp",ret.diff=TRUE)
       cat(paste("check.obigt: GHS for",sum(!isaq),"c,g,l species in",what,"\n"))
       DG.cgl <- checkGHS(eos.cgl,ret.diff=TRUE)
@@ -435,11 +280,14 @@ check.obigt <- function() {
       DG[!isaq] <- DG.cgl
     }
     # put it all together
-    out <- data.frame(table=what,ispecies=1:ntot,name=to$name,state=to$state,DCp=DCp,DV=DV,DG=DG)
+    out <- data.frame(table=what,ispecies=1:ntot,name=tdata$name,state=tdata$state,DCp=DCp,DV=DV,DG=DG)
     return(out)
   }
-  # check OBIGT database in CHNOSZ
+  # check default database (OBIGT)
   out <- checkfun("OBIGT")
+  # check optional data
+  out <- rbind(out, checkfun("DEW"))
+  out <- rbind(out, checkfun("SUPCRTBL"))
   # set differences within a tolerance to NA
   out$DCp[abs(out$DCp) < 1] <- NA
   out$DV[abs(out$DV) < 1] <- NA

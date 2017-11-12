@@ -23,7 +23,7 @@ test_that("open-system equilibrium distributions reproduce the results of wjd()"
   # use proteins in the lipid particle (n=19)
   y <- yeastgfp("lipid.particle")
   # get the amino acid compositions of the proteins
-  aa <- more.aa(y$protein, "Sce")
+  aa <- yeast.aa(y$protein)
   # don't use those with NA abundance or sequence (leaves n=17)
   ina <- is.na(y$abundance) | is.na(aa$chains)
   aa <- aa[!ina, ]

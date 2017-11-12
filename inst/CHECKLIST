@@ -2,9 +2,6 @@
 release checklist for CHNOSZ
 ****************************
 
-- uncomment CSL line in Rmd files (commented for building on R-Forge)
-  csl: elementa.csl
-
 - compile vignettes with release version number and date
 
 - run examples() and demos() to check their output
@@ -27,13 +24,13 @@ release checklist for CHNOSZ
   try both qpdf and ghostscript to compact vignettes:
   R CMD build --compact-vignettes=both chnosz/
 
+- check reverse dependencies: ecipex and canprot packages
+
 OTHER THINGS TO CHECK:
 
 - remove all "<<-" from sources (leftover from debugging)
 
 - update list of documentation topics in examples() with any new ones
-
-- especially on Windows: anim.*() produce pngs / movies (ImageMagick dependency)?
 
 - check for stale URLs in Rd files
 
@@ -41,14 +38,7 @@ OTHER THINGS TO CHECK:
 
 - update .Rinstignore with any new/deleted files
 
-- ensure all Rd files have \keyword{...} or \concept{...}
-  - keywords used are standard R keywords: package, utilities
-  - concepts are as follows:
-    - Thermodynamic data (thermo, extdata)
-    - Primary thermodynamic modeling (commonly used functions e.g. subcrt)
-    - Secondary thermodynamic modeling (less often-used functions e.g. revisit)
-    - Extra thermodynamic modeling (out-of-workflow functions e.g. transfer)
-    - Protein thermodynamic modeling (protein-specific functions e.g. ionize.aa)
+- ensure all Rd files have \concept{...} as listed in CHNOSZ-package.Rd
 
 - although Rd files could use the \doi macro, it generates a largish (ca. 265K)
   build/partial.rdb file; just use \url for now.

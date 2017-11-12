@@ -63,8 +63,8 @@ bases <- c("SO4-2", "HSO4-", "HS-", "H2S")
 # calculate affinities using the predominant basis species
 m1 <- mosaic(bases, pH=pH, Eh=Eh, T=T)
 # make a diagram and add water stability lines
-diagram(m1$A.species, lwd=2)
-water.lines("pH", "Eh", T=convert(T, "K"), col="seagreen", lwd=1.5)
+d <- diagram(m1$A.species, lwd=2)
+water.lines(d, col="seagreen", lwd=1.5)
 # show lines for Fe(aq) = 10^-4 M
 species(c("Fe+2", "Fe+3"), -4)
 m2 <- mosaic(bases, pH=pH, Eh=Eh, T=T)
@@ -79,4 +79,4 @@ title(main=paste("Iron oxides and sulfides in water, log(total S) = -6",
   Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{http://www.worldcat.org/oclc/517586}
 }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Extended workflow}

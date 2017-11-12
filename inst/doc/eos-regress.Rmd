@@ -1,5 +1,5 @@
 ---
-title: "Regressing Thermodynamic Data"
+title: "Regressing thermodynamic data"
 subtitle: "EOSregress in [CHNOSZ](http://www.chnosz.net)"
 author: "Jeffrey M. Dick"
 date: "`r Sys.Date()`"
@@ -68,6 +68,13 @@ if (!nzchar(Sys.which("pngquant"))) {
   pngquant <- "--speed=1 --quality=0-50"
   dpi <- 72
 }
+
+## colorize messages 20171031
+## adapted from https://gist.github.com/yihui/2629886#file-knitr-color-msg-rnw
+color_block = function(color) {
+  function(x, options) sprintf('<pre style="color:%s">%s</pre>', color, x)
+}
+knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), message = color_block('blue'))
 ```
 
 
@@ -78,7 +85,7 @@ This [vignette](index.html) demonstrates <span style="color:blue">`EOSregress()`
 The CHNOSZ thermodynamic database uses the revised Helgeson-Kirkham-Flowers equations of state (EOS) for aqueous species.
 Different terms in these equations give the "non-solvation" and "solvation" contributions to the standard molal heat capacity (`r Cp0`) and volume (`r V0`) as a function of temperature (*T*) and pressure (*P*).
 
-@HKF81 published the original description of the equations; for `r Cp0` the equation is
+The equations were originally described by @HKF81; for `r Cp0` the equation is
 
 > `r Cp0` = `r c1` + `r c2` / (*T* - Θ)<sup>2</sup> + ω*TX*
 
@@ -386,13 +393,13 @@ mod.obigt("new-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
 
 We just made a new `r h4sio4` pseudospecies.
 In February 2017, the database in CHNOSZ was updated with a `pseudo-H4SiO4` that was made using this procedure.
-Data given for `r h4sio4` by @Ste01 (`H4SiO4_Ste01`) are contained in a supplemental file:
+For comparison, the parameters of `r h4sio4` given by @Ste01, which are contained in an optional data file, can be read using <span style="color:red">`add.obigt()`</span>:
 ```{r width180, include=FALSE}
 options(width = 180)
 ```
 ```{r info_H4SiO4, message=FALSE}
-add.obigt(system.file("extdata/thermo/Ste01.csv", package="CHNOSZ"))
-info(info(c("new-H4SiO4", "pseudo-H4SiO4", "H4SiO4_Ste01")))
+add.obigt("SUPCRTBL", "H4SiO4")
+info(info(c("new-H4SiO4", "pseudo-H4SiO4", "H4SiO4")))
 ```
 ```{r width80, include=FALSE}
 ```
@@ -401,21 +408,22 @@ info(info(c("new-H4SiO4", "pseudo-H4SiO4", "H4SiO4_Ste01")))
 s1 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
   xlab = axis.label("T"), ylab = axis.label("DG0"))
-s2 <- subcrt(c("H4SiO4_Ste01", "SiO2", "H2O"), c(-1, 1, 2))
+s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 lines(s2$out$T, s2$out$G, lty = 2)
 abline(h = 0, lty = 3)
 legend("topright", legend = c("pseudo-H4SiO4 (CHNOSZ)",
-  "H4SiO4_Ste01", "\t(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+  "H4SiO4 (Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 text(225, 250, describe.reaction(s1$reaction))
 ```
 
-Let's compare CHNOSZ's `pseudo-H4SiO4` (with the same properties as the `new-H4SiO4` we just made) and `H4SiO4_Ste01` from Stefánsson (2001) with the calculated properties of `r sio2` + 2 `r h2o` as a function of temperature:
+Let's compare CHNOSZ's `pseudo-H4SiO4` (with the same properties as the `new-H4SiO4` we just made) and `H4SiO4` from Stefánsson (2001) with the calculated properties of `r sio2` + 2 `r h2o` as a function of temperature:
 ```{r subcrt_H4SiO4, eval=FALSE}
 ```
 
-The large differences for `H4SiO4_Ste01` at low temperature agree with the comparison to Shock et al. (1989) shown in Figure 3 of Stefánsson (2001).
-Therefore, `H4SiO4_Ste01` should not be used _in CHNOSZ_ for making low-temperature mineral activity diagrams.
-Instead, the pseudospecies with properties calculated here, `pseudo-H4SiO4`, is preferable for use _in CHNOSZ_---see <span style="color:blue">`?transfer`</span> and <span style="color:blue">`demo(activity_ratios)`</span>.
+The large differences for `H4SiO4` at low temperature agree with the comparison to Shock et al. (1989) shown in Figure 3 of Stefánsson (2001).
+Therefore, Stefánsson's `r h4sio4` should not be used with the _default_ database in CHNOSZ for making mineral activity diagrams.
+Instead, the pseudospecies with properties calculated here, `pseudo-H4SiO4`, is preferable for use with the _default_ database in CHNOSZ---see <span style="color:blue">`?transfer`</span> and [<span style="color:blue">`demo(activity_ratios)`</span>](../demo).
+On the other hand, Stefánsson's `r h4sio4` is compatible with `r sio2` in the _optional_ SUPCRTBL data file [@ZZL_16].
 
 # Other possibilities
 

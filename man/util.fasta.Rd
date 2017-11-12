@@ -100,4 +100,4 @@ stopifnot(atest[, "A"]==3)
 }
 }
 
-\keyword{utilities}
+\concept{Protein properties}

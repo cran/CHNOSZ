@@ -10,10 +10,8 @@ fill <- "terrain"
 ## Steinmann et al., 1994 (http://ccm.geoscienceworld.org/content/42/2/197)
 ## Garrels and Christ, p. 361 (http://www.worldcat.org/oclc/517586)
 ## https://wwwbrr.cr.usgs.gov/projects/GWC_coupled/phreeqc/html/final-75.html
-# the pseudospecies H4SiO4 is used as a basis species
-# (see the vignette "Regressing thermodynamic data")
 basis(c("Al+3", "pseudo-H4SiO4", "K+", "H2O", "H+", "O2"))
-species(c("gibbsite", "muscovite", "kaolinite", "pyrophyllite", "k-feldspar"))
+species(c("gibbsite", "muscovite", "kaolinite", "pyrophyllite", "K-feldspar"))
 a <- affinity(H4SiO4 = c(-6, -2, res), `K+` = c(-3, 6, res))
 diagram(a, ylab = ratlab("K+"), fill = fill, yline = 1.7)
 title(main = syslab(c("K2O", "Al2O3", "SiO2", "H2O")))

@@ -11,9 +11,9 @@ Calculate equilibrium chemical activities of species from the affinities of form
 \usage{
   equilibrate(aout, balance=NULL, loga.balance=NULL,
     ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE,
-    method=c("boltzmann", "reaction"))
+    method=c("boltzmann", "reaction"), tol=.Machine$double.eps^0.25)
   equil.boltzmann(Astar, n.balance, loga.balance)
-  equil.reaction(Astar, n.balance, loga.balance)
+  equil.reaction(Astar, n.balance, loga.balance, tol=.Machine$double.eps^0.25)
 }
 
 \arguments{
@@ -23,9 +23,10 @@ Calculate equilibrium chemical activities of species from the affinities of form
   \item{normalize}{logical, normalize the molar formulas of species by the balancing coefficients?}
   \item{as.residue}{logical, report results for the normalized formulas?}
   \item{Astar}{numeric, affinities of formation reactions excluding species contribution}
-  \item{n.balance}{numeric, number of moles of conserved component in the formation reactions of the species of interest}
-  \item{loga.balance}{numeric, logarithm of total activity of balanced quantity}
+  \item{n.balance}{numeric, number of moles of balancing component in the formation reactions of the species of interest}
+  \item{loga.balance}{numeric (single value or vector), logarithm of total activity of balanced quantity}
   \item{method}{character, equilibration method to use}
+  \item{tol}{numeric, convergence tolerance for \code{\link{uniroot}}}
 }
 
 \details{
@@ -36,7 +37,7 @@ The equilibrium chemical activities of species are calculated using either the \
 
 \code{aout} contains the chemical affinities of formation reactions of each species of interest.
 \code{equilibrate} needs to be provided constraints on how to balance the reactions representing transformations between the species.
-\code{balance} indicates the balancing constraints, according to the following scheme:
+\code{balance} indicates the balancing component, according to the following scheme:
 
 \itemize{
   \item \samp{NULL}: autoselect
@@ -52,6 +53,7 @@ However, if all the species (as listed in code \code{aout$species}) are proteins
 NOTE: The summation of activities assumes an ideal system, so \sQuote{molality} is equivalent to \sQuote{activity} here.
 \code{loga.balance} gives the logarithm of the total activity of \code{balance} (which is total activity of species for \samp{1} or total activity of amino acid residue-equivalents for \samp{length}).
 If \code{loga.balance} is missing, its value is taken from the activities of species listed in \code{aout}; this default is usually the desired operation.
+The supplied value of \code{loga.balance} may also be a vector of values, with length corresponding to the number of conditions in the calculations of \code{\link{affinity}}.
 
 \code{normalize} if TRUE indicates to normalize the molar formulas of species by the balance coefficients.
 This operation is intended for systems of proteins, whose conventional formulas are much larger than the basis speices.
@@ -69,15 +71,13 @@ Using \code{equil.reaction} may be needed for systems with huge (negative or pos
 
 The input values to \code{equil.reaction} and \code{equil.boltzmann} are in a list, \code{Astar}, all elements of the list having the same dimensions; they can be vectors, matrices, or higher-dimensionsal arrays.
 Each list element contains the chemical affinities of the formation reactions of one of the species of interest (in dimensionless base-10 units, i.e. A/2.303RT), calculated at unit activity of the species of interest.
-The equilibrium activities (in base-10 log units) of the species of interest returned by either function satisfy the constraints that 1) the final chemical affinities of the formation reactions of the species are all equal and 2) the total activity of the conserved component is equal to (\code{loga.balance}). 
+The equilibrium base-10 logarithm activities of the species of interest returned by either function satisfy the constraints that 1) the final chemical affinities of the formation reactions of the species are all equal and 2) the total activity of the balancing component is equal to (\code{loga.balance}). 
 The first constraint does \emph{not} impose a complete equilibrium, where the affinities of the formation reactions are all equal to zero, but allows for a metastable equilibrium, where the affinities of the formation reactions are equal to each other.
 
 In \code{equil.reaction} (the algorithm described in Dick, 2008 and the only one available prior to CHNOSZ_0.8), the calculations of relative abundances of species are based on a solving a system of equations representing the two constraints stated above.
-A close approximation of the solution is found using \code{\link{uniroot}}.
-Prior to CHNOSZ_0.9-9, the values in the \code{Astar} were used to generate initial guesses of the logarithms of activities of species; values of \code{loga.balance} that were hugely different from these guesses could generate errors from \code{uniroot} such as "f() values at end points not of opposite sign".
-Now (from version 0.9-9), a more flexible method for generating guesses is in place. 
+The solution is found using \code{\link{uniroot}} with a flexible method for generating initial guesses.
 
-In \code{equil.boltzmann} (algorithm available beginning with CHNOSZ_0.8), the chemical activities of species are calculated using the Boltzmann distribution.
+In \code{equil.boltzmann}, the chemical activities of species are calculated using the Boltzmann distribution.
 This calculation is faster than the algorithm of \code{equil.reaction}, but is limited to systems where the transformations are all balanced on one mole of species.
 If \code{equil.boltzmann} is called with \code{balance} other than \samp{1}, it stops with an error.
 
@@ -105,10 +105,10 @@ species(1:3, 0)
 res <- 100
 Astar <- affinity(pH=c(0, 14, res))$values
 # the logarithms of activity for a total activity
-# of the balanced quantity (C or CO2) equal to 0.001
+# of the balancing component (CO2) equal to 0.001
 loga.boltz <- equil.boltzmann(Astar, c(1, 1, 1), 0.001)
 # calculated another way
-loga.react <- equil.reaction(Astar, c(1, 1, 1), 0.001)
+loga.react <- equil.reaction(Astar, c(1, 1, 1), rep(0.001, 100))
 # probably close enough for most purposes
 stopifnot(all.equal(loga.boltz, loga.react))
 # the first ionization constant (pKa)
@@ -124,4 +124,4 @@ stopifnot(all.equal(pKa.equil, -logK, tolerance=1e-2))
   Dick, J. M. (2008) Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.} \bold{9}:10. \url{https://doi.org/10.1186/1467-4866-9-10}
 }
 
-\concept{Primary thermodynamic modeling}
+\concept{Main workflow}

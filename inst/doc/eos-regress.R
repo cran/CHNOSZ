@@ -41,6 +41,13 @@ if (!nzchar(Sys.which("pngquant"))) {
   dpi <- 72
 }
 
+## colorize messages 20171031
+## adapted from https://gist.github.com/yihui/2629886#file-knitr-color-msg-rnw
+color_block = function(color) {
+  function(x, options) sprintf('<pre style="color:%s">%s</pre>', color, x)
+}
+knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), message = color_block('blue'))
+
 ## ----library_CHNOSZ-----------------------------------------------------------
 library(CHNOSZ)
 data(thermo)
@@ -223,8 +230,8 @@ mod.obigt("new-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
 options(width = 180)
 
 ## ----info_H4SiO4, message=FALSE---------------------------------------------------------------------------------------------------------------------------------------------------
-add.obigt(system.file("extdata/thermo/Ste01.csv", package="CHNOSZ"))
-info(info(c("new-H4SiO4", "pseudo-H4SiO4", "H4SiO4_Ste01")))
+add.obigt("SUPCRTBL", "H4SiO4")
+info(info(c("new-H4SiO4", "pseudo-H4SiO4", "H4SiO4")))
 
 ## ----width80, include=FALSE---------------------------------------------------
 options(width = 80)
@@ -233,21 +240,21 @@ options(width = 80)
 s1 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
   xlab = axis.label("T"), ylab = axis.label("DG0"))
-s2 <- subcrt(c("H4SiO4_Ste01", "SiO2", "H2O"), c(-1, 1, 2))
+s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 lines(s2$out$T, s2$out$G, lty = 2)
 abline(h = 0, lty = 3)
 legend("topright", legend = c("pseudo-H4SiO4 (CHNOSZ)",
-  "H4SiO4_Ste01", "\t(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+  "H4SiO4 (Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 text(225, 250, describe.reaction(s1$reaction))
 
 ## ----subcrt_H4SiO4, eval=FALSE------------------------------------------------
 #  s1 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 #  plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
 #    xlab = axis.label("T"), ylab = axis.label("DG0"))
-#  s2 <- subcrt(c("H4SiO4_Ste01", "SiO2", "H2O"), c(-1, 1, 2))
+#  s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 #  lines(s2$out$T, s2$out$G, lty = 2)
 #  abline(h = 0, lty = 3)
 #  legend("topright", legend = c("pseudo-H4SiO4 (CHNOSZ)",
-#    "H4SiO4_Ste01", "\t(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+#    "H4SiO4 (Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 #  text(225, 250, describe.reaction(s1$reaction))
 

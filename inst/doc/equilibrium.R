@@ -96,7 +96,7 @@ label.figure("A", col="blue", yfrac=0.9, xfrac=0.1)
 # figure B
 st <- system.time(dB <- aaB())
 showtime(st)
-title(main=paste("loga(total species) =", round(dB$loga.balance, 2)), cex.main=1)
+title(main=paste("loga(total species) =", round(dB$loga.balance[1], 2)), cex.main=1)
 label.figure("B", col="blue", yfrac=0.9, xfrac=0.1)
 
 ## row 2 (balance = nCO2)
@@ -112,7 +112,7 @@ label.figure("C", col="blue", yfrac=0.9, xfrac=0.1)
 # figure D
 st <- system.time(dD <- aaD())
 showtime(st)
-title(main=paste("loga(total CO2) =", round(dD$loga.balance, 2)), cex.main=1)
+title(main=paste("loga(total CO2) =", round(dD$loga.balance[1], 2)), cex.main=1)
 label.figure("D", col="blue", yfrac=0.9, xfrac=0.1)
 
 ## right (speciation at different total activity of CO2)
@@ -123,12 +123,12 @@ par(xpd=FALSE)
 # figure E
 st <- system.time(dE <- aaE())
 showtime(st)
-title(main=paste("loga(total CO2) =", round(dE$loga.balance, 2)), cex.main=1)
+title(main=paste("loga(total CO2) =", round(dE$loga.balance[1], 2)), cex.main=1)
 label.figure("E", col="blue", yfrac=0.9, xfrac=0.1)
 # figure F
 st <- system.time(dF <- aaF())
 showtime(st)
-title(main=paste("loga(total CO2) =", round(dF$loga.balance, 2)), cex.main=1)
+title(main=paste("loga(total CO2) =", round(dF$loga.balance[1], 2)), cex.main=1)
 label.figure("F", col="blue", yfrac=0.9, xfrac=0.1)
 
 
@@ -247,7 +247,7 @@ for(loga in c(-1, 0, -2, -3)) {
   iCu <- which(d$predominant == 1, arr.ind=TRUE)
   text(a$vals[[1]][max(iCu[, 1])] - 0.03, a$vals[[2]][min(iCu[, 2])] + 0.2, adj=1, loga)
 }
-water.lines()
+water.lines(d)
 
 
 ## ----glutathione, results="hide", message=FALSE, fig.width=5, fig.height=4---------
@@ -305,11 +305,11 @@ a <- affinity(O2=c(-100, -65))
 layout(matrix(1:2), heights=c(1, 2))
 e <- equilibrate(a)
 diagram(e, ylim=c(-2.8, -1.6), names=organisms)
-water.lines(xaxis="O2")
+water.lines(e)
 title(main="Equilibrium activities of proteins, normalize = FALSE")
 e <- equilibrate(a, normalize=TRUE)
 diagram(e, ylim=c(-4, -2), names=organisms)
-water.lines(xaxis="O2")
+water.lines(e)
 title(main="Equilibrium activities of proteins, normalize = TRUE")
 
 ## ----SulfurSpeciation, results="hide", message=FALSE, fig.width=6, fig.height=5.5----
@@ -323,7 +323,7 @@ lty <- 1:4
 for(normalize in c(FALSE, TRUE)) {
   e <- equilibrate(a, loga.balance=-2, normalize=normalize)
   diagram(e, ylim=c(-30, 0), legend.x=NULL, col=col, lty=lty)
-  water.lines(xaxis="O2", T=convert(325, "K"))
+  water.lines(e)
   title(main=paste("Aqueous sulfur speciation, normalize =", normalize))
 }
 par(mar=c(0, 0, 0, 0))

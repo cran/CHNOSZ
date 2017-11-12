@@ -18,10 +18,8 @@ info <- function(species=NULL, state=NULL, check.it=TRUE) {
       nrow(thermo$element), ", buffers: ", length(unique(thermo$buffers$name)), sep=""))
     message(paste("number of proteins in thermo$protein is", nrow(thermo$protein), "from",
       length(unique(thermo$protein$organism)), "organisms"))
-    # print information about SGD.csv, ECO.csv, HUM.csv
-    more.aa(organism="Sce")
-    more.aa(organism="Eco")
-    #pdata.aa(organism="HUM")
+    # print information about Sce.csv
+    yeast.aa()
     # print information about yeastgfp.csv
     yeastgfp()
     return()
@@ -81,9 +79,8 @@ info.character <- function(species, state=NULL, check.protein=TRUE) {
   # a match to thermo$obigt$state is also required if 'state' is not NULL
   # (first occurence of a match to species is returned otherwise)
   thermo <- get("thermo")
-  # all matches for the species
-  matches.species <- thermo$obigt$name==species | 
-    thermo$obigt$abbrv==species | thermo$obigt$formula==species
+  # find matches for species name, abbreviation or formula
+  matches.species <- thermo$obigt$name==species | thermo$obigt$abbrv==species | thermo$obigt$formula==species
   # since thermo$obigt$abbrv contains NAs, convert NA results to FALSE
   matches.species[is.na(matches.species)] <- FALSE
   # turn it in to no match if it's a protein in the wrong state
@@ -115,7 +112,7 @@ info.character <- function(species, state=NULL, check.protein=TRUE) {
     # special treatment for H2O: aq retrieves the liq
     if(species %in% c("H2O", "water") & state=="aq") state <- "liq"
     # the matches for both species and state
-    matches.state <- matches.species & grepl(state, get("thermo")$obigt$state)
+    matches.state <- matches.species & state == thermo$obigt$state
     if(!any(matches.state)) {
       # the requested state is not available for this species
       available.states <- thermo$obigt$state[matches.species]
@@ -128,17 +125,36 @@ info.character <- function(species, state=NULL, check.protein=TRUE) {
     matches.species <- matches.state
   }
   # all of the species that match
-  ispecies <- which(matches.species)
-  # we return only the first species that matches
-  # unless they are 'cr1' 'cr2' etc. and we requested state 'cr'
-  if(identical(state, "cr")) ispecies.out <- ispecies
-  else ispecies.out <- ispecies[1]
-  # let user know if there is more than one state for this species
-  if(length(ispecies) > length(ispecies.out)) {
+  ispecies.out <- ispecies <- which(matches.species)
+  # processing for more than one match
+  if(length(ispecies) > 1) {
+    # if a single name matches, use that one (useful for distinguishing pseudo-H4SiO4 and H4SiO4) 20171020
+    matches.name <- matches.species & thermo$obigt$name==species
+    if(sum(matches.name)==1) ispecies.out <- which(matches.name)
+    else {
+      # prefer the Berman minerals?
+      if(thermo$opt$Berman & "cr_Berman" %in% thermo$obigt$state[ispecies]) ispecies.out <- ispecies[thermo$obigt$state[ispecies]=="cr_Berman"]
+      else ispecies.out <- ispecies[1]  # otherwise, return only the first species that matches
+    }
+    # let user know if there is more than one state for this species
+    mystate <- thermo$obigt$state[ispecies.out]
     ispecies.other <- ispecies[!ispecies %in% ispecies.out]
-    othertext <- paste(thermo$obigt$state[ispecies.other], collapse=", ")
-    message("info.character: found ", species, "(", thermo$obigt$state[ispecies.out], 
-      "), also available in ", othertext)
+    otherstates <- thermo$obigt$state[ispecies.other]
+    transtext <- othertext <- ""
+    # we count, but don't show the states for phase transitions (cr2, cr3, etc)
+    istrans <- otherstates %in% c("cr2", "cr3", "cr4", "cr5", "cr6", "cr7", "cr8", "cr9")
+    if(mystate=="cr") {
+      # if we are "cr" we show the number of phase transitions
+      ntrans <- sum(istrans)
+      if(ntrans == 1) transtext <- paste(" with", ntrans, "phase transition")
+      else if(ntrans > 1) transtext <- paste(" with", ntrans, "phase transitions")
+    }
+    otherstates <- otherstates[!istrans]
+    if(length(otherstates) > 0) othertext <- paste0(", also available in ", paste(otherstates, collapse=", "))
+    if(transtext != "" | othertext != "") {
+      starttext <- paste0("info.character: found ", species, "(", mystate, ")")
+      message(starttext, transtext, othertext)
+    }
   }
   return(ispecies.out)
 }
@@ -162,19 +178,19 @@ info.numeric <- function(ispecies, check.it=TRUE) {
   # use new obigt2eos function here
   this <- obigt2eos(this, this$state)
   # identify any missing GHS values
-  naGHS <- which(is.na(this[8:10]))
+  naGHS <- is.na(this[8:10])
   # a missing one of G, H or S can cause problems for subcrt calculations at high T
-  if(length(naGHS)==1) {
+  if(sum(naGHS)==1) {
     # calculate a single missing one of G, H, or S from the others
     GHS <- as.numeric(GHS(as.character(this$formula), G=this[,8], H=this[,9], S=this[,10]))
     message("info.numeric: ", colnames(this)[8:10][naGHS], " of ",
       this$name, "(", this$state, ") is NA; set to ", round(GHS[naGHS],2))
-    this[, naGHS+7] <- GHS[naGHS]
+    this[, which(naGHS)+7] <- GHS[naGHS]
   } 
   # now perform consistency checks for GHS and EOS parameters if check.it=TRUE
   if(check.it) {
     # check GHS if they were all present
-    if(length(naGHS)==0) calcG <- checkGHS(this)
+    if(sum(naGHS)==0) calcG <- checkGHS(this)
     # check tabulated heat capacities against EOS parameters
     calcCp <- checkEOS(this, this$state, "Cp")
     # fill in NA heat capacity

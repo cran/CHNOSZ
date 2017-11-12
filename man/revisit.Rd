@@ -99,13 +99,13 @@ a <- affinity(O2=c(-80, -60))
 e <- equilibrate(a)
 # make a plot
 r <- revisit(e, "count", -5)
-title(main="amino acids with metastable log activities > -5")
+title(main="Amino acids with metastable log activities > -5")
 
 # can also make a 2-D plot
 a <- affinity(O2=c(-74, -60, 25), H2O=c(-3, 3, 25))
 e <- equilibrate(a)
 r <- revisit(e, "count", -5, style.2D="image", plot.optval=FALSE)
-title(main="amino acids with metastable log activities > -5")
+title(main="Amino acids with metastable log activities > -5")
 
 ## 'revisit' calculations for amino acids
 opar <- par(mfrow=c(2, 2))
@@ -151,4 +151,4 @@ mtitle(c(t1, as.expression(t2)))
 par(opar)
 }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Extended workflow}

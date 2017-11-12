@@ -2,62 +2,61 @@
 # calculate thermodynamic and electrostatic properties of H2O
 # 20061016 jmd
 
-water <- function(property = NULL, T = get("thermo")$opt$Tr, P = "Psat") {
+water <- function(property = NULL, T = 298.15, P = "Psat") {
   # calculate the properties of liquid H2O as a function of T and P
   # T in Kelvin, P in bar
-  if(is.null(property)) stop('property was NULL')
+  if(is.null(property)) return(get("thermo")$opt$water)
+  # set water option
+  if(length(property)==1 & any(property %in% c("SUPCRT", "SUPCRT92", "IAPWS", "IAPWS95", "DEW"))) {
+    thermo <- get("thermo")
+    oldwat <- thermo$opt$water
+    thermo$opt$water <- property
+    assign("thermo", thermo, "CHNOSZ")
+    message(paste("water: setting thermo$opt$water to", property))
+    return(invisible(oldwat))
+  }
   # make T and P equal length
   if(!identical(P, "Psat")) {
     if(length(P) < length(T)) P <- rep(P, length.out = length(T))
     else if(length(T) < length(P)) T <- rep(T, length.out = length(P))
   }
-  # turn 273.15 K to 273.16 K (needed for water.SUPCRT92 at Psat)
-  T[T == 273.15] <- 273.16
-  # this tells us to do the calculations using code taken from SUPCRT
-  do.supcrt <- get("thermo")$opt$water != "IAPWS95"
-  if(do.supcrt) {
-    # get the values of the properties using SUPCRT92
+  wopt <- get("thermo")$opt$water
+  if(grepl("SUPCRT", wopt)) {
+    # change 273.15 K to 273.16 K (needed for water.SUPCRT92 at Psat)
+    if(identical(P, "Psat")) T[T == 273.15] <- 273.16
+    # get properties using SUPCRT92
     w.out <- water.SUPCRT92(property, T, P)
-    return(w.out)
-  } else {
-    # here we get properties using IAPWS-95 
-    w.out <- water.IAPWS95(property, T, P)
-    # normalize the names to use upper case (expected by subcrt())
-    iprop <- match(tolower(property), tolower(water.props("IAPWS95")))
-    colnames(w.out) <- water.props("IAPWS95")[iprop]
-    return(w.out)
   }
+  if(grepl("IAPWS", wopt)) {
+    # get properties using IAPWS-95 
+    w.out <- water.IAPWS95(property, T, P)
+  }
+  if(grepl("DEW", wopt)) {
+    # use the Deep Earth Water (DEW) model
+    w.out <- water.DEW(property, T, P)
+  }
+  w.out
 }
 
-water.props <- function(formulation=get("thermo")$opt$water) {
-  # return the names of properties that are available in SUPCRT92 or IAPWS95
-  # added 20130212 jmd
-  if(formulation=="SUPCRT92")
-    props <- c("A", "G", "S", "U", "H", "Cv", "Cp",
-    "Speed", "alpha", "beta", "diel", "visc",
-    "tcond", "surten", "tdiff", "Prndtl", "visck", "albe",
-    "ZBorn", "YBorn", "QBorn", "daldT", "XBorn",
-    "V", "rho", "Psat", "E", "kT")
-  else if(formulation=="IAPWS95")
-    props <- c("A", "G", "S", "U", "H", "Cv", "Cp",
-    "Speed", "diel",
-    "YBorn", "QBorn", "XBorn", "NBorn", "UBorn",
-    "V", "rho", "Psat", "de.dT", "de.dP", "P")
-  return(props)
-}
-
-water.SUPCRT92 <- function(property, T=298.15, P=1) {
+water.SUPCRT92 <- function(property=NULL, T=298.15, P=1) {
   ### interface to H2O92D.f : FORTRAN subroutine taken from 
   ### SUPCRT92 for calculating the thermodynamic and 
   ### electrostatic properties of H2O. 
   ## we restrict the calculations to liquid water
   ## except for getting Psat (vapor-liquid saturation 
   ## pressure as a function of T>100 C). 20071213 jmd
+  available_properties <- c("A", "G", "S", "U", "H", "Cv", "Cp",
+    "Speed", "alpha", "beta", "epsilon", "visc",
+    "tcond", "surten", "tdiff", "Prndtl", "visck", "albe",
+    "ZBorn", "YBorn", "QBorn", "daldT", "XBorn",
+    "V", "rho", "Psat", "E", "kT",
+    "A_DH", "B_DH")
+  if(is.null(property)) return(available_properties)
   # check for availability of properties
-  iprop <- match(tolower(property), tolower(water.props("SUPCRT92")))
+  iprop <- match(property, available_properties)
   if(any(is.na(iprop))) stop(paste("property(s) not available:", paste(property[is.na(iprop)], collapse=" ")))
   # make sure Psat in properties comes with isat=1
-  if("psat" %in% tolower(property) & !identical(P, "Psat")) stop("please set P='Psat' to calculate the property Psat")
+  if("Psat" %in% property & !identical(P, "Psat")) stop("please set P='Psat' to calculate the property Psat")
   # for Psat(T) (1) or T-P (2)
   if(identical(P, "Psat")) iopt <- 1 else iopt <- 2
   if(identical(P, "Psat")) isat <- 1 else isat <- 0
@@ -114,7 +113,7 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
   # convert output to dataframe
   w.out <- as.data.frame(w.out)
   # add names of properties to the output
-  names(w.out) <- water.props("SUPCRT92")[1:23]
+  names(w.out) <- available_properties[1:23]
   # assemble additional properties: V, rho, Psat, E, kT
   if(any(iprop > 23)) {
     mwH2O <- 18.0152 # SUP92.f
@@ -123,7 +122,12 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
     Psat=P.out
     E <- V*w.out$alpha
     kT <- V*w.out$beta
-    w.out <- cbind(w.out, data.frame(V=V, rho=rho, Psat=Psat, E=E, kT=kT))
+    # A and B parameters in Debye-Huckel equation:
+    # Helgeson (1969) doi:10.2475/ajs.267.7.729
+    # Manning (2013) doi:10.2138/rmg.2013.76.5
+    A_DH <- 1.8246e6 * rho.out^0.5 / (w.out$epsilon * T)^1.5
+    B_DH <- 50.29e8 * rho.out^0.5 / (w.out$epsilon * T)^0.5
+    w.out <- cbind(w.out, data.frame(V=V, rho=rho, Psat=Psat, E=E, kT=kT, A_DH=A_DH, B_DH=B_DH))
   }
   # tell the user about any problems
   if(any(err.out==1)) {
@@ -141,52 +145,59 @@ water.SUPCRT92 <- function(property, T=298.15, P=1) {
   return(w.out[, iprop, drop=FALSE])
 }
 
-water.IAPWS95 <- function(property, T=298.15, P=1) {
+water.IAPWS95 <- function(property=NULL, T=298.15, P=1) {
+  available_properties <- c("A", "G", "S", "U", "H", "Cv", "Cp",
+    "Speed", "epsilon",
+    "YBorn", "QBorn", "XBorn", "NBorn", "UBorn",
+    "V", "rho", "Psat", "de.dT", "de.dP", "pressure",
+    "A_DH", "B_DH")
+  if(is.null(property)) return(available_properties) 
   # to get the properties of water via IAPWS-95
   message(paste("water.IAPWS95: calculating", length(T), "values for"), appendLF=FALSE)
   M <- 18.015268 # g mol-1
-  v <- function() return(M*1000/my.rho)
+  V <- function() return(M*1000/my.rho)
   # Psat stuff
-  psat <- function() {
-    p <- WP02.auxiliary("P.sigma", T)
-    p[T < 373.124] <- 0.1
-    return(convert(p, "bar"))
+  Psat <- function() {
+    P <- WP02.auxiliary("P.sigma", T)
+    P[T < 373.124] <- 0.1
+    return(convert(P, "bar"))
   }
   ## thermodynamic properties
+  Tr <- 298.15
   # convert to SUPCRT reference state
   # at the triple point
   # I2S = SUPCRT - IAPWS ( + entropy in G )
   dH <- -68316.76 - 451.75437
   dS <- 16.7123 - 1.581072
-  dG <- -56687.71 + 19.64228 - dS * (T - get("thermo")$opt$Tr)
+  dG <- -56687.71 + 19.64228 - dS * (T - Tr)
   # does the reference state used for GHS also go here?
   dU <- -67434.5 - 451.3229
-  dA <- -55814.06 + 20.07376 - dS * (T - get("thermo")$opt$Tr)
+  dA <- -55814.06 + 20.07376 - dS * (T - Tr)
   # calculate pressure from the given T and estimated rho
-  p <- function() return(convert(IAPWS95("p", T=T, rho=my.rho), "bar"))
+  pressure <- function() return(convert(IAPWS95("p", T=T, rho=my.rho), "bar"))
   # convert IAPWS95() (specific, joule) to (molar, cal) 
-  s <- function()
+  S <- function()
     return(convert(IAPWS95('s',T=T,rho=my.rho)$s*M,'cal')+dS) 
   # u (internal energy) is not here because the letter
   # is used to denote one of the Born functions
   # scratch that! let's put u here and call the other one uborn
-  u <- function()
+  U <- function()
     return(convert(IAPWS95('u',T=T,rho=my.rho)$u*M,'cal')+dU)
-  a <- function()
+  A <- function()
     return(convert(IAPWS95('a',T=T,rho=my.rho)$a*M,'cal')+dA)
-  h <- function() 
+  H <- function() 
     return(convert(IAPWS95('h',T=T,rho=my.rho)$h*M,'cal')+dH) 
-  g <- function() 
+  G <- function() 
     return(convert(IAPWS95('g',T=T,rho=my.rho)$g*M,'cal')+dG) 
-  cv <- function() 
+  Cv <- function() 
     return(convert(IAPWS95('cv',T=T,rho=my.rho)$cv*M,'cal')) 
-  cp <- function() 
+  Cp <- function() 
     return(convert(IAPWS95('cp',T=T,rho=my.rho)$cp*M,'cal')) 
-  speed <- function()
+  Speed <- function()
     return(IAPWS95('w',T=T,rho=my.rho)$w*100) # to cm/s
   ## electrostatic properties
-  diel <- function() return(water.AW90(T=T,rho=my.rho,P=convert(P,'MPa')))
-  de.dt <- function() {
+  epsilon <- function() return(water.AW90(T=T,rho=my.rho,P=convert(P,'MPa')))
+  de.dT <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]
@@ -199,7 +210,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     }
     return(p)
   }
-  de.dp <- function() {
+  de.dP <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]
@@ -213,7 +224,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     return(p)
   }
   ## Born functions
-  qborn <- function() {
+  QBorn <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]; this.P <- P[i]; this.rho <- my.rho[i]
@@ -225,7 +236,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     }
     return(p)
   }
-  nborn <- function() {
+  NBorn <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]; this.P <- P[i]; this.rho <- my.rho[i]
@@ -237,7 +248,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     }
     return(p)
   }
-  yborn <- function() {
+  YBorn <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]; this.P <- P[i]; this.rho <- my.rho[i]
@@ -248,7 +259,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     }
     return(p)
   }
-  xborn <- function() {
+  XBorn <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]; this.P <- P[i]; this.rho <- my.rho[i]
@@ -259,7 +270,7 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     }
     return(p)
   }
-  uborn <- function() {
+  UBorn <- function() {
     p <- numeric()
     for(i in 1:length(T)) {
       this.T <- T[i]; this.P <- P[i]; this.rho <- my.rho[i]
@@ -278,28 +289,87 @@ water.IAPWS95 <- function(property, T=298.15, P=1) {
     return(p)
   }
   ### main loop; init dataframe output and density holders
-  w.out <- NULL
+  w.out <- data.frame(matrix(nrow=length(T), ncol=length(property)))
   my.rho <- NULL
   # get densities unless only Psat is requested
-  if(!identical(tolower(property), "psat")) {
+  if(!identical(property, "Psat")) {
     # calculate values of P for Psat
-    if(identical(P, "Psat")) P <- psat()
+    if(identical(P, "Psat")) P <- Psat()
     message(" rho", appendLF=FALSE)
     my.rho <- rho.IAPWS95(T, P, get("thermo")$opt$IAPWS.sat)
     rho <- function() my.rho
   }
+  # get epsilon and A_DH, B_DH (so we calculate epsilon only once)
+  if(any(property %in% c("epsilon", "A_DH", "B_DH"))) {
+    my.epsilon <- epsilon()
+    epsilon <- function() my.epsilon
+    A_DH <- function() 1.8246e6 * (my.rho/1000)^0.5 / (my.epsilon * T)^1.5
+    B_DH <- function() 50.29e8 * (my.rho/1000)^0.5 / (my.epsilon * T)^0.5
+  }
   for(i in 1:length(property)) {
-    if(tolower(property[i]) %in% c("e", "kt")) {
+    if(property[i] %in% c("E", "kT", "alpha", "daldT", "beta")) {
       # E and kT aren't here yet... set them to NA
-      warning("water.IAPWS95: values of ", property[i], " are NA\n", call.=FALSE)
-      inew <- rep(NA, length(T))
+      # also set alpha, daldT, and beta (for derivatives of g function) to NA 20170926 
+      warning("water.IAPWS95: values of ", property[i], " are NA", call.=FALSE)
+      wnew <- rep(NA, length(T))
     } else {
       message(paste(" ", property[i], sep=""), appendLF=FALSE)
-      inew <- get(tolower(property[i]))()
+      wnew <- get(property[i])()
     }
-    wnew <- data.frame(inew)
-    if(i > 1) w.out <- cbind(w.out, wnew) else w.out <- wnew
+    w.out[, i] <- wnew
   }  
   message("")
+  # include properties available in SUPCRT that might be NA here
+  wprop <- unique(c(water.SUPCRT92(), available_properties))
+  iprop <- match(property, wprop)
+  property[!is.na(iprop)] <- wprop[na.omit(iprop)]
+  colnames(w.out) <- property
   return(w.out)
+}
+
+# get water properties from DEW model for use by subcrt() 20170925
+water.DEW <- function(property = NULL, T = 373.15, P = 1000) {
+  available_properties <- c("G", "epsilon", "QBorn", "V", "rho", "beta", "A_DH", "B_DH")
+  if(is.null(property)) return(available_properties)
+  # we can't use Psat here
+  if(identical(P, "Psat")) stop("Psat isn't supported in this implementation of the DEW model. Try setting P to at least 1000 bar.")
+  # use uppercase property names (including H, S, etc., so we get them from the SUPCRT properties)
+  wprop <- water.SUPCRT92()
+  iprop <- match(property, wprop)
+  property[!is.na(iprop)] <- wprop[na.omit(iprop)]
+  # convert temperature units
+  pressure <- P
+  temperature <- convert(T, "C")
+  # initialize output data frame with NA for all properties and conditions
+  ncond <- max(length(T), length(P))
+  out <- matrix(NA, ncol=length(property), nrow=ncond)
+  out <- as.data.frame(out)
+  colnames(out) <- property
+  # calculate rho and epsilon if they're needed for any other properties
+  if(any(c("rho", "V", "QBorn", "epsilon", "beta", "A_DH", "B_DH") %in% property)) rho <- calculateDensity(pressure, temperature)
+  if(any(c("epsilon", "A_DH", "B_DH") %in% property)) epsilon <- calculateEpsilon(rho, temperature)
+  # fill in columns with values
+  if("rho" %in% property) out$rho <- rho*1000 # use kg/m^3 (like SUPCRT)
+  if("V" %in% property) out$V <- 18.01528/rho
+  if("G" %in% property) out$G <- calculateGibbsOfWater(pressure, temperature)
+  if("QBorn" %in% property) out$QBorn <- calculateQ(rho, temperature)
+  if("epsilon" %in% property) out$epsilon <- epsilon
+  # divide drhodP by rho to get units of bar^-1
+  if("beta" %in% property) out$beta <- calculate_drhodP(rho, temperature) / rho
+  if("A_DH" %in% property) out$A_DH <- 1.8246e6 * rho^0.5 / (epsilon * T)^1.5
+  if("B_DH" %in% property) out$B_DH <- 50.29e8 * rho^0.5 / (epsilon * T)^0.5
+  # use SUPCRT-calculated values below 100 degC and/or below 1000 bar
+  ilow <- T < 373.15 | P < 1000
+  if(any(ilow)) {
+    out[ilow, ] <- water.SUPCRT92(property, T=T[ilow], P=P[ilow])
+    iPrTr <- T == 298.15 & P == 1
+    if(sum(iPrTr)==sum(ilow)) message(paste("water.DEW: using SUPCRT calculations for Pr,Tr"))
+    if(sum(iPrTr)==0) message(paste("water.DEW: using SUPCRT calculations for", sum(ilow), "low-T or low-P condition(s)"))
+    if(sum(iPrTr)==1 & sum(ilow) > sum(iPrTr)) message(paste("water.DEW: using SUPCRT calculations for Pr,Tr and", sum(ilow)-1, "other low-T or low-P condition(s)"))
+    # however, we also have this:
+    # epsilon(Pr,Tr) from SUPCRT: 78.24514
+    # epsilon(Pr,Tr) in DEW spreadsheet: 78.47
+    if("epsilon" %in% property) out$epsilon[iPrTr] <- 78.47
+  }
+  out
 }

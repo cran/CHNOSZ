@@ -155,6 +155,7 @@ test_that("IS can be constant or variable", {
   # ...
   # Error in subcrt(species = c(1017L, 20L, 19L), property = "logK", T = 298.15,  : 
   #   formal argument "IS" matched by multiple actual arguments
+  oldnon <- nonideal("Alberty")
   basis("CHNOPS+")
   species(c("PO4-3", "HPO4-2", "H2PO4-"))
   a0 <- affinity()
@@ -162,4 +163,5 @@ test_that("IS can be constant or variable", {
   a2 <- affinity(IS=c(0, 0.14))
   expect_equal(unlist(lapply(a2$values, head, 1)), unlist(a0$values))
   expect_equal(unlist(lapply(a2$values, tail, 1)), unlist(a1$values))
+  nonideal(oldnon)
 })

@@ -17,7 +17,7 @@ Calculate the standard molal entropy of elements in a compound; calculate the st
   as.chemical.formula(makeup, drop.zero = TRUE)
   mass(formula)
   entropy(formula)
-  GHS(formula, G = NA, H = NA, S = NA, T = get("thermo")$opt$Tr)
+  GHS(formula, G = NA, H = NA, S = NA, T = 298.15)
   ZC(formula)
   i2A(formula)
 }
@@ -46,7 +46,7 @@ If the formula is uncharged, and the last element has a negative coefficient, +0
 The remaining functions documented here accept vectors of chemical formulas, species indices, or a mixture of both, or stoichiometric matrices with elements on the columns.
 
 \code{mass} and \code{entropy} return the sums of masses or entropies of elements in each of the \code{formula}s.
-The masses are calculated using the masses of the elements in their natural isotopic distribution, and the entropies, in cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1}, are calculated using the entropies of the compounds of the pure elements in their stable states at 25 \eqn{^{\circ}}{°}C and 1 bar.
+The masses are calculated using the masses of the elements in their natural isotopic distribution, and the entropies, in cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1}, are calculated using the entropies of the compounds of the pure elements in their stable states at 25 \degC and 1 bar.
 The properties of the elements used by this function are taken from \code{\link{thermo}$element}.
 
 \code{GHS} computes one of the standard molal Gibbs energy or enthalpy of formation from the elements, or standard molal entropy, from values of the other two.
@@ -112,4 +112,4 @@ range(ZC(pf), na.rm=TRUE)
   Dick, J. M. and Shock, E. L. (2011) Calculation of the relative chemical stabilities of proteins as a function of temperature and redox chemistry in a hot spring. \emph{PLoS ONE} \bold{6}, e22782. \url{https://doi.org/10.1371/journal.pone.0022782}
 }
 
-\keyword{utilities}
+\concept{Thermodynamic calculations}

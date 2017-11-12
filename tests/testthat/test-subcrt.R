@@ -3,74 +3,40 @@ context("subcrt")
 # delete the basis definition in case there is one
 basis(delete=TRUE)
 
-test_that("unbalanced reactions give a warning", {
+test_that("unbalanced reactions give a warning or are balanced given sufficient basis species", {
   expect_warning(subcrt(c("glucose", "ethanol"), c(-1, 3)), "reaction was unbalanced, missing H-6O3")
-})
-
-test_that("unbalanced reactions are balanced given sufficient basis species", {
   basis("CHNOS")
   s <- subcrt(c("malic acid", "citric acid"), c(-1, 1))
   expect_equal(s$reaction$coeff, c(-1, 1, -2, -1, 1.5))
   expect_equal(s$reaction$name, c("malic acid", "citric acid", "CO2", "water", "oxygen"))
 })
 
-test_that("phase transitions of minerals give expected messages and results", {
-  iacanthite <- info("acanthite", "cr2")
-  expect_message(subcrt(iacanthite), "subcrt: some points below transition temperature for acanthite cr2 \\(using NA for G\\)")
-  expect_message(subcrt(iacanthite), "subcrt: some points above transition temperature for acanthite cr2 \\(using NA for G\\)")
-  expect_equal(subcrt("acanthite")$out$acanthite$state, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3))
-})
-
-test_that("heat capacity of minerals are consistent with literature", {
-  # from Helgeson et al., 1978 Table 6
-  # here, set P to NA so that water() is not called to get Psat
-  expect_equal(subcrt("wollastonite", T=c(200, 500, 800), P=NA)$out$wollastonite$Cp, c(25.4, 28.3, 29.9), tolerance=1e-2)
-})
-
 test_that("standard Gibbs energies of reactions involving aqueous species are consistent with the literature", {
-  # choose units of Joules for subcrt()
-  E.units("J")
-  # from Amend and Shock, 2001 Table 3
+  # from Amend and Shock, 2001 [AS01] Table 3
   T <- c(2, 18, 25, 37, 45, 55, 70, 85, 100, 115, 150, 200)
   # standard Gibbs energies in kJ/mol
-  DG0.H2O <- c(78.25, 79.34, 79.89, 80.90, 81.63, 82.59, 84.13, 85.78, 87.55, 89.42, 94.22, 102.21)
+  E.units("J")
+
   # H2O(l) = H+ + OH-
+  AS01.H2O <- c(78.25, 79.34, 79.89, 80.90, 81.63, 82.59, 84.13, 85.78, 87.55, 89.42, 94.22, 102.21)
   sout.H2O <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T=T)$out
-  # from Amend and Shock, 2001 Table 4.3 Reaction A1
-  DG0.A1 <- c(-263.94, -263.45, -263.17, -262.62, -262.20, -261.63, -260.67, -259.60, -258.44, -257.18, -253.90, -248.44)
-  # H2(aq) + 0.5O2(aq) = H2O(l)
+  # tolerances set to lowest order of magnitute to pass
+  expect_maxdiff(sout.H2O$G/1000, AS01.H2O, 0.01)
+
+  # AS01 Table 4.3 Reaction A1: H2(aq) + 0.5O2(aq) = H2O(l)
+  AS01.A1 <- c(-263.94, -263.45, -263.17, -262.62, -262.20, -261.63, -260.67, -259.60, -258.44, -257.18, -253.90, -248.44)
   sout.A1 <- subcrt(c("H2", "O2", "H2O"), "aq", c(-1, -0.5, 1), T=T)$out
-  # from Amend and Shock, 2001 Table 5.1 NO(g) and NO(aq)
-  DG0.NO.g <- c(91.39, 88.04, 86.57, 84.03, 82.33, 80.20, 76.99, 73.75, 70.50, 67.23, 59.53, 48.38)
-  DG0.NO.aq <- c(104.56, 102.87, 102.06, 100.58, 99.53, 98.15, 95.98, 93.67, 91.25, 88.72, 82.46, 72.77)
-  # NO(g) = NO(aq)  ... greater tolerance, our values for NO(aq) differ slightly from AS01
-  sout.NO <- subcrt("NO", c("gas", "aq"), c(-1, 1), T=T)$out
-  # from Amend and Shock, 2001 Table 5.1 Reaction B10
-  DG0.B10 <- c(-268.85, -268.01, -267.50, -266.46, -265.66, -264.55, -262.66, -260.54, -258.19, -255.63, -248.81, -237.06)
-  # NH3(aq) + 1.5O2(aq) = H+ + NO2- + H2O(l)
-  sout.B10 <- subcrt(c("NH3", "O2", "H+", "NO2-", "H2O"), "aq", c(-1, -1.5, 1, 1, 1), T=T)$out
-  # from Amend and Shock, 2001 Table 6.3 Reaction C7
-  DG0.C7 <- c(-1695.30, -1686.90, -1682.80, -1675.30, -1670.00, -1663.10, -1652.00, -1640.30, -1628.00, -1615.20, -1583.50, -1533.00)
-  # 5S2O3-2 + H2O(l) + 4O2(aq) = 6SO4-2 + 2H+ + 4S(s)
+  expect_maxdiff(sout.A1$G/1000, AS01.A1, 0.01)
+
+  # AS01 Table 6.3 Reaction C7: 5S2O3-2 + H2O(l) + 4O2(aq) = 6SO4-2 + 2H+ + 4S(s)
+  AS01.C7 <- c(-1695.30, -1686.90, -1682.80, -1675.30, -1670.00, -1663.10, -1652.00, -1640.30, -1628.00, -1615.20, -1583.50, -1533.00)
   s.C7 <- subcrt(c("S2O3-2", "H2O", "O2", "SO4-2", "H+", "S"), c("aq", "liq", "aq", "aq", "aq", "cr"), c(-5, -1, -4, 6, 2, 4), T=T)
   sout.C7 <- s.C7$out
-  ## from Amend and Shock, 2001 Table 8.3 Reaction E12
-  #DG0.E12 <- c(132.52, 132.26, 132.29, 132.49, 132.74, 133.15, 133.98, 135.04, 136.31, 137.79, 141.97, 149.53)
-  ## 4(2-)propanol(aq) + 3CO2(aq) + 2H2O(l) = 3CH4(aq) + 4lactic acid(aq)
-  #sout.E12 <- subcrt(c("2-propanol", "CO2", "H2O", "CH4", "lactic acid"), c(-4, -3, -2, 3, 4), T=T)$out
-  # now the tests, tolerances set to lowest order of magnitute to pass
-  expect_equal(sout.H2O$G/1000, DG0.H2O, tolerance=1e-4)
-  expect_equal(sout.A1$G/1000, DG0.A1, tolerance=1e-4)
-  # greater tolerance, our values for NO(aq) differ slightly from AS01
-  expect_equal(sout.NO$G/1000, DG0.NO.aq - DG0.NO.g, tolerance=1e-2)
-  expect_equal(sout.B10$G/1000, DG0.B10, tolerance=1e-3)
-  # we can check that sulfur has expected phase transitions
-  expect_equal(s.C7$state$sulfur, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3))
-  expect_equal(sout.C7$G/1000, DG0.C7, tolerance=1e-4)
-  # this one is on hold until the HKF parameters of 2-propanol can be located
-  #expect_equal(sout.E12$G/1000, DG0.E12, 1e-4)
-  # also todo: COS(g) in Amend and Helgeson, 2001 Table 7.2?
-  # return to our favourite units
+  expect_maxdiff(sout.C7$G/1000, AS01.C7, 0.05)
+  # we can also check that sulfur has expected phase transitions
+  expect_equal(s.C7$polymorphs$sulfur, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3))
+
+  # return to our favorite units
   E.units("cal")
 })
 
@@ -81,17 +47,117 @@ test_that("subzero degree C calculations are possible", {
   expect_equal(s.H2O$G[1], NA_real_)
   # we should get something at -20 deg C
   expect_equal(floor(s.H2O$G[2]), -56001)
-  # for historical reasons, an input temperature of 0 was converted to 0.01
+  # following SUPCRT92, an input temperature of 0 is converted to 0.01
   expect_equal(s.H2O$T[22], 0.01)
 })
 
 test_that("calculations using IAPWS-95 are possible", {
-  thermo$opt$water <<- "IAPWS95"
+  oldwat <- water("IAPWS95")
   sb <- subcrt(c("H2O", "Na+"), T=c(-30, -20, 0, 10), P=1)$out
   # the test is not a demanding numerical comparison, more that we got numbers and no error
-  expect_that(all(sb$`Na+`$G < sb$water$G), is_true())
+  expect_true(all(sb$`Na+`$G < sb$water$G))
   # clean up
-  suppressMessages(data(thermo))
+  water(oldwat)
+})
+
+test_that("phase transitions of minerals give expected messages and results", {
+  iacanthite <- info("acanthite", "cr2")
+  #expect_message(subcrt(iacanthite), "subcrt: some points below transition temperature for acanthite cr2 \\(using NA for G\\)")
+  expect_message(subcrt(iacanthite), "subcrt: some points above temperature limit for acanthite cr2 \\(using NA for G\\)")
+  expect_equal(subcrt("acanthite")$out$acanthite$polymorph, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3))
+})
+
+test_that("calculations for K-feldspar are consistent with SUPCRT92", {
+  T <- c(100, 100, 1000, 1000)
+  P <- c(5000, 50000, 5000, 50000)
+  SUPCRT_G <- c(-886628, -769531, -988590, -871493)
+  SUPCRT_H <- c(-932344, -815247, -865868, -748771)
+  SUPCRT_S <- c(62.6, 62.6, 150.6, 150.6)
+  SUPCRT_V <- c(108.9, 108.9, 108.9, 108.9)
+  SUPCRT_Cp <- c(56.7, 56.7, 80.3, 80.3)
+  CHNOSZ <- subcrt("K-feldspar", T=T, P=P)$out[[1]]
+  expect_equal(round(CHNOSZ$G), SUPCRT_G)
+  expect_equal(round(CHNOSZ$H), SUPCRT_H)
+  expect_equal(round(CHNOSZ$S, 1), SUPCRT_S)
+  expect_equal(round(CHNOSZ$V, 1), SUPCRT_V)
+  expect_equal(round(CHNOSZ$Cp, 1), SUPCRT_Cp)
+})
+
+test_that("calculations for quartz are nearly consistent with SUPCRT92", {
+  # using SUPCRT's equations, the alpha-beta transition occurs at
+  # 705 degC at 5000 bar and 1874 degC at 50000 bar,
+  # so here beta-quartz is stable only at T=1000, P=5000
+  T <- c(100, 100, 1000, 1000)
+  P <- c(5000, 50000, 5000, 50000)
+  SUPCRT_G <- c(-202778, -179719, -223906, -199129)
+  SUPCRT_H <- c(-214133, -191708, -199359, -177118)
+  SUPCRT_S <- c(12.3, 10.6, 31.8, 29.8)
+  SUPCRT_V <- c(22.5, 20.3, 23.7, 21.9)
+  SUPCRT_Cp <- c(12.3, 12.3, 16.9, 16.9)
+  CHNOSZ <- subcrt("quartz", T=T, P=P)$out[[1]]
+  # NOTE: Testing has shown that, where alpha-quartz is stable above Ttr(Pr) but below Ttr(P),
+  # SUPCRT92 computes the heat capacity and its integrals using parameters of beta-quartz.
+  # (see e.g. the equation for CprdT under the (Cpreg .EQ. 2) case in the Cptrms subroutine of SUPCRT).
+  # ... is that incorrect?
+  # CHNOSZ's behavior is different - it only uses the lower-T polymorph below Ttr(P);
+  # so we get different values from SUPCRT at T=1000, P=50000 (4th condition) where alpha-quartz is stable
+  # (above Ttr@1 bar (575 degC), but below Ttr@50000 bar)
+  expect_equal(round(CHNOSZ$G)[-4], SUPCRT_G[-4])
+  expect_equal(round(CHNOSZ$H)[-4], SUPCRT_H[-4])
+  expect_equal(round(CHNOSZ$S, 1)[-4], SUPCRT_S[-4])
+  expect_equal(round(CHNOSZ$Cp, 1)[-4], SUPCRT_Cp[-4])
+  expect_equal(round(CHNOSZ$V, 1), SUPCRT_V)
+})
+
+test_that("more calculations for quartz are nearly consistent with SUPCRT92", {
+  # output from SUPCRT92 for reaction specified as "1 QUARTZ" run at 1 bar
+  # (SUPCRT shows phase transition at 574.850 deg C, and does not give Cp values around the transition)
+  S92_1bar <- read.table(header = TRUE, text = "
+      T       G       H    S       V
+    573	-214507	-209517	24.7	23.3
+    574	-214532	-209499	24.8	23.3
+    575	-214557	-209192	25.1	23.7
+    576	-214582	-209176	25.1	23.7
+  ")
+  CHNOSZ_1bar <- subcrt("quartz", T=seq(573, 576), P=1)$out[[1]]
+  expect_equal(round(CHNOSZ_1bar$G), S92_1bar$G)
+  expect_equal(round(CHNOSZ_1bar$H), S92_1bar$H)
+  expect_equal(round(CHNOSZ_1bar$S, 1), S92_1bar$S)
+  expect_equal(round(CHNOSZ_1bar$V, 1), S92_1bar$V)
+
+  # 5000 bar: SUPCRT shows phase transition at 704.694 deg C
+  S92_5000bar <- read.table(header = TRUE, text = "
+      T       G       H    S       V
+    703	-215044	-204913	26.7	23.3
+    704	-215071	-204895	26.7	23.3
+    705	-215142	-204254	27.4	23.7
+    706	-215170	-204238	27.5	23.7
+  ")
+  CHNOSZ_5000bar <- subcrt("quartz", T=seq(703, 706), P=5000)$out[[1]]
+  # NOTE: calculated values *below* the transition are different
+  expect_maxdiff(CHNOSZ_5000bar$G, S92_5000bar$G, 20)
+  expect_maxdiff(CHNOSZ_5000bar$H, S92_5000bar$H, 300)
+  expect_maxdiff(CHNOSZ_5000bar$S, S92_5000bar$S, 0.5)
+  expect_maxdiff(CHNOSZ_5000bar$V, S92_5000bar$V, 0.05)
+})
+
+test_that("duplicated species yield correct phase transitions", {
+  # If a mineral with phase transitions is in both the basis and species lists,
+  # energy()'s call to subcrt() will have duplicated species.
+  # This wasn't working (produced NAs at low T) for a long time prior to 20171003.
+  s1 <- subcrt("quartz", T=c(100, 1000), P=1000)
+  s2 <- subcrt(rep("quartz", 2), T=c(100, 1000), P=1000)
+  expect_equal(s1$out[[1]]$logK, s2$out[[1]]$logK)
+  expect_equal(s1$out[[1]]$logK, s2$out[[2]]$logK)
+  ## another way to test it ...
+  #basis(c("quartz", "oxygen"))
+  #species("quartz")
+  #a <- affinity(T=c(0, 1000, 2), P=1)
+  #expect_equal(as.numeric(a$values[[1]]), c(0, 0))
+})
+
+test_that("warning is produced for reaction with Helgeson and Berman minerals", {
+  expect_warning(subcrt(c("quartz", "quartz"), c(-1, 1), c("cr", "cr_Berman")), "data may not be internally consistent")
 })
 
 # references

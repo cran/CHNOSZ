@@ -29,4 +29,4 @@ If lots of package startup messages are created when running \code{\link[paralle
 Tests are in \file{tests/test-util.program.R}, and a \dQuote{real world} example is in \file{demos/density.R}.
 }
 
-\keyword{utilities}
+\concept{Utility functions}

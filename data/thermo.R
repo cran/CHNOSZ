@@ -9,8 +9,8 @@ if(!"CHNOSZ" %in% search()) {
 
 local({
   # create obigt data frame
-  sources_aq <- paste0(c("H2O", "inorganic", "organic", "biotic", "CHNOSZ"), "_aq")
-  sources_cr <- paste0(c("inorganic", "organic"), "_cr")
+  sources_aq <- paste0(c("H2O", "inorganic", "organic", "biotic"), "_aq")
+  sources_cr <- paste0(c("inorganic", "organic", "Berman"), "_cr")
   sources_liq <- paste0(c("organic"), "_liq")
   sources_gas <- paste0(c("inorganic", "organic"), "_gas")
   OBIGTdir <- system.file("extdata/OBIGT/", package="CHNOSZ")

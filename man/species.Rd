@@ -28,7 +28,7 @@ The default values for logarithms of activities are -3 for aqueous (\samp{aq}) s
 
 If \code{state} is \code{NULL} (the default), species in any state can be matched in the thermodynamic database.
 If there are multiple matches for a species, the one that is in the state given by \code{thermo$opt$state} is chosen, otherwise the matching (or \eqn{n}{n}'th matching duplicate) species is used.
-Note that the \code{state}s of species representing phases of minerals that undergo phase transitions are coded as \samp{cr1}, \samp{cr2}, \samp{cr3}, \code{...} (phases with increasing temperature).
+Note that the \code{state}s of species representing phases of minerals that undergo phase transitions are coded as \samp{cr} (lowest-T phase), \samp{cr2}, \samp{cr3}, \code{...} (phases with increasing temperature).
 If \code{state} is \samp{cr} when one of these minerals is matched, all the phase species are added.
 
 To modify the logarithms of activities of species (logarithms of fugacities for gases) provide one or more numeric values of \code{species} referring to the rownumbers of the species dataframe, or \code{species} NULL, to modify all currently defined species.
@@ -70,4 +70,4 @@ basis(c("CO2", "H2O", "O2"))
 species()  # NULL
 }
 
-\concept{Primary thermodynamic modeling}
+\concept{Main workflow}

@@ -1,4 +1,4 @@
-%% LyX 2.2.2 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 2.2.3 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
 \documentclass[english,noae,round]{article}
 \usepackage{mathpazo}
@@ -17,7 +17,6 @@
 \hypersetup{pdftitle={Winding journey down (in Gibbs energy)},
  pdfauthor={Jeffrey M. Dick},
  citecolor=blue}
-\usepackage{breakurl}
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
@@ -68,7 +67,6 @@ term ``Gibbs energy'' and corresponding notation are used here.
 library(CHNOSZ)
 data(thermo)
 @
-
 
 \section{Is it winding?}
 
@@ -158,7 +156,6 @@ as an equilibrium distribution of species is approached:
 identical(diff(w$F.Y), sort(diff(w$F.Y)))
 @
 
-
 \section{Is it near the bottom? Testing for equilibrium}
 
 
@@ -215,7 +212,6 @@ par(mgp = c(2, 1, 0))
 w3 <- wjd(imax=3)
 ep3 <- element.potentials(w3, plot.it=TRUE)
 @
-
 \end{center}
 \setkeys{Gin}{width=1.0\textwidth}
 
@@ -250,7 +246,6 @@ is.near.equil(w3) # 3 iterations
 is.near.equil(w)  # 7 iterations
 is.near.equil(w, tol=0.00001)
 @
-
 
 \subsection{Different initial solutions yield similar results}
 
@@ -409,7 +404,9 @@ is 1 atmosphere.
 # turn formulas into a stoichiometric matrix
 A <- i2A(dlen$formula)
 # assemble Gibbs energies/RT at 500 K
-G0.RT <- 1000 * dlen$G500 / thermo$opt$R / thermo$opt$Tr
+T <- 500  # K
+R <- 1.9872  # gas constant, cal K^-1 mol^-1
+G0.RT <- 1000 * dlen$G500 / R / T
 # a function to minimize Gibbs energy for system with 
 # given mole fraction of carbon (xC)
 min.atmos <- function(xC) {
@@ -452,7 +449,6 @@ which was used to make the plot.})
 # text(35, log10(Xs[, 27]) + 0.5, dlen$formula, adj=0)
 # text(7, log10(Xs[, 1]), dlen$formula, adj=1)
 @
-
 \begin{center}
 \includegraphics[width=0.7\columnwidth]{dayhoff}
 \par\end{center}
@@ -536,7 +532,6 @@ basis(c("graphite", "H2"), c("cr", "gas"))
 basis.logact(ep)
 @
 
-
 \subsection{Bulk composition instead of moles of species}
 
 \texttt{run.wjd()} can be given B (bulk chemical composition), instead
@@ -561,7 +556,6 @@ and of a corresponding set of basis species:
 print(ep <- equil.potentials(waa))
 basis.logact(ep)
 @
-
 
 \section{Document History}
 \begin{itemize}

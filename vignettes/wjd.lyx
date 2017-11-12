@@ -2092,7 +2092,17 @@ A <- i2A(dlen$formula)
 
 \begin_layout Plain Layout
 
-G0.RT <- 1000 * dlen$G500 / thermo$opt$R / thermo$opt$Tr
+T <- 500  # K
+\end_layout
+
+\begin_layout Plain Layout
+
+R <- 1.9872  # gas constant, cal K^-1 mol^-1
+\end_layout
+
+\begin_layout Plain Layout
+
+G0.RT <- 1000 * dlen$G500 / R / T
 \end_layout
 
 \begin_layout Plain Layout

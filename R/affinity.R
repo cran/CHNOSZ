@@ -1,6 +1,17 @@
 # CHNOSZ/affinity.R
 # calculate affinities of formation reactions
 
+## if this file is interactively sourced, the following are also needed to provide unexported functions:
+#source("util.affinity.R")
+#source("util.units.R")
+#source("util.character.R")
+#source("util.list.R")
+#source("subcrt.R")
+#source("buffer.R")
+#source("util.args.R")
+#source("util.data.R")
+#source("species.R")
+
 affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
   return.buffer=FALSE,balance="PBB",iprotein=NULL,loga.protein=-3) {
   # ...: variables over which to calculate
@@ -63,7 +74,10 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
 
     # buffer stuff
     buffer <- FALSE
-    ibufbasis <- which(!can.be.numeric(mybasis$logact))
+    hasbuffer <- !can.be.numeric(mybasis$logact)
+    # however, variables specified in the arguments take precedence over the buffer 20171013
+    isnotvar <- !rownames(mybasis) %in% args$vars
+    ibufbasis <- which(hasbuffer & isnotvar)
     if(!is.null(mybasis) & length(ibufbasis) > 0) {
       buffer <- TRUE
       message('affinity: loading buffer species')
@@ -233,9 +247,12 @@ affinity <- function(...,property=NULL,sout=NULL,exceed.Ttr=FALSE,
 
   # content of return value depends on buffer request
   if(return.buffer) return(c(tb, list(vars=vars, vals=vals)))
-  a <- list(sout=sout, property=property, basis=mybasis, species=myspecies, T=T, P=P, vars=vars, vals=vals, values=a)
+  # add IS value only if it given as an argument 20171101
+  # (even if its value is 0, the presence of IS will trigger diagram() to use "m" instead of "a" in axis labels)
+  iIS <- match("IS", names(args.orig))
+  if(!is.na(iIS)) a <- list(sout=sout, property=property, basis=mybasis, species=myspecies, T=T, P=P, IS=args$IS, vars=vars, vals=vals, values=a)
+  else a <- list(sout=sout, property=property, basis=mybasis, species=myspecies, T=T, P=P, vars=vars, vals=vals, values=a)
   if(buffer) a <- c(a, list(buffer=tb))
   return(a)
-
 }
 

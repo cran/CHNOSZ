@@ -1,9 +1,5 @@
 context("EOSregress")
 
-# since this is the first test (alphabetically)
-# we need to load the 'thermo' object (for R CMD check)
-suppressMessages(data(thermo))
-
 test_that("EOSvar stops with unknown variables", {
   expect_error(EOSvar("TX", T=25, P=1), "can't find a variable named TX")
   # why can't the test find these?

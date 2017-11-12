@@ -121,7 +121,7 @@ lines(a$vals[[1]], DDGmix.out)
 lines(a$vals[[1]], DGtr.out)
 text(-6, 5.5, expr.property("DDGmix/2.303RT"))
 text(-6, 2.3, expr.property("DGtr/2.303RT"))
-title(main=paste("transformation between metastable equilibrium\n",
+title(main=paste("Transformation between metastable equilibrium\n",
   "assemblages of n-alkanes"))
 # take-home message: use DGtr to measure distance from equilibrium in 
 # open-system transformations (constant T, P, chemical potentials of basis species)
@@ -137,4 +137,4 @@ title(main=paste("transformation between metastable equilibrium\n",
 
 }
 
-\concept{Secondary thermodynamic modeling}
+\concept{Extended workflow}

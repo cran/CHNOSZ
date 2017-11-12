@@ -3,7 +3,7 @@
 # reproduces Figure 6 of Schulte and Shock, 1995 (doi:10.1007/BF01581580)
 
 b.species <- c("Fe", "CO2", "H2O", "N2", "H2", "H2S", "SiO2")
-b.state <- c("cr1", "gas", "liq", "gas", "gas", "aq", "aq")
+b.state <- c("cr", "gas", "liq", "gas", "gas", "aq", "aq")
 b.logact <- c(0, 1, 0, 0, 0, 0, 0)
 basis(b.species, b.state, b.logact)
 xlim <- c(0, 350)

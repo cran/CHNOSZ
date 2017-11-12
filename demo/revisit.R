@@ -5,7 +5,7 @@
 loc <- "cell.periphery"
 y <- yeastgfp(loc)
 # get the amino acid compositions of the proteins
-aa <- more.aa(y$protein, "Sce")
+aa <- yeast.aa(y$protein)
 # don't use those with NA abundance or sequence
 ina <- is.na(y$abundance) | is.na(aa$chains)
 aa <- aa[!ina, ]

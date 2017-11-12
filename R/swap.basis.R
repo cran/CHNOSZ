@@ -2,6 +2,9 @@
 # functions related to swapping basis species
 # extracted from basis() 20120114 jmd
 
+## if this file is interactively sourced, the following are also needed to provide unexported functions:
+#source("basis.R")
+
 # return the current basis elements
 basis.elements <- function(basis = get("thermo")$basis) {
   if(is.null(basis)) stop("basis species are not defined")
@@ -14,7 +17,8 @@ element.mu <- function(basis = get("thermo")$basis, T = 25) {
   basis.mat <- basis.elements(basis)
   # the standard Gibbs energies of the basis species
   # don't take it from thermo$obigt, even at 25 degC, because G for H2O is NA there
-  G <- unlist(subcrt(basis$ispecies, T=T, property="G")$out)
+  # the sapply(..., "[", 1) is needed to get the first value, in case subcrt appends a polymorph column (i.e. for S(cr))  20171105
+  G <- unlist(sapply(subcrt(basis$ispecies, T=T, property="G")$out, "[", 1))
   # chemical potentials of the basis species
   species.mu <- G - convert(basis$logact, "G", T=convert(T, "K"))
   # chemical potentials of the elements
@@ -36,7 +40,8 @@ basis.logact <- function(emu, basis = get("thermo")$basis, T = 25) {
   if(any(is.na(ielem))) stop(paste("element(s)", paste(names(emu)[is.na(ielem)], collapse=" "), "not found in basis"))
   # the standard Gibbs energies of the basis species
   # don't take it from thermo$obigt, even at 25 degC, because G for H2O is NA there
-  G <- unlist(subcrt(basis$ispecies, T=T, property="G")$out)
+  # the sapply(..., "[", 1) is needed to get the first value, in case subcrt appends a polymorph column (i.e. for S(cr))  20171105
+  G <- unlist(sapply(subcrt(basis$ispecies, T=T, property="G")$out, "[", 1))
   # the chemical potentials of the basis species in equilibrium
   # with the chemical potentials of the elements
   basis.mu <- colSums((t(basis.mat)*emu)) - G

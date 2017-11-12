@@ -40,8 +40,8 @@ E.units <- function(units=NULL) {
   message("changed energy units to ", get("thermo")$opt$E.units)
 }
 
-convert <- function(value, units, T=get("thermo")$opt$Tr,
-  P=get("thermo")$opt$Pr, pH=7, logaH2O=0) {
+convert <- function(value, units, T=298.15,
+  P=1, pH=7, logaH2O=0) {
   # converts value(s) to the specified units
 
   if(is.null(value)) return(NULL)
@@ -65,7 +65,7 @@ convert <- function(value, units, T=get("thermo")$opt$Tr,
     if(units=='cal') value <- value / Jcal
   }
   else if(units %in% c('g','logk')) {
-    R <- get("thermo")$opt$R
+    R <- 1.9872  # gas constant, cal K^-1 mol^-1
     if(units=='logk') value <- value / (-log(10) * R * T)
     if(units=='g') value <- value * (-log(10) * R * T)
   }

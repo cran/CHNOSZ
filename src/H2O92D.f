@@ -693,8 +693,9 @@
            CALL thmHGK(Dens(1),Temp)
            CALL dimHGK(isat,itripl,Temp,Pres,Dens(1),epseqn)
       ELSE
-           DO 10  i=1,NPROP
- 10             wpliq(i) = wprops(i)
+           DO i=1,NPROP
+                wpliq(i) = wprops(i)
+           END DO
            CALL dimHGK(2,itripl,Temp,Pres,Dens(2),epseqn)
       END IF
 
@@ -865,8 +866,9 @@
 
       v(1) = 1.0d0
      
-      DO 2 i=2,10
- 2         v(i) = v(i-1) * tz / t
+      DO i=2,10
+           v(i) = v(i-1) * tz / t
+      END DO
 
       b1   = bp(1) + bp(2) * DLOG(1.0 / v(2))
       b2   = bq(1)
@@ -875,13 +877,14 @@
       b1tt = 0.0d0
       b2tt = 0.0d0
 
-      DO 4 i=3,10
+      DO i=3,10
            b1   = b1   + bp(i) * v(i-1)
            b2   = b2   + bq(i) * v(i-1)
            b1t  = b1t  - (i-2) * bp(i) * v(i-1) / t
            b2t  = b2t  - (i-2) * bq(i) * v(i-1) / t
            b1tt = b1tt + bp(i) * (i-2)*(i-2) * v(i-1) / t / t
- 4         b2tt = b2tt + bq(i) * (i-2)*(i-2) * v(i-1) / t / t
+           b2tt = b2tt + bq(i) * (i-2)*(i-2) * v(i-1) / t / t
+      END DO
 
       b1tt = b1tt - b1t / t
       b2tt = b2tt - b2t / t
@@ -985,11 +988,12 @@
       v     = tz / t
       qt(1) = t / tz
 
-      DO 4 i=2,10
+      DO i=2,10
            qr(i+1) = qr(i) * q20
- 4         qt(i)   = qt(i-1) * v
+           qt(i)   = qt(i-1) * v
+      END DO
 
-      DO 10 i=1,n
+      DO i=1,n
            k     = ii(i) + 1
            l     = jj(i)
            zz    = k
@@ -1006,7 +1010,8 @@
            dpt   = dfdt*q10*aa*k/q20
            dadt  = dadt  + g(i)*dfdt
            dpdtr = dpdtr + g(i)*dpt
- 10        cvr   = cvr   + g(i)*d2f/gascon
+           cvr   = cvr   + g(i)*d2f/gascon
+      END DO
 
       qp  = 0.0d0
       q2a = 0.0d0
@@ -1086,11 +1091,12 @@
       hi  = (c(2) + c(1)*(1.0d0 - tl)/tt)
       cpi = c(2) - c(1)/tt
 
-      DO 8 i=3,18
+      DO i=3,18
            emult = power(tt,DBLE(i-6))
            gi  = gi - c(i) * emult
            hi  = hi + c(i) * (i-6) * emult
- 8         cpi = cpi + c(i) * (i-6) * (i-5) * emult
+           cpi = cpi + c(i) * (i-6) * (i-5) * emult
+      END DO
 
       ai  = gi - 1.0d0
       ui  = hi - 1.0d0
@@ -1446,11 +1452,12 @@
       b = 0.0d0
       c = 0.0d0
 
-      DO 4 i=1,8
+      DO i=1,8
            z = i
            y = a(i) * power(w,(z + 1.0d0)/2.0d0)
            c = c + y/w*(0.5d0 - 0.5d0*z - 1.0d0/v)
- 4         b = b + y
+           b = b + y
+      END DO
 
       q      = b / v
       TdPsdT = 22.093d0 * DEXP(q) * c
@@ -2705,8 +2712,9 @@
      4     26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46  /
 
 
-      DO 10  i = 1,NPROP 
- 10        props(key(i,phase)) = ptemp(i)
+      DO i = 1,NPROP 
+           props(key(i,phase)) = ptemp(i)
+      END DO
 
       RETURN
       END
@@ -2842,19 +2850,21 @@
       SAVE
 
 
-      GO TO (1,2,3,4), it
+      select case(it)
 
- 1    TdegK = t
-      RETURN
+      case(1)
+         TdegK = t
 
- 2    TdegK = t + 273.15d0
-      RETURN
+      case(2)
+         TdegK = t + 273.15d0
 
- 3    TdegK = t / 1.8d0
-      RETURN
+      case(3)
+         TdegK = t / 1.8d0
 
- 4    TdegK = (t + 459.67d0) / 1.8d0
-      RETURN
+      case(4)
+         TdegK = (t + 459.67d0) / 1.8d0
+
+      end select
 
       END
 
@@ -2870,19 +2880,21 @@
       SAVE
 
 
-      GO TO (1,2,3,4), it
+      select case(it)
 
- 1    TdegUS = t
-      RETURN
+      case(1)
+         TdegUS = t
 
- 2    TdegUS = t - 273.15d0
-      RETURN
+      case(2)
+         TdegUS = t - 273.15d0
 
- 3    TdegUS = t * 1.8d0
-      RETURN
+      case(3)
+         TdegUS = t * 1.8d0
 
- 4    TdegUS = t * 1.8d0 - 459.67d0
-      RETURN
+      case(4)
+         TdegUS = t * 1.8d0 - 459.67d0
+
+      end select
 
       END
 
@@ -3122,14 +3134,17 @@
       D = Dkgm3 / Dstar
       
       sum = 0.0d0
-      DO 10  i=0,3
- 10        sum = sum + a(i+1)/T**i
+      DO i=0,3
+           sum = sum + a(i+1)/T**i
+      END DO
       u0 = ustar * DSQRT(T) / sum
 
       sum = 0.0d0
-      DO 20  i=0,5
-           DO 20  j=0,6
- 20             sum = sum + b(i+1,j+1) * (1.0d0/T-1)**i * (D-1)**j
+      DO i=0,5
+           DO j=0,6
+                sum = sum + b(i+1,j+1) * (1.0d0/T-1)**i * (D-1)**j
+           END DO
+      END DO
       u1 = DEXP(D*sum)
 
       IF ((0.997d0 .LE. T) .AND. (T .LE. 1.0082d0) .AND.
@@ -3210,25 +3225,31 @@
       D = Dkgm3 / Dstar
 
       sum = 0.0d0
-      DO 10  i=0,3
- 10        sum = sum + aL(i+1)/T**i
+      DO i=0,3
+           sum = sum + aL(i+1)/T**i
+      END DO
       L0 = DSQRT(T) / sum
 
       sum = 0.0d0
-      DO 20  i=0,4
-           DO 20  j=0,5
- 20             sum = sum + bL(j+1,i+1) * (1.0d0/T-1)**i * (D-1)**j
+      DO i=0,4
+           DO j=0,5
+                sum = sum + bL(j+1,i+1) * (1.0d0/T-1)**i * (D-1)**j
+           END DO
+      END DO
       L1 = DEXP(D*sum)
 
       sum = 0.0d0
-      DO 40  i=0,3
- 40        sum = sum + au(i+1)/T**i
+      DO i=0,3
+           sum = sum + au(i+1)/T**i
+      END DO
       u0 = ustar * DSQRT(T) / sum
 
       sum = 0.0d0
-      DO 50  i=0,5
-           DO 50  j=0,4
- 50             sum = sum + bu(j+1,i+1) * (1.0d0/T-1)**i * (D-1)**j
+      DO i=0,5
+           DO j=0,4
+                sum = sum + bu(j+1,i+1) * (1.0d0/T-1)**i * (D-1)**j
+           END DO
+      END DO
       u1 = DEXP(D*sum)
 
       xt   = Pstar/Dstar**2 * betaPa * Dkgm3**2
@@ -3423,22 +3444,26 @@
       dc2dTT(5) = 6.0d0*a(8)*Tref**2/T**4 + 2.0d0*a(9)*Tref/T**3
     
       eps = 0.0d0
-      DO 50 k=1,5
-   50      eps = eps + c(k)*D**(k-1)
+      DO k=1,5
+           eps = eps + c(k)*D**(k-1)
+      END DO
 
       dedP = 0.0d0
-      DO 100  j = 0,4
-  100      dedP = dedP + j*c(j+1)*D**j
+      DO j = 0,4
+           dedP = dedP + j*c(j+1)*D**j
+      END DO
       dedP = beta * dedP
 
       dedT = 0.0d0
-      DO 200  j = 0,4
-  200      dedT = dedT + D**j*(dcdT(j+1) - j*alpha*c(j+1))
+      DO j = 0,4
+           dedT = dedT + D**j*(dcdT(j+1) - j*alpha*c(j+1))
+      END DO
 
       d2edT2 = 0.0d0
-      DO 300  j = 0,4
-  300      d2edT2 = d2edT2 + D**j*(dc2dTT(j+1) - j*(alpha*dcdT(j+1) +
+      DO j = 0,4
+           d2edT2 = d2edT2 + D**j*(dc2dTT(j+1) - j*(alpha*dcdT(j+1) +
      1         c(j+1)*daldT) - j*alpha*(dcdT(j+1) - j*alpha*c(j+1)))
+      END DO
 
       END
 

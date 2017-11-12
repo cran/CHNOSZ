@@ -58,7 +58,7 @@ d <- diagram(m$A.bases, add=TRUE, col="darkblue", lty=3, names=NULL, limit.water
 text(d$lx, -0.5, Gly, col="darkblue")
 
 # add water lines and title
-water.lines()
+water.lines(d)
 mtitle(expression("Copper-water-glycine at 25"~degree*"C and 1 bar",
   "After Aksu and Doyle, 2001 (Fig. 2b)"), line=0.5)
 
