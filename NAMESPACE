@@ -1,7 +1,3 @@
-## Export all names except those beginning with F_
-## (so we don't export F_h2o92 created below)
-#exportPattern("^([^F]|F($|[^_])).*")
-
 # exports starting with functions used in vignettes, examples, demos, tests 20170224
 export(
 # anintro vignette
@@ -58,15 +54,19 @@ export(
 # added 20170301 or later
   "GHS_Tr", "calculateDensity", "calculateGibbsOfWater",
   "calculateEpsilon", "calculateQ", "water.DEW", "berman",
-  "maxdiff", "expect_maxdiff", "Bdot"
+  "maxdiff", "expect_maxdiff", "bgamma",
+# added 20171121 or later
+  "dumpdata", "thermo.axis", "solubility", "NaCl"
 )
 
 # Load shared objects
-useDynLib(CHNOSZ, .registration = TRUE, .fixes = "F_")
+# Refer to all C/Fortran routines by their name prefixed by C_
+useDynLib(CHNOSZ, .registration = TRUE, .fixes = "C_")
 
 # Imports from default packages
 importFrom("grDevices", "dev.cur", "dev.off", "extendrange",
-  "heat.colors", "png", "rainbow", "topo.colors")
+  "heat.colors", "png", "rainbow", "topo.colors", "dev.list",
+  "contourLines")
 importFrom("graphics", "abline", "axTicks", "axis", "barplot", "box",
   "contour", "image", "legend", "lines", "mtext", "par", "plot",
   "plot.new", "plot.window", "points", "rect", "text", "title")

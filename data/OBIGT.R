@@ -12,9 +12,11 @@ if(!"CHNOSZ" %in% search()) {
     sources_cr <- paste0(c("inorganic", "organic", "Berman"), "_cr")
     sources_liq <- paste0(c("organic"), "_liq")
     sources_gas <- paste0(c("inorganic", "organic"), "_gas")
+    sources <- c(sources_aq, sources_cr, sources_liq, sources_gas)
     OBIGTdir <- system.file("extdata/OBIGT/", package="CHNOSZ")
     # need explicit "/" for Windows
-    sourcefiles <- paste0(OBIGTdir, "/", c(sources_aq, sources_cr, sources_liq, sources_gas), ".csv.xz")
+    sourcefiles <- paste0(OBIGTdir, "/", c(sources_aq, sources_cr, sources_liq, sources_gas), ".csv")
+    sourcefiles[!sources=="Berman_cr"] <- paste0(sourcefiles[!sources=="Berman_cr"], ".xz")
     datalist <- lapply(sourcefiles, read.csv, as.is=TRUE)
     obigt <- do.call(rbind, datalist)
     # get thermo from CHNOSZ environment

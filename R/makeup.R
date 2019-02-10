@@ -8,8 +8,11 @@ makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
   if(is.matrix(formula)) 
     return(lapply(seq_len(nrow(formula)), 
       function(i) makeup(formula[i, ])))
-  # a named object or list of named objects is returned untouched
-  if(!is.null(names(formula))) return(formula)
+  # a named numeric object is returned untouched
+  # (needed for recursive operation of the function?
+  #  - if this is not done it messes up the HOX example in protein.info.Rd)
+  if(!is.null(names(formula)) & is.numeric(formula)) return(formula)
+  # a list of named objects is also returned untouched
   if(is.list(formula) & !is.null(names(formula[[1]]))) return(formula)
   # prepare to multiply the formula by the multiplier, if given
   if(length(multiplier) > 1 & length(multiplier) != length(formula))
@@ -76,7 +79,7 @@ makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
   if("CHNOSZ" %in% search()) {
     are.elements <- names(out) %in% thermo$element$element
     if(!all(are.elements)) warning(paste("element(s) not in thermo$element:", 
-      paste(rownames(out)[!are.elements], collapse=" ") ))
+      paste(names(out)[!are.elements], collapse=" ") ))
   }
   # done!
   return(out)

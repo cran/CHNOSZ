@@ -22,7 +22,7 @@ To restore the default database, run \code{data(OBIGT)}.
 The computational settings are changed using \code{\link{water}}, \code{\link{P.units}}, \code{\link{T.units}}, \code{\link{E.units}}, and some other commands (e.g. \code{\link{mod.buffer}}).
 
 Some settings can only be changed by direct manipulation of \code{thermo$opt}.
-In an interactive session, this should be done using the super-assignment operator (e.g. \code{thermo$opt$Berman <<- TRUE}) so that the \code{thermo} object is not copied to the global environment.
+In an interactive session, this should be done using the super-assignment operator (e.g. \code{thermo$opt$ideal.H <<- FALSE}) so that the \code{thermo} object is not copied to the global environment.
 (Doing so would cause problems, as many functions are designed to access the \code{thermo} object in the \code{CHNOSZ} environment.)
 
 To restore the default computational settings, thermodynamic database, and system settings, run \code{data(thermo)}.
@@ -58,8 +58,10 @@ The structure of the \code{thermo} object is described below.
       \code{paramin} \tab integer \tab Minimum number of calculations to launch parallel processes [1000] (see \code{\link{palply}}) \cr
       \code{ideal.H} \tab logical \tab Should \code{\link{nonideal}} ignore the proton? [\code{TRUE}] \cr
       \code{ideal.e} \tab logical \tab Should \code{\link{nonideal}} ignore the electron? [\code{TRUE}] \cr
-      \code{nonideal} \tab character \tab Method for \code{\link{nonideal}} [\code{Helgeson}] \cr
-      \code{Berman} \tab logical \tab Should \code{\link{info}} preferentially return Berman minerals? [\code{FALSE}]
+      \code{nonideal} \tab character \tab Option for charged species in \code{\link{nonideal}} [\code{Bdot}] \cr
+      \code{Setchenow} \tab character \tab Option for neutral species in \code{\link{nonideal}} [\code{bgamma0}] \cr
+      \code{Berman} \tab character \tab User data file for mineral parameters in the Berman equations [\code{NA}] \cr
+      \code{maxcores} \tab numeric \tab Maximum number of cores for parallel calculations with \code{\link{palply}} [\code{2}]
 }
 
     \item \code{thermo$element}
@@ -241,7 +243,7 @@ Cox, J. D., Wagman, D. D. and Medvedev, V. A., eds. (1989) \emph{CODATA Key Valu
 
 Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
 
-Shock, E. L. et al. {1998} \emph{SLOP98.dat} (computer data file). http://geopig.asu.edu/supcrt92_data/slop98.dat, accessed on 2005-11-05. Current location: \url{http://geopig.asu.edu/?q=tools}.
+Shock, E. L. et al. {1998} \emph{SLOP98.dat} (computer data file). http://geopig.asu.edu/supcrt92_data/slop98.dat, accessed on 2005-11-05; moved to http://geopig.asu.edu/?q=tools.
 
 Wagman, D. D., Evans, W. H., Parker, V. B., Schumm, R. H., Halow, I., Bailey, S. M., Churney, K. L. and Nuttall, R. L. (1982) The NBS tables of chemical thermodynamic properties. Selected values for inorganic and C\eqn{_1}{1} and C\eqn{_2}{2} organic substances in SI units. \emph{J. Phys. Chem. Ref. Data} \bold{11} (supp. 2), 1--392. \url{https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf}
 }

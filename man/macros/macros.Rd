@@ -17,10 +17,16 @@
 \newcommand{\s2}{\ifelse{latex}{\eqn{_2}}{\ifelse{html}{\out{<sub>2</sub>}}{2}}}
 \newcommand{\s3}{\ifelse{latex}{\eqn{_3}}{\ifelse{html}{\out{<sub>3</sub>}}{3}}}
 \newcommand{\s4}{\ifelse{latex}{\eqn{_4}}{\ifelse{html}{\out{<sub>4</sub>}}{4}}}
+\newcommand{\s}{\ifelse{latex}{\eqn{_{#1}}}{\ifelse{html}{\out{<sub>#1</sub>}}{#1}}}
+
+% superscript numbers
+\newcommand{\S}{\ifelse{latex}{\eqn{^{#1}}}{\ifelse{html}{\out{<sup>#1</sup>}}{^#1}}}
 
 % other common variables
 \newcommand{\T}{\ifelse{latex}{\eqn{T}}{\ifelse{html}{\out{<I>T</I>}}{T}}}
 \newcommand{\P}{\ifelse{latex}{\eqn{P}}{\ifelse{html}{\out{<I>P</I>}}{P}}}
+% italicize any letter
+\newcommand{\I}{\ifelse{latex}{\eqn{#1}}{\ifelse{html}{\out{<I>#1</I>}}{#1}}}
 \newcommand{\logK}{\ifelse{latex}{\eqn{\log K}}{\ifelse{html}{\out{log<i>K</i>}}{log K}}}
 \newcommand{\logfO2}{\ifelse{latex}{\eqn{\log f_{\mathrm{O_{2}}}}}{\ifelse{html}{\out{log<i>f</i><sub>O<sub>2</sub></sub>}}{logfO2}}}
 \newcommand{\logfH2}{\ifelse{latex}{\eqn{\log f_{\mathrm{H_{2}}}}}{\ifelse{html}{\out{log<i>f</i><sub>H<sub>2</sub></sub>}}{logfH2}}}
@@ -31,9 +37,15 @@
 % use \nH2O{&#772;} to call this macro (the html code can't be defined in the macro,
 % which interprets '#' followed by a number as a placeholder for an argument)
 \newcommand{\nH2O}{\ifelse{latex}{\eqn{\bar{n}_{\mathrm{H_{2}O}}}}{\ifelse{html}{\out{<i>n</i>#1<sub>H<sub>2</sub>O</sub>}}{nH2O}}}
+\newcommand{\Cp}{\ifelse{latex}{\eqn{C_P}}{\ifelse{html}{\out{<I>C<sub>P</sub></I>}}{Cp}}}
 
 % other symbols
 \newcommand{\degC}{\ifelse{latex}{\eqn{^{\circ}}C}{\ifelse{html}{\out{&deg;}C}{°C}}}
 \newcommand{\le}{\ifelse{latex}{\eqn{\le}}{\ifelse{html}{\out{&le;}}{≤}}}
 \newcommand{\ge}{\ifelse{latex}{\eqn{\ge}}{\ifelse{html}{\out{&ge;}}{≥}}}
 \newcommand{\Psat}{\ifelse{latex}{\eqn{P_{\mathrm{SAT}}}}{\ifelse{html}{\out{<i>P</i><sub>SAT</sub>}}{Psat}}}
+\newcommand{\Delta}{\ifelse{latex}{\eqn{\Delta}}{\ifelse{html}{\out{&Delta;}}{Δ}}}
+\newcommand{\aacute}{\ifelse{latex}{\out{\'{a}}}{\ifelse{html}{\out{&aacute;}}{á}}}
+\newcommand{\eacute}{\ifelse{latex}{\out{\'{e}}}{\ifelse{html}{\out{&eacute;}}{é}}}
+\newcommand{\gamma}{\ifelse{latex}{\eqn{\gamma}}{\ifelse{html}{\out{&gamma;}}{γ}}}
+\newcommand{\alpha}{\ifelse{latex}{\eqn{\alpha}}{\ifelse{html}{\out{&alpha;}}{α}}}

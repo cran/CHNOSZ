@@ -50,10 +50,6 @@ test_that("A and B parameters are calculated correctly", {
   expect_maxdiff(DEW30$B_DH / 1e8, B30, 0.024)
 })
 
-#test_that("different methods give correct values of loggamma", {
-#
-#})
-
 test_that("affinity transect incorporates IS correctly", {
   basis("CHNOS+")
   species("acetate")
@@ -70,4 +66,55 @@ test_that("affinity transect incorporates IS correctly", {
   a <- affinity(T=seq(25, 50, length.out=4), IS=seq(0, 1, length.out=4))
   expect_equal(a$values[[1]][1], a25_0$values[[1]][1])
   expect_equal(a$values[[1]][4], a50_1$values[[1]][1])
+})
+
+# 20171221
+test_that("nonideality calculations work for Zn", {
+  # nonideal() had a bug where both Z and Zn were identified as the charge
+  # in the species formula, producing an error in this calculation
+  expect_type(subcrt(c("Zn+2", "Cl-", "ZnCl+"), c(-1, -1, 1), T=200, P=16, IS=0.05), "list")   
+})
+
+
+# 20181105
+test_that("activity coefficients are similar to those from HCh", {
+  # ionic strength of solution and activity coefficients of Na+ and Cl-
+  # calculated with HCh version 3.7 (Shvarov and Bastrakov, 1999) at 1000 bar,
+  # 100, 200, and 300 degress C, and 1 to 6 molal NaCl,
+  # using the default "B-dot" activity coefficient model (Helgeson, 1969)
+  # and the default setting for the Setchenow equation,
+  # for which the only non-zero term is the mole fraction to molality conversion factor
+  IS.HCh <- list(`100`=c(0.992, 1.969, 2.926, 3.858, 4.758, 5.619),
+                 `300`=c(0.807, 1.499, 2.136, 2.739, 3.317, 3.875),
+                 `500`=c(0.311, 0.590, 0.861, 1.125, 1.385, 1.642))
+  gamCl.HCh <- list(`100`=c(0.565, 0.545, 0.551, 0.567, 0.589, 0.615),
+                    `300`=c(0.366, 0.307, 0.275, 0.254, 0.238, 0.224),
+                    `500`=c(0.19, 0.137, 0.111, 0.096, 0.085, 0.077))
+  gamNa.HCh <- list(`100`=c(0.620, 0.616, 0.635, 0.662, 0.695, 0.730),
+                    `300`=c(0.421, 0.368, 0.339, 0.318, 0.302, 0.288),
+                    `500`=c(0.233, 0.180, 0.155, 0.138, 0.126, 0.117))
+  gamNaCl.HCh <- list(`100`=c(0.965, 0.933, 0.904, 0.876, 0.850, 0.827),
+                      `300`=c(0.968, 0.941, 0.915, 0.892, 0.870, 0.849),
+                      `500`=c(0.977, 0.955, 0.935, 0.915, 0.897, 0.879))
+  # calculate activity coefficent of Cl- at each temperature
+  gamCl.100 <- 10^subcrt("Cl-", T=100, P=1000, IS=IS.HCh$`100`)$out$`Cl-`$loggam
+  gamCl.300 <- 10^subcrt("Cl-", T=300, P=1000, IS=IS.HCh$`300`)$out$`Cl-`$loggam
+  gamCl.500 <- 10^subcrt("Cl-", T=500, P=1000, IS=IS.HCh$`500`)$out$`Cl-`$loggam
+  expect_maxdiff(gamCl.100, gamCl.HCh$`100`, 0.07)
+  expect_maxdiff(gamCl.300, gamCl.HCh$`300`, 0.03)
+  expect_maxdiff(gamCl.500, gamCl.HCh$`500`, 0.009)
+  # calculate activity coefficent of Na+ at each temperature
+  gamNa.100 <- 10^subcrt("Na+", T=100, P=1000, IS=IS.HCh$`100`)$out$`Na+`$loggam
+  gamNa.300 <- 10^subcrt("Na+", T=300, P=1000, IS=IS.HCh$`300`)$out$`Na+`$loggam
+  gamNa.500 <- 10^subcrt("Na+", T=500, P=1000, IS=IS.HCh$`500`)$out$`Na+`$loggam
+  expect_maxdiff(gamNa.100, gamNa.HCh$`100`, 0.08)
+  expect_maxdiff(gamNa.300, gamNa.HCh$`300`, 0.03)
+  expect_maxdiff(gamNa.500, gamNa.HCh$`500`, 0.013)
+  # calculate activity coefficent of NaCl at each temperature
+  gamNaCl.100 <- 10^subcrt("NaCl", T=100, P=1000, IS=IS.HCh$`100`)$out$`NaCl`$loggam
+  gamNaCl.300 <- 10^subcrt("NaCl", T=300, P=1000, IS=IS.HCh$`300`)$out$`NaCl`$loggam
+  gamNaCl.500 <- 10^subcrt("NaCl", T=500, P=1000, IS=IS.HCh$`500`)$out$`NaCl`$loggam
+  expect_maxdiff(gamNaCl.100, gamNaCl.HCh$`100`, 0.09)
+  expect_maxdiff(gamNaCl.300, gamNaCl.HCh$`300`, 0.09)
+  expect_maxdiff(gamNaCl.500, gamNaCl.HCh$`500`, 0.10)
 })

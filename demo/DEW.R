@@ -1,7 +1,7 @@
 # demo for the Deep Earth Water (DEW) model in CHNOSZ 20170927
 
 # set up subplots
-par(mfrow = c(2, 2), mar=c(3.0, 3.5, 2.5, 1.0), mgp=c(1.7, 0.3, 0), las=1, tcl=0.3, xaxs="i", yaxs="i")
+opar <- par(mfrow = c(2, 2), mar=c(3.0, 3.5, 2.5, 1.0), mgp=c(1.7, 0.3, 0), las=1, tcl=0.3, xaxs="i", yaxs="i")
 
 # activate DEW model
 oldwat <- water("DEW")
@@ -26,9 +26,9 @@ PT10.0 <- data.frame(P=10000, T=seq(200, 825, 10))
 PT20.0 <- data.frame(P=20000, T=seq(200, 800, 10))
 PT <- rbind(PT0.5, PT1.0, PT2.0, PT5.0, PT10.0, PT20.0)
 # reaction 1: quartz = SiO2(aq) [equivalent to quartz + 3 H2O = Si(OH)4]
-SiO2_logK <- subcrt(c("quartz", "SiO2"), c("cr_Berman", "aq"), c(-1, 1), P=PT$P, T=PT$T)$out$logK
+SiO2_logK <- subcrt(c("quartz", "SiO2"), c("cr", "aq"), c(-1, 1), P=PT$P, T=PT$T)$out$logK
 # reaction 2: 2 quartz = Si2O4(aq) [equivalent to 2 quartz + 3 H2O = Si2O(OH)6]
-Si2O4_logK <- subcrt(c("quartz", "Si2O4"), c("cr_Berman", "aq"), c(-2, 1), P=PT$P, T=PT$T)$out$logK
+Si2O4_logK <- subcrt(c("quartz", "Si2O4"), c("cr", "aq"), c(-2, 1), P=PT$P, T=PT$T)$out$logK
 # plot the sum of molalities (== activities) for each pressure
 plot(c(200, 1000), c(-2.5, 0.5), type="n", xlab=axis.label("T"), ylab="log molality")
 for(P in unique(PT$P)) {
@@ -45,8 +45,7 @@ for(P in unique(PT$P)) {
 t1 <- quote("Solubility of"~alpha*"-quartz")
 t2 <- "after Sverjensky et al., 2014a"
 mtitle(as.expression(c(t1, t2)))
-# TODO: lines are a little low at highest P and P ...
-# does the Berman, 1988 quartz data increase high-PT solubilities?
+# TODO: lines are a little low at highest P and T ...
 
 ###########
 #### plot 2: correlations between non-solvation volume and HKF a1 parameter
@@ -146,31 +145,34 @@ organics <- c("formic acid", "formate", "acetic acid", "acetate", "propanoic aci
 add.obigt("DEW", c(inorganics, organics[-4]))
 ## set basis species
 basis(c("Fe", "SiO2", "CO3-2", "H2O", "oxygen", "H+"))
-## define a QFM buffer using Berman's equations for minerals
-mod.buffer("QFM_Berman", c("quartz", "fayalite", "magnetite"), "cr_Berman", 0)
 ## calculate logfO2 in QFM buffer
-basis("O2", "QFM_Berman")
-T <- seq(600, 1000, 5); T100 <- seq(600, 1000, 100)
+basis("O2", "QFM")
+T <- seq(600, 1000, 100)
 buf <- affinity(T=T, P=50000, return.buffer=TRUE)
 ## add species
 species(c(inorganics, organics))
 ## generate spline functions from IS, pH, and molC values at every 100 degC
-IS <- splinefun(T100, c(0.39, 0.57, 0.88, 1.45, 2.49))
-pH <- splinefun(T100, c(3.80, 3.99, 4.14, 4.25, 4.33))
-molC <- splinefun(T100, c(0.03, 0.2, 1, 4, 20))
-## use Debye-Huckel equation with B-dot set to zero
-nonideal("Helgeson0")
+IS <- c(0.39, 0.57, 0.88, 1.45, 2.49)
+pH <- c(3.80, 3.99, 4.14, 4.25, 4.33)
+molC <- c(0.03, 0.2, 1, 4, 20)
+## use extended Debye-Huckel equation with b_gamma set to zero
+nonideal("bgamma0")
 ## calculate affinities on the T-logfO2-pH-IS transect
-a <- affinity(T = T, O2 = buf$O2 - 2, IS = IS(T), pH = pH(T), P = 50000)
+a <- affinity(T = T, O2 = buf$O2 - 2, IS = IS, pH = pH, P = 50000)
 ## calculate metastable equilibrium activities using the total
 ## carbon molality as an approximation of total activity
-e <- equilibrate(a, loga.balance = log10(molC(T)))
+e <- equilibrate(a, loga.balance = log10(molC))
 ## make the diagram; don't plot names of low-abundance species
 names <- c(inorganics, organics)
 names[c(4, 5, 7, 9)] <- ""
 col <- rep("black", length(names))
 col[c(1, 3, 6, 8, 10)] <- c("red", "darkgreen", "purple", "orange", "navyblue")
-diagram(e, alpha = "balance", ylab = "carbon fraction", names = names, col = col, ylim = c(0, 0.8))
+if(packageVersion("CHNOSZ") > "1.1.3") {
+  diagram(e, alpha = "balance", names = names, col = col, ylim = c(0, 0.8), ylab="carbon fraction", spline.method="natural")
+} else {
+  diagram(e, alpha = "balance", names = names, col = col, ylim = c(0, 0.8), ylab="carbon fraction")
+}
+
 
 ## add legend and title
 ltxt1 <- "P = 50000 bar"
@@ -184,7 +186,7 @@ mtitle(c(t1, t2))
 ### additional checks
 
 ## check that we're within 0.1 of the QFM-2 values used by SSH14
-stopifnot(maxdiff((buf$O2-2)[!T%%100], c(-17.0, -14.5, -12.5, -10.8, -9.4)) < 0.1)
+stopifnot(maxdiff((buf$O2-2), c(-17.0, -14.5, -12.5, -10.8, -9.4)) < 0.1)
 
 # Here are the logKs of aqueous species dissociation reactions at 600 degC and 50000 bar,
 # values from EQ3NR output in Supporting Information of the paper (p. 103-109):
@@ -201,7 +203,9 @@ stopifnot(maxdiff(logK.calc, c(inorganic.logK, organic.logK)) < 0.021)
 loggamma <- c(-0.15, -0.18, -0.22, -0.26, -0.31)
 # activity coefficients calculated in CHNOSZ
 sres <- subcrt("propanoate", T = seq(600, 1000, 100), P = 50000, IS = c(0.39, 0.57, 0.88, 1.45, 2.49))
-stopifnot(maxdiff(sres$out[[1]]$loggam, loggamma) < 0.004)
+stopifnot(maxdiff(sres$out[[1]]$loggam, loggamma) < 0.023)
+# if m_star in nonideal() was zero, we could decrease the tolerance here
+#stopifnot(maxdiff(sres$out[[1]]$loggam, loggamma) < 0.004)
 
 ###########
 ### all done!
@@ -209,3 +213,5 @@ stopifnot(maxdiff(sres$out[[1]]$loggam, loggamma) < 0.004)
 data(OBIGT)
 water(oldwat)
 ###########
+
+par(opar)

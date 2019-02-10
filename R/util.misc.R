@@ -2,29 +2,29 @@
 # some utility functions for the CHNOSZ package
 # speciate/thermo.R 20051021 jmd
 
-dPdTtr <- function(ispecies) {
+dPdTtr <- function(ispecies, ispecies2 = NULL) {
   # calculate dP/dT for a phase transition
   # (argument is index of the lower-T phase)
   thermo <- get("thermo")
-  pars <- info(c(ispecies, ispecies+1), check.it=FALSE)
-  # the special handling for quartz and coesite interferece with this function,
+  if(is.null(ispecies2)) ispecies2 <- ispecies + 1
+  pars <- info(c(ispecies, ispecies2), check.it=FALSE)
+  # if these aren't the same mineral, we shouldn't be here
+  if(as.character(pars$name[1]) != as.character(pars$name[2])) stop("different names for species ", ispecies, " and ", ispecies2)
+  # the special handling for quartz and coesite interfere with this function,
   # so we convert to uppercase names to prevent cgl() from calling quartz_coesite()
   pars$name <- toupper(pars$name)
   props <- cgl(c("G", "S", "V"), pars, P=0, T=thermo$obigt$z.T[ispecies])
-  # if these aren't the same mineral all we can say is zero
-  # actually, should be infinity ... the volume change is zero
-  if(as.character(pars$name[1]) != as.character(pars$name[2])) return(Inf)
   # we really hope the G's are the same ...
   #if(abs(props[[2]]$G - props[[1]]$G) > 0.1) warning('dP.dT: inconsistent values of G for different phases of ',ispecies,call.=FALSE)
   dP.dT <- convert( ( props[[2]]$S - props[[1]]$S ) / ( props[[2]]$V - props[[1]]$V ), 'cm3bar' )
   return(dP.dT)
 }
 
-Ttr <- function(ispecies,P=1,dPdT=NULL) {
+Ttr <- function(ispecies, ispecies2 = NULL, P = 1, dPdT = NULL) {
   # calculate a phase transition temperature for given P
   TtrPr <- get("thermo")$obigt$z.T[ispecies]
   # the constant slope, dP/dT
-  if(is.null(dPdT)) dPdT <- dPdTtr(ispecies)
+  if(is.null(dPdT)) dPdT <- dPdTtr(ispecies, ispecies2)
   Pr <- 1
   TtrPr + (P - Pr) / dPdT
 }

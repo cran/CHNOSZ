@@ -1,8 +1,8 @@
 ## Oxygen fugacity - activity of H2O predominance 
 ## diagrams for proteologs for 23 YeastGFP localizations
-# use old properties of [Met] (Dick et al., 2006) to reproduce this example
+# use superseded properties of [Met], [Gly], and [UPBB] (Dick et al., 2006)
 data(thermo)
-mod.obigt("[Met]", G=-35245, H=-59310)
+add.obigt("OldAA")
 # arranged by decreasing metastability:
 # order of this list of locations is based on the 
 # (dis)appearance of species on the current set of diagrams
@@ -27,12 +27,13 @@ for(i in 1:length(names)) {
 species(names, "Sce")
 a <- affinity(H2O=c(-5, 0, 256), O2=c(-80, -66, 256))
 # setup the plot
+opar <- par(no.readonly = TRUE)
 layout(matrix(c(1, 1,2:7), byrow=TRUE, nrow=4), heights=c(0.7, 3, 3, 3))
 par(mar=c(0, 0, 0, 0))
 plot.new()
 text(0.5, 0.7, expression("Proteins in subcellular locations of"~italic("S. cerevisiae")~"(Dick, 2009)"), cex=1.5)
 text(0.5, 0.2, describe.basis(ibasis=c(1, 3, 4, 6), oneline=TRUE), cex=1.5)
-opar <- par(mar=c(3, 4, 1, 1), xpd=TRUE)
+par(mar=c(3, 4, 1, 1), xpd=TRUE)
 fill <- heat.colors(length(names))
 inames <- 1:length(names)
 for(i in 1:length(nloc)) {
@@ -45,6 +46,7 @@ for(i in 1:length(nloc)) {
 }
 # return to plot defaults
 layout(matrix(1))
+par(xpd=FALSE)
 par(opar)
 
 ## Localizations and abundances of proteins from YeastGFP are used here

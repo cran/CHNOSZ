@@ -5,9 +5,9 @@ test_that("expected errors are produced for inconsistent arguments", {
   basis("CHNOS")
   species(c("glycine", "alanine"))
   a <- affinity()
-  expect_message(diagram(a, plot.it=FALSE), "balance: from moles of CO2 in formation reactions")
+  expect_message(diagram(a, plot.it=FALSE), "balance: moles of CO2 in formation reactions")
   e <- equilibrate(a)
-  expect_error(diagram(e, "Z"), "Z is not a basis species")
+  expect_error(diagram(e, "Z"), "Z is not a valid diagram type")
 })
 
 test_that("expected messages, errors and results arise using output from affinity()", {
@@ -22,7 +22,7 @@ test_that("expected messages, errors and results arise using output from affinit
   # we can't calculate the equilibrium activity of a basis species if it's externally buffered
   expect_error(diagram(a, "O2"), "is not numeric - was a buffer selected\\?")
   # this one works - a barplot of A/2.303RT
-  expect_message(diagram(a, plot.it=FALSE), "balance: from moles of CO2 in formation reactions")
+  expect_message(diagram(a, plot.it=FALSE), "balance: moles of CO2 in formation reactions")
   # if we're plotting A/2.303RT the values can be divided by balancing coefficient or not
   d.1 <- diagram(a, balance=1, plot.it=FALSE)
   d.CO2 <- diagram(a, plot.it=FALSE)
@@ -49,7 +49,7 @@ test_that("'groups' and 'alpha' work as expected", {
   # group the species together
   d <- diagram(e, groups=list(1:2, 3:4), plot.it=FALSE)
   # we should find that their activities have been multiplied by the balance coefficients and summed
-  n.balance <- balance(a)
+  n.balance <- balance(a)$n.balance
   expect_equal(d$plotvals[[1]], log10(n.balance[1]*10^e$loga.equil[[1]] + n.balance[2]*10^e$loga.equil[[2]]))
   expect_equal(d$plotvals[[2]], log10(n.balance[3]*10^e$loga.equil[[3]] + n.balance[4]*10^e$loga.equil[[4]]))
   # ask for degrees of formation instead of logarithms of activities
@@ -81,9 +81,8 @@ test_that("diagram() handles 2D plots with different x and y resolution and warn
   basis("CHNOS")
   species(c("alanine", "glycine", "serine", "methionine"))
   a <- affinity(T=c(0, 200, 6), O2=c(-90, -60, 5))
-  # TODO: fix plot.line() function in diagram() so that the plot can be made
-  #expect_equal(diagram(a), diagram(a, plot.it=FALSE))
-  expect_warning(diagram(a, what="CO2", plot.it=FALSE), "showing only first species in 2-D property diagram")
+  # now the warning is invokes next to the actual plotting, so no warning is produced with plot.it=FALSE 20180315
+  #expect_warning(diagram(a, type="CO2", plot.it=FALSE), "showing only first species in 2-D property diagram")
 })
 
 test_that("NaN values from equilibrate() are preserved (as NA in predominance calculation)", {

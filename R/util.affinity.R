@@ -1,6 +1,9 @@
 # CHNOSZ/util-affinity.R
 # helper functions for affinity()
 
+## if this file is interactively sourced, the following are also needed to provide unexported functions:
+#source("util.units.R")
+
 slice.affinity <- function(affinity,d=1,i=1) {
   # take a slice of affinity along one dimension
   a <- affinity
@@ -17,7 +20,7 @@ slice.affinity <- function(affinity,d=1,i=1) {
 
 ### unexported functions ###
 
-energy <- function(what,vars,vals,lims,T=298.15,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,transect=FALSE) {
+energy <- function(what,vars,vals,lims,T=298.15,P="Psat",IS=0,sout=NULL,exceed.Ttr=FALSE,exceed.rhomin=FALSE,transect=FALSE) {
   # 20090329 extracted from affinity() and made to
   # deal with >2 dimensions (variables)
 
@@ -130,20 +133,33 @@ energy <- function(what,vars,vals,lims,T=298.15,P="Psat",IS=0,sout=NULL,exceed.T
 
   ### function for calling subcrt
   sout.fun <- function(property="logK") {
-    if(!is.null(sout)) return(sout) else {
+    species <- c(mybasis$ispecies,myspecies$ispecies)
+    if(!is.null(sout)) {
+      # extract the needed species from a provided sout 20190131
+      isout <- match(species, sout$species$ispecies)
+      this.sout <- sout
+      this.sout$species <- this.sout$species[isout, ]
+      this.sout$out <- this.sout$out[isout]
+      return(this.sout) 
+    } else {
       ## subcrt arguments
-      species <- c(mybasis$ispecies,myspecies$ispecies)
       if("T" %in% vars) T <- vals[[which(vars=="T")]]
       if("P" %in% vars) P <- vals[[which(vars=="P")]]
       if("IS" %in% vars) IS <- vals[[which(vars=="IS")]]
-      s.args <- list(species=species,property=property,T=T,P=P,IS=IS,grid=grid,convert=FALSE,exceed.Ttr=exceed.Ttr)
-      return(do.call("subcrt",s.args)$out)
+      s.args <- list(species=species,property=property,T=T,P=P,IS=IS,grid=grid,convert=FALSE,exceed.Ttr=exceed.Ttr,exceed.rhomin=exceed.rhomin)
+      sout <- do.call("subcrt",s.args)
+      # species indices are updated by subcrt() for minerals with phase transitions
+      # e.g. i <- info("chalcocite"); subcrt(i, T=200)$species$ispecies == i + 1
+      # so we should keep the original species index to be able to find the species in a provided 'sout'
+      # (noted for Mosaic diagram section of anintro.Rmd 20190203)
+      sout$species$ispecies <- species
+      return(sout)
     }
   }
 
   ### functions for logK/subcrt props
   # the logK contribution by any species or basis species
-  X.species <- function(ispecies,coeff,X) coeff * sout[[ispecies]][,names(sout[[ispecies]])==X]
+  X.species <- function(ispecies,coeff,X) coeff * sout$out[[ispecies]][,names(sout$out[[ispecies]])==X]
   # the logK contribution by all basis species in a reaction
   X.basis <- function(ispecies,X) Reduce("+", mapply(X.species,ibasis,-myspecies[ispecies,ibasis],X,SIMPLIFY=FALSE))
   # the logK of any reaction
@@ -198,7 +214,7 @@ energy <- function(what,vars,vals,lims,T=298.15,P="Psat",IS=0,sout=NULL,exceed.T
     # (used by energy.args() for calculating pe=f(Eh,T) )
     # TODO: document that sout here denotes the dimension
     # we're expanding into
-    return(dim.fun(what,ivars(sout)))
+    return(dim.fun(what,ivars(sout$out)))
   } else if(what %in% c('G','H','S','Cp','V','E','kT','logK')) {
     # get subcrt properties for reactions
     sout <- sout.fun(what)
@@ -264,19 +280,19 @@ energy.args <- function(args) {
   }
   # report non-variables to user
   if(!T.is.var)
-    message('energy.args: temperature is ',outvert(T,'K'),' ',T.units())
+    message('affinity: temperature is ',outvert(T,'K'),' ',T.units())
   if(!P.is.var) {
-    if(identical(P,"Psat")) message("energy.args: pressure is Psat")
-    else message('energy.args: pressure is ',outvert(P,'bar'),' ',P.units())
+    if(identical(P,"Psat")) message("affinity: pressure is Psat")
+    else message('affinity: pressure is ',outvert(P,'bar'),' ',P.units())
   }
-  if(!IS.is.var & !identical(IS,0)) message('energy.args: ionic strength is ',IS)
+  if(!IS.is.var & !identical(IS,0)) message('affinity: ionic strength is ',IS)
   # default values for resolution
   res <- 128
   # where we store the output
   what <- "A"
   vars <- character()
   vals <- list(NA)
-  # this needs to have 1 as the third component b/c
+  # this needs to have 1 as the third component because
   # energy() uses it to build an array with the given dimension
   lims <- list(c(NA, NA, 1))
   # clean out non-variables
@@ -298,13 +314,9 @@ energy.args <- function(args) {
         names(args)[i] <- "H+"
         if(transect) args[[i]] <- -args[[i]]
         else args[[i]][1:2] <- -args[[i]][1:2]
-        if(!'H+' %in% rownames(thermo$basis)) 
-          message('energy.args: pH requested, but no H+ in the basis')
       } 
       if(names(args)[i]=="pe") {
         names(args)[i] <- "e-"
-        if(!'e-' %in% rownames(thermo$basis)) 
-          message('energy.args: pe requested, but no e- in the basis')
         if(transect) args[[i]] <- -args[[i]]
         else args[[i]][1:2] <- -args[[i]][1:2]
       }
@@ -325,14 +337,21 @@ energy.args <- function(args) {
       # physical state
       ibasis <- match(nametxt, rownames(thermo$basis))
       if(isTRUE(as.logical(ibasis))) {
-        if(thermo$basis$state[ibasis]=="gas") nametxt <- paste("log_f(", nametxt, ")", sep="") 
-        else nametxt <- paste("log_a(", nametxt, ")", sep="") 
+        if(thermo$basis$state[ibasis]=="gas") nametxt <- paste("log10(f_", nametxt, ")", sep="") 
+        else nametxt <- paste("log10(a_", nametxt, ")", sep="") 
+      } else {
+        # stop if the argument doesn't correspond to a basis species, T, P, or IS
+        if(!nametxt %in% c("T", "P", "IS")) {
+          if(! (nametxt=="pH" & 'H+' %in% rownames(thermo$basis) | nametxt %in% c("pe", "Eh") & 'e-' %in% rownames(thermo$basis))) {
+            stop(nametxt, " is not one of T, P, or IS, and does not match any basis species")
+          }
+        }
       }
       # temperature and pressure and Eh
       if(nametxt=="T") unittxt <- " K"
       if(nametxt=="P") unittxt <- " bar"
       if(nametxt=="Eh") unittxt <- " V"
-      message("energy.args: variable ", length(vars), " is ", nametxt, 
+      message("affinity: variable ", length(vars), " is ", nametxt, 
         " at ", n, " values from ", lims.orig[1], " to ", lims.orig[2], unittxt)
     }
   }
@@ -345,7 +364,7 @@ energy.args <- function(args) {
     # what variable is Eh
     Eh.var <- which(args$vars=="Eh")
     Eh.args$what <- args$vals[[Eh.var]]
-    Eh.args$sout <- Eh.var
+    Eh.args$sout$out <- Eh.var
     Eh <- do.call("energy",Eh.args)
     # get temperature into our dimensions
     T.args <- args  
@@ -356,7 +375,7 @@ energy.args <- function(args) {
       T.var <- 1
       T.args$what <- T
     }
-    T.args$sout <- T.var
+    T.args$sout$out <- T.var
     T <- do.call("energy",T.args)
     # do the conversion on vectors
     mydim <- dim(Eh)

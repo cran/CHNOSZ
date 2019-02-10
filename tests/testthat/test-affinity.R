@@ -3,12 +3,19 @@ context("affinity")
 # clear out any previous basis definition or database alterations
 suppressMessages(data(thermo))
 
-test_that("errors come as expected, and output gives T and P in user's units", {
+test_that("errors come as expected", {
   expect_error(affinity(iprotein=7), "basis species are not defined")
   expect_error(affinity(iprotein=NA), "has some NA values")
   expect_error(affinity(iprotein=0), "are not rownumbers")
   basis("CHNOS")
   expect_error(affinity(), "species have not been defined")
+  species("CO2")
+  expect_error(affinity(pe=c(-10, 10), pH=c(0, 14)), "pe.*does not match any basis species")
+  expect_error(affinity(O2=c(-80, -60), pH=c(0, 14)), "pH.*does not match any basis species")
+})
+
+test_that("output gives T and P in user's units", {
+  basis("CHNOS")
   species("5a(H),14b(H)-cholestane")
   a.C_bar <- affinity(T=c(0, 100, 10), P=c(10, 1000, 10))
   expect_equal(range(a.C_bar$vals[[1]]), c(0, 100))
@@ -104,8 +111,8 @@ test_that("'iprotein' gives consistent results on a transect", {
   file <- system.file("extdata/protein/DS11.csv", package="CHNOSZ")
   aa <- read.csv(file, as.is=TRUE)
   ip <- add.protein(aa[1:5, ])
-  # to reproduce, we need use the "old" parameters for [Met] from Dick et al., 2006
-  mod.obigt("[Met]", G=-35245, H=-59310)
+  # to reproduce, use superseded properties of [Met], [Gly], and [UPBB] (Dick et al., 2006)
+  add.obigt("OldAA")
   a <- affinity(T=T, pH=pH, H2=H2, iprotein=ip)
   # divide A/2.303RT by protein length
   pl <- protein.length(ip)
@@ -164,4 +171,32 @@ test_that("IS can be constant or variable", {
   expect_equal(unlist(lapply(a2$values, head, 1)), unlist(a0$values))
   expect_equal(unlist(lapply(a2$values, tail, 1)), unlist(a1$values))
   nonideal(oldnon)
+})
+
+test_that("argument recall is usable", {
+  # 20190127
+  basis("CHNOS")
+  species(c("CO2", "CH4"))
+  a0 <- affinity(O2=c(-80, -60))
+  a1 <- affinity(O2=c(-80, -60), T=100)
+  a2 <- affinity(a0, T=100)
+  a3 <- affinity(a1, T=25)
+  expect_identical(a1, a2)
+  # we don't test entire output here becuase a0 doesn't have a "T" argument
+  expect_identical(a0$values, a3$values)
+})
+
+test_that("sout is processed correctly", {
+  # 20190201
+  basis("CHNOS+")
+  # previously, this test would fail when sout has
+  # more species than are used in the calculation
+  species(c("H2S", "CO2", "CH4"))
+  a0 <- affinity(T = c(0, 100))
+  sout <- a0$sout
+  # test the calculation with just CH4
+  species(1:2, delete = TRUE)
+  a1 <- affinity(T = c(0, 100))
+  a2 <- affinity(T = c(0, 100), sout = a0$sout)
+  expect_equal(a1$values, a2$values)
 })

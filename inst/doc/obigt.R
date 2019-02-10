@@ -126,9 +126,7 @@ used <- c(used, filerefs(csvfile))
 
 ## ----Berman_cr, results="asis", echo=FALSE-------------------------------
 cat("This file gives the identifiying information for minerals whose properties are calculated using the formulation of [Berman (1988)](https://doi.org/10.1093/petrology/29.2.445).\n")
-cat("To distinguish these minerals from the original set of mineral data in CHNOSZ (based on the compliation of [Helgeson et al., 1978](http://www.worldcat.org/oclc/13594862)), the physical states are listed as `cr_Berman`.\n")
-cat("The actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
-cat("To see the equations in use, run [<span style='color:blue'>`demo(lambda)`</span>](../demo) to calculate properties of the lambda transition in quartz [@Ber88]; the Berman equations are also used in [<span style='color:blue'>`demo(DEW)`</span>](../demo) and [<span style='color:blue'>`demo(go-IU)`</span>](../demo).<hr>")
+cat("Note that thermodynamic properties for these minerals are listed as NA in `thermo$obigt`; the actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
 
 ## ----reflist, results="asis", echo=FALSE---------------------------------
 used <- c(used, filerefs(csvfile))
@@ -141,9 +139,6 @@ used <- c(used, filerefs(csvfile))
 
 ## ----reflist, results="asis", echo=FALSE---------------------------------
 used <- c(used, filerefs(csvfile))
-
-## ----Optional_Data, results="asis", echo=FALSE---------------------------
-cat("These files contain optional data updates that replace and/or may be inconsistent with other entries in the default database. Use e.g. <span style='color:red'>`add.obigt('SUPCRTBL')`</span> to load the data.\n\n")
 
 ## ----DEW_aq, results="asis", echo=FALSE----------------------------------
 cat("The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019). The data here were taken from the May 2017 version of the DEW spreadsheet ([Dew Model, 2017](http://www.dewcommunity.org/resources.html)). The following species are present in the spreadsheet, but are not listed in `DEW_aq.csv` because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.\n\n")
@@ -157,12 +152,22 @@ optused <- character()
 # run filerefs for optional data sources
 optused <- c(optused, filerefs(csvfile))
 
-## ----SUPCRTBL, results="asis", echo=FALSE--------------------------------
-cat("<a href=http://www.indiana.edu/~hydrogeo/supcrtbl.html>SUPCRTBL</a> is a modification and data update for the SUPCRT92 package ([Zimmer et al., 2016](https://doi.org/10.1016/j.cageo.2016.02.013)). Data for SiO<sub>2(*aq*)</sub> were updated to reflect the higher observed solubility of quartz compared to the SUPCRT92 dataset, and other aqueous species and minerals relevant to environmental geochemistry were added. The data provided in CHNOSZ were taken from the original references cited below or, where indicated, from `spronsbl.dat` ([downloaded here](http://www.indiana.edu/~hydrogeo/SUPCRTBL_linux.zip); file dated 2016-03-01).\n\n")
-cat("NOTE 1: The SUPCRTBL modifications apply the [Holland and Powell (2011)](https://doi.org/10.1111/j.1525-1314.2010.00923.x) equations and dataset for minerals, which are not available in CHNOSZ. Instead, as an alternative to the default dataset of [Helgeson et al. (1978)](http://www.worldcat.org/oclc/13594862), CHNOSZ offers the dataset of [Berman (1988)](https://doi.org/10.1093/petrology/29.2.445) (see the **Solids** / **Berman** section of this vignette).\n")
-cat("NOTE 2: The minerals listed below are represented in the compilation of Zimmer et al. (2016) by constant volume and, where available, a 4-term heat capacity equation that, unlike the complete Holland and Powell formulation, **is** compatible with CHNOSZ.\n")
-cat("NOTE 3: Although Zimmer et al. (2016) remark that properties of HSiO<sub>3</sub><sup>-</sup> were recalculated, the values in `spronsbl.dat` are identical to those in [Sverjensky et al. (1997)](https://doi.org/10.1016/S0016-7037(97)00009-4). Those data are not included here (they are part of the default database of CHNOSZ).\n\n")
-cat("Run [<span style='color:blue'>`demo(go-IU)`</span>](../demo) for some examples.<hr>")
+## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
+cat('These minerals, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by the Berman dataset. They are kept as optional data for testing and comparison purposes. The minerals here include all of the silicates and Al-bearing minerals from [Helgeson et al., 1978](http://www.worldcat.org/oclc/13594862), as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+
+## ----optreflist, results="asis", echo=FALSE------------------------------
+# run filerefs for optional data sources
+optused <- c(optused, filerefs(csvfile))
+
+## ----SLOP98, results="asis", echo=FALSE----------------------------------
+cat('These species, taken from the slop98 data file, were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates. The data are kept here for comparative purposes. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
+
+## ----optreflist, results="asis", echo=FALSE------------------------------
+# run filerefs for optional data sources
+optused <- c(optused, filerefs(csvfile))
+
+## ----OldAA, results="asis", echo=FALSE-----------------------------------
+cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
@@ -214,9 +219,7 @@ used2 <- c(used2, filerefs(csvfile))
 
 ## ----Berman_cr, results="asis", echo=FALSE-------------------------------
 cat("This file gives the identifiying information for minerals whose properties are calculated using the formulation of [Berman (1988)](https://doi.org/10.1093/petrology/29.2.445).\n")
-cat("To distinguish these minerals from the original set of mineral data in CHNOSZ (based on the compliation of [Helgeson et al., 1978](http://www.worldcat.org/oclc/13594862)), the physical states are listed as `cr_Berman`.\n")
-cat("The actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
-cat("To see the equations in use, run [<span style='color:blue'>`demo(lambda)`</span>](../demo) to calculate properties of the lambda transition in quartz [@Ber88]; the Berman equations are also used in [<span style='color:blue'>`demo(DEW)`</span>](../demo) and [<span style='color:blue'>`demo(go-IU)`</span>](../demo).<hr>")
+cat("Note that thermodynamic properties for these minerals are listed as NA in `thermo$obigt`; the actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
@@ -231,7 +234,6 @@ used2 <- c(used2, filerefs(csvfile))
 used2 <- c(used2, filerefs(csvfile))
 
 ## ----Optional_Data, results="asis", echo=FALSE---------------------------
-cat("These files contain optional data updates that replace and/or may be inconsistent with other entries in the default database. Use e.g. <span style='color:red'>`add.obigt('SUPCRTBL')`</span> to load the data.\n\n")
 
 ## ----DEW_aq, results="asis", echo=FALSE----------------------------------
 cat("The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019). The data here were taken from the May 2017 version of the DEW spreadsheet ([Dew Model, 2017](http://www.dewcommunity.org/resources.html)). The following species are present in the spreadsheet, but are not listed in `DEW_aq.csv` because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.\n\n")
@@ -240,12 +242,20 @@ cat("Besides using <span style='color:red'>`add.obigt('DEW')`</span> to load the
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
-## ----SUPCRTBL, results="asis", echo=FALSE--------------------------------
-cat("<a href=http://www.indiana.edu/~hydrogeo/supcrtbl.html>SUPCRTBL</a> is a modification and data update for the SUPCRT92 package ([Zimmer et al., 2016](https://doi.org/10.1016/j.cageo.2016.02.013)). Data for SiO<sub>2(*aq*)</sub> were updated to reflect the higher observed solubility of quartz compared to the SUPCRT92 dataset, and other aqueous species and minerals relevant to environmental geochemistry were added. The data provided in CHNOSZ were taken from the original references cited below or, where indicated, from `spronsbl.dat` ([downloaded here](http://www.indiana.edu/~hydrogeo/SUPCRTBL_linux.zip); file dated 2016-03-01).\n\n")
-cat("NOTE 1: The SUPCRTBL modifications apply the [Holland and Powell (2011)](https://doi.org/10.1111/j.1525-1314.2010.00923.x) equations and dataset for minerals, which are not available in CHNOSZ. Instead, as an alternative to the default dataset of [Helgeson et al. (1978)](http://www.worldcat.org/oclc/13594862), CHNOSZ offers the dataset of [Berman (1988)](https://doi.org/10.1093/petrology/29.2.445) (see the **Solids** / **Berman** section of this vignette).\n")
-cat("NOTE 2: The minerals listed below are represented in the compilation of Zimmer et al. (2016) by constant volume and, where available, a 4-term heat capacity equation that, unlike the complete Holland and Powell formulation, **is** compatible with CHNOSZ.\n")
-cat("NOTE 3: Although Zimmer et al. (2016) remark that properties of HSiO<sub>3</sub><sup>-</sup> were recalculated, the values in `spronsbl.dat` are identical to those in [Sverjensky et al. (1997)](https://doi.org/10.1016/S0016-7037(97)00009-4). Those data are not included here (they are part of the default database of CHNOSZ).\n\n")
-cat("Run [<span style='color:blue'>`demo(go-IU)`</span>](../demo) for some examples.<hr>")
+## ----OldAA, results="asis", echo=FALSE-----------------------------------
+cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
+
+## ----reflist2, results="asis", echo=FALSE--------------------------------
+used2 <- c(used2, filerefs(csvfile))
+
+## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
+cat('These minerals, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by the Berman dataset. They are kept as optional data for testing and comparison purposes. The minerals here include all of the silicates and Al-bearing minerals from [Helgeson et al., 1978](http://www.worldcat.org/oclc/13594862), as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+
+## ----reflist2, results="asis", echo=FALSE--------------------------------
+used2 <- c(used2, filerefs(csvfile))
+
+## ----SLOP98, results="asis", echo=FALSE----------------------------------
+cat('These species, taken from the slop98 data file, were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates. The data are kept here for comparative purposes. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))

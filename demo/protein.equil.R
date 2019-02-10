@@ -4,8 +4,8 @@ protein <- pinfo(c("CSG_METVO", "CSG_METJA"))
 # clear out amino acid residues loaded by the example above
 # ( in affinity(iprotein=ip) )
 data(thermo)
-# use properties of the "old" [Met] sidechain group (Dick et al., 2006)
-mod.obigt("[Met]", G=-35245, H=-59310)
+# use superseded properties of [Met], [Gly], and [UPBB] (Dick et al., 2006)
+add.obigt("OldAA")
 # set up the basis species to those used in DS11
 basis("CHNOS+")
 # note this yields logaH2 = -4.657486
@@ -25,5 +25,5 @@ loga.residue <- log10(pl*10^-3)
 Aref.residue <- Astar.residue - loga.residue  # 0.446, after Eq. 16
 # A-star of the residue in natural log units (A/RT)
 log(10) * Astar.residue  # 0.4359, after Eq. 23
-# forget about the old [Met] group for whatever comes next
+# forget about the superseded group properties for whatever comes next
 data(thermo)

@@ -6,8 +6,8 @@ suppressMessages(data(thermo))
 test_that("invalid basis definitions cause an error", {
   expect_error(basis(character()), "argument is empty")
   expect_error(basis(c("CO2", "CO2")), "names are not unique")
-  expect_error(basis(c("CO2", "H2O")), "underdetermined")
-  expect_error(basis(c("H2O", "O2", "H2")), "overdetermined")
+  expect_error(basis(c("CO2", "H2O")), "the number of basis species is less than the number of elements")
+  expect_error(basis(c("H2O", "O2", "H2")), "the number of basis species is greater than the number of elements")
   expect_error(basis(c("HCN", "H2O", "O2", "H2")), "singular")
   expect_error(basis(c("CN", "H2O", "O2", "H2")), "species not available")
   expect_error(basis(c("CN")), "species not available")
@@ -32,11 +32,11 @@ test_that("invalid basis modification requests cause an error", {
 })
 
 test_that("modifying states of basis species is possible", {
-  b1 <- basis(c("Al2O3", "quartz", "oxygen"))
-  b2 <- basis("SiO2", "cr2")
-  # we went from quartz cr to cr2, which is the next row in the database
+  b1 <- basis(c("copper", "chalcocite"))
+  b2 <- basis("Cu2S", "cr2")
+  # we went from chalcocite cr to cr2, which is the next row in the database
   expect_equal(sum(b2$ispecies - b1$ispecies), 1)
-  expect_error(basis("SiO2", "cr3"), "state or buffer 'cr3' not found for quartz")
+  expect_error(basis("Cu2S", "cr4"), "state or buffer 'cr4' not found for chalcocite")
   # can we go from CO2(aq) to CO2(gas) back to CO2(aq)?
   basis("CHNOS+")  # first basis species is CO2(aq)
   expect_equal(basis("CO2", "gas")$state[1], "gas")

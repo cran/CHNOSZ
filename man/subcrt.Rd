@@ -10,8 +10,8 @@
   subcrt(species, coeff = 1, state = NULL,
     property = c("logK","G","H","S","V","Cp"),
     T = seq(273.15,623.15,25), P = "Psat", grid = NULL, 
-    convert = TRUE, exceed.Ttr = FALSE, logact = NULL,
-    action.unbalanced = "warn", IS = 0)
+    convert = TRUE, exceed.Ttr = FALSE, exceed.rhomin = FALSE,
+    logact = NULL, action.unbalanced = "warn", IS = 0)
 }
 
 \arguments{
@@ -23,6 +23,7 @@
   \item{P}{numeric, pressure(s) of the calculation, or character, \samp{Psat}}
   \item{grid}{character, type of \code{P}\eqn{\times}{x}\code{T} grid to produce (NULL, the default, means no gridding)}
   \item{exceed.Ttr}{logical, calculate Gibbs energies of mineral phases and other species beyond their transition temperatures?}
+  \item{exceed.rhomin}{logical, return properties of species in the HKF model below 0.35 g cm\S{-3}?}
   \item{logact}{numeric, logarithms of activities of species in reaction}
   \item{convert}{logical, are input and output units of T and P those of the user (\code{TRUE}) (see \code{\link{T.units}}), or are they Kelvin and bar (\code{FALSE})?}
   \item{action.unbalanced}{character \samp{warn} or NULL, what action to take if unbalanced reaction is provided}
@@ -83,9 +84,6 @@ Values of \code{logK} of reactions calculated for \code{IS} not equal to zero ar
 
 \code{subcrt} is modeled after the functionality of the \acronym{SUPCRT92} package (Johnson et al., 1992).
 Certain features of \acronym{SUPCRT92} are not available here, for example, calculations as a function of density of \H2O instead of pressure, or calculations of temperatures of univariant curves (i.e. for which \code{logK} is zero).
-The informative messages produced by \code{SUPCRT92} when temperature or pressure limits of the equations of state are exceeded generally are not reproduced here.
-However, \code{NA}s may be produced in the output of \code{subcrt} if the requisite thermodynamic or electrostatic properties of water can not be calculated at given conditions.
-Specifically, \code{NA}s are produced for calculations at \samp{Psat} when the temperature exceeds the critical temperature of \H2O.
 
 For calculations below 273.16 K, the pressure should be set to 1, as \Psat is not defined in these conditions.
 
@@ -94,9 +92,15 @@ This is useful for constructing e.g. boiling curves for organic compounds.
 }
 
 \section{Warning}{
-Although \acronym{SUPCRT92} prohibits calculations above 350 \degC at \Psat (\dQuote{beyond range of applicability of aqueous species equations}), there is no corresponding limit in place in \code{subcrt} (or \code{\link{hkf}}).
-Therefore, CHNOSZ can perform calculations up to the critical temperature (373.917 \degC) at \Psat, but these settings represent untested extrapolations.
-Unexpected results are evident in the discontinuity in the value of \logK at \Psat shown in \code{\link{demos}("NaCl")}.
+Although \acronym{SUPCRT92} prohibits calculations above 350 \degC at \Psat (\dQuote{beyond range of applicability of aqueous species equations}), CHNOSZ does not impose this limitation, and allows calculations up to the critical temperature (373.917 \degC) at \Psat.
+Interpret calculations between 350 \degC and the critical temperature at \Psat at your own risk.
+The discontinuity in the value of \logK at \Psat that is apparent in \code{\link{demos}("NaCl")} demonstrates one unexpected result.
+
+\code{NA}s are produced for calculations at \samp{Psat} when the temperature exceeds the critical temperature of \H2O.
+In addition, properties of species using the revised HKF equations are set to \code{NA} wherever the density of \H2O < 0.35 g/cm\S{3} (threshold just above the critical isochore; Johnson et al., 1992).
+Both of these situations produce warnings, which are stored in the \samp{warnings} element of the return value.
+
+\code{NA}s are also output if the T, P conditions are otherwise beyond the capabilities of the water equations of state derived from SUPCRT92 (H2O92D.f), but the messages about this are produced by \code{\link{water.SUPCRT92}} rather than \code{subcrt}.
 }
 
 \value{

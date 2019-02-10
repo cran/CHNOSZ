@@ -62,12 +62,15 @@ test_that("calculations using IAPWS-95 are possible", {
 
 test_that("phase transitions of minerals give expected messages and results", {
   iacanthite <- info("acanthite", "cr2")
-  #expect_message(subcrt(iacanthite), "subcrt: some points below transition temperature for acanthite cr2 \\(using NA for G\\)")
-  expect_message(subcrt(iacanthite), "subcrt: some points above temperature limit for acanthite cr2 \\(using NA for G\\)")
+  expect_message(subcrt(iacanthite), "subcrt: temperature\\(s\\) of 623.15 K and above exceed limit for acanthite cr2 \\(using NA for G\\)")
   expect_equal(subcrt("acanthite")$out$acanthite$polymorph, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3))
+  # the reaction coefficients in the output should be unchanged 20171214
+  expect_equal(subcrt(c("bunsenite", "nickel", "oxygen"), c(-1, 1, 0.5))$reaction$coeff, c(-1, 1, 0.5)) 
 })
 
 test_that("calculations for K-feldspar are consistent with SUPCRT92", {
+  # use the superseded Helgeson et al., 1978 data
+  add.obigt("SUPCRT92", "K-feldspar")
   T <- c(100, 100, 1000, 1000)
   P <- c(5000, 50000, 5000, 50000)
   SUPCRT_G <- c(-886628, -769531, -988590, -871493)
@@ -81,9 +84,11 @@ test_that("calculations for K-feldspar are consistent with SUPCRT92", {
   expect_equal(round(CHNOSZ$S, 1), SUPCRT_S)
   expect_equal(round(CHNOSZ$V, 1), SUPCRT_V)
   expect_equal(round(CHNOSZ$Cp, 1), SUPCRT_Cp)
+  data(OBIGT)
 })
 
 test_that("calculations for quartz are nearly consistent with SUPCRT92", {
+  add.obigt("SUPCRT92")
   # using SUPCRT's equations, the alpha-beta transition occurs at
   # 705 degC at 5000 bar and 1874 degC at 50000 bar,
   # so here beta-quartz is stable only at T=1000, P=5000
@@ -107,9 +112,11 @@ test_that("calculations for quartz are nearly consistent with SUPCRT92", {
   expect_equal(round(CHNOSZ$S, 1)[-4], SUPCRT_S[-4])
   expect_equal(round(CHNOSZ$Cp, 1)[-4], SUPCRT_Cp[-4])
   expect_equal(round(CHNOSZ$V, 1), SUPCRT_V)
+  data(OBIGT)
 })
 
 test_that("more calculations for quartz are nearly consistent with SUPCRT92", {
+  add.obigt("SUPCRT92")
   # output from SUPCRT92 for reaction specified as "1 QUARTZ" run at 1 bar
   # (SUPCRT shows phase transition at 574.850 deg C, and does not give Cp values around the transition)
   S92_1bar <- read.table(header = TRUE, text = "
@@ -139,25 +146,67 @@ test_that("more calculations for quartz are nearly consistent with SUPCRT92", {
   expect_maxdiff(CHNOSZ_5000bar$H, S92_5000bar$H, 300)
   expect_maxdiff(CHNOSZ_5000bar$S, S92_5000bar$S, 0.5)
   expect_maxdiff(CHNOSZ_5000bar$V, S92_5000bar$V, 0.05)
+  data(OBIGT)
 })
 
 test_that("duplicated species yield correct phase transitions", {
   # If a mineral with phase transitions is in both the basis and species lists,
   # energy()'s call to subcrt() will have duplicated species.
   # This wasn't working (produced NAs at low T) for a long time prior to 20171003.
-  s1 <- subcrt("quartz", T=c(100, 1000), P=1000)
-  s2 <- subcrt(rep("quartz", 2), T=c(100, 1000), P=1000)
+  s1 <- subcrt("chalcocite", T=c(100, 1000), P=1000)
+  s2 <- subcrt(rep("chalcocite", 2), T=c(100, 1000), P=1000)
   expect_equal(s1$out[[1]]$logK, s2$out[[1]]$logK)
   expect_equal(s1$out[[1]]$logK, s2$out[[2]]$logK)
   ## another way to test it ...
-  #basis(c("quartz", "oxygen"))
-  #species("quartz")
-  #a <- affinity(T=c(0, 1000, 2), P=1)
-  #expect_equal(as.numeric(a$values[[1]]), c(0, 0))
+  basis(c("copper", "chalcocite"))
+  species("chalcocite")
+  a <- affinity(T=c(0, 1000, 2), P=1)
+  expect_equal(as.numeric(a$values[[1]]), c(0, 0))
 })
 
-test_that("warning is produced for reaction with Helgeson and Berman minerals", {
-  expect_warning(subcrt(c("quartz", "quartz"), c(-1, 1), c("cr", "cr_Berman")), "data may not be internally consistent")
+test_that("reaction coefficients for repeated species are handled correctly", {
+  # these were failing in version 1.1.3
+  s1 <- subcrt(c("quartz", "SiO2"), c(-1, 1))            
+  expect_equal(s1$reaction$coeff, c(-1, 1))
+  s2 <- subcrt(c("pyrrhotite", "pyrrhotite"), c(-1, 1))            
+  expect_equal(s2$reaction$coeff, c(-1, 1))
+  # these were failing in version 1.1.3-28
+  s3 <- subcrt(c("SiO2", "SiO2"), c(-1, 1))
+  expect_equal(s3$reaction$coeff, c(-1, 1))
+  s4 <- subcrt(c("H2O", "H2O", "H2O", "H2O", "H2O"), c(-2, 1, -3, 1, 3))
+  expect_equal(s4$reaction$coeff, c(-2, 1, -3, 1, 3))
+  # the reaction properties here should add up to zero
+  expect_equal(unique(s4$out$logK), 0)
+})
+
+test_that("properties of HKF species below 0.35 g/cm3 are NA and give a warning", {
+  wtext <- "below minimum density for applicability of revised HKF equations \\(2 T,P pairs\\)"
+  expect_warning(s1 <- subcrt(c("Na+", "quartz"), T=450, P=c(400, 450, 500)), wtext) 
+  expect_equal(sum(is.na(s1$out$`Na+`$logK)), 2)
+  expect_equal(sum(is.na(s1$out$quartz$logK)), 0)
+  # use exceed.rhomin to go below the minimum density
+  s2 <- subcrt(c("Na+", "quartz"), T=450, P=c(400, 450, 500), exceed.rhomin=TRUE)
+  expect_equal(sum(is.na(s2$out$`Na+`$logK)), 0)
+})
+
+test_that("combining minerals with phase transitions and aqueous species with IS > 0 does not mangle output", {
+  # s2 was giving quartz an extraneous loggam column and incorrect G and logK 20181107
+  add.obigt("SUPCRT92")
+  s1 <- subcrt(c("quartz", "K+"), T=25, IS=1)
+  s2 <- subcrt(c("K+", "quartz"), T=25, IS=1)
+  expect_true(identical(colnames(s1$out[[1]]), c("T", "P", "rho", "logK", "G", "H", "S", "V", "Cp", "polymorph")))
+  expect_true(identical(colnames(s2$out[[2]]), c("T", "P", "rho", "logK", "G", "H", "S", "V", "Cp", "polymorph")))
+  expect_true(identical(colnames(s1$out[[2]]), c("T", "P", "rho", "logK", "G", "H", "S", "V", "Cp", "loggam", "IS")))
+  expect_true(identical(colnames(s2$out[[1]]), c("T", "P", "rho", "logK", "G", "H", "S", "V", "Cp", "loggam", "IS")))
+  # another one ... pyrrhotite was getting a loggam
+  expect_true(identical(colnames(subcrt(c("iron", "Na+", "Cl-", "OH-", "pyrrhotite"), T=25, IS=1)$out$pyrrhotite),
+    c("T", "P", "rho", "logK", "G", "H", "S", "V", "Cp", "polymorph")))
+})
+
+test_that("argument checking handles some types of invalid input", {
+  expect_error(subcrt("H2O", -1, "liq", "xxx"), "invalid property name: xxx")
+  # before version 1.1.3-63, having more than one invalid property gave a mangled error message
+  expect_error(subcrt("H2O", -1, "liq", c(1, 2)), "invalid property names: 1 2")
 })
 
 # references

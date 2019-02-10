@@ -14,7 +14,7 @@ if (before && options$fig.show!='none') par(mar=c(4,4,1,1),cex.lab=.95,cex.axis=
 ## ----libraryCHNOSZ-----------------------------------------------------------------
 library(CHNOSZ)
 data(thermo)
-mod.obigt("[Met]", G=-35245, H=-59310)
+add.obigt("OldAA")
 
 ## ----TpH---------------------------------------------------------------------------
 bison.T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
@@ -134,7 +134,7 @@ Tlim <- c(50, 100)
 par(mfrow=c(1, 2))
 # first plot
 a <- affinity(T=Tlim, H2=c(-7, -4))
-diagram(a, fill=NULL, names=1:5, normalize=TRUE)
+diagram(a, fill=NULL, names=as.character(1:5), normalize=TRUE)
 lines(Tlim, get.logaH2(Tlim), lty=3)
 # second plot
 species(1:5, -3)
@@ -172,6 +172,7 @@ for(j in 1:2) {
   # use old [Met] for first row and new [Met] for second row
   if(j==2) {
     data(thermo)
+    add.obigt("OldAA", c("[Gly]", "[UPBB]"))
     ip.annot <- add.protein(aa.annot)
   }
   # setup basis species and proteins
@@ -180,7 +181,7 @@ for(j in 1:2) {
   for(annot in c("overall", "transferase", "synthase")) {
     ip <- ip.annot[aa.annot$protein==annot]
     a <- affinity(T=c(50, 100), H2=c(-7, -4), iprotein=ip)
-    diagram(a, fill=NULL, names=1:5, normalize=TRUE)
+    diagram(a, fill=NULL, names=as.character(1:5), normalize=TRUE)
     # add logaH2-T line
     lines(par("usr")[1:2], get.logaH2(par("usr")[1:2]), lty=3)
     # add a title

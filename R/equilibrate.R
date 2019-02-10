@@ -15,7 +15,9 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   ## number of possible species
   nspecies <- length(aout$values)
   ## get the balancing coefficients
-  n.balance <- balance(aout, balance)
+  bout <- balance(aout, balance)
+  n.balance <- bout$n.balance
+  balance <- bout$balance
   ## take selected species in 'ispecies'
   if(length(ispecies)==0) stop("the length of ispecies is zero")
   # take out species that have NA affinities
@@ -54,12 +56,14 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   ## normalize -- normalize the molar formula by the balance coefficients
   m.balance <- n.balance
   isprotein <- grepl("_", as.character(aout$species$name))
-  if(normalize | as.residue) {
+  if(any(normalize) | as.residue) {
     if(any(n.balance < 0)) stop("one or more negative balancing coefficients prohibit using normalized molar formulas")
-    n.balance <- rep(1, nspecies)
+    n.balance[normalize|as.residue] <- 1
     if(as.residue) message(paste("equilibrate: using 'as.residue' for molar formulas"))
     else message(paste("equilibrate: using 'normalize' for molar formulas"))
-  } else m.balance <- rep(1, nspecies)
+    # set the formula divisor (m.balance) to 1 for species whose formulas are *not* normalized
+    m.balance[!(normalize|as.residue)] <- 1
+  } else m.balance[] <- 1
   ## Astar: the affinities/2.303RT of formation reactions with
   ## formed species in their standard-state activities
   Astar <- lapply(1:nspecies, function(i) { 
@@ -76,7 +80,7 @@ equilibrate <- function(aout, balance=NULL, loga.balance=NULL,
   if(method[1]=="boltzmann") loga.equil <- equil.boltzmann(Astar, n.balance, loga.balance)
   else if(method[1]=="reaction") loga.equil <- equil.reaction(Astar, n.balance, loga.balance, tol)
   ## if we normalized the formulas, get back to activities to species
-  if(normalize & !as.residue) {
+  if(any(normalize) & !as.residue) {
     loga.equil <- lapply(1:nspecies, function(i) {
       loga.equil[[i]] - log10(m.balance[i])
     })
@@ -247,7 +251,7 @@ equil.reaction <- function(Astar, n.balance, loga.balance, tol=.Machine$double.e
 
 ### unexported functions ###
 
-# return a list containing the balancing coefficients (n) and a textual description (description)
+# return a list containing the balancing coefficients (n.balance) and a textual description (balance)
 balance <- function(aout, balance=NULL) {
   ## generate n.balance from user-given or automatically identified basis species
   ## extracted from equilibrate() 20120929
@@ -267,8 +271,8 @@ balance <- function(aout, balance=NULL) {
   # try to automatically find a balance
   if(is.null(balance)) {
     ibalance <- which.balance(aout$species)
-    # no shared basis species - balance on one mole of species
-    if(length(ibalance) == 0) balance <- 1
+    # no shared basis species and balance not specified by user - an error
+    if(length(ibalance) == 0) stop("no basis species is present in all formation reactions")
   } 
   # change "1" to 1 (numeric) 20170206
   if(identical(balance, "1")) balance <- 1
@@ -293,12 +297,12 @@ balance <- function(aout, balance=NULL) {
       }
       # the name of the basis species (need this if we got ibalance which which.balance, above)
       balance <- colnames(aout$species)[ibalance[1]]
-      message(paste("balance: from moles of", balance, "in formation reactions"))
+      message(paste("balance: moles of", balance, "in formation reactions"))
       # the balance vector
       n.balance <- aout$species[, ibalance[1]]
       # we check if that all formation reactions contain this basis species
       if(any(n.balance==0)) stop("some species have no ", balance, " in the formation reaction")
     }
   }
-  return(n.balance)
+  return(list(n.balance=n.balance, balance=balance))
 }

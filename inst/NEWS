@@ -1,3 +1,283 @@
+CHANGES IN CHNOSZ 1.2.0 (2019-02-09)
+------------------------------------
+
+BUG FIXES
+
+- Fix bug in nonideal() where "Zn" in formula was identified as charge.
+  Thanks to Feng Lai for the bug report.
+
+- Fix a bug where subcrt()$reaction$coeffs was incorrect for reactions
+  involving minerals with phase transitions. Also ensure that the output
+  reaction stoichiometry is correct for duplicated species in reactions.
+  Thanks to Grayson Boyer for the bug report.
+
+- For species in the revised HKF model, subcrt() now sets properties to
+  NA where the density of H2O is less than 0.35 g/cm3, avoiding the
+  output of bogus values in this region. Thanks to Evgeniy Bastrakov.
+
+- For systems where no basis species is present in all formation
+  reactions, and the user hasn't provided balance coefficients, stop
+  with an error instead of setting the balance cofficients to 1.
+  Thanks to Shuang Kong for an example calculation and Tucker Ely for
+  a previous suggestion to produce an error here. The affected code is
+  in balance(), an unexported function used in equilibrate() and
+  diagram() (and now also solubility()).
+
+NEW FEATURE: SOLUBILITY CALCULATIONS
+
+- Add solubility(). Run this after affinity() to calculate the
+  solubility of a solid or gas defined as the conserved basis species,
+  which is involved in the formation of one or more dissolved species.
+
+- Features include automatic detection of dissociation reactions and
+  finding the final ionic strength for dissolution of a mineral into
+  pure water (find.IS argument).
+
+- find.IS depends on the new argument recall feature of affinity() (or
+  mosaic() if that is used instead). This allows a calculation to be
+  re-run with the same settings except for particular additions or
+  modifications, in this case modified values of ionic strength.
+
+- Revise demo/solubility.R to show solubility calculations for CO2(gas)
+  and calcite as a function of T and pH.
+
+NEW FEATURE: EXPANDED ACTIVITY COEFFICIENT CALCULATIONS
+
+- Reorganize and expand options for activity coefficient calculations
+  (set in thermo$opt$nonideal: Bdot, Bdot0, bgamma, bgamma0, or Alberty).
+  The previous default, which corresponds to 'bgamma' (T- and
+  P-dependent extended term parameter with single ion-size parameter),
+  has been replaced by 'Bdot' (T-dependent extended term parameter and
+  species-dependent ion-size parameter; see below).
+
+- nonideal() with the 'Bdot' or 'Bdot0' equation uses specific
+  ion-size parameters for different ions, in accord with the HCh package
+  (Shvarov and Bastrakov, 1999). Parameters are from Table 2.7 of
+  Garrels and Christ, 1965.
+
+- nonideal() now calulates activity coefficients of neutral species,
+  using the Setchénow equation. Whether the extended-term parameter in
+  this equation is taken to be zero or is taken from the value for
+  charged species (see above) is controlled by setting
+  'thermo$opt$Setchenow' to bgamma0 (default) or bgamma.
+
+- Add NaCl(), implementing a first-order calculation of the speciation
+  of NaCl in water, taking account of activity coefficients and the
+  reaction Na+ + Cl- = NaCl(aq).
+
+OTHER NEW FEATURES
+
+- Add dumpdata() for returning/writing all packaged thermodynamic data
+  (including default database and optional data files). The file is
+  also available on the website (chnosz.net/download/alldata.csv).
+
+- mosaic() has been rewritten to handle more than two changing groups
+  of basis species.
+
+- mosaic() gets a new argument 'mixing' (default TRUE), indicating
+  whether the Gibbs energy of ideal mixing should be included in the
+  calculations with blend = TRUE. As a test of this change, an example
+  using mosaic() to calculate the pH-dependent solubility of calcite
+  has been added to solubility.Rd.
+
+DOCUMENTATION
+
+- Add demo/gold.R for calculations of Au solubility in hydrothermal
+  chloride and sulfide solutions (based on diagrams from Akinfiev and
+  Zotov, 2001, Stefánsson and Seward, 2004, and Williams-Jones et al.,
+  2009). This depends on the revised nonideal() and new NaCl() functions
+  described above.
+
+- anintro.Rmd: add section on solubility calculations. Add cuprite to
+  mosaic diagram example, and note about implications of changing
+  balance coefficients to 1. Add 'mklinks.sh' script for adding links
+  to CHNOSZ and R documentation.
+
+- Add demo/bison.R (average oxidation state of carbon of metagenome-
+  derived proteins in different microbial phyla at Bison Pool)
+
+- demo/saturation.R replaces the previous activity_ratios.R, and
+  includes not only activity ratios on the axes but also saturation
+  limits for calcite, dolomite, magnesite, and brucite in the
+  H2O-CO2-CaO-MgO-SiO2 system.
+
+- Add demo/glycinate.R showing logK of complexation of glycinate with
+  divalent and monovalent metals.
+
+- Remove vignette wjd.Rnw (Winding journey down in Gibbs energy).
+
+THERMODYNAMIC DATA
+
+- The Berman data (Berman, 1988 and later additions) have replaced the
+  SUPCRT92 data (based on Helgeson et al., 1978) for most minerals in
+  the default database (i.e. the one loaded by data(thermo)). Only
+  native elements, sulfides, halides, sulfates, and selected carbonates
+  and oxides from SUPCRT92 that do not duplicate any in the Berman
+  dataset are loaded by default.
+
+- The superseded SUPCRT92 minerals (primarily the silicates and
+  Al-bearing minerals, as well as calcite, dolomite, hematite, and
+  magnetite) are in the file extdata/OBIGT/SUPCRT92.csv, which can be
+  loaded with add.obigt("SUPCRT92"). This is used in some examples for
+  comparing the datasets (see ?berman and demo("go-IU")), but should not
+  be needed by most users.
+
+- In thermo$obigt, the minerals using the Berman equations are
+  identified as those having NA values for all thermodynamic properties
+  (columns 8-20). These minerals have the state of "cr" (not "cr_Berman"
+  as before).
+
+- The heat capacity equation in berman() has been expanded to
+  Cp = k0 + k1T-1/2 + k2T-2 + k3T-3 + k4T-1 + k5T + k6T2 (as used in
+  winTWQ).
+
+- Multipliers on values in the Berman data files (extdata/Berman/*.csv)
+  have been removed, except for 10^5, 10^5, 10^5, and 10^8 on v1 to v4,
+  to be consistent with the winTWQ data format.
+
+- berman() now reads data from a user-supplied file specified in
+  thermo$opt$Berman.
+
+- Add mineral data from Berman and Aranovich, 1996 to
+  extdata/Berman/testing and an example of loading these data via
+  add.obigt() and thermo$opt$Berman (see ?berman).
+
+- Correct swapped v1 <-> v3 and v2 <-> v4 in extdata/Berman/DS10.csv.
+
+- To reduce confusion that "d5" might be a coefficient in the same
+  equation as d0 .. d4, rename "d5" (constant that scales disordering
+  enthalpy to volume) to "Vad" (notation used in Theriak-Domino manual).
+
+- Change abbreviation of grossular to Grs.
+
+- Make names for dicarboxylic acid anions from Shock, 1995 (in
+  organic_aq.csv) consistent with those used in later papers, e.g.
+  H-succinate and succinate-2 for the -1 and -2 charged ions. Remove
+  duplicated entries for H-succinate and succinate-2 from biotic_aq.csv.
+
+- Update G, H, and S of celestite using properties of the dissolution
+  reaction given by Reardon and Armstrong, 1987.
+
+- Add scheelite (CaWO4) and ferberite (FeWO4) using data adopted by
+  Wood and Samson, 2000.
+
+- Update aqueous Au species with data from Akinfiev and Zotov, 2001
+  and 2010, and Pokrovski et al., 2014.
+
+- Move SUPCRTBL updates (As and Al minerals and aqueous species and
+  SiO2(aq)) into default database.
+
+- Values for SiO2(aq) are taken from Apps and Spycher, 2004. Thanks
+  to John Apps for providing the document.
+
+- Recalculate GHS for HSiO3- by adding difference from SiO2(aq)
+  (Sverjensky et al., 1997) to updated values for SiO2(aq).
+
+- Add test-recalculate.R to check that recalculated values are correctly
+  entered in OBIGT.
+
+- Move superseded data for aqueous Au, As, and Al species, SiO2 and
+  HSiO3- to OBIGT/SLOP98.csv.
+
+- Add or update glycine, diglycine, and triglycine (zwitterions and
+  ions), and diketopiperazine, [Gly] and [UPBB] groups from Kitadai,
+  2014.
+
+- Add data for metal-glycinate complexes from Azadi et al., 2019,
+  superseding Shock and Koretsky, 1995.
+
+- For reproducing previous calculations, superseded data for [Gly] and
+  [UPBB], as well as [Met] (earlier superseded by LaRowe and Dick,
+  2012), and metal-glycinate complexes have been moved to
+  OBIGT/OldAA.csv.
+
+DIAGRAMS
+
+- Lines in 1-D diagram()s can optionally be drawn as splines using the
+  method for splinefun() given in the 'spline.method' argument (the
+  default of NULL means no splines).
+
+- Add 'srt' argument to diagram() (rotation of line labels).
+
+- Export thermo.axis(), as it is useful for adding major and minor tick
+  marks after (above) other plot elements such as legends.
+
+- diagram(): rename 'what' argument to 'type'.
+
+- diagram(): add new type of diagram, 'saturation', which is used to
+  plot saturation lines for minerals (where their affinity equals
+  zero).
+
+- thermo.plot.new() and, by extension, diagram(), now "listen" to the
+  setting of par("mar"). However, if a new plot is being made, or the
+  device has the default setting of mar from par(), mar is (re)set to
+  the default value in thermo.plot.new().
+
+- diagram(): numeric 'names' now indicates subset of species names to
+  include as labels on the plot.
+
+- diagram(): new argument 'family' to select the font family for species
+  names (labels on the plot). New arguments 'bold' and 'italic' apply to
+  formatted names (e.g. chemical formulas), and 'font' applies to those
+  without formatting.
+
+- 'lines' is added to the return list of diagram(), giving the
+  coordinates of lines (field boundaries) on 2-D diagrams (these are
+  taken from the output of contourLines()).
+
+COMPUTATIONAL OPTIONS
+
+- Add 'exceed.rhomin' argument to subcrt() and affinity() to enable
+  output of properties for species in the revised HKF model below 0.35
+  g/cm3.
+
+- In equilibrate(), accept a length > 1 'normalize' argument to
+  normalize the chemical formulas of only the selected species.
+
+- Add thermo$opt$maxcores (default 2) to specify maximum number of
+  cores for parallel calculations with palply().
+
+- Keywords in basis(): Change 'CHNOPS+' to use O2 instead of e-, and add
+  'CHNOPSe' and 'MgCHNOPSe' for sets of basis species that have e-.
+
+- Add 'keep.duplicates' argument to thermo.refs(). Set it to TRUE to
+  output a single primary reference for each species, keeping any
+  duplicated references (but not including any secondary references in
+  thermo$obigt$ref2). Thanks to Evgeniy Bastrakov for the suggestion.
+
+USABILITY ENHANCEMENTS
+
+- To provide better diagnostics for other apps using CHNOSZ, warning
+  messages produced by subcrt() are now available in the output of
+  affinity(), under 'sout$warnings'.
+
+- Change internal variable names in subcrt() for better readability
+  (sinfo -> ispecies, inpho -> iphases, sinph -> phasespecies).
+
+- info(): display mineral names instead of just "cr" in messages (e.g.
+  for info("SiO2")).
+
+- info(): species with no matches in default database are also
+  searched in optional data files.
+
+- Add C implementation of counting occurrences of all letters in a
+  string (src/count_letters.c) to speed up operation of count.aa().
+
+- read.fasta(): add support for file connections created using
+  archive::archive_read (https://github.com/jimhester/archive).
+
+- The arguments in expr.species() have been reorganized for more
+  flexible and concise usage.
+
+- Reduce message clutter for diagrams showing water stability limits.
+
+- In subcrt(), improve error message for invalid property names.
+
+- In affinity(), make invalid variable names an error.
+
+- Add 'return.sout' argument to affinity(), to return just the values
+  calculated with subcrt().
+
 CHANGES IN CHNOSZ 1.1.3 (2017-11-13)
 ------------------------------------
 

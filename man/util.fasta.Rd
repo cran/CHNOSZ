@@ -36,7 +36,6 @@
 Use \code{iseq} to select the sequences to read (the default is all sequences).
 The function returns various formats depending on the value of \code{ret}.
 The default \samp{count} returns a data frame of amino acid counts (the data frame can be given to \code{\link{add.protein}} in order to add the proteins to \code{\link{thermo}$protein}), \samp{seq} returns a list of sequences, and \samp{fas} returns a list of lines extracted from the FASTA file, including the headers (this can be used e.g. to generate a new FASTA file with only the selected sequences).
-This function utilizes the OS's \samp{grep} on supported operating systems in order to identify the header lines as well as \samp{cat} to read the file, otherwise \code{\link{readLines}} and \R's \code{\link{substr}} are used to read the file and locate the header lines.
 If the line numbers of the header lines were previously determined, they can be supplied in \code{ihead}. 
 Optionally, the lines of a previously read file may be supplied in \code{lines} (in this case no file is needed so \code{file} should be set to "").
 When \code{ret} is \samp{count}, the names of the proteins in the resulting data frame are parsed from the header lines of the file, unless \code{id} is provided.
@@ -44,14 +43,13 @@ If {id} is not given, and a UniProt FASTA header is detected (regular expression
 
 \code{count.aa} counts the occurrences of each amino acid or nucleic-acid base in a sequence (\code{seq}).
 For amino acids, the columns in the returned data frame are in the same order as \code{thermo$protein}.
-Letters are matched without regard for case.
+The matching of letters is case-insensitive.
 A warning is generated if any character in \code{seq}, excluding spaces, is not one of the single-letter amino acid or nucleobase abbreviations.
 \code{start} and/or \code{stop} can be provided to count a fragment of the sequence (extracted using \code{\link{substr}}).
 If only one of \code{start} or \code{stop} is present, the other defaults to 1 (\code{start}) or the length of the sequence (\code{stop}).
 
 \code{uniprot.aa} returns a data frame of amino acid composition, in the format of \code{thermo$protein}, retrieved from the protein sequence if it is available from UniProt (\url{http://uniprot.org}).
 The \code{protein} argument corresponds to the \samp{Entry name} on the UniProt search pages.
-
 
 }
 

@@ -24,7 +24,15 @@ release checklist for CHNOSZ
   try both qpdf and ghostscript to compact vignettes:
   R CMD build --compact-vignettes=both chnosz/
 
-- check reverse dependencies: ecipex and canprot packages
+- check reverse dependencies on CRAN: LipidMS, canprot, ecipex, iemisc as of 2019-02-09
+
+- vignettes/obigt.bib: check correct year for CHNOSZ reference
+
+- documentation links: after installation, run doc/mklinks.sh
+  and insert the modified anintro.html in the package
+
+- reduce size of vignettes: after upgrading rmarkdown, replace files in
+  rmarkdown/rmd/h/bootstrap/fonts/ with empty files
 
 OTHER THINGS TO CHECK:
 

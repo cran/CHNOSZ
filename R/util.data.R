@@ -1,7 +1,7 @@
 # CHNOSZ/util.data.R
 # check entries in the thermodynamic database
 
-thermo.refs <- function(key=NULL) {
+thermo.refs <- function(key=NULL, keep.duplicates=FALSE) {
   ## return references for thermodynamic data.
   ## 20110615 browse.refs() first version
   ## 20170212 thermo.refs() remove browsing (except for table of all sources)
@@ -135,8 +135,14 @@ thermo.refs <- function(key=NULL) {
   } else if(is.numeric(key)) {
     # get the source keys for the indicated species
     sinfo <- suppressMessages(info(key))
-    mysources <- unique(c(sinfo$ref1, sinfo$ref2))
-    mysources <- mysources[!is.na(mysources)]
+    if(keep.duplicates) {
+      # output a single reference for each species 20180927
+      # (including duplicated references, and not including ref2)
+      mysources <- sinfo$ref1
+    } else {
+      mysources <- unique(c(sinfo$ref1, sinfo$ref2))
+      mysources <- mysources[!is.na(mysources)]
+    }
     return(thermo.refs(mysources))
   } else if(is.list(key)) {
     if("species" %in% names(key)) ispecies <- key$species$ispecies
@@ -255,21 +261,25 @@ check.obigt <- function() {
     # looking at thermo$obigt
     if(what=="OBIGT") tdata <- get("thermo")$obigt
     else if(what=="DEW") tdata <- read.csv(system.file("extdata/OBIGT/DEW_aq.csv", package="CHNOSZ"), as.is=TRUE)
-    else if(what=="SUPCRTBL") tdata <- read.csv(system.file("extdata/OBIGT/SUPCRTBL.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="SLOP98") tdata <- read.csv(system.file("extdata/OBIGT/SLOP98.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="SUPCRT92") tdata <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="OldAA") tdata <- read.csv(system.file("extdata/OBIGT/OldAA.csv", package="CHNOSZ"), as.is=TRUE)
     ntot <- nrow(tdata)
     # where to keep the results
     DCp <- DV <- DG <- rep(NA,ntot)
     # first get the aqueous species
     isaq <- tdata$state=="aq"
-    eos.aq <- obigt2eos(tdata[isaq,],"aq")
-    DCp.aq <- checkEOS(eos.aq,"aq","Cp",ret.diff=TRUE)
-    DV.aq <- checkEOS(eos.aq,"aq","V",ret.diff=TRUE)
-    cat(paste("check.obigt: GHS for",sum(isaq),"aq species in",what,"\n"))
-    DG.aq <- checkGHS(eos.aq,ret.diff=TRUE)
-    # store the results
-    DCp[isaq] <- DCp.aq
-    DV[isaq] <- DV.aq
-    DG[isaq] <- DG.aq
+    if(any(isaq)) {
+      eos.aq <- obigt2eos(tdata[isaq,],"aq")
+      DCp.aq <- checkEOS(eos.aq,"aq","Cp",ret.diff=TRUE)
+      DV.aq <- checkEOS(eos.aq,"aq","V",ret.diff=TRUE)
+      cat(paste("check.obigt: GHS for",sum(isaq),"aq species in",what,"\n"))
+      DG.aq <- checkGHS(eos.aq,ret.diff=TRUE)
+      # store the results
+      DCp[isaq] <- DCp.aq
+      DV[isaq] <- DV.aq
+      DG[isaq] <- DG.aq
+    }
     # then other species, if they are present
     if(sum(!isaq) > 0) {
       eos.cgl <- obigt2eos(tdata[!isaq,],"cgl")
@@ -287,7 +297,9 @@ check.obigt <- function() {
   out <- checkfun("OBIGT")
   # check optional data
   out <- rbind(out, checkfun("DEW"))
-  out <- rbind(out, checkfun("SUPCRTBL"))
+  out <- rbind(out, checkfun("SLOP98"))
+  out <- rbind(out, checkfun("SUPCRT92"))
+  out <- rbind(out, checkfun("OldAA"))
   # set differences within a tolerance to NA
   out$DCp[abs(out$DCp) < 1] <- NA
   out$DV[abs(out$DV) < 1] <- NA
@@ -351,6 +363,25 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
     out <- rbind(out, cbind(thishead, thiseos))
   }
   return(out)
+}
+
+# dump all thermodynamic data in CHNOSZ 20171121
+dumpdata <- function(file=NULL) {
+  # default database (OBIGT)
+  dat <- get("thermo")$obigt
+  OBIGT <- cbind(source="OBIGT", dat)
+  # optional data
+  dat <- read.csv(system.file("extdata/OBIGT/DEW_aq.csv", package="CHNOSZ"), as.is=TRUE)
+  DEW <- cbind(source="DEW", dat)
+  dat <- read.csv(system.file("extdata/OBIGT/SLOP98.csv", package="CHNOSZ"), as.is=TRUE)
+  SLOP98 <- cbind(source="SLOP98", dat)
+  dat <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package="CHNOSZ"), as.is=TRUE)
+  SUPCRT92 <- cbind(source="SUPCRT92", dat)
+  # put it all together
+  out <- rbind(OBIGT, DEW, SLOP98, SUPCRT92)
+  # quote columns 2 (name) and 3 (abbrv) because they have commas for some entries
+  if(!is.null(file)) write.csv(out, file, row.names=FALSE, quote=c(2, 3))
+  else(return(out))
 }
 
 ### unexported functions ###

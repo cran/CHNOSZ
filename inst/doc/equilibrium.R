@@ -268,12 +268,9 @@ mtext(side=2, "fraction of GSH oxidized to GSSG", las=0, line=2.6, col="blue", c
 mtext(side=2, "- - - - - - - - - - - - - - - - - - -", las=0, line=2.1, cex=0.8)
 legend("topleft", lty=1:3, legend=paste(mM, "mM GSH"))
 
-## ----Aksu_Doyle, message=FALSE, results="hide", fig.width=6, fig.height=4.8, cache=TRUE----
-demo("copper", ask=FALSE)
-
 ## ----AddObigt----------------------------------------------------------------------
 data(thermo)
-mod.obigt("[Met]", G=-35245, H=-59310)
+add.obigt("OldAA")
 
 ## ----ProteinFormation--------------------------------------------------------------
 basis("CHNOS+")

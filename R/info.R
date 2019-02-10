@@ -131,15 +131,18 @@ info.character <- function(species, state=NULL, check.protein=TRUE) {
     # if a single name matches, use that one (useful for distinguishing pseudo-H4SiO4 and H4SiO4) 20171020
     matches.name <- matches.species & thermo$obigt$name==species
     if(sum(matches.name)==1) ispecies.out <- which(matches.name)
-    else {
-      # prefer the Berman minerals?
-      if(thermo$opt$Berman & "cr_Berman" %in% thermo$obigt$state[ispecies]) ispecies.out <- ispecies[thermo$obigt$state[ispecies]=="cr_Berman"]
-      else ispecies.out <- ispecies[1]  # otherwise, return only the first species that matches
-    }
+    else ispecies.out <- ispecies[1]  # otherwise, return only the first species that matches
     # let user know if there is more than one state for this species
     mystate <- thermo$obigt$state[ispecies.out]
     ispecies.other <- ispecies[!ispecies %in% ispecies.out]
     otherstates <- thermo$obigt$state[ispecies.other]
+    # for minerals (cr), use the word "phase"; otherwise, use "state" 20190209
+    word <- "state"
+    # substitute the mineral name for "cr" 20190121
+    if(mystate == "cr" | sum(otherstates=="cr") > 1) {
+      word <- "phase"
+      otherstates[otherstates=="cr"] <- thermo$obigt$name[ispecies.other[otherstates=="cr"]]
+    }
     transtext <- othertext <- ""
     # we count, but don't show the states for phase transitions (cr2, cr3, etc)
     istrans <- otherstates %in% c("cr2", "cr3", "cr4", "cr5", "cr6", "cr7", "cr8", "cr9")
@@ -148,9 +151,12 @@ info.character <- function(species, state=NULL, check.protein=TRUE) {
       ntrans <- sum(istrans)
       if(ntrans == 1) transtext <- paste(" with", ntrans, "phase transition")
       else if(ntrans > 1) transtext <- paste(" with", ntrans, "phase transitions")
+      # if it's not already in the species name, substitute the mineral name for "cr" 20190121
+      if(species != thermo$obigt$name[ispecies.out]) mystate <- thermo$obigt$name[ispecies.out]
     }
     otherstates <- otherstates[!istrans]
-    if(length(otherstates) > 0) othertext <- paste0(", also available in ", paste(otherstates, collapse=", "))
+    if(length(otherstates) == 1) othertext <- paste0("; other available ", word, " is ", otherstates)
+    if(length(otherstates) > 1) othertext <- paste0("; other available ", word, "s are ", paste(otherstates, collapse=", "))
     if(transtext != "" | othertext != "") {
       starttext <- paste0("info.character: found ", species, "(", mystate, ")")
       message(starttext, transtext, othertext)
@@ -241,7 +247,14 @@ info.approx <- function(species, state=NULL) {
     return(approx.species)
   }
   # if we got here there were no approximate matches
+  # 20190127 look for the species in optional data files 
+  for(opt in c("SLOP98", "SUPCRT92", "OldAA")) {
+    optdat <- read.csv(system.file(paste0("extdata/OBIGT/", opt, ".csv"), package="CHNOSZ"), as.is=TRUE)
+    if(species %in% optdat$name) {
+      message('info.approx: ', species, ' is in an optional database; use add.obigt("', opt, '", "', species, '") to load it')
+      return(NA)
+    }
+  }
   message("info.approx: '", species, "' has no approximate matches")
   return(NA)
 }
-

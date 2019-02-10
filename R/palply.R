@@ -6,7 +6,7 @@ palply <- function(varlist, X, FUN, ...) {
   if(length(X) >= get("thermo")$opt$paramin) {
     # Use option mc.cores to choose an appropriate cluster size.
     # and set max at 2 for now (per CRAN policies)
-    nCores <- min(getOption("mc.cores"), 2)
+    nCores <- min(getOption("mc.cores"), get("thermo")$opt$maxcores)
     # don't load methods package, to save startup time - ?makeCluster
     cl <- parallel::makeCluster(nCores, methods=FALSE)
     # export the variables and notify the user

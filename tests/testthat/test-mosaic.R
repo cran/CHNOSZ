@@ -3,15 +3,22 @@ context("mosaic")
 test_that("results are consistent with affinity()", {
   basis(c("CO2", "H2O", "NH3", "O2"), c(0, 0, 0, 0))
   species(c("alanine", "glycine"))
-  a <- affinity()
+  a25 <- affinity()
   # this is a degenerate case because we only allow NH3 to swap for NH3, and CO2 for CO2;
   # however it still exercises the affinity scaling and summing code
-  m1 <- mosaic("NH3", "CO2", blend=TRUE)
+  m1_25 <- mosaic("NH3", "CO2")
   # this failed before we divided by loga.tot to get _relative_ abundances of basis species in mosaic.R
-  expect_equal(a$values, m1$A.species$values)
+  expect_equal(a25$values, m1_25$A.species$values)
   # the next call failed when which.pmax(), called by diagram(), choked on a list of length one
-  m2 <- mosaic("NH3", "CO2")
-  expect_equal(a$values, m2$A.species$values)
+  m2_25 <- mosaic("NH3", "CO2", blend = FALSE)
+  expect_equal(a25$values, m2_25$A.species$values)
+  # make sure the function works when all affinities are NA
+  a500 <- affinity(T=500)
+  # using blend=TRUE was failing prior to version 1.1.3-37
+  m1_500 <- mosaic("NH3", "CO2", T=500)
+  expect_equal(a500$values, m1_500$A.species$values)
+  m2_500 <- mosaic("NH3", "CO2", blend = FALSE, T=500)
+  expect_equal(a500$values, m2_500$A.species$values)
 })
 
 test_that("blend=TRUE produces reasonable values", {
@@ -27,14 +34,18 @@ test_that("blend=TRUE produces reasonable values", {
   bases <- c("SO4-2", "HSO4-", "HS-", "H2S")         
   # calculate affinities using the predominant basis species
   pH <- c(0, 14, 29)
-  m1 <- mosaic(bases, pH=pH)
-  m2 <- mosaic(bases, pH=pH, blend=TRUE)
-  # these species have no S so the results should be the same
-  expect_equal(m1$A.species$values, m2$A.species$values)
-  species(c("pyrrhotite", "pyrite"))
+  m1 <- mosaic(bases, pH = pH, blend = FALSE)
+  # calculate affinities with smooth transitions between basis species, including a mixing energy
+  m2 <- mosaic(bases, pH = pH)
+  # these species have no S so the results should be similar,
+  # 20190121 except for a negative free energy of mixing (positive affinity)
+  expect_true(all(m2$A.species$values[[1]] - m1$A.species$values[[1]] > 0))
+  # the differences increase, then decrease
+  expect_equal(unique(sign(diff(as.numeric(m2$A.species$values[[1]] - m1$A.species$values[[1]])))), c(1, -1))
   # now with S-bearing species ...
-  m3 <- mosaic(bases, pH=pH)
-  m4 <- mosaic(bases, pH=pH, blend=TRUE)
+  species(c("pyrrhotite", "pyrite"))
+  m3 <- mosaic(bases, pH = pH, blend = FALSE)
+  m4 <- mosaic(bases, pH = pH)
   # the results are different ...
   expect_equal(sapply(m3$A.species$values, "[", 13), sapply(m4$A.species$values, "[", 13), tol=1e-1)
   # but more similar at extreme pH values

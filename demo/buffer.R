@@ -19,12 +19,12 @@ bufferline("FeFeO", 20)
 bufferline("QFM", 38)
 bufferline("PPM", 102)
 bufferline("HM", 51)
-# method 2: in diagram(), use the `what` argument
+# method 2: in diagram(), use the `type` argument
 basis("H2", 0)
 for(logact in c(-6, -10, -15)) {
   species(c("formaldehyde", "HCN"), logact)
   a <- affinity(T=xlim, P=300)
-  d <- diagram(a, what="H2", lty=c(3, 2), add=TRUE)
+  d <- diagram(a, type="H2", lty=c(3, 2), add=TRUE)
   text(a$vals[[1]][13], mean(sapply(d$plotvals, c)[13, ]), logact)
 }
 # add legends and title

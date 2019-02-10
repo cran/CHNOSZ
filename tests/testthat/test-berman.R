@@ -1,26 +1,15 @@
 # test-berman.R 20171001
 context("berman")
 
-# calculate properties for all available minerals at Tr,Pr
-dir <- system.file("extdata/Berman/", package="CHNOSZ")
-Ber88 <- read.csv(paste0(dir, "/Ber88.csv"), as.is=TRUE)
-Ber90 <- read.csv(paste0(dir, "/Ber90.csv"), as.is=TRUE)
-SHD91 <- read.csv(paste0(dir, "/SHD91.csv"), as.is=TRUE)
-ZS92 <- read.csv(paste0(dir, "/ZS92.csv"), as.is=TRUE)
-JUN92 <- read.csv(paste0(dir, "/JUN92.csv"), as.is=TRUE)
-DS10 <- read.csv(paste0(dir, "/DS10.csv"), as.is=TRUE)
-FDM14 <- read.csv(paste0(dir, "/FDM+14.csv"), as.is=TRUE)
-BDat17 <- read.csv(paste0(dir, "/BDat17.csv"), as.is=TRUE)
-# assemble the files and remove duplicates (keep the latest)
-dat <- rbind(BDat17, FDM14, DS10, ZS92, SHD91, Ber90, Ber88)
-dat <- dat[!duplicated(dat$name), ]
+# get parameters for all available minerals
+dat <- berman()
 mineral <- unique(dat$name)
 prop_Berman <- NULL
 
 test_that("properties of all minerals are computed without warnings", {
   # running this without error means that:
   # - formulas for the minerals are found in thermo$obigt
-  # - warnings are produced for mineral(s) with GfPrTr(calc) >= 1000 J/cal different from GfPrTr(table)
+  # - warning is produced for flourtremolite (GfPrTr(calc) >= 1000 J/cal different from GfPrTr(table))
   expect_warning(properties <- lapply(mineral, berman, check.G=TRUE),
                  "fluortremolite", all=TRUE)
   # save the results so we can use them in the next tests
@@ -33,7 +22,9 @@ prop_Berman <- do.call(rbind, prop_Berman)
 icr <- suppressMessages(info(mineral, "cr"))
 # all of these except rutile (Robie et al., 1979) reference Helgeson et al., 1978
 # NOTE: with check.it = TRUE (the default), this calculates Cp from the tabulated Maier-Kelley parameters
+add.obigt("SUPCRT92")
 prop_Helgeson <- suppressMessages(info(icr))
+data(OBIGT)
 
 # now we can compare Berman and Helgeson G, H, S, Cp, V
 # minerals with missing properties are not matched here
@@ -47,9 +38,8 @@ test_that("Berman and Helgeson tabulated properties have large differences for f
 
   # which minerals differ in DHf by more than 4 kcal/mol?
   idiffH <- which(abs(prop_Berman$H - prop_Helgeson$H) > 4000)
-  # we get the above, plus phlogopite and clinozoisite:
   expect_match(mineral[idiffH],
-               "paragonite|anthophyllite|antigorite|Ca-Al-pyroxene|lawsonite|margarite|merwinite|phlogopite|clinozoisite")
+               "paragonite|anthophyllite|antigorite|Ca-Al-pyroxene|lawsonite|margarite|merwinite|clinozoisite")
 
   # which minerals differ in S by more than 4 cal/K/mol?
   idiffS <- which(abs(prop_Berman$S - prop_Helgeson$S) > 4)
@@ -72,20 +62,40 @@ test_that("high-T,P calculated properties are similar to precalculated ones", {
 
   # anadalusite: an uncomplicated mineral (no transitions)
   And_G <- c(-579368, -524987, -632421, -576834)
-  And <- subcrt("andalusite", "cr_Berman", T=T, P=P)$out[[1]]
+  And <- subcrt("andalusite", T=T, P=P)$out[[1]]
   expect_maxdiff(And$G, And_G, 7.5)
 
   # quartz: a mineral with polymorphic transitions
   aQz_G <- c(-202800, -179757, -223864, -200109)
-  aQz <- subcrt("quartz", "cr_Berman", T=T, P=P)$out[[1]]
+  aQz <- subcrt("quartz", T=T, P=P)$out[[1]]
   expect_maxdiff(aQz$G[-2], aQz_G[-2], 1.2)
   # here, the high-P, low-T point suffers
   expect_maxdiff(aQz$G[2], aQz_G[2], 1250)
 
   # K-feldspar: this one has disordering effects
   Kfs_G <- c(-888115, -776324, -988950, -874777)
-  Kfs <- subcrt("K-feldspar", "cr_Berman", T=T, P=P)$out[[1]]
+  Kfs <- subcrt("K-feldspar", T=T, P=P)$out[[1]]
   expect_maxdiff(Kfs$G[1:2], Kfs_G[1:2], 5)
   # we are less consistent with the reference values at high T
   expect_maxdiff(Kfs$G[3:4], Kfs_G[3:4], 350)
+})
+
+test_that("nonexistent or incomplete user data file is handled properly", {
+  thermo$opt$Berman <<- "XxXxXx.csv"
+  expect_error(berman("calcite"), "the file named in thermo\\$opt\\$Berman \\(XxXxXx.csv\\) does not exist")
+  thermo$opt$Berman <<- system.file("extdata/Berman/testing/BA96_berman.csv", package="CHNOSZ")
+  expect_error(berman("xxx"), "Data for xxx not available. Please add it to")
+  thermo$opt$Berman <<- NA
+  expect_error(berman("xxx"), "Data for xxx not available. Please add it to your_data_file.csv")
+})
+
+test_that("NA values of P are handled", {
+  sresult <- subcrt("H2O", T = seq(0, 500, 100))
+  T <- sresult$out$water$T
+  P <- sresult$out$water$P
+  # this stopped with a error prior to version 1.1.3-37
+  bresult <- berman("quartz", T = convert(T, "K"), P = P)
+  expect_equal(sum(is.na(bresult$G)), 2)
+  # this also now works (producing the same NA values)
+  #subcrt("quartz", T = seq(0, 500, 100))
 })

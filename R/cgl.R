@@ -14,7 +14,7 @@ cgl <- function(property = NULL, parameters = NULL, T = 298.15, P = 1) {
   for(k in 1:nrow(parameters)) {
     # the parameters for *this* species
     PAR <- parameters[k, ]
-    if(PAR$state=="cr_Berman") {
+    if(all(is.na(PAR[8:20]))) {
       # use Berman equations (parameters not in thermo$obigt)
       properties <- berman(PAR$name, T=T, P=P, thisinfo=PAR)
       iprop <- match(property, colnames(properties))

@@ -2,6 +2,7 @@
 \name{util.plot}
 \alias{util.plot}
 \alias{thermo.plot.new}
+\alias{thermo.axis}
 \alias{label.plot}
 \alias{usrfig}
 \alias{label.figure}
@@ -20,6 +21,8 @@
     mgp = c(1.7, 0.3, 0), cex.axis = par("cex"), col = par("col"),
     yline = NULL, axs = "i", do.box = TRUE, las = 1,
     xline = NULL, ...)
+  thermo.axis(lab = NULL, side = 1:4, line = 1.5, cex = par("cex"),
+    lwd = par("lwd"), col = par("col"))
   label.plot(x, xfrac = 0.05, yfrac = 0.95, paren = FALSE,
     italic = FALSE, ...)
   usrfig()
@@ -49,6 +52,8 @@
   \item{las}{numeric, style for axis labels}
   \item{xline}{numeric, margin line on which to plot \eqn{x}{x}-axis name}
   \item{...}{further arguments passed to \code{par} or \code{mtext}}
+  \item{lab}{character, axis label}
+  \item{line}{numeric, margin line on which to place axis label or plot title}
   \item{x}{character, label to place on plot}
   \item{xfrac}{numeric, fractional location on \eqn{x}{x}-axis for placement of label}
   \item{yfrac}{numeric, fractional location on \eqn{y}{y}-axis for placement of label}
@@ -59,14 +64,16 @@
   \item{lty}{numeric, line type}
   \item{plot.it}{logical, plot the lines?}
   \item{main}{character, text for plot title}
-  \item{line}{numeric, margin line to place title}
   \item{spacing}{numeric, spacing between multiple lines}
   \item{z}{numeric, set of values}
 }
 
 \details{
 
-  \code{thermo.plot.new} sets parameters for a new plot, creates a new plot using \code{\link{plot.new}}, and adds axes and major and minor tick marks to the plot. Plot parameters (see \code{\link{par}}) including \code{cex}, \code{mar}, \code{lwd}, \code{mgp} and \code{axs} can be given, as well as a numeric vector in \code{side} identifying which sides of the plot receive tick marks. \code{yline}, if present, denotes the margin line (default \code{\link{par}('mgp')[1]}) where the y-axis name is plotted.
+\code{thermo.plot.new} sets parameters for a new plot, creates a new plot using \code{\link{plot.new}}, and adds the axes tick marks to the plot.
+Plot parameters (see \code{\link{par}}) including \code{cex}, \code{mar}, \code{lwd}, \code{mgp} and \code{axs} can be given, as well as a numeric vector in \code{side} identifying which sides of the plot receive tick marks.
+\code{yline}, if present, denotes the margin line (default \code{\link{par}('mgp')[1]}) where the y-axis name is plotted.
+\code{thermo.axis} is the function that actually adds the axes, including inward-pointing major and minor tick marks (often used for thermodynamic property diagrams).
 
 \code{water.lines} plots lines representing the oxidation and reduction stability limits of water on Eh/pe/\logfO2/\logfH2 vs pH/\T/\P diagrams.
 The x- and y-variables and their ranges are taken from \code{eout}.
@@ -91,6 +98,10 @@ This function exists to facilitate using \code{\link{expression}}s in multiline 
 Red is associated with lower values of \code{z}.
 This function is intended to generate colors for distinguishing average oxidation state of carbon \code{\link{ZC}}, but any numeric values can be supplied.
 
+}
+
+\seealso{
+\code{\link{diagram}} uses \code{thermo.plot.new} to set up a new plot, unless the argument \code{tplot} is set to FALSE in \code{diagram}.
 }
 
 \concept{Utility functions}

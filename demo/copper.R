@@ -3,6 +3,8 @@
 ## (Aksu, S. and Doyle, F. M., 2001. Electrochemistry of copper in aqueous glycine 
 ## solutions. J. Electrochem. Soc., 148, B51-B57. doi:10.1149/1.1344532)
 
+# we need superseded data for Cu-Gly complexes 20190206
+add.obigt("OldAA")
 # add some new species to thermo$obigt
 m1 <- makeup(info(c("Cu+", "glycinate", "glycinate")), sum=TRUE)
 mod.obigt(name="Cu(Gly)2-", formula=as.chemical.formula(m1))
@@ -35,8 +37,8 @@ basis(c("Cu+2", "H2O", "H+", "e-", "glycinium", "CO2"), c(999, 0, 999, 999, -1, 
 species(Cu_s)
 species(c(Cu_aq, CuGly), -4)
 names <- c(Cu_s, Cu_aq, CuGly)
-# mosaic diagram with to speciate glycine as a function of pH
-m <- mosaic(bases=Gly, pH=c(0, 16, 300), Eh=c(-0.6, 1.0, 300))
+# mosaic diagram with speciate glycine as a function of pH
+m <- mosaic(bases=Gly, pH=c(0, 16, 500), Eh=c(-0.6, 1.0, 500))
 fill <- c(rep("lightgrey", 3), rep("white", 4), rep("lightblue", 4))
 d <- diagram(m$A.species, fill=fill, names=NULL, xaxs="i", yaxs="i", fill.NA="pink2")
 # to make the labels look nicer
@@ -50,12 +52,12 @@ for(i in 1:length(names)) {
   if(names[i]=="HCu(Gly)+2") srt <- 90
   if(names[i]=="HCu(Gly)+2") dx <- -0.2
   if(names[i]=="Cu(Gly)+") srt <- 90
-  text(d$lx[i]+dx, d$ly[i]+dy, lab, srt=srt)
+  text(d$namesx[i]+dx, d$namesy[i]+dy, lab, srt=srt)
 }
 
 # add glycine ionization lines
 d <- diagram(m$A.bases, add=TRUE, col="darkblue", lty=3, names=NULL, limit.water=FALSE)
-text(d$lx, -0.5, Gly, col="darkblue")
+text(d$namesx, -0.5, Gly, col="darkblue")
 
 # add water lines and title
 water.lines(d)

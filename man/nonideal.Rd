@@ -1,16 +1,16 @@
 \encoding{UTF-8}
 \name{nonideal}
 \alias{nonideal}
-\alias{Bdot}
-\title{Activity coefficients of aqueous species}
+\alias{bgamma}
+\title{Activity Coefficients of Aqueous Species}
 \description{
-Calculate activity coefficients and adjusted (non-ideal) molal properties of aqueous species.
+Calculate activity coefficients and adjusted (transformed) molal properties of aqueous species.
 }
 
 \usage{
   nonideal(species, speciesprops, IS, T, P, A_DH, B_DH,
-           method=get("thermo")$opt$nonideal)
-  Bdot(TC, P, showsplines = "")
+           m_star=NULL, method=get("thermo")$opt$nonideal)
+  bgamma(TC, P, showsplines = "")
 }
 
 \arguments{
@@ -18,34 +18,55 @@ Calculate activity coefficients and adjusted (non-ideal) molal properties of aqu
   \item{speciesprops}{list of dataframes of species properties}
   \item{IS}{numeric, ionic strength(s) used in nonideal calculations, mol kg\eqn{^{-1}}{^-1}}
   \item{T}{numeric, temperature (K)}
-  \item{P}{numeric, pressure (bar); required for Helgeson method}
-  \item{A_DH}{numeric, A Debye-Huckel coefficient; required for Helgeson method}
-  \item{B_DH}{numeric, B Debye-Huckel coefficient; required for Helgeson method}
-  \item{method}{character, \samp{Alberty}, \samp{Helgeson}, or \samp{Helgeson0}}
+  \item{P}{numeric, pressure (bar); required for B-dot or b_gamma equation}
+  \item{A_DH}{numeric, A Debye-Huckel coefficient; required for B-dot or b_gamma equation}
+  \item{B_DH}{numeric, B Debye-Huckel coefficient; required for B-dot or b_gamma equation}
+  \item{m_star}{numeric, total molality of all dissolved species}
+  \item{method}{character, \samp{Alberty}, \samp{Bdot}, \samp{Bdot0}, or \samp{bgamma}}
   \item{TC}{numeric, temperature (\degC)}
   \item{showsplines}{character, show isobaric (\samp{T}) or isothermal (\samp{P}) splines}
 }
 
 \details{
-\code{nonideal} takes a list of dataframes (in \code{speciesprops}) containing the standard molal properties of the identified \code{species}.
-The function calculates the *adjusted* properties for given ionic strength (\code{IS}); they are equal to the *standard* values at IS=0.
-The function bypasses (leaves unchanged) properties of all species whose charge (determined by the number of Z in their \code{\link{makeup}}) is equal to zero.
-The proton (\Hplus) and electron (\eminus) are also bypassed by default; this makes sense if you are setting the pH, i.e. activity of \Hplus, to some value.
-To apply the calculations to H+ and/or e-, change \code{\link{thermo}$opt$ideal.H} or \code{ideal.e} to FALSE.
+This function calculates activity coefficients and adjusted thermodynamic proeprties (i.e. transformed standard Gibbs energy) for charged and neutral aqueous species.
+The species are identified by name or species index in \code{species}.
+\code{speciesprops} is a list of dataframes containing the input standard molal properties; normally, at least one column is \samp{G} for Gibbs energy.
+The function calculates the *adjusted* properties for given ionic strength (\code{IS}); they are equal to the *standard* values only at IS=0.
 The lengths of \code{IS} and \code{T} supplied in the arguments should be equal to the number of rows of each dataframe in \code{speciesprops}, or length one to use single values throughout.
+}
+
+\section{Charged Species}{
+Calculations for the proton (\Hplus) and electron (\eminus) are skipped by default; this makes sense if you are setting the pH, i.e. activity of \Hplus, to some value.
+To apply the calculations to H+ and/or e-, change \code{\link{thermo}$opt$ideal.H} or \code{ideal.e} to FALSE.
 
 If \code{method} is \samp{Alberty}, the values of \code{IS} are combined with Alberty's (2003) equation 3.6-1 (extended Debye-Hückel equation) and its derivatives, to calculate adjusted molal properties at the specified ionic strength(s) and temperature(s).
 The adjusted molal properties that can be calculated include \samp{G}, \samp{H}, \samp{S} and \samp{Cp}; any columns in the dataframes of \code{speciesprops} with other names are left untouched.
 
-If \code{method} is \samp{Helgeson}, the \dQuote{B-dot} equation is used.
-This equation seems to have been originally proposed by Huckel, 1925; parameters were derived for use at high temperature and pressure by Helgeson, 1969; Helgeson et al., 1981; Manning, 2013.
-The distance of closest approach (the \dQuote{ion size parameter}) is set to 3.72 Angstrom, which is appropriate for NaCl-dominated solutions (Helgeson et al., 1981 Table 2).
-In addition to \code{IS} and \code{T}, this method depends on values of \code{P}, \code{A_DH}, and \code{B_DH} given in the arguments.
-The calculation of \dQuote{B-dot}, also used in the equations, is made within \code{nonideal} by calling the \code{Bdot} function.
-For some uses, it is desirable to set the \dQuote{B-dot} parameter to zero; this can be done by setting the method to \code{Helgeson0}.
-Currently, \samp{G} is the only adjusted molal property that is calculated (but this can be used by \code{\link{subcrt}} to calculate adjusted equilibrium constants).
+In addition to \code{IS} and \code{T}, the following two methods depend on values of \code{P}, \code{A_DH}, \code{B_DH}, and \code{m_star} given in the arguments.
+\code{m_star}, the total molality of all dissolved species, is used to compute the mole fraction to molality conversion factor.
+If \code{m_star} is NULL, it is taken to be equal to \code{IS}, which is an underestimate.
+For these methods, \samp{G} is currently the only adjusted molal property that is calculated (but this can be used by \code{\link{subcrt}} to calculate adjusted equilibrium constants).
 
-\code{Bdot} calculates the \dQuote{B-dot} deviation function (Helgeson, 1969) a.k.a. extended term parameter (written as b_gamma; Helgeson et al., 1981) for activity coefficients in NaCl solutions at high temperature and pressure.
+If \code{method} is \samp{Bdot} (the default setting in CHNOSZ), the \dQuote{B-dot} form of the extended Debye-Hückel equation equation is used.
+The distance of closest approach (the \dQuote{ion size parameter}) is taken from the UT_SIZES.REF file of the HCh package (Shvarov and Bastrakov, 1992), which is based on Table 2.7 of Garrels and Christ, 1965.
+The extended term parameter is expressed as \dQuote{B-dot}, which is a function only of temperature (Helgeson, 1969).
+For some uses, it is desirable to set the extended term parameter to zero; this can be done by setting the method to \samp{Bdot0}.
+
+If \code{method} is \samp{bgamma}, the \dQuote{b_gamma} equation is used.
+The distance of closest approach is set to a constant (3.72e-8 cm) (e.g., Manning et al., 2013).
+The extended term parameter is calculated by calling the \code{bgamma} function.
+Alternatively, set the extended term parameter to zero with \samp{bgamma0}.
+}
+
+\section{Neutral Species}{
+For neutral species, the Setch{\eacute}now equation is used, as described in Shvarov and Bastrakov, 1999.
+If \code{\link{thermo}$opt$Setchenow} is \samp{bgamma0} (the default), the extended term parameter is set to zero and the only non-zero term is the mole fraction to molality conversion factor (using the value of \code{m_star}).
+If \code{thermo$opt$Setchenow} is \samp{bgamma}, the extended term paramter is taken from the setting for the charged species (which can be either \samp{Bdot} or \samp{bgamma}).
+Set \code{thermo$opt$Setchenow} to any other value to disable the calculations for neutral species.
+}
+
+\section{b_gamma}{
+\code{bgamma} calculates the extended term parameter (written as b_gamma; Helgeson et al., 1981) for activity coefficients in NaCl-dominated solutions at high temperature and pressure.
 Data at \Psat and 0.5 to 5 kb are taken from Helgeson (1969, Table 2 and Figure 3) and Helgeson et al. (1981, Table 27) and extrapolated values at 10 to 30 kb from Manning et al. (2013, Figure 11).
 Furthermore, the 10 to 30 kb data were used to generate super-extrapolated values at 40, 50, and 60 kb, which may be encountered using the \code{\link{water.DEW}} calculations.
 If all \code{P} correspond to one of the isobaric conditions, the values of \code{Bdot} at \code{T} are calculated by spline fits to the isobaric data.
@@ -63,7 +84,7 @@ For all affected species, a column named \code{loggam} (common (base-10) logarit
 ### Examples following Alberty, 2003
 ### (page numbers given below)
 
-## the default method setting is Helgeson;
+## the default method setting is Bdot;
 ## change it to Alberty
 oldnon <- nonideal("Alberty")
 
@@ -117,7 +138,7 @@ for(T in Ts) {
   a <- affinity(IS=c(0, 0.14), T=T)
   e <- equilibrate(a)
   if(T==25) diagram(e, ylim=c(-3.0, -2.6), legend.x=NULL)
-  else diagram(e, ylim=c(-3.0, -2.6), add=TRUE, col="red")
+  else diagram(e, add=TRUE, names=NULL, col="red")
 }
 title(main="Non-ideality model for phosphate species")
 dp <- describe.property(c("pH", "T", "T"), c(7, Ts))
@@ -132,13 +153,11 @@ d <- diagram(a, add=TRUE, names=NULL, col="red")
 par(opar)
 
 
-### finished with Alberty equation, let's look at Helgeson
-# this is the default setting, but is needed here because
-# we set "Alberty" above
-nonideal(oldnon) # same as nonideal("Helgeson")
+### finished with Alberty equation, let's look at b_gamma
+nonideal("bgamma")
 
 ## activity coefficients for monovalent ions at 700 degC, 10 kbar
-# after Manning, 2010, Fig. 7
+# after Manning, 2013, Fig. 7
 IS <- c(0.001, 0.01, 0.1, 1, 2, 2.79)
 # we're above 5000 bar, so need to use IAPWS-95 or DEW
 oldwat <- water("DEW")
@@ -153,29 +172,33 @@ speciesprops <- list(data.frame(G=rep(0, length(IS))))
 # the activity coefficient; check values of the latter
 Manning_gamma <- c(0.93, 0.82, 0.65, 0.76, 1.28, 2)
 gamma <- 10^nonidealprops[[1]]$loggam
-# we're getting progressively further from his values with
-# higher IS; not sure why
+# the error is larger at higher IS
 stopifnot(maxdiff(gamma[1], Manning_gamma[1]) < 0.01)
 stopifnot(maxdiff(gamma, Manning_gamma) < 0.23)
 
-## data and splines used for calculating B-dot
+## data and splines used for calculating b_gamma
 ## (extended term parameter)
-Bdot(showsplines = "T")
-Bdot(showsplines = "P")
+bgamma(showsplines = "T")
+bgamma(showsplines = "P")
+
+# done with examples, restore default setting
+nonideal(oldnon) # == nonideal("Bdot")
 }
 
 \references{
 Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
 
+Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{http://www.worldcat.org/oclc/517586}
+
 Helgeson, H. C. (1969) Thermodynamics of hydrothermal systems at elevated temperatures and pressures. \emph{Am. J. Sci.} \bold{267}, 729--804. \url{https://doi.org/10.2475/ajs.267.7.729}
 
 Helgeson, H. C., Kirkham, D. H. and Flowers, G. C. (1981) Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. IV. Calculation of activity coefficients, osmotic coefficients, and apparent molal and standard and relative partial molal properties to 600\degC and 5 Kb. \emph{Am. J. Sci.} \bold{281}, 1249--1516. \url{https://doi.org/10.2475/ajs.281.10.1249}
 
-Hückel, E. (1925). The theory of concentrated, aqueous solutions of strong electrolytes. \emph{Physikalische Zeitschrift} \bold{26}, 93--147.
-
 Manning, C. E. (2013) Thermodynamic modeling of fluid-rock interaction at mid-crustal to upper-mantle conditions. \emph{Rev. Mineral. Geochem.} \bold{76}, 135--164. \url{https://doi.org/10.2138/rmg.2013.76.5}
 
 Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \url{https://doi.org/10.2138/rmg.2013.75.5}
+
+Shvarov, Y. and Bastrakov, E. (1999) HCh: A software package for geochemical equilibrium modelling. User's Guide. \emph{Australian Geological Survey Organisation} \bold{1999/25}. \url{http://pid.geoscience.gov.au/dataset/ga/25473}
 }
 
 \concept{Thermodynamic calculations}

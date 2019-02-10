@@ -32,12 +32,12 @@ test_that("parenthetical and suffixed subformulas can be parsed", {
 })
 
 test_that("summing and multiply formulas works as expected", {
-  ispecies <- info(c("B(OH)3", "sepiolite", "lysine:HCl"))
+  ispecies <- info(c("B(OH)3", "gypsum", "lysine:HCl"))
   # the elemental composition all of those, added together
-  msaved <- as.array(c(B=1, C=6, Cl=1, H=32, Mg=4, N=2, O=28, Si=6))
+  msaved <- as.array(c(B=1, C=6, Ca=1, Cl=1, H=22, N=2, O=11, S=1))
   expect_equal(makeup(ispecies, sum=TRUE), msaved)
   # the elemental composition in a 1:2:-1 ratio
-  msaved121 <- as.array(c(B=1, C=-6, Cl=-1, H=16, Mg=8, N=-2, O=47, Si=12))
+  msaved121 <- as.array(c(B=1, C=-6, Ca=2, Cl=-1, H=-4, N=-2, O=13, S=2))
   expect_equal(makeup(ispecies, c(1,2,-1), sum=TRUE), msaved121)
   expect_error(makeup(ispecies, c(1,2), sum=TRUE), "multiplier does not have .* length = number of formulas")
 })

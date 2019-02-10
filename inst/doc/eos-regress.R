@@ -27,7 +27,7 @@ opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
 options(htmltools.dir.version = FALSE)
 # adjust plot margins
 knit_hooks$set(small.mar = function(before, options, envir) {
-    if (before) par(mar = c(4.2, 4.2, .1, .1))  # smaller margin on top and right
+    if (before) par(mar = c(4.2, 4.2, .3, .3))  # smaller margin on top and right
 })
 # use pngquant to optimize PNG images
 knit_hooks$set(pngquant = hook_pngquant)
@@ -195,7 +195,7 @@ s_P500 <- subcrt(c("SiO2", "H2O"), c(1, 2), T = seq(0, 1000, 100), P = 500)$out
 s_P1000 <- subcrt(c("SiO2", "H2O"), c(1, 2), T = seq(0, 1000, 100), P = 1000)$out
 
 ## ----new_H4SiO4---------------------------------------------------------------
-mod.obigt("new-H4SiO4", formula = "H4SiO4", ref1 = "this_vignette",
+mod.obigt("calc-H4SiO4", formula = "H4SiO4", ref1 = "this_vignette",
           date = today(), G = s_25C$G, H = s_25C$H, S = s_25C$S,
           Cp = s_25C$Cp, V = s_25C$V, z = 0)
 
@@ -208,7 +208,7 @@ Cpdat <- substuff[, c("T", "P", "Cp")]
 var <- c("invTTheta2", "TXBorn")
 Cplm <- EOSregress(Cpdat, var) 
 Cpcoeffs <- Cplm$coefficients
-mod.obigt("new-H4SiO4", c1 = Cpcoeffs[1],
+mod.obigt("calc-H4SiO4", c1 = Cpcoeffs[1],
   c2 = Cpcoeffs[2]/10000, omega = Cpcoeffs[3]/100000)
 
 ## ----V_H4SiO4_nonsolvation----------------------------------------------------
@@ -223,38 +223,44 @@ Vdat$V <- V_non
 var <- c("invPPsi", "invTTheta", "invPPsiTTheta")
 Vlm <- EOSregress(Vdat, var)
 Vcoeffs <- convert(Vlm$coefficients, "calories")
-mod.obigt("new-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
+mod.obigt("calc-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
   a3 = Vcoeffs[3], a4 = Vcoeffs[4]/10000)
 
 ## ----width180, include=FALSE------------------------------------------------------------------------------------------------------------------------------------------------------
 options(width = 180)
 
 ## ----info_H4SiO4, message=FALSE---------------------------------------------------------------------------------------------------------------------------------------------------
-add.obigt("SUPCRTBL", "H4SiO4")
-info(info(c("new-H4SiO4", "pseudo-H4SiO4", "H4SiO4")))
+info(info(c("calc-H4SiO4", "pseudo-H4SiO4")))
 
 ## ----width80, include=FALSE---------------------------------------------------
 options(width = 80)
 
 ## ----subcrt_H4SiO4, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, echo=FALSE, results="hide", message=FALSE, dpi=dpi, out.width="100%", cache=TRUE, fig.cap="Comparison of H<sub>4</sub>SiO<sub>4</sub> pseudospecies.", pngquant=pngquant----
-s1 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+s1 <- subcrt(c("calc-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
   xlab = axis.label("T"), ylab = axis.label("DG0"))
-s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+s2 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 lines(s2$out$T, s2$out$G, lty = 2)
 abline(h = 0, lty = 3)
-legend("topright", legend = c("pseudo-H4SiO4 (CHNOSZ)",
-  "H4SiO4 (Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+legend("topright", legend = c("calc-H4SiO4 (this vignette)",
+  "pseudo-H4SiO4", "(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 text(225, 250, describe.reaction(s1$reaction))
 
 ## ----subcrt_H4SiO4, eval=FALSE------------------------------------------------
-#  s1 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+#  s1 <- subcrt(c("calc-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 #  plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
 #    xlab = axis.label("T"), ylab = axis.label("DG0"))
-#  s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+#  s2 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 #  lines(s2$out$T, s2$out$G, lty = 2)
 #  abline(h = 0, lty = 3)
-#  legend("topright", legend = c("pseudo-H4SiO4 (CHNOSZ)",
-#    "H4SiO4 (Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+#  legend("topright", legend = c("calc-H4SiO4 (this vignette)",
+#    "pseudo-H4SiO4", "(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 #  text(225, 250, describe.reaction(s1$reaction))
+
+## ----activity_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, echo=TRUE, results="hide", message=FALSE, dpi=dpi, out.width="100%", cache=TRUE, fig.cap="Activity diagram for K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O.", pngquant=pngquant----
+basis(c("Al+3", "pseudo-H4SiO4", "K+", "H2O", "H+", "O2"))
+species(c("gibbsite", "muscovite", "kaolinite", "pyrophyllite", "K-feldspar"))
+a <- affinity(H4SiO4 = c(-8, 0, 300), `K+` = c(-1, 8, 300))
+diagram(a, ylab = ratlab("K+"), fill = "terrain", yline = 1.7)
+legend("bottomleft", describe.property(c("T", "P"), c(25, 1)), bty = "n")
 

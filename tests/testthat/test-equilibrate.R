@@ -19,14 +19,15 @@ aprot <- suppressMessages(affinity())
 test_that("equilibrate() gives expected messages and errors for balance calculation", {
   # the following error is triggered by equil.react, not equil.boltzmann
   expect_error(equilibrate(aone), "at least two species needed")
-  expect_message(equilibrate(aacid), "balance: from moles of CO2")
+  expect_message(equilibrate(aacid), "balance: moles of CO2")
   expect_message(equilibrate(aacid), "n.balance is 2 1 1 2")
   expect_message(equilibrate(aacid), "loga.balance is -2.221848")
   expect_message(equilibrate(aacid, loga.balance=-3), "loga.balance is -3")
   expect_error(equilibrate(aacid, balance="length"), "some species are not proteins")
-  expect_message(equilibrate(aacidS), "balance: from numeric argument value")
-  expect_message(equilibrate(aacidS), "n.balance is 1 1 1 1 1")
-  expect_message(equilibrate(aacidS), "loga.balance is -2.301029")
+  expect_error(equilibrate(aacidS), "no basis species is present in all formation reactions")
+  expect_message(equilibrate(aacidS, balance=1), "balance: from numeric argument value")
+  expect_message(equilibrate(aacidS, balance=1), "n.balance is 1 1 1 1 1")
+  expect_message(equilibrate(aacidS, balance=1), "loga.balance is -2.301029")
   expect_error(equilibrate(aacidS, balance="CO2"), "some species have no CO2 in the formation reaction")
   expect_message(equilibrate(aprot), "balance: from protein length")
   expect_message(equilibrate(aprot), "n.balance is 129 153 124 104")
@@ -61,7 +62,7 @@ test_that("equilibrate() reproduces an example from the literature", {
   # we name them here because S5O6-2 isn't on the plot at logfO2=-30, 
   # and to get them in order
   species.ref <- c("S3O6-2", "S2O6-2", "S2O4-2", "S3-2", "S2-2", "S2O3-2", "HSO3-", "SO2", "HSO4-", "H2S")
-  # these values were read from the plot using g3data (http://www.frantz.fi/software/g3data.php)
+  # these values were read from the plot using g3data
   loga.ref <- c(-28.82, -24.70, -22.10, -14.19, -12.12, -11.86, -8.40, -7.40, -6.54, -1.95)
   # set up the system - see ?diagram for an example showing the entire plot
   basis("CHNOS+")
@@ -153,6 +154,40 @@ test_that("equilibrate() can be used with a vector of loga.balance values", {
   expect_equal(list2array(eO2$loga.equil)[1, ], e80.6)
   # and the final set is logfO2 = -80, log(aCO2tot) = -6
   expect_equal(list2array(eO2$loga.equil)[21, ], e60.8)
+})
+
+test_that("normalizing formulas of only selected species works as expected", {
+  iC6 <- info("n-hexane", "liq")
+  iC12 <- info("n-dodecane", "liq")
+  `n-alkane` <- iC6:iC12
+  i2C6 <- info("2-methylpentane", "liq")
+  i2C9 <- info("2-methyloctane", "liq")
+  `2-isoalkane` <- i2C6:i2C9
+  basis("CHNOS")
+  basis("O2", -49.5)
+  species(`n-alkane`)
+  species(`2-isoalkane`)
+  # approximate conditions of Computer Experiment 27 (Helgeson et al., 2009, GCA)
+  a <- affinity(T=150, P=830, exceed.Ttr=TRUE)
+  # using full chemical formulas
+  efull <- equilibrate(a)
+  dloga_isoalkane_full <- diff(unlist(efull$loga.equil[c(8, 11)]))
+  # normalize all the formulas
+  enorm <- equilibrate(a, normalize=TRUE)
+  dloga_nalkane_norm <- diff(unlist(enorm$loga.equil[c(1, 7)]))
+  dloga_isoalkane_norm <- diff(unlist(enorm$loga.equil[c(8, 11)]))
+  # normalize only the n-alkane formulas
+  isalk <- grepl("n-", species()$name)
+  emix <- equilibrate(a, normalize=isalk)
+  # the activity ratios for the normalized formulas should be the same in both calculations
+  dloga_nalkane_mix <- diff(unlist(emix$loga.equil[c(1, 7)]))
+  expect_equal(dloga_nalkane_mix, dloga_nalkane_norm)
+  # the actvitity ratios for the not-normalized formulas should be similar in both calculations
+  # (not identical becuase they are affected by total activity, unlike normalized formulas)
+  dloga_isoalkane_mix <- diff(unlist(emix$loga.equil[c(8, 11)]))
+  expect_maxdiff(dloga_isoalkane_mix, dloga_isoalkane_full, 0.07)
+  # however, the difference between normalized and not-normalized formulas is much greater
+  expect_true(maxdiff(dloga_isoalkane_mix, dloga_isoalkane_norm) > maxdiff(dloga_isoalkane_mix, dloga_isoalkane_full))
 })
 
 # references

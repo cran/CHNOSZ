@@ -26,9 +26,6 @@ If the text of the \code{species} is matched the index of that species is return
 If there are multiple matches for the \code{species}, and \code{state} is NULL, the index of first match is returned.
 The order of entries in \code{thermo$obigt} is grouped by states in the order \samp{aq}, \samp{cr}, \samp{gas}, \samp{liq}, so for species in both aqueous and gaseous states the index of the aqueous species is returned, unless \code{state} is set to \samp{gas}.
 
-Note that entries for minerals using the \code{\link{berman}} equations are placed after the dataset derived from Helgeson et al., 1978, so the latter data are used by default in case of duplicates.
-This behavior can be changed by setting \code{\link{thermo}$opt$Berman} to TRUE; alternatively, individual minerals in the Berman dataset can be identifed by setting \code{state} to \samp{cr_Berman}.
-
 Names of species including an underscore character are indicative of proteins, e.g. \samp{LYSC_CHICK}.
 If the name of a protein is provided to \code{info} and the composition of the protein can be found using \code{\link{protein}}, the thermodyamic properties and parameters of the nonionized protein (calculated using amino acid group additivity) are added to the thermodynamic database.
 Included in the return value, as for other species, is the index of the protein in the thermodynamic database or \code{NA} if the protein is not found. Names of proteins and other species can be mixed.

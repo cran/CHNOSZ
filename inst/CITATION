@@ -1,6 +1,4 @@
-citHeader("To cite CHNOSZ in publications use:")
-
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
          title = "Calculation of the relative metastabilities of proteins using the CHNOSZ software package",
          author = person(given = c("Jeffrey", "M."), family = "Dick", email="jmdick@asu.edu"),
          journal = "Geochemical Transactions",
@@ -8,12 +6,5 @@ citEntry(entry = "Article",
          volume = "9",
          number = "10",
          pages = "",
-	 month = "October",
          doi = "10.1186/1467-4866-9-10",
-         textVersion =   
-         paste("Dick, J. M. (2008). ",
-               "Calculation of the relative metastabilities of proteins using the CHNOSZ software package. ",
-               "Geochemical Transactions, Vol. 9 Art. 10.",sep="")
 	 )
-
-citFooter("See",sQuote("citation()"),"for citing R itself.")

@@ -82,7 +82,7 @@ water.SUPCRT92 <- function(property=NULL, T=298.15, P=1) {
       rho.out[i] <- NA
     } else {
       # now to the actual calculations
-      H2O <- .Fortran(F_h2o92, as.integer(specs), as.double(states),
+      H2O <- .Fortran(C_h2o92, as.integer(specs), as.double(states),
         as.double(rep(0, 46)), as.integer(0))
       # errors
       err.out[i] <- H2O[[4]]
@@ -117,9 +117,11 @@ water.SUPCRT92 <- function(property=NULL, T=298.15, P=1) {
   # assemble additional properties: V, rho, Psat, E, kT
   if(any(iprop > 23)) {
     mwH2O <- 18.0152 # SUP92.f
-    V=mwH2O/rho.out
-    rho=rho.out*1000
-    Psat=P.out
+    V <- mwH2O/rho.out
+    rho <- rho.out*1000
+    # rho==0 should be NA 20180923
+    rho[rho==0] <- NA
+    Psat <- P.out
     E <- V*w.out$alpha
     kT <- V*w.out$beta
     # A and B parameters in Debye-Huckel equation:

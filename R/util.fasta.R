@@ -14,28 +14,36 @@ read.fasta <- function(file, iseq=NULL, ret="count", lines=NULL, ihead=NULL,
   #   fas: fasta entry
   # value of 'id' is used for 'protein' in output table,
   #   otherwise ID is parsed from FASTA header (can take a while)
-  is.nix <- Sys.info()[[1]]=="Linux"
-  if(is.nix & is.null(lines)) {
-    message("read.fasta: reading ",basename(file))
-    # figure out whether to use 'cat', 'zcat' or 'xzcat'
-    suffix <- substr(file,nchar(file)-2,nchar(file))
-    if(suffix==".gz") mycat <- "zcat"
-    else if(suffix==".xz") mycat <- "xzcat"
-    else mycat <- "cat"
-    nlines <- as.integer(system(paste(mycat,' "',file,'" | wc -l',sep=""),intern=TRUE))
-    ihead <- as.integer(system(paste(mycat,' "',file,'" | grep -n "^>" | cut -f 1 -d ":"',sep=""),intern=TRUE))
-    #linefun <- function(i1,i2) as.character(system(paste('sed -n ',i1,',',i2,'p ',file,sep=""),intern=TRUE))
-    lines <- system(paste(mycat,' "',file,'"',sep=""),intern=TRUE)
-    linefun <- function(i1,i2) lines[i1:i2]
+  
+  # check if the file is in an archive (https://github.com/jimhester/archive)
+  if("archive_read" %in% class(file)) {
+    is.archive <- TRUE
+    filebase <- gsub("]", "", basename(summary(file)$description))
   } else {
-    if(is.null(lines)) {
-      lines <- readLines(file)
-      message("read.fasta: reading ",basename(file))
-    }
-    nlines <- length(lines)
-    if(is.null(ihead)) ihead <- which(substr(lines,1,1)==">")
-    linefun <- function(i1,i2) lines[i1:i2]
+    is.archive <- FALSE
+    filebase <- basename(file)
   }
+  if(is.null(lines)) {
+    message("read.fasta: reading ", filebase, " ... ", appendLF=FALSE)
+    is.nix <- Sys.info()[[1]]=="Linux"
+    if(is.archive) {
+      # we can't use scan here?
+      lines <- readLines(file)
+    } else if(is.nix) {
+      # retrieve contents using system command (seems slightly faster even than scan())
+      # figure out whether to use 'cat', 'zcat' or 'xzcat'
+      suffix <- substr(file,nchar(file)-2,nchar(file))
+      if(suffix==".gz") mycat <- "zcat"
+      else if(suffix==".xz") mycat <- "xzcat"
+      else mycat <- "cat"
+      lines <- system(paste(mycat,' "',file,'"',sep=""),intern=TRUE)
+    } else lines <- scan(file, what=character(), sep="\n", quiet=TRUE)
+  }
+  nlines <- length(lines)
+  message(nlines, " lines ... ", appendLF=FALSE)
+  if(is.null(ihead)) ihead <- which(substr(lines,1,1)==">")
+  message(length(ihead), " sequences")
+  linefun <- function(i1,i2) lines[i1:i2]
   # identify the lines that begin and end each sequence
   begin <- ihead + 1
   end <- ihead - 1
@@ -53,7 +61,7 @@ read.fasta <- function(file, iseq=NULL, ret="count", lines=NULL, ihead=NULL,
   sequences <- lapply(iseq, seqfun)
   # organism name is from file name
   # (basename minus extension)
-  bnf <- strsplit(basename(file),split=".",fixed=TRUE)[[1]][1]
+  bnf <- strsplit(filebase,split=".",fixed=TRUE)[[1]][1]
   organism <- bnf
   # protein/gene name is from header line for entry
   # (strip the ">" and go to the first space)
@@ -64,7 +72,7 @@ read.fasta <- function(file, iseq=NULL, ret="count", lines=NULL, ihead=NULL,
     # stop if the first character is not ">"
     # or the first two charaters are "> "
     if(substr(f1,1,1)!=">" | length(grep("^> ",f1)>0))
-      stop(paste("file",basename(file),"line",j,"doesn't begin with FASTA header '>'."))
+      stop(paste("file",filebase,"line",j,"doesn't begin with FASTA header '>'."))
     # discard the leading '>'
     f2 <- substr(f1, 2, nchar(f1))
     # keep everything before the first space
@@ -143,10 +151,14 @@ uniprot.aa <- function(protein, start=NULL, stop=NULL) {
 
 count.aa <- function(seq, start=NULL, stop=NULL, type="protein") {
   # count amino acids or DNA bases in one or more sequences given as elements of the list seq
-  # put them in alphabetical order (amino acids: same order as in thermo$protein)
   if(type=="protein") letts <- aminoacids(1)
   else if(type=="DNA") letts <- c("A", "C", "G", "T")
+  else if(type=="RNA") letts <- c("A", "C", "G", "U")
   else stop(paste("unknown sequence type", type))
+  # the numerical positions of the letters in alphabetical order (i.e. for amino acids, same order as in thermo$protein)
+  ilett <- match(letts, LETTERS)
+  # the letters A-Z represented by raw values
+  rawAZ <- charToRaw("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
   # to count the letters in each sequence
   countfun <- function(seq, start, stop) {
     # get a substring if one or both of start or stop are given
@@ -157,24 +169,27 @@ count.aa <- function(seq, start=NULL, stop=NULL, type="protein") {
     } else if(!is.null(stop)) {
       seq <- substr(seq, 1, stop)
     }
-    # the actual counting
-    nnn <- table(strsplit(toupper(seq), "")[[1]])
-    # get them in alphabetical order
-    ilett <- match(names(nnn), letts)
-    # in case any letters aren't in our alphabet
-    ina <- is.na(ilett)
-    if(any(ina)) message(paste("count.aa: unrecognized letter(s) in", type, "sequence:",
-      paste(names(nnn)[ina], collapse=" ")))
-    count <- numeric(length(letts))
-    count[ilett[!ina]] <- nnn[!ina]
-    return(count)
+    ## the actual counting ...
+    #nnn <- table(strsplit(toupper(seq), "")[[1]])
+    # ... replaced with C version 20180217
+    counts <- .C(C_count_letters, seq, integer(26))[[2]]
+    # which is equivalent to this R code:
+    #rawseq <- charToRaw(toupper(seq))
+    #counts <- sapply(rawAZ, function(x) sum(rawseq == x))
+    return(counts)
   }
   # counts for each sequence
-  a <- palply("", seq, countfun, start, stop)
-  a <- t(as.data.frame(a, optional=TRUE))
+  counts <- palply("", seq, countfun, start, stop)
+  counts <- do.call(rbind, counts)
+  # check for letters that aren't in our alphabet
+  ina <- colSums(counts[, -ilett, drop=FALSE]) > 0
+  if(any(ina)) {
+    message(paste("count.aa: unrecognized letter(s) in", type, "sequence:", paste(LETTERS[-ilett][ina], collapse=" ")))
+  }
+  counts <- counts[, ilett, drop=FALSE]
   # clean up row/column names
-  colnames(a) <- letts
-  rownames(a) <- 1:nrow(a)
-  return(a)
+  colnames(counts) <- letts
+  rownames(counts) <- 1:nrow(counts)
+  return(counts)
 }
 

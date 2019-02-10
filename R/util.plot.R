@@ -13,7 +13,14 @@ thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par(
   }
   # 20090324 mar handling: NULL - a default setting; NA - par's setting
   # 20090413 changed mar of top side from 2 to 2.5
-  if(is.null(mar)) mar <- c(3,3.5,2.5,1) else if(is.na(mar[1])) mar <- par('mar')
+  marval <- c(3, 3.5, 2.5, 1)
+  if(identical(mar[1], NA)) marval <- par("mar")
+  # 20181007 get mar from the current device (if it exists) and par("mar") is not the default
+  if(!is.null(dev.list())) {
+    if(!identical(par("mar"), c(5.1, 4.1, 4.1, 2.1))) marval <- par("mar")
+  }
+  # assign marval to mar if the latter is NULL or NA
+  if(!is.numeric(mar)) mar <- marval
   par(mar=mar,mgp=mgp,tcl=0.3,las=las,xaxs=axs,yaxs=axs,cex=cex,lwd=lwd,col=col,fg=col, ...)
   plot.new()
   plot.window(xlim=xlim,ylim=ylim)
@@ -97,7 +104,7 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
   if(eout$vars[1]=="P") P <- envert(xpoints, "bar")
   # logaH2O is 0 unless given in eout$basis
   iH2O <- match("H2O", rownames(eout$basis))
-  if(is.na(iH2O)) logaH2O <- 0 else logaH2O <- eout$basis$logact[iH2O]
+  if(is.na(iH2O)) logaH2O <- 0 else logaH2O <- as.numeric(eout$basis$logact[iH2O])
   # pH is 7 unless given in eout$basis or plotted on one of the axes
   iHplus <- match("H+", rownames(eout$basis))
   if(eout$vars[1]=="pH") pH <- xpoints
@@ -120,12 +127,12 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
     if('reduction' %in% which) {
       logfH2 <- logaH2O # usually 0
       if(yaxis=="H2") {
-        logK <- subcrt(c("H2", "H2"), c(-1, 1), c("gas", H2state), T=T, P=P, convert=FALSE)$out$logK 
+        logK <- suppressMessages(subcrt(c("H2", "H2"), c(-1, 1), c("gas", H2state), T=T, P=P, convert=FALSE))$out$logK
         # this is logfH2 if H2state=="gas", or logaH2 if H2state=="aq"
         logfH2 <- logfH2 + logK
         y.reduction <- rep(logfH2, length.out=length(xpoints))
       } else {
-        logK <- subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", O2state, "gas"), T=T, P=P, convert=FALSE)$out$logK 
+        logK <- suppressMessages(subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", O2state, "gas"), T=T, P=P, convert=FALSE))$out$logK 
         # this is logfO2 if O2state=="gas", or logaO2 if O2state=="aq"
         logfO2 <- 2 * (logK - logfH2 + logaH2O)
         if(yaxis=="O2") y.reduction <- rep(logfO2, length.out=length(xpoints))
@@ -136,12 +143,12 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
     if('oxidation' %in% which) {
       logfO2 <- logaH2O # usually 0
       if(yaxis=="H2") {
-        logK <- subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", "gas", H2state), T=T, P=P, convert=FALSE)$out$logK 
+        logK <- suppressMessages(subcrt(c("H2O", "O2", "H2"), c(-1, 0.5, 1), c("liq", "gas", H2state), T=T, P=P, convert=FALSE))$out$logK 
         # this is logfH2 if H2state=="gas", or logaH2 if H2state=="aq"
         logfH2 <- logK - 0.5*logfO2 + logaH2O
         y.oxidation <- rep(logfH2, length.out=length(xpoints))
       } else {
-        logK <- subcrt(c("O2", "O2"), c(-1, 1), c("gas", O2state), T=T, P=P, convert=FALSE)$out$logK 
+        logK <- suppressMessages(subcrt(c("O2", "O2"), c(-1, 1), c("gas", O2state), T=T, P=P, convert=FALSE))$out$logK 
         # this is logfO2 if O2state=="gas", or logaO2 if O2state=="aq"
         logfO2 <- logfO2 + logK
         if(yaxis=="O2") y.oxidation <- rep(logfO2, length.out=length(xpoints))
@@ -187,35 +194,16 @@ ZC.col <- function(z) {
   rev(dcol)[z]
 }
 
-### unexported functions ###
-
 # Function to add axes and axis labels to plots,
 #   with some default style settings (rotation of numeric labels)
-#   and conversions between oxidation-reduction scales (called by thermo.plot.new ()).
 # With the default arguments (no labels specified), it plots only the axis lines and tick marks
 #   (used by diagram() for overplotting the axis on diagrams filled with colors).
-thermo.axis <- function(lab=NULL,side=1:4,line=1.5,cex=par('cex'),lwd=par('lwd'),T=NULL,col=par('col')) {
-  # if T isn't NULL, looks like we want make a second
-  # oxidation scale corresponding to one already plotted.
-  # e.g.,  Eh-pe, Eh-logfO2, or logfO2-Eh
-  if(!is.null(T)) {
-    usr <- par('usr')
-    if(side %in% c(1,3)) lim <- usr[1:2] else lim <- usr[3:4]
-    if(length(grep('pe',lab)) > 0) {
-      lim <- convert(lim,'pe',T=T)
-    } else if(length(grep('O2',lab)) > 0) {
-      lim <- convert(lim,'logfO2',T=T)
-    } else if(length(grep('Eh',lab)) > 0) {
-      lim <- convert(lim,'E0',T=T)
-    }
-    if(side %in% c(1,3)) usr[1:2] <- lim else usr[3:4] <- lim
-    opar <- par(usr=usr)
-  }
+thermo.axis <- function(lab=NULL,side=1:4,line=1.5,cex=par('cex'),lwd=par('lwd'),col=par('col')) {
   if(!is.null(lwd)) {
     ## plot major tick marks and numeric labels
     for(thisside in side) {
       do.label <- TRUE
-      if(missing(side) | (missing(cex) & thisside %in% c(3,4) & is.null(T))) do.label <- FALSE
+      if(missing(side) | (missing(cex) & thisside %in% c(3,4))) do.label <- FALSE
       at <- axis(thisside,labels=do.label,tick=TRUE,lwd=lwd,col=col,col.axis=col) 
       ## plot minor tick marks
       # the distance between major tick marks
@@ -263,6 +251,4 @@ thermo.axis <- function(lab=NULL,side=1:4,line=1.5,cex=par('cex'),lwd=par('lwd')
     if(thisside %in% c(2,4)) las <- 0 else las <- 1
     if(!is.null(lab)) mtext(lab,side=thisside,line=line,cex=cex,las=las)
   }
-  # reset limits if we were plotting a second axis
-  if(!is.null(T)) par(opar)
 }

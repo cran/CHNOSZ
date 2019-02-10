@@ -71,7 +71,7 @@ affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
 mod.buffer("AC",logact=-10)
 affinity(O2=c(-85,-70,4),T=c(25,100,4),return.buffer=TRUE)
 # see below for a different strategy using the
-# 'what' argument of diagram
+# 'type' argument of diagram
 
 ## buffer made of three species
 ## Pyrite-Pyrrhotite-Magnetite (PPM)
@@ -133,7 +133,7 @@ mod.buffer("CO2-AC",logact=c(0,-10))
 affinity(return.buffer=TRUE)
 
 # one can solve for the logarithm of activity of a 
-# basis species using the 'what' argument of diagram
+# basis species using the 'type' argument of diagram
 basis("CHNOS")
 basis("CO2", 999)
 species("acetic acid", -3)
@@ -142,16 +142,16 @@ a <- affinity(O2=c(-85, -70, 4), T=c(25, 100, 4))
 lCO2 <- axis.label("CO2")
 main <- substitute(a~~b~~c,list(a=lCO2, b="buffered by",
   c="acetic acid"))
-d <- diagram(a, what="CO2", main=main)
+d <- diagram(a, type="CO2", main=main)
 species(1, -10)
 a <- affinity(O2=c(-85, -70, 4), T=c(25, 100, 4))
-d <- diagram(a, what="CO2", add=TRUE, lty=2)
+d <- diagram(a, type="CO2", add=TRUE, lty=2)
 # add a legend
-lAC <- expr.species("CH3COOH", log="aq")
+lAC <- expr.species("CH3COOH", log=TRUE)
 ltext <- c(as.expression(lAC), -3, -10)
 lty <- c(NA, 1, 2)
 legend("topright", legend=ltext, lty=lty, bg="white")
-# do return.buffer and diagram(what) give the same results?
+# do return.buffer and diagram(type=...) give the same results?
 and <- as.numeric(d$plotvals[[1]])
 basis("CO2", "AC")
 mod.buffer("AC", logact=-10)
