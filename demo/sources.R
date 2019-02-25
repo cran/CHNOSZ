@@ -1,9 +1,9 @@
 ## cross-checking sources
 # the reference sources
-ref.source <- thermo$refs$key
+ref.source <- thermo()$refs$key
 # sources in the primary thermodynamic database
 # we omit the [S92] in "HDNB78 [S92]" etc.
-tdata <- get("thermo")$obigt
+tdata <- thermo()$obigt
 ps1 <- gsub("\ .*", "", tdata$ref1)
 ps2 <- gsub("\ .*", "", tdata$ref2)
 # sources in the optional datafiles
@@ -19,8 +19,14 @@ os6 <- gsub("\ .*", "", tdata$ref2)
 tdata <- read.csv(system.file("extdata/OBIGT/OldAA.csv", package="CHNOSZ"), as.is=TRUE)
 os7 <- gsub("\ .*", "", tdata$ref1)
 os8 <- gsub("\ .*", "", tdata$ref2)
+tdata <- read.csv(system.file("extdata/OBIGT/AS04.csv", package="CHNOSZ"), as.is=TRUE)
+os9 <- gsub("\ .*", "", tdata$ref1)
+os10 <- gsub("\ .*", "", tdata$ref2)
+tdata <- read.csv(system.file("extdata/OBIGT/AkDi.csv", package="CHNOSZ"), as.is=TRUE)
+os11 <- gsub("\ .*", "", tdata$ref1)
+os12 <- gsub("\ .*", "", tdata$ref2)
 # all of the thermodynamic data sources - some of them might be NA
-obigt.source <- unique(c(ps1, ps2, os1, os2, os3, os4, os5, os6, os7, os8))
+obigt.source <- unique(c(ps1, ps2, os1, os2, os3, os4, os5, os6, os7, os8, os9, os10, os11, os12))
 obigt.source <- obigt.source[!is.na(obigt.source)]
 # these all produce character(0) if the sources are all accounted for
 print("missing these sources for thermodynamic properties:")

@@ -18,9 +18,9 @@
     use.state=FALSE, use.makeup=FALSE)
   expr.property(property, molality = FALSE)
   expr.units(property, prefix = "", per = "mol")
-  axis.label(label, units = NULL, basis = get("thermo")$basis, prefix = "",
+  axis.label(label, units = NULL, basis = thermo()$basis, prefix = "",
     molality = FALSE)
-  describe.basis(basis = get("thermo")$basis, ibasis = 1:nrow(basis),
+  describe.basis(basis = thermo()$basis, ibasis = 1:nrow(basis),
     digits = 1, oneline = FALSE, molality = FALSE, use.pH = TRUE)
   describe.property(property, value, digits = 0, oneline = FALSE,
     ret.val = FALSE)
@@ -50,7 +50,7 @@
   \item{ret.val}{logical, return only the value with the units?}
   \item{reaction}{data frame, definition of reaction}
   \item{iname}{numeric, show names instead of formulas for these species}
-  \item{states}{character, if \samp{all}, show states for all species}
+  \item{states}{character, if \samp{all}, show states for all species; numeric, which species to show states for}
   \item{system}{character, thermodynamic components}
   \item{dash}{character to use for dash between components}
   \item{ion}{character, an ion}
@@ -112,7 +112,12 @@ Note that \code{\link{diagram}} sets \code{molality} to TRUE if \code{IS} was su
 
   \code{describe.property} makes an expression summarizing the properties supplied in \code{property}, along with their \code{value}s. The expressions returned by both functions consist of a property, an equals sign, and a value (with units where appropriate); the expressions have a length equal to the number of property/value pairs. If \code{oneline} is TRUE, the property/value pairs are combined into a single line, separated by commas. The number of digits shown after the decimal point in the values is controlled by \code{digits}. If \code{ret.val} is TRUE, only the values and their units are returned; this is useful for labeling plots with values of temperature.
 
-  \code{describe.reaction} makes an expression summarizing a chemical reaction. The \code{reaction} data frame can be generated using \code{\link{subcrt}}. Based on the sign of their reaction coefficients, species are placed on the reactant (left) or product (right) side of the reaction, where the species with their coefficients are separated by plus signs; the two sides of the reaction are separated by an equals sign. Coefficients equal to 1 are not shown. Chemical formulas of species include a designation of physical state if \code{states} is \samp{all}. Names of species (as provided in \code{reaction}) are shown instead of chemical formulas for the species identified by \code{iname}.
+\code{describe.reaction} makes an expression summarizing a chemical reaction.
+The \code{reaction} data frame can be generated using \code{\link{subcrt}}.
+Based on the sign of their reaction coefficients, species are placed on the reactant (left) or product (right) side of the reaction, where the species with their coefficients are separated by plus signs; the two sides of the reaction are separated by a reaction double arrow (Unicode U+21CC).
+Coefficients equal to 1 are not shown.
+Chemical formulas of species include the physical state if \code{states} is \samp{all}, or a numeric value indicating which species to label with the state.
+Names of species (as provided in \code{reaction}) are shown instead of chemical formulas for the species identified by \code{iname}.
 
 \code{syslab} formats the given thermodynamic components (using \code{expr.species}) and adds intervening en dashes.
 
@@ -124,7 +129,7 @@ Note that \code{\link{diagram}} sets \code{molality} to TRUE if \code{IS} was su
 \code{demo("saturation")} for examples of \code{syslab} and \code{ratlab}.
 }
 
-\examples{\dontshow{data(thermo)}
+\examples{\dontshow{reset()}
 ## show descriptions of species and properties on a plot
 plot(0, 0, xlim=c(1,5), ylim=c(1,5), xlab="function", ylab="example")
 text0 <- function(...) text(..., adj=0)

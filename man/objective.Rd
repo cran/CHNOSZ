@@ -77,7 +77,7 @@ Each objective function has an attribute (see \code{\link{attributes}} and \code
 \seealso{ \code{\link{revisit}}, \code{\link{findit}} }
 
 \examples{
-\dontshow{data(thermo)}
+\dontshow{reset()}
 ## a made-up system: 4 species, 1 condition
 loga1 <- t(-4:-1)
 loga2 <- loga1 + 1
@@ -93,7 +93,7 @@ stopifnot(all.equal(DDGmix(loga1, loga2), 0.0004))
 
 ## transforming an equilibrium assemblage of n-alkanes
 basis(c("CH4", "H2"), c("gas", "gas"))
-species(c("methane", "ethane", "propane", "n-butane"), "liq")
+species(c("methane", "ethane", "propane", "butane"), "liq")
 # calculate equilibrium assemblages over a range of logaH2
 a <- affinity(H2=c(-10, -5, 101), exceed.Ttr=TRUE)
 e <- equilibrate(a)

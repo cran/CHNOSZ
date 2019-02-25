@@ -11,7 +11,7 @@ thermo.refs <- function(key=NULL, keep.duplicates=FALSE) {
   # numeric: open one or two web pages for each listed species
   # list: the output of subcrt()
   ## first retrieve the sources table
-  thermo <- get("thermo")
+  thermo <- get("thermo", CHNOSZ)
   x <- thermo$refs[order(thermo$refs$note), ]
   ## show a table in the browser if 'key' is NULL 
   if(is.null(key)) {
@@ -160,7 +160,7 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
   # if tolerance is exceeded
   # or NA if the difference is within the tolerance
   # 20110808 jmd
-  thermo <- get("thermo")
+  thermo <- get("thermo", CHNOSZ)
   # get calculated value based on EOS
   Theta <- 228  # K
   if(identical(state, "aq")) {
@@ -219,7 +219,7 @@ checkGHS <- function(ghs, ret.diff=FALSE) {
   # print message and return the calculated value if tolerance is exceeded
   # or NA if the difference is within the tolerance
   # 20110808 jmd
-  thermo <- get("thermo")
+  thermo <- get("thermo", CHNOSZ)
   # get calculated value based on H and S
   ina <- is.na(ghs$formula)
   if(any(ina)) {
@@ -259,11 +259,13 @@ check.obigt <- function() {
   # 20110808 jmd replaces 'check=TRUE' argument of info()
   checkfun <- function(what) {
     # looking at thermo$obigt
-    if(what=="OBIGT") tdata <- get("thermo")$obigt
+    if(what=="OBIGT") tdata <- get("thermo", CHNOSZ)$obigt
     else if(what=="DEW") tdata <- read.csv(system.file("extdata/OBIGT/DEW_aq.csv", package="CHNOSZ"), as.is=TRUE)
     else if(what=="SLOP98") tdata <- read.csv(system.file("extdata/OBIGT/SLOP98.csv", package="CHNOSZ"), as.is=TRUE)
     else if(what=="SUPCRT92") tdata <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package="CHNOSZ"), as.is=TRUE)
     else if(what=="OldAA") tdata <- read.csv(system.file("extdata/OBIGT/OldAA.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="AS04") tdata <- read.csv(system.file("extdata/OBIGT/AS04.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="AkDi") tdata <- read.csv(system.file("extdata/OBIGT/AkDi.csv", package="CHNOSZ"), as.is=TRUE)
     ntot <- nrow(tdata)
     # where to keep the results
     DCp <- DV <- DG <- rep(NA,ntot)
@@ -284,7 +286,7 @@ check.obigt <- function() {
     if(sum(!isaq) > 0) {
       eos.cgl <- obigt2eos(tdata[!isaq,],"cgl")
       DCp.cgl <- checkEOS(eos.cgl,"cgl","Cp",ret.diff=TRUE)
-      cat(paste("check.obigt: GHS for",sum(!isaq),"c,g,l species in",what,"\n"))
+      cat(paste("check.obigt: GHS for",sum(!isaq),"cr,gas,liq species in",what,"\n"))
       DG.cgl <- checkGHS(eos.cgl,ret.diff=TRUE)
       DCp[!isaq] <- DCp.cgl
       DG[!isaq] <- DG.cgl
@@ -317,7 +319,7 @@ check.obigt <- function() {
   return(out)
 }
 
-RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo/RH98_Table15.csv", package="CHNOSZ")) {
+RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/adds/RH98_Table15.csv", package="CHNOSZ")) {
   # get thermodynamic properties and equations of state parameters using 
   # group contributions from Richard and Helgeson, 1998   20120609 jmd
   # read the compound names, physical states, chemical formulas and group stoichiometry from the file
@@ -335,7 +337,7 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
   ina <- is.na(icomp)
   if(any(ina)) stop(paste("compound(s)", paste(comate.arg[ina], collapse=" "), "not found in", file))
   # initialize output data frame
-  out <- get("thermo")$obigt[0, ]
+  out <- get("thermo", CHNOSZ)$obigt[0, ]
   # loop over the compounds
   for(i in icomp) {
     # the group stoichiometry for this compound
@@ -350,7 +352,7 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
     ina <- is.na(ispecies)
     if(any(ina)) stop(paste("group(s)", paste(colnames(thisdat)[igroup][ina], collapse=" "), "not found in", thisdat$state, "state"))
     # group additivity of properties and parameters: add contributions from all groups
-    thiseos <- t(colSums(get("thermo")$obigt[ispecies, 8:20] * as.numeric(thisdat[, igroup])))
+    thiseos <- t(colSums(get("thermo", CHNOSZ)$obigt[ispecies, 8:20] * as.numeric(thisdat[, igroup])))
     # group additivity of chemical formula
     formula <- as.chemical.formula(colSums(i2A(ispecies) * as.numeric(thisdat[, igroup])))
     # check if the formula is the same as in the file
@@ -368,7 +370,7 @@ RH2obigt <- function(compound=NULL, state="cr", file=system.file("extdata/thermo
 # dump all thermodynamic data in CHNOSZ 20171121
 dumpdata <- function(file=NULL) {
   # default database (OBIGT)
-  dat <- get("thermo")$obigt
+  dat <- get("thermo", CHNOSZ)$obigt
   OBIGT <- cbind(source="OBIGT", dat)
   # optional data
   dat <- read.csv(system.file("extdata/OBIGT/DEW_aq.csv", package="CHNOSZ"), as.is=TRUE)
@@ -396,8 +398,15 @@ obigt2eos <- function(obigt,state,fixGHS=FALSE) {
   # remove scaling factors from EOS parameters
   # and apply column names depending on the EOS
   if(identical(state, "aq")) {
-    obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(-1,2,0,4,0,4,5,0))
-    colnames(obigt)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
+    # species in the Akinfiev-Diamond model (AkDi) have NA for Z 20190219
+    isAkDi <- is.na(obigt$z.T)
+    # remove scaling factors for the HKF species, but not for the AkDi species
+    obigt[!isAkDi, 13:20] <- t(t(obigt[!isAkDi, 13:20]) * 10^c(-1,2,0,4,0,4,5,0))
+    # for AkDi species, set NA values in remaining columns (for display only)
+    obigt[isAkDi, 16:19] <- NA
+    # if all of the species are AkDi, change the variable names
+    if(all(isAkDi)) colnames(obigt)[13:20] <- c('a','b','xi','XX1','XX2','XX3','XX4','Z') 
+    else colnames(obigt)[13:20] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
   } else {
     obigt[,13:20] <- t(t(obigt[,13:20]) * 10^c(0,-3,5,0,-5,0,0,0))
     colnames(obigt)[13:20] <- c('a','b','c','d','e','f','lambda','T')

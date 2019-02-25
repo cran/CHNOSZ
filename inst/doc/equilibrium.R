@@ -10,7 +10,7 @@ options(digits=3)
 
 ## ----AAsetup-----------------------------------------------------------------------
 library(CHNOSZ)
-data(thermo)
+reset()
 basis("CHNOS")
 species(aminoacids(""))[1:5, ]
 
@@ -269,7 +269,7 @@ mtext(side=2, "- - - - - - - - - - - - - - - - - - -", las=0, line=2.1, cex=0.8)
 legend("topleft", lty=1:3, legend=paste(mM, "mM GSH"))
 
 ## ----AddObigt----------------------------------------------------------------------
-data(thermo)
+reset()
 add.obigt("OldAA")
 
 ## ----ProteinFormation--------------------------------------------------------------

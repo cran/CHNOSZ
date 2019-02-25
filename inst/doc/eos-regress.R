@@ -50,7 +50,7 @@ knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), mes
 
 ## ----library_CHNOSZ-----------------------------------------------------------
 library(CHNOSZ)
-data(thermo)
+reset()
 
 ## ----Cpdat--------------------------------------------------------------------
 file <- system.file("extdata/cpetc/Cp.CH4.HW97.csv", package = "CHNOSZ")
@@ -185,6 +185,9 @@ EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
 #  names(coefficients)[3] <- "V_s_var"
 #  EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
 #    omega.PrTr = convert(coefficients["V_s_var"], "calories"))
+
+## ----AS04, message=FALSE------------------------------------------------------
+add.obigt("AS04")
 
 ## ----SiO2_2H2O, message=FALSE-------------------------------------------------
 s_25C <- subcrt(c("SiO2", "H2O"), c(1, 2), T = 25)$out

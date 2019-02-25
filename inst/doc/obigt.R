@@ -2,7 +2,7 @@
 library(CHNOSZ)
 
 ## ----data_thermo, include=FALSE------------------------------------------
-data(thermo)
+reset()
 
 ## ----nspecies, include=FALSE---------------------------------------------
 # assign the file name to a variable and print the file name and number of species
@@ -40,20 +40,20 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
   if(length(tab)==0) return(paste(dat$name, dat$state))
   # the keys only (no [S92] etc.)
   keys <- sapply(strsplit(names(tab), " "), "[", 1)
-  # warn if any keys aren't in thermo$ref$key
-  ikey <- match(keys, thermo$ref$key)
+  # warn if any keys aren't in thermo()$ref$key
+  ikey <- match(keys, thermo()$ref$key)
   ina <- is.na(ikey)
-  if(any(ina)) cat(paste("**WARNING: key(s)", paste(names(tab)[ina], collapse=" "), "not found in `thermo$ref$key`**\n\n"))
-  # put the table in chronological order, according to thermo$ref
-  #ikey <- na.omit(match(thermo$ref$key, keys))
-  ikey <- order(match(keys, thermo$ref$key)) # works for duplicated keys (e.g. "Sho92" and "Sho92 [S98]")
+  if(any(ina)) cat(paste("**WARNING: key(s)", paste(names(tab)[ina], collapse=" "), "not found in `thermo()$ref$key`**\n\n"))
+  # put the table in chronological order, according to thermo()$ref
+  #ikey <- na.omit(match(thermo()$ref$key, keys))
+  ikey <- order(match(keys, thermo()$ref$key)) # works for duplicated keys (e.g. "Sho92" and "Sho92 [S98]")
   tab <- tab[ikey]
   keys <- keys[ikey]
   xxx <- lapply(seq_along(tab), function(i){
     thiskey <- keys[i]
-    # read thermo$ref$note
-    iref <- match(thiskey, thermo$ref$key)
-    note <- thermo$ref$note[iref]
+    # read thermo()$ref$note
+    iref <- match(thiskey, thermo()$ref$key)
+    note <- thermo()$ref$note[iref]
     if(!identical(note, "")) note <- paste0(" *", note, "* ")
     # append symbol for [S92], [S98], or [S15]
     if(grepl("[S92]", names(tab)[i], fixed=TRUE) | grepl("SPRONS92", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(ø)")
@@ -88,7 +88,7 @@ cat('The formation reaction of the proton can be expressed as &frac12;H<sub>2,(*
 cat('Because the conventional standard Gibbs energy of this reaction is 0 at all *T*, the standard entropy of the reaction is also constrained to be zero (cf. [Puigdomenech et al., 1997](http://www.oecd-nea.org/dbtdb/pubs/book-pdf/427-494.pdf)).\n')
 cat('Therefore, the "element" of positive charge (Z) has zero thermodynamic properties except for an entropy, *S*°<sub>*T*<sub>r</sub></sub>, that is negative one-half that of H<sub>2,(*g*)</sub>.\n')
 cat('The standard entropy of the aqueous electron, which is a solely a pseudospecies defined by *e*<sup>-</sup> = -Z, is opposite that of Z.<span style="color:red">**</span>\n\n')
-cat('Despite these considerations, the final column of the thermodynamic database (`thermo$obigt`) lists a charge of "0" for both the aqueous proton and electron.\n')
+cat('Despite these considerations, the final column of the thermodynamic database (`thermo()$obigt`) lists a charge of "0" for both the aqueous proton and electron.\n')
 cat('Data in this this column are used in CHNOSZ only to specify the charge that is input to the "*g*-function" ([Tanger and Helgeson, 1988](https://doi.org/10.2475/ajs.288.1.19); [Shock and Helgeson, 1988](https://doi.org/10.1016/0016-7037(88)90181-0)).\n')
 cat('Setting it to zero prevents activation of the *g*-function, which would result in non-zero contributions to thermodynamic properties, conflicting with the conventions mentioned above.\n')
 cat('All other calculations in CHNOSZ obtain the elemental makeup, including the correct charge for the species, by parsing the chemical formulas stored in the database.<span style="color:red">^^</span>\n\n')
@@ -103,7 +103,6 @@ used <- character()
 used <- c(used, filerefs(csvfile))
 
 ## ----inorganic_aq, results="asis", echo=FALSE----------------------------
-cat("ZnCl<sub>4</sub><sup>-2</sup> was present in sprons92.dat but not in slop98.dat or later files, and is not included in CHNOSZ.<hr>")
 
 ## ----reflist, results="asis", echo=FALSE---------------------------------
 used <- c(used, filerefs(csvfile))
@@ -126,7 +125,7 @@ used <- c(used, filerefs(csvfile))
 
 ## ----Berman_cr, results="asis", echo=FALSE-------------------------------
 cat("This file gives the identifiying information for minerals whose properties are calculated using the formulation of [Berman (1988)](https://doi.org/10.1093/petrology/29.2.445).\n")
-cat("Note that thermodynamic properties for these minerals are listed as NA in `thermo$obigt`; the actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
+cat("Note that thermodynamic properties for these minerals are listed as NA in `thermo()$obigt`; the actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
 
 ## ----reflist, results="asis", echo=FALSE---------------------------------
 used <- c(used, filerefs(csvfile))
@@ -153,14 +152,14 @@ optused <- character()
 optused <- c(optused, filerefs(csvfile))
 
 ## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
-cat('These minerals, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by the Berman dataset. They are kept as optional data for testing and comparison purposes. The minerals here include all of the silicates and Al-bearing minerals from [Helgeson et al., 1978](http://www.worldcat.org/oclc/13594862), as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+cat('These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
 optused <- c(optused, filerefs(csvfile))
 
 ## ----SLOP98, results="asis", echo=FALSE----------------------------------
-cat('These species, taken from the slop98 data file, were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates. The data are kept here for comparative purposes. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
+cat('These species, many of which were taken from slop98.dat and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with other updates for aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], and Pt species [@TBB15]. The data are kept here to enable comparisons with newer data and reproduction of published calculations. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
@@ -168,6 +167,20 @@ optused <- c(optused, filerefs(csvfile))
 
 ## ----OldAA, results="asis", echo=FALSE-----------------------------------
 cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
+
+## ----optreflist, results="asis", echo=FALSE------------------------------
+# run filerefs for optional data sources
+optused <- c(optused, filerefs(csvfile))
+
+## ----AS04, results="asis", echo=FALSE------------------------------------
+cat('This file has data for aqueous SiO<sub>2</sub> from @AS04 and modified HSiO<sub>3</sub><sup>-</sup>. Use <span style="color:red">`add.obigt("AS04")`</span> to load the data; see [<span style="color:blue">`demo(go-IU)`</span>](../demo) for an example.\n\n')
+
+## ----optreflist, results="asis", echo=FALSE------------------------------
+# run filerefs for optional data sources
+optused <- c(optused, filerefs(csvfile))
+
+## ----AkDi, results="asis", echo=FALSE------------------------------------
+cat('This file has parameters for aqueous nonelectrolytes in the Akinfiev-Diamond model [@AD03]. Use <span style="color:red">`add.obigt("AkDi")`</span> to load the data; see [<span style="color:blue">`demo(AkDi)`</span>](../demo) for an example.\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
@@ -181,7 +194,7 @@ cat('The formation reaction of the proton can be expressed as &frac12;H<sub>2,(*
 cat('Because the conventional standard Gibbs energy of this reaction is 0 at all *T*, the standard entropy of the reaction is also constrained to be zero (cf. [Puigdomenech et al., 1997](http://www.oecd-nea.org/dbtdb/pubs/book-pdf/427-494.pdf)).\n')
 cat('Therefore, the "element" of positive charge (Z) has zero thermodynamic properties except for an entropy, *S*°<sub>*T*<sub>r</sub></sub>, that is negative one-half that of H<sub>2,(*g*)</sub>.\n')
 cat('The standard entropy of the aqueous electron, which is a solely a pseudospecies defined by *e*<sup>-</sup> = -Z, is opposite that of Z.<span style="color:red">**</span>\n\n')
-cat('Despite these considerations, the final column of the thermodynamic database (`thermo$obigt`) lists a charge of "0" for both the aqueous proton and electron.\n')
+cat('Despite these considerations, the final column of the thermodynamic database (`thermo()$obigt`) lists a charge of "0" for both the aqueous proton and electron.\n')
 cat('Data in this this column are used in CHNOSZ only to specify the charge that is input to the "*g*-function" ([Tanger and Helgeson, 1988](https://doi.org/10.2475/ajs.288.1.19); [Shock and Helgeson, 1988](https://doi.org/10.1016/0016-7037(88)90181-0)).\n')
 cat('Setting it to zero prevents activation of the *g*-function, which would result in non-zero contributions to thermodynamic properties, conflicting with the conventions mentioned above.\n')
 cat('All other calculations in CHNOSZ obtain the elemental makeup, including the correct charge for the species, by parsing the chemical formulas stored in the database.<span style="color:red">^^</span>\n\n')
@@ -196,7 +209,6 @@ used2 <- character()
 used2 <- c(used2, filerefs(csvfile))
 
 ## ----inorganic_aq, results="asis", echo=FALSE----------------------------
-cat("ZnCl<sub>4</sub><sup>-2</sup> was present in sprons92.dat but not in slop98.dat or later files, and is not included in CHNOSZ.<hr>")
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
@@ -219,7 +231,7 @@ used2 <- c(used2, filerefs(csvfile))
 
 ## ----Berman_cr, results="asis", echo=FALSE-------------------------------
 cat("This file gives the identifiying information for minerals whose properties are calculated using the formulation of [Berman (1988)](https://doi.org/10.1093/petrology/29.2.445).\n")
-cat("Note that thermodynamic properties for these minerals are listed as NA in `thermo$obigt`; the actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
+cat("Note that thermodynamic properties for these minerals are listed as NA in `thermo()$obigt`; the actual data are stored separately, as CSV files in `extdata/Berman/*.csv`.\n")
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
@@ -242,20 +254,32 @@ cat("Besides using <span style='color:red'>`add.obigt('DEW')`</span> to load the
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
+## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
+cat('These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+
+## ----reflist2, results="asis", echo=FALSE--------------------------------
+used2 <- c(used2, filerefs(csvfile))
+
+## ----SLOP98, results="asis", echo=FALSE----------------------------------
+cat('These species, many of which were taken from slop98.dat and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with other updates for aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], and Pt species [@TBB15]. The data are kept here to enable comparisons with newer data and reproduction of published calculations. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
+
+## ----reflist2, results="asis", echo=FALSE--------------------------------
+used2 <- c(used2, filerefs(csvfile))
+
 ## ----OldAA, results="asis", echo=FALSE-----------------------------------
 cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
-## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
-cat('These minerals, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by the Berman dataset. They are kept as optional data for testing and comparison purposes. The minerals here include all of the silicates and Al-bearing minerals from [Helgeson et al., 1978](http://www.worldcat.org/oclc/13594862), as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+## ----AS04, results="asis", echo=FALSE------------------------------------
+cat('This file has data for aqueous SiO<sub>2</sub> from @AS04 and modified HSiO<sub>3</sub><sup>-</sup>. Use <span style="color:red">`add.obigt("AS04")`</span> to load the data; see [<span style="color:blue">`demo(go-IU)`</span>](../demo) for an example.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
-## ----SLOP98, results="asis", echo=FALSE----------------------------------
-cat('These species, taken from the slop98 data file, were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates. The data are kept here for comparative purposes. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
+## ----AkDi, results="asis", echo=FALSE------------------------------------
+cat('This file has parameters for aqueous nonelectrolytes in the Akinfiev-Diamond model [@AD03]. Use <span style="color:red">`add.obigt("AkDi")`</span> to load the data; see [<span style="color:blue">`demo(AkDi)`</span>](../demo) for an example.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))

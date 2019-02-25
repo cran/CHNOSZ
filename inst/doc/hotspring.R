@@ -13,7 +13,7 @@ if (before && options$fig.show!='none') par(mar=c(4,4,1,1),cex.lab=.95,cex.axis=
 
 ## ----libraryCHNOSZ-----------------------------------------------------------------
 library(CHNOSZ)
-data(thermo)
+reset()
 add.obigt("OldAA")
 
 ## ----TpH---------------------------------------------------------------------------
@@ -171,7 +171,7 @@ par(mfrow=c(2, 3))
 for(j in 1:2) {
   # use old [Met] for first row and new [Met] for second row
   if(j==2) {
-    data(thermo)
+    reset()
     add.obigt("OldAA", c("[Gly]", "[UPBB]"))
     ip.annot <- add.protein(aa.annot)
   }

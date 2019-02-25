@@ -9,6 +9,7 @@ logfO2 <- "log<i>f</i><sub>O<sub>2</sub></sub>"
 zc <- "<i>Z</i><sub>C</sub>"
 o2 <- "O<sub>2</sub>"
 h2o <- "H<sub>2</sub>O"
+sio2 <- "SiO<sub>2</sub>"
 
 ## ----setup, include=FALSE-----------------------------------------------------
 library(knitr)
@@ -76,16 +77,16 @@ knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), mes
 library(CHNOSZ)
 
 ## ----data_thermo--------------------------------------------------------------
-data(thermo)
+reset()
 
 ## ----pseudocode, eval=FALSE---------------------------------------------------
-#  data(thermo)         ## initialize system settings
+#  reset()         ## initialize system settings
 #  basis(...)
 #  species(...)
 #  a <- affinity(...)
 #  e <- equilibrate(a)  ## optional
 #  diagram(e)           ## or diagram(a)
-#  data(thermo)         ## clear settings for next calculation
+#  reset()         ## clear settings for next calculation
 
 ## ----info_adenine-------------------------------------------------------------
 info("aden ")
@@ -132,12 +133,12 @@ info("methane", "gas")
 ## ----info_methane_test, echo=FALSE, results="hide"----------------------------
 # this prevents the vignette from compiling in case
 # database updates cause the species index of methane to change
-stopifnot(info("methane")==926)
+stopifnot(info("methane")==881)
 # it is up to the editor of this vignette to ensure that number
 # is used in the hard-coded examples below!
 
-## ----info_926, message=FALSE--------------------------------------------------
-info(926)
+## ----info_881, message=FALSE--------------------------------------------------
+info(881)
 
 ## ----info_info_water----------------------------------------------------------
 info(info("water"))
@@ -154,17 +155,17 @@ options(width = 80)
 ## ----info_ribose--------------------------------------------------------------
 info(" ribose")
 
-## ----info_926_formula, message=FALSE------------------------------------------
-info(926)$formula
+## ----info_881_formula, message=FALSE------------------------------------------
+info(881)$formula
 
-## ----makeup_926---------------------------------------------------------------
-makeup(926)
-as.chemical.formula(makeup(926))
+## ----makeup_881---------------------------------------------------------------
+makeup(881)
+as.chemical.formula(makeup(881))
 
-## ----ZC_926, message=FALSE----------------------------------------------------
-ZC(926)
-ZC(info(926)$formula)
-ZC(makeup(926))
+## ----ZC_881, message=FALSE----------------------------------------------------
+ZC(881)
+ZC(info(881)$formula)
+ZC(makeup(881))
 
 ## ----subcrt_water-------------------------------------------------------------
 subcrt("water")
@@ -192,7 +193,7 @@ subcrt("methane", T = 298.15, P = 0.1)$out$methane$G
 convert(info(info("methane"))$G, "J")
 
 ## ----data_thermo--------------------------------------------------------------
-data(thermo)
+reset()
 
 ## ----subcrt_CO2---------------------------------------------------------------
 subcrt(c("CO2", "CO2"), c("gas", "aq"), c(-1, 1), T = seq(0, 250, 50))
@@ -306,7 +307,7 @@ legend("topleft", c("acetate oxidation", "acetoclastic methanogenesis",
 #    "hydrogenotrophic methanogenesis"), lty = 1, col = 2:4)
 
 ## ----data_thermo, message=FALSE-----------------------------------------------
-data(thermo)
+reset()
 
 ## ----basis_CHNOSZ, results="hide"---------------------------------------------
 basis("CHNOS+")
@@ -510,7 +511,7 @@ s <- solubility(a, in.terms.of = "Al+3")
 diagram(s, type = "loga.balance", ylim = c(-10, 0), lwd = 4, col = "green3")
 diagram(s, add = TRUE, adj = c(0, 1, 2.1, -0.2, -1.5), dy = c(0, 0, 4, -0.3, 0.1))
 legend("topright", c("25 °C", "1 bar"), text.font = 2, bty = "n")
-data(thermo)
+reset()
 
 ## ----groups_basis, results="hide", message=FALSE------------------------------
 basis("CHNOS+")
@@ -1750,7 +1751,7 @@ options(width = 80)
 #  browseURL(ref$URL)  ## opens a link to worldcat.org
 
 ## ----BZA10, echo=1:2----------------------------------------------------------
-file <- system.file("extdata/thermo/BZA10.csv", package = "CHNOSZ")
+file <- system.file("extdata/adds/BZA10.csv", package = "CHNOSZ")
 read.csv(file, as.is = TRUE)
 
 ## ----mod_obigt_S3_ghs, echo=1:2-----------------------------------------------
@@ -1775,7 +1776,7 @@ info(info("cyclohexane"))
 ## checkEOS: V of cyclohexane aq (1762) differs by 6.64 cm3 mol-1 from tabulated value
 
 ## ----check_obigt--------------------------------------------------------------
-file <- system.file("extdata/thermo/obigt_check.csv", package = "CHNOSZ")
+file <- system.file("extdata/adds/obigt_check.csv", package = "CHNOSZ")
 dat <- read.csv(file, as.is = TRUE)
 nrow(dat)
 

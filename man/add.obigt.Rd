@@ -51,7 +51,7 @@ The formula is taken from the \samp{formula} argument, or if that is missing, is
 An error results if the formula is not valid (i.e. can not be parsed by\code{\link{makeup}}).
 Additional arguments refer to the name of the property(s) to be updated and are matched to any part of compound column names in \code{\link{thermo}$obigt}, such as \samp{z} or \samp{T} in \samp{z.T}.
 Unless \samp{state} is specified as one of the properties, its value is taken from \code{thermo$opt$state}.
-When adding species, properties that are not specified become NA (except for \samp{state}).
+When adding species, properties that are not specified become NA, except for \samp{state}, which takes a default value from \code{thermo$opt$state}, and \samp{z.T}, which for aqueous species is set to the charge calculated from the chemical formula (otherwise, NA charge for newly added species would trigger the \code{\link{AkDi}} model).
 The values provided should be in the units specifed in the documentation for the \code{thermo} data object, including any order-of-magnitude scaling factors.
 
 \code{today} returns the current date in the format adopted for \code{thermo$obigt} (inherited from SUPCRT-format data files) e.g. \samp{13.May.12} for May 13, 2012.
@@ -63,7 +63,7 @@ The values returned (\code{\link{invisible}}-y) are the indices of the added and
 
 \seealso{ \code{\link{thermo}}, \code{\link{util.data}}, \code{\link{mod.buffer}} }
 
-\examples{\dontshow{data(thermo)}
+\examples{\dontshow{reset()}
 ## modify an existing species (example only)
 ialanine <- mod.obigt("alanine", state="cr", G=0, H=0, S=0)
 # we have made the values of G, H, and S inconsistent
@@ -78,7 +78,7 @@ mod.obigt("buckminsterfullerene", formula="C60", state="cr", date=today())
 # retrieve the species data (thermodynamic properties in this toy example are NA)
 info(info("C60"))
 # reset database
-data(OBIGT)
+obigt()
 
 # using add.obigt():
 # compare stepwise stability constants of cadmium chloride complexes
@@ -89,14 +89,14 @@ SSH97 <- lapply(1:4, function(i) {
   subcrt(c(Cdspecies[i], "Cl-", Cdspecies[i+1]),
     c(-1, -1, 1), T=25, P=P)$out$logK
 })
-file <- system.file("extdata/thermo/BZA10.csv", package="CHNOSZ")
+file <- system.file("extdata/adds/BZA10.csv", package="CHNOSZ")
 add.obigt(file)
 BZA10 <- lapply(1:4, function(i) {
   subcrt(c(Cdspecies[i], "Cl-", Cdspecies[i+1]),
     c(-1, -1, 1), T=25, P=P)$out$logK
 })
 # reset default database
-data(OBIGT)
+obigt()
 matplot(P, do.call(cbind, SSH97), type="l")
 matplot(P, do.call(cbind, BZA10), type="l", add=TRUE, lwd=2)
 legend("topleft", legend=c("", "", "Sverjensky et al., 1997",
@@ -124,7 +124,7 @@ lines(DLH06$out$T, DLH06$out$G/1000, lty = 2)
 legend("topleft", c("Dick et al., 2006", "Kitadai, 2014"), lty = c(2, 1))
 title(main = "AABB = UPBB + H2O; after Figure 9 of Kitadai, 2014")
 # reset to default database
-data(OBIGT)
+obigt()
 }
 
 \references{

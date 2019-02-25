@@ -1,40 +1,36 @@
 \encoding{UTF-8}
 \name{thermo}
-\docType{data}
+\alias{reset}
+\alias{obigt}
 \alias{thermo}
-\alias{OBIGT}
-\alias{opt}
-\alias{element}
-\alias{refs}
-\alias{groups}
-\alias{buffers}
+\alias{CHNOSZ}
 \title{Thermodynamic Database and System Settings}
 \description{
-Run \code{data(thermo)} to initialize or reset all of the data used in CHNOSZ.
+Run \code{reset()} to reset all of the data used in CHNOSZ to default values.
 This includes the computational settings, thermodynamic database, and system settings (chemical species).
 
 The system settings are changed using \code{\link{basis}} and \code{\link{species}}.
-To restore the default system settings (no species loaded), run \code{basis("")}.
+To clear the system settings (the default, i.e. no species loaded), run \code{basis("")}; to clear only the formed species, run \code{species(delete = TRUE)}
 
 The thermodynamic database is changed using \code{\link{add.obigt}} and \code{\link{mod.obigt}}.
-To restore the default database, run \code{data(OBIGT)}.
+To restore the default database without altering the species settings, run \code{obigt()}.
 
 The computational settings are changed using \code{\link{water}}, \code{\link{P.units}}, \code{\link{T.units}}, \code{\link{E.units}}, and some other commands (e.g. \code{\link{mod.buffer}}).
 
-Some settings can only be changed by direct manipulation of \code{thermo$opt}.
-In an interactive session, this should be done using the super-assignment operator (e.g. \code{thermo$opt$ideal.H <<- FALSE}) so that the \code{thermo} object is not copied to the global environment.
-(Doing so would cause problems, as many functions are designed to access the \code{thermo} object in the \code{CHNOSZ} environment.)
+All the data are stored in the \code{thermo} data object in an environment named \code{CHNOSZ}.
+\code{thermo()} is a convenience function to access or modify parts of this object, in particular some computational settings, for example, \code{thermo("opt$ideal.H" = FALSE)} (see \code{\link{nonideal}}).
 
-To restore the default computational settings, thermodynamic database, and system settings, run \code{data(thermo)}.
-
-The data files provided with CHNOSZ are in the \code{data} and \code{extdata/OBIGT} directories of the package.
-The \code{*.csv} files in these directories are used to build the \code{thermo} data object in an environment named \code{CHNOSZ}.
-The structure of the \code{thermo} object is described below.
+The main data files provided with CHNOSZ, as \code{*.csv} files in the \code{extdata/thermo} and \code{extdata/OBIGT} directories of the package, are used to build the \code{thermo} object, which is described below.
 }
 
 \usage{
-  data(thermo)
-  data(OBIGT)
+  reset()
+  obigt()
+  thermo(...)
+}
+
+\arguments{
+  \item{...}{list, one or more arguments whose names correspond to the component() to modify}
 }
 
 \format{
@@ -86,20 +82,22 @@ The structure of the \code{thermo} object is described below.
   This dataframe is a thermodynamic database of standard molal thermodynamic properties and equations of state parameters of species.
   Note the following database conventions:
   \itemize{
-     \item The combination of \code{name} and \code{state} defines a species in \code{thermo$obigt}. A species can not be duplicated (this is checked when running \code{data(thermo)}).
-     \item English names of gases are used only for the gas state. The dissolved species is named with the chemical formula. Therefore, \code{info("oxygen")} refers to the gas, and \code{info("O2")} refers to the aqueous species.
+     \item The combination of \code{name} and \code{state} defines a species in \code{thermo$obigt}. A species can not be duplicated (this is checked when running \code{reset()}).
+     \item English names of inorganic gases are used only for the gas state. The dissolved species is named with the chemical formula. Therefore, \code{info("oxygen")} refers to the gas, and \code{info("O2")} refers to the aqueous species.
+     \item Properties of most aqueous species (\code{state} = \samp{aq}) are calculated using the revised Helgeson-Kirkham-Flowers (HKF) model (see \code{\link{hkf}}).
+     \item Properties of aqueous species with an NA value of \code{Z} (the final column of thermo$obigt) are calculated using the Akinfiev-Diamond model (see \code{\link{AkDi}}).
+     \item Properties of most non-aqueous species (liquids, gases, and minerals) are calculated using a heat capacity polynomial expression with up to six terms (see \code{\link{cgl}}).
+     \item Properties of minerals with NA values of all heat capacity parameters are calculated using the Berman model (see \code{\link{berman}}).
   } 
 
   \samp{OrganoBioGeoTherm} is the name of a GUI program to use SUPCRT in Windows, produced in Harold C. Helgeson's Laboratory of Theoretical Geochemistry and Biogeochemistry at the University of California, Berkeley.
-  The \acronym{OBIGT} database was originally developed for that program, and has been ported to CHNOSZ, with additional modifications.
+  The \acronym{OBIGT} database was originally developed for that program, and was the original basis for the database in CHNOSZ.
   There may be an additional meaning for the acronym: \dQuote{One BIG Table} of thermodynamic data.
 
   Each entry is referenced to one or two literature sources listed in \code{thermo$refs}.
   Use \code{\link{thermo.refs}} to look up the citation information for the references.
-  \acronym{OBIGT} was initially built from the \acronym{SUPCRT92} (Johnson et al., 1992) and \acronym{slop98.dat} data files (Shock et al., 1998), and the references in those files are included here.
-  Some data in \acronym{slop98.dat} were corrected or modified as noted in that file; these modifications are indicated in OBIGT by having \samp{SLOP98} as one of the sources of data.
-  Other additions or modifications used in CHNOSZ are indicated by having \samp{CHNOSZ} as one of the sources of data.
   See the vignette \emph{Thermodynamic data in CHNOSZ} for a complete description of the sources of data.
+  The original \acronym{OBIGT} database was influenced by the \acronym{SUPCRT92} (Johnson et al., 1992) and \acronym{slop98.dat} data files (Shock et al., 1998), and the references in those files are included here.
 
 In order to represent thermodynamic data for minerals with phase transitions, the higher-temperature phases of these minerals are represented as phase species that have states denoted by \samp{cr2}, \samp{cr3}, etc.
 The standard molar thermodynamic properties at 25 \degC and 1 bar (\eqn{T_r}{Pr} and \eqn{P_r}{Pr}) of the \samp{cr2} phase species of minerals were generated by first calculating those of the \samp{cr} (lowest-T) phase species at the transition temperature (\eqn{T_{tr}}{Ttr}) and 1 bar then taking account of the volume and entropy of transition (the latter can be retrieved by combining the former with the Clausius-Clapeyron equation and values of \eqn{(dP/dT)} of transitions taken from the \acronym{SUPCRT92} data file) to calculate the standard molar entropy of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr}, and taking account of the enthalpy of transition (\eqn{{\Delta}H^{\circ}}{DeltaH0}, taken from the \acronym{SUPCRT92} data file) to calculate the standard molar enthalpy of the \samp{cr2} phase species at \eqn{T_{tr}}{Ttr}.
@@ -128,9 +126,8 @@ The identification of species and their standard molal thermodynamic properties 
     }
 
 
-The meanings of the remaining columns depend on the physical state of a particular species.
-If it is aqueous, the values in these columns represent parameters in the revised HKF equations of state (see \code{\link{hkf}}), otherwise they denote parameters in a general equations for crystalline, gas and liquid species (see \code{\link{cgl}}).
-The names of these columns are compounded from those of the parameters in each of the equations of state (for example, column 13 is named \code{a1.a}).
+The meanings of the remaining columns depend on the model used for a particular species (see database conventions above).
+The names of these columns are compounded from those of the parameters in the HKF equations of state and general heat capacity polynomial; for example, column 13 is named \code{a1.a}.
 Scaling of the values by orders of magnitude is adopted for some of the parameters, following common usage in the literature.
 
 Columns 13-20 for aqueous species (parameters in the revised HKF equations of state):
@@ -158,6 +155,19 @@ Columns 13-20 for crystalline, gas and liquid species (\eqn{Cp=a+bT+cT^{-2}+dT^{
       \code{lambda} \tab numeric \tab \eqn{\lambda}{lambda} (exponent on the \eqn{f} term)\cr
       \code{T} \tab numeric \tab Temperature of phase transition or upper\cr
       \tab \tab temperature limit of validity of extrapolation (K)
+    }
+
+Columns 13-20 for aqueous species using the Akinfiev-Diamond model. Note that the \code{c} column is used to store the \eqn{\xi}{xi} parameter, and that \code{Z} must be NA to activate the code for this model. The remaining columns are not used.
+
+    \tabular{lll}{
+      \code{a} \tab numeric \tab \eqn{a} (cm\S{3} g\S{-1}) \cr
+      \code{b} \tab numeric \tab \eqn{b} (cm\S{3} K\S{0.5} g\S{-1}) \cr
+      \code{c} \tab numeric \tab \eqn{\xi}{xi} \cr
+      \code{d} \tab numeric \tab \eqn{XX1} NA \cr
+      \code{e} \tab numeric \tab \eqn{XX2} NA \cr
+      \code{f} \tab numeric \tab \eqn{XX3} NA \cr
+      \code{lambda} \tab numeric \tab \eqn{XX4} NA \cr
+      \code{Z} \tab numeric \tab \eqn{Z} NA \cr
     }
 
     \item \code{thermo$refs}
@@ -225,17 +235,19 @@ Other data files, including those supporting the examples and vignettes, are doc
 }
 
 \examples{
-\dontshow{data(thermo)}
 ## where are the data files in CHNOSZ?
-system.file("data", package="CHNOSZ")
 system.file("extdata", package="CHNOSZ")
+# what files make up OBIGT?
+# nb. the .csv.xz files are loaded by default,
+# and the .csv files have optional data that can be loaded with add.obigt()
+dir(system.file("extdata/OBIGT", package = "CHNOSZ"))
 
 ## exploring thermo$obigt
 # what physical states there are
-unique(thermo$obigt$state)
+unique(thermo()$obigt$state)
 # formulas of ten random species
-n <- nrow(thermo$obigt)
-thermo$obigt$formula[runif(10)*n]
+n <- nrow(thermo()$obigt)
+thermo()$obigt$formula[runif(10)*n]
 }
 
 \references{

@@ -45,6 +45,7 @@
     \item \code{SS98_Fig5a.csv}, \code{SS98_Fig5b.csv} Values of logarithm of fugacity of \O2 and pH as a function of temperature for mixing of seawater and hydrothermal fluid, digitized from Figs. 5a and b of Shock and Schulte, 1998. See the vignette \code{anintro.Rmd} for an example that uses this file.
     \item \code{rubisco.csv} UniProt IDs for Rubisco, ranges of optimal growth temperature of organisms, domain and name of organisms, and URL of reference for growth temperature, from Dick, 2014. See the vignette \code{anintro.Rmd} for an example that uses this file.
     \item \code{bluered.txt} Blue - light grey - red color palette, computed using \CRANpkg{colorspace}\code{::diverge_hcl(1000,} \code{c = 100, l = c(50, 90), power = 1)}. This is used by \code{\link{ZC.col}}.
+    \item \code{AD03_Fig1?.csv} Experimental data points digitized from Figure 1 of Akinfiev and Diamond, 2003, used in \code{\link{demos}("AkDi")}.
   }
 
   Files in \code{fasta} contain protein sequences:
@@ -99,7 +100,7 @@
     \item \code{names.dmp} and \code{nodes.dmp} are excerpts of the taxonomy files available on the NCBI ftp site (\url{ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15). These files contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes (genus, family, etc.) in the respective lineages. See \code{\link{taxonomy}} for examples that use these files.
   }
 
-  Files in \code{thermo} contain additional thermodynamic data and group additivity definitions:
+  Files in \code{adds} contain additional thermodynamic data and group additivity definitions:
   \itemize{
     \item \code{BZA10.csv} contains supplementary thermodynamic data taken from Bazarkina et al. (2010). The data can be added to the database in the current session using \code{\link{add.obigt}}. See \code{\link{add.obigt}} for an example that uses this file.
     \item \code{obigt_check.csv} contains the results of running \code{\link{check.obigt}} to check the internal consistency of entries in the primary and supplementary databases.
@@ -112,6 +113,8 @@
 }
 
 \references{
+Akinfiev, N. N. and Diamond, L. W. (2003) Thermodynamic description of aqueous nonelectrolytes at infinite dilution over a wide range of state parameters. \emph{Geochim. Cosmochim. Acta} \bold{67}, 613--629. \url{https://doi.org/10.1016/S0016-7037(02)01141-9}
+
 Amend, J. P. and Helgeson, H. C. (1997) Calculation of the standard molal thermodynamic properties of aqueous biomolecules at elevated temperatures and pressures. Part 1. L-\alpha-amino acids. \emph{J. Chem. Soc., Faraday Trans.} \bold{93}, 1927--1941. \url{https://doi.org/10.1039/A608126F}
 
 Bazarkina, E. F., Zotov, A. V. and Akinfiev, N. N. (2010) Pressure-dependent stability of cadmium chloride complexes: Potentiometric measurements at 1–1000 bar and 25°C. \emph{Geol. Ore Deposits} \bold{52}, 167--178. \url{https://doi.org/10.1134/S1075701510020054}

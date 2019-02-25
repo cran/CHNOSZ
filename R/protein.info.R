@@ -16,9 +16,9 @@ pinfo <- function(protein, organism=NULL, residue=FALSE, regexp=FALSE) {
   #   character `protein` and `organism`, e.g. 'LYSC', 'CHICK'
   # return the row(s) of thermo$protein (possibly per residue) for:
   #   numeric `protein` (the rownumber itself)
-  t_p <- get("thermo")$protein
   if(is.data.frame(protein)) out <- protein
   if(is.numeric(protein)) {
+    t_p <- get("thermo", CHNOSZ)$protein
     # drop NA matches to thermo$protein
     iproteins <- 1:nrow(t_p)
     protein[!protein %in% iproteins] <- NA
@@ -29,6 +29,7 @@ pinfo <- function(protein, organism=NULL, residue=FALSE, regexp=FALSE) {
     # compute per-residue counts if requested
     if(residue) out[, 5:25] <- out[, 5:25]/rowSums(out[, 6:25])
   } else {
+    t_p <- get("thermo", CHNOSZ)$protein
     # search for protein by regular expression
     if(regexp) {
       iprotein <- grepl(protein, t_p$protein)
@@ -65,7 +66,7 @@ protein.length <- function(protein, organism=NULL) {
   return(pl)
 }
 
-protein.obigt <- function(protein, organism=NULL, state=get("thermo")$opt$state) {
+protein.obigt <- function(protein, organism=NULL, state=thermo()$opt$state) {
   # display and return the properties of
   # proteins calculated from amino acid composition
   aa <- pinfo(pinfo(protein, organism))
@@ -78,7 +79,7 @@ protein.obigt <- function(protein, organism=NULL, state=get("thermo")$opt$state)
   groups <- paste("[", groups, "]", sep="")
   # the rownumbers of the groups in thermo$obigt
   groups_state <- paste(groups, state)
-  obigt <- get("thermo")$obigt
+  obigt <- get("thermo", CHNOSZ)$obigt
   obigt_state <- paste(obigt$name, obigt$state)
   igroup <- match(groups_state, obigt_state)
   # the properties are in columns 8-20 of thermo$obigt
@@ -130,7 +131,7 @@ protein.basis <- function(protein, T=25, normalize=FALSE) {
   # what are the coefficients of the basis species in the formation reactions
   sb <- species.basis(pf)
   # calculate ionization states if H+ is a basis species
-  thermo <- get("thermo")
+  thermo <- get("thermo", CHNOSZ)
   iHplus <- match("H+", rownames(thermo$basis))
   if(!is.na(iHplus)) {
     pH <- -thermo$basis$logact[iHplus]
@@ -163,7 +164,7 @@ protein.equil <- function(protein, T=25, loga.protein=0, digits=4) {
   pname <- paste(aa$protein, aa$organism, sep="_")
   plength <- protein.length(aa)
   # use thermo$basis to decide whether to ionize the proteins
-  thermo <- get("thermo")
+  thermo <- get("thermo", CHNOSZ)
   ionize.it <- FALSE
   iword <- "nonionized"
   bmat <- basis.elements()

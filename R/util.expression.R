@@ -151,7 +151,7 @@ expr.units <- function(property, prefix="", per="mol") {
   return(expr)
 }
 
-axis.label <- function(label, units=NULL, basis=get("thermo")$basis, prefix="", molality=FALSE) {
+axis.label <- function(label, units=NULL, basis=thermo()$basis, prefix="", molality=FALSE) {
   # make a formatted axis label from a generic description
   # it can be a chemical property, condition, or chemical activity in the system
   # if the label matches one of the basis species
@@ -177,7 +177,7 @@ axis.label <- function(label, units=NULL, basis=get("thermo")$basis, prefix="", 
   return(desc)
 }
 
-describe.basis <- function(basis = get("thermo")$basis, ibasis = 1:nrow(basis),
+describe.basis <- function(basis = thermo()$basis, ibasis = 1:nrow(basis),
   digits = 1, oneline = FALSE, molality = FALSE, use.pH = TRUE) {
   # make expressions for the chemical activities/fugacities of the basis species
   propexpr <- valexpr <- character()
@@ -255,7 +255,7 @@ describe.reaction <- function(reaction, iname=numeric(), states=NULL) {
     if(i %in% iname) species <- reaction$name[i]
     else {
       # should the chemical formula have a state?
-      if(identical(states,"all")) species <- expr.species(reaction$formula[i], state=reaction$state[i], use.state=TRUE)
+      if(identical(states,"all") | i %in% states) species <- expr.species(reaction$formula[i], state=reaction$state[i], use.state=TRUE)
       else species <- expr.species(reaction$formula[i], state=reaction$state[i])
     }
     # get the absolute value of the reaction coefficient
@@ -278,7 +278,8 @@ describe.reaction <- function(reaction, iname=numeric(), states=NULL) {
     }
   }
   # put an equals sign between reactants and products
-  desc <- substitute(a==b, list(a=reactexpr, b=prodexpr))
+  # change this to unicode for the reaction double-arrow 20190218 \u21cc
+  desc <- substitute(a ~ "\u21cc" ~ b, list(a=reactexpr, b=prodexpr))
   return(desc)
 }
 
