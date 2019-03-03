@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jeffrey M. Dick" />
 
-<meta name="date" content="2019-02-26" />
+<meta name="date" content="2019-03-02" />
 
 <title>Regressing thermodynamic data</title>
 
@@ -47,7 +47,7 @@ if (window.hljs) {
 <h1 class="title toc-ignore">Regressing thermodynamic data</h1>
 <h3 class="subtitle"><em>EOSregress in <a href="http://www.chnosz.net">CHNOSZ</a></em></h3>
 <h4 class="author"><em><a href="http://chnosz.net/jeff">Jeffrey M. Dick</a></em></h4>
-<h4 class="date"><em>2019-02-26</em></h4>
+<h4 class="date"><em>2019-03-02</em></h4>
 
 
 <div id="TOC">
@@ -277,7 +277,7 @@ mod.obigt(&quot;calc-H4SiO4&quot;, a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
 <p>We just calculated the properties of the H<sub>4</sub>SiO<sub>4</sub> pseudospecies. For comparison, the database in CHNOSZ contains <code>pseudo-H4SiO4</code> with parameters from <span class="citation">Stefánsson (<label for="tufte-mn-15" class="margin-toggle">&#8853;</label><input type="checkbox" id="tufte-mn-15" class="margin-toggle">2001<span class="marginnote">Stefánsson A. 2001. Dissolution of primary minerals of basalt in natural waters. I. Calculation of mineral solubilities from 0°C to 350°C. <em>Chemical Geology</em> <strong>172</strong>: 225–250. doi: <a href="https://doi.org/10.1016/S0009-2541(00)00263-1">10.1016/S0009-2541(00)00263-1</a></span>)</span>:</p>
 <pre class="r"><code>info(info(c(&quot;calc-H4SiO4&quot;, &quot;pseudo-H4SiO4&quot;)))</code></pre>
 <pre><code>##               name abbrv formula state          ref1 ref2      date       G       H       S      Cp      V      a1       a2       a3       a4      c1      c2    omega Z
-## 3407   calc-H4SiO4  &lt;NA&gt;  H4SiO4    aq this_vignette &lt;NA&gt; 26.Feb.19 -312915 -348813 44.5529 13.7338 51.607 2.56914 -3289.32 -63.5736 156985.0 71.3306 -266424 33482.60 0
+## 3407   calc-H4SiO4  &lt;NA&gt;  H4SiO4    aq this_vignette &lt;NA&gt;  2.Mar.19 -312915 -348813 44.5529 13.7338 51.607 2.56914 -3289.32 -63.5736 156985.0 71.3306 -266424 33482.60 0
 ## 773  pseudo-H4SiO4  &lt;NA&gt;  H4SiO4    aq         Ste01 &lt;NA&gt; 31.Aug.06 -312920 -348676 45.1004 15.0096 52.300 1.87299 -2126.00  18.6200 -12000.5 58.0306 -207899  8690.25 0</code></pre>
 <p>
 <span class="marginnote shownote"> <!--
