@@ -59,7 +59,7 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
     if(grepl("[S92]", names(tab)[i], fixed=TRUE) | grepl("SPRONS92", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(ø)")
     if(grepl("[S98]", names(tab)[i], fixed=TRUE) | grepl("SLOP98", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(\\*)")
     if(grepl("[S07]", names(tab)[i], fixed=TRUE) | grepl("SLOP07", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(†)")
-    if(grepl("[S15]", names(tab)[i], fixed=TRUE) | grepl("SLOP15", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(‡)")
+    if(grepl("[S15]", names(tab)[i], fixed=TRUE) | grepl("SLOP16", names(tab)[i], fixed=TRUE)) note <- paste0(note, "(‡)")
     # use bullets for ref2
     if(whichref=="ref2") bullet <- "- " else bullet <- ""
     # convert key (e.g. LD12.2) to ref in OBIGT.bib (e.g. LD12)
@@ -67,7 +67,7 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
     # replace SLOP98 with slop98.dat, etc.
     # (we don't actually cite them here to keep the year from showing -- it's annoying to see e.g. "slop98.dat (1998)")
     citemark <- "@"
-    if(thisref=="SLOP15") { thisref <- "slop15.dat"; citemark <- "" }
+    if(thisref=="SLOP16") { thisref <- "slop16.dat"; citemark <- "" }
     if(thisref=="SLOP07") { thisref <- "slop07.dat"; citemark <- "" }
     if(thisref=="SLOP98") { thisref <- "slop98.dat"; citemark <- "" }
     if(thisref=="SPRONS92") { thisref <- "sprons92.dat"; citemark <- "" }
@@ -140,7 +140,7 @@ used <- c(used, filerefs(csvfile))
 used <- c(used, filerefs(csvfile))
 
 ## ----DEW_aq, results="asis", echo=FALSE----------------------------------
-cat("The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019). The data here were taken from the May 2017 version of the DEW spreadsheet ([Dew Model, 2017](http://www.dewcommunity.org/resources.html)). The following species are present in the spreadsheet, but are not listed in `DEW_aq.csv` because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.\n\n")
+cat("The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019). The data here were taken from the May 2017 version of the DEW spreadsheet ([Dew Model, 2017](http://www.dewcommunity.org/resources.html)). The following species are present in the spreadsheet, but are not used here because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.\n\n")
 cat("Besides using <span style='color:red'>`add.obigt('DEW')`</span> to load these data, you should also run <span style='color:red'>`water('DEW')`</span> to activate the DEW equations in CHNOSZ. See [<span style='color:blue'>`demo(DEW)`</span>](../demo) for some examples.<hr>")
 
 ## ----optused, include=FALSE----------------------------------------------
@@ -152,28 +152,28 @@ optused <- character()
 optused <- c(optused, filerefs(csvfile))
 
 ## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
-cat('These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+cat('These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. **NOTE:** Other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
 optused <- c(optused, filerefs(csvfile))
 
 ## ----SLOP98, results="asis", echo=FALSE----------------------------------
-cat('These species, many of which were taken from slop98.dat and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with other updates for aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], and Pt species [@TBB15]. The data are kept here to enable comparisons with newer data and reproduction of published calculations. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
+cat('These species, which were taken from or are linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database, including aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], and Pt species [@TBB15]. This file also contains aqueous transuranic actinide complexes, for which estimated thermodynamic properties have been reported, but no entropies of the corresponding elements at 298.15 K are available to check the self-consistency of the GHS values for the complexes. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data. **NOTE:** Many other species found in slop98.dat and later versions are still present in the default database.\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
 optused <- c(optused, filerefs(csvfile))
 
 ## ----OldAA, results="asis", echo=FALSE-----------------------------------
-cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
+cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
 optused <- c(optused, filerefs(csvfile))
 
 ## ----AS04, results="asis", echo=FALSE------------------------------------
-cat('This file has data for aqueous SiO<sub>2</sub> from @AS04 and modified HSiO<sub>3</sub><sup>-</sup>. Use <span style="color:red">`add.obigt("AS04")`</span> to load the data; see [<span style="color:blue">`demo(go-IU)`</span>](../demo) for an example.\n\n')
+cat('This file has data for aqueous SiO<sub>2</sub> from @AS04 and a modified HSiO<sub>3</sub><sup>-</sup> to be consistent with the SiO<sub>2</sub> here. This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication [@Ste01] that is roughly consistent with SiO<sub>2</sub> here (see <span style="color:red">`?add.obigt`</span>). Use <span style="color:red">`add.obigt("AS04")`</span> to load the data; see  [<span style="color:blue">*Regressing thermodynamic data*</span>](eos-regress.html) for an example.\n\n')
 
 ## ----optreflist, results="asis", echo=FALSE------------------------------
 # run filerefs for optional data sources
@@ -248,32 +248,32 @@ used2 <- c(used2, filerefs(csvfile))
 ## ----Optional_Data, results="asis", echo=FALSE---------------------------
 
 ## ----DEW_aq, results="asis", echo=FALSE----------------------------------
-cat("The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019). The data here were taken from the May 2017 version of the DEW spreadsheet ([Dew Model, 2017](http://www.dewcommunity.org/resources.html)). The following species are present in the spreadsheet, but are not listed in `DEW_aq.csv` because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.\n\n")
+cat("The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019). The data here were taken from the May 2017 version of the DEW spreadsheet ([Dew Model, 2017](http://www.dewcommunity.org/resources.html)). The following species are present in the spreadsheet, but are not used here because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.\n\n")
 cat("Besides using <span style='color:red'>`add.obigt('DEW')`</span> to load these data, you should also run <span style='color:red'>`water('DEW')`</span> to activate the DEW equations in CHNOSZ. See [<span style='color:blue'>`demo(DEW)`</span>](../demo) for some examples.<hr>")
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
 ## ----SUPCRT92, results="asis", echo=FALSE--------------------------------
-cat('These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
+cat('These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red">`add.obigt("SUPCRT92")`</span> to load the data. **NOTE:** Other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
 ## ----SLOP98, results="asis", echo=FALSE----------------------------------
-cat('These species, many of which were taken from slop98.dat and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with other updates for aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], and Pt species [@TBB15]. The data are kept here to enable comparisons with newer data and reproduction of published calculations. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data.\n\n')
+cat('These species, which were taken from or are linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database, including aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], and Pt species [@TBB15]. This file also contains aqueous transuranic actinide complexes, for which estimated thermodynamic properties have been reported, but no entropies of the corresponding elements at 298.15 K are available to check the self-consistency of the GHS values for the complexes. Use <span style="color:red">`add.obigt("SLOP98")`</span> to load the data. **NOTE:** Many other species found in slop98.dat and later versions are still present in the default database.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
 ## ----OldAA, results="asis", echo=FALSE-----------------------------------
-cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
+cat('Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates [@LD12; @Kit14; @AKAE19]. Use <span style="color:red">`add.obigt("OldAA")`</span> to load the data.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))
 
 ## ----AS04, results="asis", echo=FALSE------------------------------------
-cat('This file has data for aqueous SiO<sub>2</sub> from @AS04 and modified HSiO<sub>3</sub><sup>-</sup>. Use <span style="color:red">`add.obigt("AS04")`</span> to load the data; see [<span style="color:blue">`demo(go-IU)`</span>](../demo) for an example.\n\n')
+cat('This file has data for aqueous SiO<sub>2</sub> from @AS04 and a modified HSiO<sub>3</sub><sup>-</sup> to be consistent with the SiO<sub>2</sub> here. This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication [@Ste01] that is roughly consistent with SiO<sub>2</sub> here (see <span style="color:red">`?add.obigt`</span>). Use <span style="color:red">`add.obigt("AS04")`</span> to load the data; see  [<span style="color:blue">*Regressing thermodynamic data*</span>](eos-regress.html) for an example.\n\n')
 
 ## ----reflist2, results="asis", echo=FALSE--------------------------------
 used2 <- c(used2, filerefs(csvfile))

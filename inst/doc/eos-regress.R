@@ -6,8 +6,8 @@ options(digits = 6)
 
 ## ----HTML, include=FALSE------------------------------------------------------
 ## some frequently used HTML expressions
-V0 <- "<i>V</i>°"
-Cp0 <- "<i>C<sub>P</sub></i>°"
+V0 <- "<i>V</i>&deg;"
+Cp0 <- "<i>C<sub>P</sub></i>&deg;"
 c1 <- "<i>c</i><sub>1</sub>"
 c2 <- "<i>c</i><sub>2</sub>"
 a1 <- "<i>a</i><sub>1</sub>"
@@ -18,7 +18,7 @@ h4sio4 <- "H<sub>4</sub>SiO<sub>4</sub>"
 sio2 <- "SiO<sub>2</sub>"
 h2o <- "H<sub>2</sub>O"
 ch4 <- "CH<sub>4</sub>"
-wPrTr <- "ω<sub><i>P<sub>r</sub></i>,<i>T<sub>r</sub></i></sub>"
+wPrTr <- "&omega;<sub><i>P<sub>r</sub></i>,<i>T<sub>r</sub></i></sub>"
 
 ## ----setup, include=FALSE-----------------------------------------------------
 library(knitr)
@@ -121,7 +121,7 @@ P <- 1000
 prop.PT <- subcrt("Na+", T = T, P = P, grid = "T", convert = FALSE)$out[[1]]
 Nadat <- prop.PT[, c("T", "P", "Cp")]
 
-## ----Nalm, fig.margin=TRUE, fig.width=3.5, fig.height=3.5, fig.cap="Heat capacity of Na<sup>+</sup> (inapplicable: constant ω).", dpi=dpi, out.width=672, out.height=336, pngquant=pngquant----
+## ----Nalm, fig.margin=TRUE, fig.width=3.5, fig.height=3.5, fig.cap="Heat capacity of Na<sup>+</sup> (inapplicable: constant &omega;).", dpi=dpi, out.width=672, out.height=336, pngquant=pngquant----
 var <- c("invTTheta2", "TXBorn")
 Nalm <- EOSregress(Nadat, var, T.max = 600)
 EOSplot(Nadat, coefficients = Nalm$coefficients, fun.legend = NULL)
@@ -131,7 +131,7 @@ EOSplot(Nadat, add = TRUE, lty = 3)
 var1 <- c("invTTheta2", "Cp_s_var")
 omega.guess <- coef(Nalm)[3]
 
-## ----Nawhile, fig.margin=TRUE, fig.width=3.5, fig.height=3.5, fig.cap="Heat capacity of Na<sup>+</sup> (variable ω).", dpi=dpi, out.width=672, out.height=336, pngquant=pngquant----
+## ----Nawhile, fig.margin=TRUE, fig.width=3.5, fig.height=3.5, fig.cap="Heat capacity of Na<sup>+</sup> (variable &omega;).", dpi=dpi, out.width=672, out.height=336, pngquant=pngquant----
 diff.omega <- 999
 while(abs(diff.omega) > 1) {
   Nalm1 <- EOSregress(Nadat, var1, omega.PrTr = tail(omega.guess, 1), Z = 1)
@@ -142,7 +142,7 @@ EOSplot(Nadat, coefficients = signif(coef(Nalm1), 6),
   omega.PrTr = tail(omega.guess, 1), Z = 1)
 EOScoeffs("Na+", "Cp")
 
-## ----NaVolume, fig.margin=TRUE, fig.width=3.5, fig.height=3.5, fig.cap="Volume of Na<sup>+</sup> (variable ω).", results="hide", message=FALSE, echo=FALSE, dpi=dpi, out.width=672, out.height=336, pngquant=pngquant----
+## ----NaVolume, fig.margin=TRUE, fig.width=3.5, fig.height=3.5, fig.cap="Volume of Na<sup>+</sup> (variable &omega;).", results="hide", message=FALSE, echo=FALSE, dpi=dpi, out.width=672, out.height=336, pngquant=pngquant----
 T <- convert(seq(0, 600, 25), "K")
 P <- 1000
 prop.PT <- subcrt("Na+", T = T, P = P, grid = "T", convert = FALSE)$out[[1]]
@@ -233,7 +233,7 @@ mod.obigt("calc-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
 options(width = 180)
 
 ## ----info_H4SiO4, message=FALSE---------------------------------------------------------------------------------------------------------------------------------------------------
-info(info(c("calc-H4SiO4", "pseudo-H4SiO4")))
+info(info(c("calc-H4SiO4", "H4SiO4")))
 
 ## ----width80, include=FALSE---------------------------------------------------
 options(width = 80)
@@ -242,26 +242,26 @@ options(width = 80)
 s1 <- subcrt(c("calc-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
   xlab = axis.label("T"), ylab = axis.label("DG0"))
-s2 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 lines(s2$out$T, s2$out$G, lty = 2)
 abline(h = 0, lty = 3)
 legend("topright", legend = c("calc-H4SiO4 (this vignette)",
-  "pseudo-H4SiO4", "(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+  "H4SiO4", "(Stef\u00e1nsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 text(225, 250, describe.reaction(s1$reaction))
 
 ## ----subcrt_H4SiO4, eval=FALSE------------------------------------------------
 #  s1 <- subcrt(c("calc-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 #  plot(s1$out$T, s1$out$G, type = "l", ylim = c(-100, 600),
 #    xlab = axis.label("T"), ylab = axis.label("DG0"))
-#  s2 <- subcrt(c("pseudo-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+#  s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
 #  lines(s2$out$T, s2$out$G, lty = 2)
 #  abline(h = 0, lty = 3)
 #  legend("topright", legend = c("calc-H4SiO4 (this vignette)",
-#    "pseudo-H4SiO4", "(Stefánsson, 2001)"), lty = c(1, 2, NA), bty = "n")
+#    "H4SiO4", "(Stef\u00e1nsson, 2001)"), lty = c(1, 2, NA), bty = "n")
 #  text(225, 250, describe.reaction(s1$reaction))
 
 ## ----activity_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, echo=TRUE, results="hide", message=FALSE, dpi=dpi, out.width="100%", cache=TRUE, fig.cap="Activity diagram for K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O.", pngquant=pngquant----
-basis(c("Al+3", "pseudo-H4SiO4", "K+", "H2O", "H+", "O2"))
+basis(c("Al+3", "H4SiO4", "K+", "H2O", "H+", "O2"))
 species(c("gibbsite", "muscovite", "kaolinite", "pyrophyllite", "K-feldspar"))
 a <- affinity(H4SiO4 = c(-8, 0, 300), `K+` = c(-1, 8, 300))
 diagram(a, ylab = ratlab("K+"), fill = "terrain", yline = 1.7)

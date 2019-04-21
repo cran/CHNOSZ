@@ -27,7 +27,7 @@ diagram <- function(
   lty=NULL, lwd=par("lwd"), dotted=NULL, spline.method=NULL, contour.method="edge",
   # colors
   col=par("col"), col.names=par("col"), fill=NULL,
-  fill.NA="slategray1", limit.water=TRUE,
+  fill.NA="gray80", limit.water=TRUE,
   # field and line labels
   names=NULL, format.names=TRUE, bold=FALSE, italic=FALSE,
   font=par("font"), family=par("family"), adj=0.5, dy=0, srt=0,
@@ -547,14 +547,20 @@ diagram <- function(
       ### now on to the diagram itself
 
       # colors to fill predominance fields
-      # default to heat colors if we're on screen, or to transparent if we're adding to a plot
-      if(missing(fill)) {
-        if(add) fill <- "transparent"
-        else if(any(grepl(names(dev.cur()), c("X11cairo", "quartz", "windows")))) fill <- "heat"
-      }
-      if(is.null(fill)) fill <- "transparent"
+      if(is.null(fill) | length(fill)==0) fill <- "transparent"
       else if(isTRUE(fill[1]=="rainbow")) fill <- rainbow(ngroups)
       else if(isTRUE(fill[1] %in% c("heat", "terrain", "topo", "cm"))) fill <- get(paste0(fill[1], ".colors"))(ngroups)
+      else if(getRversion() >= "3.6.0" & length(fill)==1) {
+        # choose an HCL palette 20190411
+        # matching adapted from hcl.colors()
+        fx <- function(x) tolower(gsub("[-, _, \\,, (, ), \\ , \\.]", "", x))
+        p <- charmatch(fx(fill), fx(hcl.pals()))
+        if(!is.na(p)) {
+          if(!p < 1L) {
+            fill <- hcl.colors(ngroups, fill)
+          }
+        }
+      }
       fill <- rep(fill, length.out=ngroups)
       # modify the default for fill.NA
       if(add & missing(fill.NA)) fill.NA <- "transparent"
@@ -623,7 +629,13 @@ diagram <- function(
           else linesout <- contour.lines(predominant, xlim.calc, ylim.calc, lty=lty, col=col, lwd=lwd)
         }
         # re-draw the tick marks and axis lines in case the fill obscured them
-        if(tplot & !identical(fill, "transparent")) thermo.axis()
+        has.color <- FALSE
+        if(!identical(unique(fill), "transparent")) has.color <- TRUE
+        if(any(is.na(zs)) & !identical(fill.NA, "transparent")) has.color <- TRUE
+        if(tplot & !add & has.color) {
+          thermo.axis()
+          box()
+        }
       } # done with the 2D plot!
       out2D <- list(namesx=pn$namesx, namesy=pn$namesy)
     } # end if(nd==2)
@@ -655,7 +667,7 @@ strip <- function(affinity, ispecies=NULL, col=NULL, ns=NULL,
   plot.xlim <- c(xlim[1]-xpad,xlim[2]+xpad)
   ymax <- nstrip+0.3
   thermo.plot.new(xlim=plot.xlim,ylim=c(ymin,ymax),xlab=xlab,ylab="",
-      side=c(1,3),mar=par('mar'),do.box=FALSE)
+      side=c(1,3),mar=par('mar'),plot.box=FALSE)
   if(!is.null(xticks)) {
     # mark the positions of the sites on the x-axis
     for(i in 1:5) lines(rep(xticks[i],2),c(ymin,ymin+0.1),lwd=6,col=col[i])
@@ -728,4 +740,3 @@ find.tp <- function(x) {
   # return the indices
   return(id[imax, ])
 }
-

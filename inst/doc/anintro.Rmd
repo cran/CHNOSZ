@@ -17,7 +17,7 @@ output:
 vignette: >
   %\VignetteIndexEntry{An Introduction to CHNOSZ}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
 bibliography: vig.bib
 link-citations: yes
 csl: elementa.csl
@@ -118,13 +118,15 @@ Or, install the package from a package file, which you can download from [CRAN](
 install.packages("CHNOSZ")
 ```
 
-Then load the CHNOSZ package to make its functions available in your R session:
+Then load the CHNOSZ package to make its data and functions available in your R session:
 ```{r library_CHNOSZ}
 library(CHNOSZ)
 ```
 
-Then load the `thermo` object, which contains the thermodynamic database and system settings for CHNOSZ:
-```{r data_thermo}
+CHNOSZ is now ready to go with the default thermodynamic database and an empty system definition.
+After running some calculations, you may want to "start over" with the default values.
+To clear the system settings and restore the default thermodynamic database, use <span style="color:red">`reset()`</span>.
+```{r reset}
 reset()
 ```
 
@@ -155,7 +157,7 @@ Rectangles and ellipses represent functions and datasets; bold text indicates pr
 
 Many functions in CHNOSZ have no side effects.
 That is, the function only returns a result; to use the result elsewhere, it can be assigned to a variable with `<-`.
-In this document, the names of these functions are set in <span style="color:green">green text</span> (not applicable to the code chunks).
+In this document, the names of these functions are shown in <span style="color:green">green text</span> (not applicable to the code chunks).
 ```{marginfigure}
 When they are mentioned, names of functions in the base and recommended packages of R are said to belong to R.
 Example: Use R's `plot()` to plot the data.
@@ -169,7 +171,7 @@ Major functions without side effects in CHNOSZ are:
 * <span style="color:green">`diagram()`</span>: plot the results.
 
 Some functions in CHNOSZ do have side effects: they modify the `thermo` data object in the current R session.
-In this document, the names of these functions are set in <span style="color:red">red text</span> (but not in the code chunks).
+In this document, the names of these functions are shown in <span style="color:red">red text</span> (but not in the code chunks).
 Major functions with side effects are:
 
 * <span style="color:red">`basis()`</span>: set the basis species and their chemical activities;
@@ -251,6 +253,7 @@ You can search for the species by name:
 info("methane")
 ```
 
+The number that is returned can be used to identify the species for other functions in CHNOSZ.
 Multiple entries exist for methane; the index of the `aq` (aqueous) species is returned by default.
 ```{marginfigure}
 This convention applies to organic species, but for inorganic species, the English name refers to the gas (<span style='color:green'>`info("oxygen")`</span>) while the chemical formula is used to identify the aqueous species (<span style='color:green'>`info("O2")`</span>).
@@ -260,20 +263,12 @@ A second argument can be used to specify a different physical state:
 info("methane", "gas")
 ```
 
-```{r info_methane_test, echo=FALSE, results="hide"}
-# this prevents the vignette from compiling in case
-# database updates cause the species index of methane to change
-stopifnot(info("methane")==881)
-# it is up to the editor of this vignette to ensure that number
-# is used in the hard-coded examples below!
+Taking the species number of aqueous methane returned by <span style="color:green">`info()`</span>, use the function again to retrieve the set of standard molal thermodynamic properties and equations of state parameters:
+```{r info_imethane, message=FALSE}
+imethane <- info("methane")
+info(imethane)
 ```
 
-Knowing that aqueous methane is species number 881 in the database, you can again use <span style="color:green">`info()`</span> to retrieve the set of standard molal thermodynamic properties and equations of state parameters:
-```{r info_881, message=FALSE}
-info(881)
-```
-
-This number can be used as an argument (`ispecies`) for other functions in CHNOSZ to uniquely identify any species; some commonly used functions also accept the species names.
 Liquid water is species number 1; it has NA entries in the database because specialized functions are used to compute its properties:
 ```{r info_info_water}
 info(info("water"))
@@ -293,8 +288,7 @@ options(width = 80)
 ```
 
 The message includes e.g. "uracil" and "metacinnabar" because their names have some similarity to the search term.
-
-As "ribose" is the name of a species in the database, to find species with similar names, add an extra character to the search:
+Since "ribose" is the name of a species in the database, to find species with similar names, add an extra character to the search:
 ```{r info_ribose}
 info(" ribose")
 ```
@@ -304,21 +298,21 @@ The messages may be useful for browsing the database, but owing to their ambiguo
 ## Counting elements, chemical formulas, <span style="color:green">`ZC()`</span>
 
 Continuing with the example of methane, let's look at its chemical formula:
-```{r info_881_formula, message=FALSE}
-info(881)$formula
+```{r info_imethane_formula, message=FALSE}
+info(imethane)$formula
 ```
 
 We can use <span style="color:green">`makeup()`</span> to count the elements in the formula, followed by <span style="color:green">`as.chemical.formula()`</span> to rewrite the formula on one line:
-```{r makeup_881}
-makeup(881)
-as.chemical.formula(makeup(881))
+```{r makeup_imethane}
+makeup(imethane)
+as.chemical.formula(makeup(imethane))
 ```
 
 For organic species, a calculation of the average oxidation state of carbon (`r zc`) is possible given the species index, chemical formula, or elemental count:
-```{r ZC_881, message=FALSE}
-ZC(881)
-ZC(info(881)$formula)
-ZC(makeup(881))
+```{r ZC_imethane, message=FALSE}
+ZC(imethane)
+ZC(info(imethane)$formula)
+ZC(makeup(imethane))
 ```
 
 # Calculating thermodynamic properties
@@ -381,7 +375,7 @@ convert(info(info("methane"))$G, "J")
 As expected, we get the same result from both operations.
 
 Use <span style="color:red">`reset()`</span> to restore the units and all other settings for CHNOSZ to their defaults:
-```{r data_thermo}
+```{r reset}
 ```
 
 # Properties of reactions
@@ -562,7 +556,7 @@ legend("topleft", c("acetate oxidation", "acetoclastic methanogenesis",
 ```
 
 Let's not forget to clear the system settings, which were modified by <span style="color:red">`basis()`</span> and <span style="color:red">`E.units()`</span>, before running other calculations:
-```{r data_thermo, message=FALSE}
+```{r reset, message=FALSE}
 ```
 
 # Using <span style="color:green">`affinity()`</span>
@@ -681,7 +675,7 @@ species(c("chalcocite", "tenorite", "cuprite", "copper"))
 ```
 
 Note that chalcocite (Cu<sub>2</sub>S) undergoes phase transitions.
-To get the temperatures of the phase transitions from `thermo$obigt` (in Kelvin, regardless of the <span style="color:red">`T.units()`</span>), we can use <span style="color:green">`info()`</span>.
+To get the temperatures of the phase transitions from `thermo()$obigt` (in Kelvin, regardless of the <span style="color:red">`T.units()`</span>), we can use <span style="color:green">`info()`</span>.
 We see that at 200 °C (473.15 K) the second phase is stable; this one is automatially used by CHNOSZ for this diagram.
 ```{r info_chalcocite, message=FALSE}
 info(info("chalcocite", c("cr", "cr2", "cr3")))$T
@@ -808,10 +802,10 @@ Can we go the other direction: calculate the activities of basis species from th
 This question relates to the concept of chemical activity buffers.
 In CHNOSZ there are two ways to perform buffer calculations:
 
-1. Assign the name of a buffer (listed in `thermo$buffer`) to the basis species:
+1. Assign the name of a buffer (listed in `thermo()$buffer`) to the basis species:
 * more versatile (multiple activities can be buffered, e.g. both S<sub>2</sub> and O<sub>2</sub> by pyrite-pyrrhotite-magnetite);
 * the buffers are active in calculations of affinity of other species;
-* use <span style="color:red">`mod.buffer()`</span> to change or add buffers in `thermo$buffer`;
+* use <span style="color:red">`mod.buffer()`</span> to change or add buffers in `thermo()$buffer`;
 * [<span style="color:blue">`demo(buffer)`</span>](../demo) uses it for mineral buffers (solid lines).
 2. Use the `type` argument of <span style="color:green">`diagram()`</span> to solve for the activity of the indicated basis species:
 * more convenient (the buffers come from the currently defined species of interest), but only a single basis species can be buffered, and it's not used in the calculation of affinity;
@@ -1103,7 +1097,7 @@ Following the main workflow of CHNOSZ, <span style="color:green">`nonideal()`</s
 Intead, invoke the calculations by setting the `IS` argument in <span style="color:green">`subcrt()`</span> or <span style="color:green">`affinity()`</span>.
 There are a few things to remember when using activity coefficients:
 
-* H<sup>+</sup> is assumed to behave ideally, so its activity coefficient is 1 for any ionic strength. You can calculate activity coefficients of H<sup>+</sup> by setting `thermo$opt$ideal.H <<- FALSE`.
+* H<sup>+</sup> is assumed to behave ideally, so its activity coefficient is 1 for any ionic strength. You can calculate activity coefficients of H<sup>+</sup> by running `thermo("opt$ideal.H" = FALSE)`.
 
 * Using <span style="color:green">`subcrt()`</span> with `IS` not equal to zero, calculated values of `G` are the **adjusted** Gibbs energy at specified ionic strength [denoted by &Delta;*G*°(*I*); @Alb96].
 
@@ -1275,7 +1269,7 @@ Therefore, CHNOSZ has a data file with amino acid compositions of selected prote
 
 When proteins in CHNOSZ are identified by name, they include an underscore, such as in `LYSC_CHICK` (chicken lysozyme C).
 Use <span style="color:green">`pinfo()`</span> to search for one or more proteins by name; multiple proteins from the same organism can be specified using the `organism` argument.
-The name search returns the rownumbers of `thermo$protein` (i.e. `iprotein`, the protein indices).
+The name search returns the rownumbers of `thermo()$protein` (i.e. `iprotein`, the protein indices).
 Supply those protein indices to <span style="color:green">`pinfo()`</span> to get the amino acid compositions:
 ```{r pinfo_LYSC_CHICK}
 p1 <- pinfo("LYSC_CHICK")
@@ -1509,7 +1503,7 @@ y <- yeastgfp("ER.to.Golgi")
 ina <- is.na(y$abundance)
 ```
 
-Next, we get the amino acid compositions of the proteins and add them to `thermo$protein`:
+Next, we get the amino acid compositions of the proteins and add them to `thermo()$protein`:
 ```{r add_protein_yeast, message=FALSE}
 aa <- yeast.aa(y$protein[!ina])
 ip <- add.protein(aa)
@@ -1527,8 +1521,8 @@ logabundance <- unitize(log10(y$abundance[!ina]), pl)
 ```
 
 Now we can load the proteins and calculate their activities in metastable equilibrium as a function of `r logfO2`.
-The commented line uses <span style="color:red">`add.obigt()`</span> to revert the group additivity parameters to those present in older versions of CHNOSZ (Dick et al., 2006).
-The current database, with parameters set by <span style="color:red">`reset()`</span> and used here, contains updated group additivity parameters for the sidechain groups of methionine (LaRowe and Dick, 2012) and glycine and the protein backbone [@Kit14].
+The commented line uses <span style="color:red">`add.obigt()`</span> to load group additivity parameters that were present in older versions of CHNOSZ (Dick et al., 2006).
+The default database contains newer group additivity parameters for the sidechain groups of methionine (LaRowe and Dick, 2012) and glycine and the protein backbone [@Kit14].
 
 ```{r yeastplot, eval=FALSE, echo=1:6}
 par(mfrow = c(1, 3))
@@ -1567,7 +1561,7 @@ This agrees with the assessment shown in Figure 4 of @Dic09 (but the updated gro
 
 Because affinities of proteins often vary strongly with oxygen fugacity and other variables, it can be helpful to express the values as differences from a baseline.
 The following example compares the affinities for formation of transcription factors involved in embryonic dorsal-ventral patterning with that of the morphogen, Sonic hedgehog (Shh), as a function of `r logfO2` and log*a*<sub>`r h2o`</sub> [@Dic15].
-We first list the UniProt names of Shh and 10 transcription factors, and get the `iprotein` indices (rownumbers of `thermo$protein`):
+We first list the UniProt names of Shh and 10 transcription factors, and get the `iprotein` indices (rownumbers of `thermo()$protein`):
 ```{r Shh_pname}
 pname <- c("SHH", "OLIG2", "NKX22", "FOXA2", "IRX3",
   "PAX6", "NKX62", "DBX1", "DBX2", "NKX61", "PAX7")
@@ -1640,7 +1634,7 @@ This thermodynamic description highlights possible links between the chemical co
 In the Rubisco example above, we saw the use of <span style="color:green">`read.fasta()`</span> to read amino acid sequences from a FASTA file.
 There are several other methods for inputting amino acid compositions.
 
-R's `read.csv()` can be used to read amino acid compositions from a CSV file with the same columns that are present in `thermo$protein`.
+R's `read.csv()` can be used to read amino acid compositions from a CSV file with the same columns that are present in `thermo()$protein`.
 Note the use of `as.is = TRUE` to prevent reading character data as factors.
 The `nrows` argument can be added to read that number of rows:
 ```{r read_csv}
@@ -1736,7 +1730,7 @@ protein.length(myaa)
 
 ## Adding proteins and using `iprotein`
 
-Once the amino acid compositions have been obtained, use <span style="color:red">`add.protein()`</span> to add these proteins to `thermo$protein`:
+Once the amino acid compositions have been obtained, use <span style="color:red">`add.protein()`</span> to add these proteins to `thermo()$protein`:
 ```{r add_protein}
 add.protein(myaa)
 ```
@@ -1813,7 +1807,7 @@ vars <- list(O2 = c(-50, -25), NH3 = c(-15, 10), H2O = c(-15, 10))
 
 Consider the amino acid abundances reported by @FMM_14.
 Here, we identify the amino acids using their one-letter abbreviations.
-Then, <span style="color:green">`aminoacids()`</span> is used to produce the full names, which in turn are used to search `thermo$obigt` for their formulas.
+Then, <span style="color:green">`aminoacids()`</span> is used to produce the full names, which in turn are used to search `thermo()$obigt` for their formulas.
 <span style="color:green">`makeup()`</span> is used to count the elements in the formulas:
 ```{r smoker_aa, message=FALSE}
 aa <- c("D", "T", "S", "E", "G", "A", "K", "H")
@@ -1917,7 +1911,7 @@ There is a danger of using too many, or unrepresentative variables, but in some 
 
 ## Viewing data sources: <span style="color:green">`thermo.refs()`</span>
 
-The database in CHNOSZ lists one or two sources for each entry, and citation information for the sources is listed in `thermo$refs`.
+The database in CHNOSZ lists one or two sources for each entry, and citation information for the sources is listed in `thermo()$refs`.
 You can locate and view the references with <span style="color:green">`thermo.refs()`</span>.
 Running the function without any arguments opens a browser window with the complete table of references.
 ```{marginfigure}
@@ -1981,7 +1975,7 @@ A comparison of log*K* of metal-glycinate complexes using the updated data is in
 
 <span style="color:red">`add.obigt("AS04")`</span> -- This file has data for aqueous `r sio2` from @AS04 and modified HSiO<sub>3</sub><sup>-</sup>.
 These data are included to help transition to the "higher solubility of quartz paradigm" [@WJ17], but are not included in the default database in order to maintain compatibility with existing data for minerals that are linked to the older aqueous `r sio2` data.
-See [<span style="color:blue">`demo(go-IU)`</span>](../demo) for an example.
+See [<span style="color:blue">`demo(aluminum)`</span>](../demo) for an example.
 
 <span style="color:red">`add.obigt("DEW")`</span> -- These are aqueous species, with modified parameters, that are intended for use with the [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model [@SHA14].
 You should also run <span style="color:red">`water("DEW")`</span> to activate the equations in the model; then, they will be used by <span style="color:green">`subcrt()`</span> and <span style="color:green">`affinity()`</span>.
@@ -2007,11 +2001,7 @@ read.csv(file, as.is = TRUE)
 
 The column names with a dot (`.`) refer to different sets of equations for calculating standard thermodynamic properties.
 Aqueous species use the revised Helgeson-Kirkham-Flowers (HKF) equations (symbols before the dot), and crystalline, gas and liquid species other than `r h2o` use a general heat capacity equation.
-See <span style="color:blue">`?thermo`</span> for details about what's in the data table, and <span style="color:blue">`?hkf`</span> and <span style="color:blue">`?cgl`</span> for information about the thermodynamic equations.
-
-Another use of <span style="color:red">`add.obigt()`</span> is to add data from the file `CHNOSZ_aq.csv`, which holds provisional updates that aren't loaded by default (i.e., using <span style="color:red">`reset()`</span>).
-In this mode, only the name of the species is used as the argument.
-Currently available species are `adenine-old` and `pseudo-H4SiO4` (see [<span style="color:blue">`demo(adenine)`</span>](../demo) and the vignette, [<span style="color:blue">*Regressing thermodynamic data*</span>](eos-regress.html)).
+See <span style="color:blue">`?thermo`</span> for details about what's in the data table, and <span style="color:blue">`?hkf`</span> and <span style="color:blue">`?cgl`</span> for information about the equations used for thermodynamic properties.
 
 ## Modifying data
 

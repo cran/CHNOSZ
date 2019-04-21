@@ -15,7 +15,7 @@
 }
 
 \arguments{
-  \item{species}{character, name or formula of species, or numeric, rownumber of species in \code{thermo$obigt}}
+  \item{species}{character, name or formula of species, or numeric, rownumber of species in \code{thermo()$obigt}}
   \item{coeff}{numeric, reaction coefficients on species}
   \item{state}{character, state(s) of species}
   \item{property}{character, property(s) to calculate}
@@ -87,7 +87,7 @@ Certain features of \acronym{SUPCRT92} are not available here, for example, calc
 
 For calculations below 273.16 K, the pressure should be set to 1, as \Psat is not defined in these conditions.
 
-If \code{thermo$opt$varP} is \code{TRUE}, standard Gibbs energies of gases will be converted from a standard state at 1 bar (as used in SUPCRT) to a variable pressure standard state (see chapter 12 in Anderson and Crerar, 1993).
+If \code{thermo()$opt$varP} is \code{TRUE}, standard Gibbs energies of gases will be converted from a standard state at 1 bar (as used in SUPCRT) to a variable pressure standard state (see chapter 12 in Anderson and Crerar, 1993).
 This is useful for constructing e.g. boiling curves for organic compounds.
 }
 
@@ -267,7 +267,7 @@ title(main=paste("Reduction of NAD coupled to oxidation of glucose",
 # but we go to -30 knowing properties will become NA
 sb <- subcrt(c("H2O", "Na+"), T=seq(-30, 10), P=1)$out
 # start plot with extra room on right
-par(mar=c(5, 4, 4, 4))
+opar <- par(mar=c(5, 4, 4, 4))
 # plot G
 plot(sb$water$T, sb$water$G, ylim=c(-63000, -56000), xlab=axis.label("T"),
   ylab=axis.label("DG0"))
@@ -284,6 +284,7 @@ H2O <- expr.species("H2O")
 Na <- expr.species("Na+")
 degC <- expr.units("T")
 title(main=substitute(H2O~and~Na~to~-20~degC, list(H2O=H2O, Na=Na, degC=degC)))
+par(opar)
 
 ## Calculations using a variable-pressure standard state
 thermo("opt$varP" = TRUE)

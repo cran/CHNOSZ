@@ -35,7 +35,7 @@ If \code{species} is NULL (default), all species listed in the file are used.
 If \code{species} is given and matches the name(s) of species in the file, only those species are added to the database.
 
 By default, species in the file replace any existing species having the same combination of name and state.
-Set \code{force} to FALSE to avoid replacing species that are present in (\code{thermo$obigt}).
+Set \code{force} to FALSE to avoid replacing species that are present in (\code{thermo()$obigt}).
 
 Given the default setting of \code{E.units}, the function does not perform any unit conversions.
 If \code{E.units} is set to \samp{J}, then the thermodynamic parameters are converted from units of Joules to calories, as used in the CHNOSZ database. 
@@ -50,11 +50,11 @@ When adding new species, a chemical formula should be included along with the va
 The formula is taken from the \samp{formula} argument, or if that is missing, is taken to be the same as the \samp{name} of the species.
 An error results if the formula is not valid (i.e. can not be parsed by\code{\link{makeup}}).
 Additional arguments refer to the name of the property(s) to be updated and are matched to any part of compound column names in \code{\link{thermo}$obigt}, such as \samp{z} or \samp{T} in \samp{z.T}.
-Unless \samp{state} is specified as one of the properties, its value is taken from \code{thermo$opt$state}.
-When adding species, properties that are not specified become NA, except for \samp{state}, which takes a default value from \code{thermo$opt$state}, and \samp{z.T}, which for aqueous species is set to the charge calculated from the chemical formula (otherwise, NA charge for newly added species would trigger the \code{\link{AkDi}} model).
+Unless \samp{state} is specified as one of the properties, its value is taken from \code{thermo()$opt$state}.
+When adding species, properties that are not specified become NA, except for \samp{state}, which takes a default value from \code{thermo()$opt$state}, and \samp{z.T}, which for aqueous species is set to the charge calculated from the chemical formula (otherwise, NA charge for newly added species would trigger the \code{\link{AkDi}} model).
 The values provided should be in the units specifed in the documentation for the \code{thermo} data object, including any order-of-magnitude scaling factors.
 
-\code{today} returns the current date in the format adopted for \code{thermo$obigt} (inherited from SUPCRT-format data files) e.g. \samp{13.May.12} for May 13, 2012.
+\code{today} returns the current date in the format adopted for \code{thermo()$obigt} (inherited from SUPCRT-format data files) e.g. \samp{13.May.12} for May 13, 2012.
 }
 
 \value{
@@ -123,14 +123,41 @@ plot(Kit14$out$T, Kit14$out$G/1000, type = "l", ylim = c(10, 35),
 lines(DLH06$out$T, DLH06$out$G/1000, lty = 2)
 legend("topleft", c("Dick et al., 2006", "Kitadai, 2014"), lty = c(2, 1))
 title(main = "AABB = UPBB + H2O; after Figure 9 of Kitadai, 2014")
-# reset to default database
-obigt()
+# reset database *and* settings (units)
+reset()
+
+# Another use of add.obigt(): calculate Delta G of
+# H4SiO4 = SiO2 + 2H2O using different data for SiO2.
+# first, get H4SiO4 from Stefansson, 2001
+add.obigt("AS04", "H4SiO4")
+T <- seq(0, 350, 10)
+s1 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2), T = T)
+# now, get SiO2 from Apps and Spycher, 2004
+add.obigt("AS04", "SiO2")
+s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2), T = T)
+# plot logK from the first and second calculations
+plot(T, s1$out$G, type = "l", xlab = axis.label("T"),
+  ylab = axis.label("DG"), ylim = c(-100, 600))
+lines(T, s2$out$G, lty = 2)
+# add title and legend
+title(main = describe.reaction(s1$reaction))
+stxt <- lapply(c("H4SiO4", "SiO2", "SiO2"), expr.species)
+legend("top", legend = as.expression(stxt), bty = "n")
+legend("topright", c("Stef\u00e1nsson, 2001", "Shock et al., 1989",
+  "Apps and Spycher, 2004"), lty = c(0, 1, 2), bty = "n")
+reset()
 }
 
 \references{
+Apps, J. and Spycher, N. (2004) \emph{Data qualification for thermodynamic data used to support THC calculations}. DOC.20041118.0004 ANL-NBS-HS-000043 REV 00. Bechtel SAIC Company, LLC.
+
 Bazarkina, E. F., Zotov, A. V., and Akinfiev, N. N. (2010)  Pressure-dependent stability of cadmium chloride complexes: Potentiometric measurements at 1-1000 bar and 25°C. \emph{Geology of Ore Deposits} \bold{52}, 167--178. \url{https://doi.org/10.1134/S1075701510020054}
 
 Kitadai, N. (2014)  Thermodynamic prediction of glycine polymerization as a function of temperature and pH consistent with experimentally obtained results. \emph{J. Mol. Evol.} \bold{78}, 171--187. \url{https://doi.org/10.1007/s00239-014-9616-1}
+
+Shock, E. L., Helgeson, H. C. and Sverjensky, D. A. (1989) Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Standard partial molal properties of inorganic neutral species. \emph{Geochim. Cosmochim. Acta} \bold{53}, 2157--2183. \url{https://doi.org/10.1016/0016-7037(89)90341-4}
+
+Stef{\aacute}nsson, A. (2001) Dissolution of primary minerals of basalt in natural waters. I. Calculation of mineral solubilities from 0\degC to 350\degC. \emph{Chem. Geol.} \bold{172}, 225--250. \url{https://doi.org/10.1016/S0009-2541(00)00263-1}
 
 Sverjensky, D. A., Shock, E. L., and Helgeson, H. C. (1997) Prediction of the thermodynamic properties of aqueous metal complexes to 1000 °C and 5 kbar. \emph{Geochim. Cosmochim. Acta} \bold{61}, 1359--1412. \url{https://doi.org/10.1016/S0016-7037(97)00009-4}
 }

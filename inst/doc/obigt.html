@@ -53,9 +53,7 @@ h6 {
 
 <link href="data:text/css;charset=utf-8,%0Ah1%20a%3Alink%20%7B%0Acolor%3A%20red%3B%0A%7D%0A" rel="stylesheet" type="text/css" />
 
-</head>
 
-<body>
 
 <style type="text/css">
 .main-container {
@@ -86,8 +84,6 @@ summary {
 </style>
 
 
-
-<div class="container-fluid main-container">
 
 <!-- tabsets -->
 
@@ -162,6 +158,15 @@ $(document).ready(function () {
 
 
 
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
 
 <div class="fluid-row" id="header">
 
@@ -172,14 +177,14 @@ $(document).ready(function () {
 </div>
 
 
-<p>This <a href="index.html">vignette</a>, produced on 2019-03-02, documents the sources of thermodynamic data in CHNOSZ version 1.3.1. Running <span style="color:red"><code>reset()</code></span> creates the default database (<code>thermo()$obigt</code>) in the R session.</p>
-<p>The sections below correspond to CSV data files that are stored in the <code>extdata/OBIGT</code> package directory and read by <span style="color:red"><code>reset()</code></span> (except for Optional Data). In each section, the primary references (<code>ref1</code> in <code>thermo()$obigt</code>) are listed in chronological order. Any secondary references (<code>ref2</code>) are listed with bullet points. Each reference is followed by the number of species, and a note (from <code>thermo()$refs</code>). Symbols show whether the data were present in the earliest of the sprons92.dat (ø), slop98.dat (*), slop07.dat (†), or slop15.dat (‡) datafiles for the SUPCRT92 package.</p>
+<p>This <a href="index.html">vignette</a>, produced on 2019-04-20, documents the sources of thermodynamic data in CHNOSZ version 1.3.2. All of these data, except for Optional Data, are used in the default database, which is loaded when the package is attached, or by running <span style="color:red"><code><a href="../html/reset.html" style="color:red;">reset()</a></code></span>.</p>
+<p>The sections below correspond to CSV data files that are stored in the <code>extdata/OBIGT</code> package directory and read by <span style="color:red"><code><a href="../html/reset.html" style="color:red;">reset()</a></code></span> to create the database in the R session (<code>thermo()$obigt</code>). In each section, the primary references (<code>ref1</code> in <code>thermo()$obigt</code>) are listed in chronological order. Any secondary references (<code>ref2</code>) are listed with bullet points. Each reference is followed by the number of species, and a note (from <code>thermo()$refs</code>). Symbols show whether the data were present in the earliest of the sprons92.dat (ø), slop98.dat (*), slop07.dat (†), or slop16.dat (‡) datafiles for the SUPCRT92 package.</p>
 <p>Any additional comments are placed at the beginning of the sections. Abbreviations used below are: Cp (heat capacity), GHS (standard Gibbs energy, enthalpy, entropy), HKF (Helgeson-Kirkham-Flowers equations), V (volume), T (temperature), P (pressure).</p>
 <div id="recent-changes-2018---2019" class="section level1">
 <h1>Recent changes (2018 - 2019)</h1>
 <ul>
 <li><p>Data from SUPCRT92 which have been superseded by the Berman data are listed under <strong>Optional Data</strong> / <strong>SUPCRT92</strong>.</p></li>
-<li><p>Superseded data from SLOP98 (Al, As, and Au species) are listed under <strong>Optional Data</strong> / <strong>SLOP98</strong>.</p></li>
+<li><p>Superseded data from SLOP98 (inlucding Al, As, and Au species) are listed under <strong>Optional Data</strong> / <strong>SLOP98</strong>.</p></li>
 </ul>
 </div>
 <div id="sources-of-data" class="section level1 tabset tabset-fade">
@@ -195,8 +200,8 @@ $(document).ready(function () {
 <p><span style="color:red">**</span>Likewise, <a href="http://gems.web.psi.ch/">GEM-Selektor</a> defines “independent components” to be stoichiometric units usually consisting of elements and charge; the latter, <a href="http://gems.web.psi.ch/tests/TestNaCl-dep.html">which is named Zz</a> and has a standard molal entropy of -65.34 J/mol/K and heat capacity of -14.418 J/mol/K (negative one-half those of gaseous hydrogen), is negated in the formula of the fictive “aqueous electron” (<a href="https://doi.org/10.1016/j.chemgeo.2005.08.014">Kulik, 2006</a>).</p>
 <p><span style="color:red">^^</span> Relatedly, charged amino acid sidechain groups have a charge that is tabulated as zero, because other values would be incompatible with group additivity of cations and anions (which have derivatives of the omega parameter (ω) in the revised HKF equations of state that are not opposites of each other) to give a neutral species (for which the derivatives of ω are taken to be zero) (cf. <a href="https://doi.org/10.5194/bg-3-311-2006">Dick et al., 2006</a>).</p>
 </div>
-<div id="inorganic-877" class="section level3">
-<h3><code>Inorganic</code> (877)</h3>
+<div id="inorganic-836" class="section level3">
+<h3><code>Inorganic</code> (836)</h3>
 <p><span class="citation">Shock and Helgeson (1988)</span> – 57 <em>ionic species</em> (ø)</p>
 <p><span class="citation">Shock et al. (1989)</span> – 13 <em>inorganic neutral species</em> (ø)</p>
 <p><span class="citation">Shock et al. (1989)</span> – 1 <em>aqueous SiO<sub>2</sub></em> (ø)</p>
@@ -220,9 +225,7 @@ $(document).ready(function () {
 <p><span class="citation">Shock et al. (1997b)</span> – 15 <em>uranium species</em> (*)</p>
 <p><span class="citation">Tagirov et al. (1997)</span> – 1 <em>aqueous HCl</em></p>
 <p><span class="citation">Sassani and Shock (1998)</span> – 41 <em>platinum-group ions and complexes</em> (*)</p>
-<p><span class="citation">Murphy and Shock (1999)</span> – 38 <em>actinides</em> (†)</p>
 <p><span class="citation">Akinfiev and Zotov (2001)</span> – 15 <em>M<sup>+</sup>, MCl<sub>2</sub><sup>-</sup>, M(OH)<sub>2</sub><sup>-</sup>, MCl, and MOH (M = Au<sup>+</sup>, Ag<sup>+</sup>, or Cu<sup>+</sup>)</em></p>
-<p><span class="citation">Stefánsson (2001)</span> – 1 <em>aqueous H<sub>4</sub>SiO<sub>4</sub></em></p>
 <p><span class="citation">Schulte et al. (2001)</span> – 10 <em>AsH<sub>3</sub>, CF<sub>4</sub>, CH<sub>3</sub>F, Cl<sub>2</sub>, ClO<sub>2</sub>, N<sub>2</sub>O, NF<sub>3</sub>, NO, PH<sub>3</sub>, and SF<sub>6</sub></em></p>
 <p><span class="citation">Tagirov and Schott (2001)</span> – 17 <em>aqueous Al<sup>+3</sup> and complexes</em></p>
 <ul>
@@ -230,7 +233,7 @@ $(document).ready(function () {
 </ul>
 <p><span class="citation">Nordstrom and Archer (2003)</span> – 10 <em>aqueous As oxides and sulfides</em></p>
 <p><span class="citation">Akinfiev et al. (2006)</span> – 1 <em>AgCl<sub>3</sub><sup>-2</sup></em></p>
-<p><span class="citation">Accornero et al. (2010)</span> – 45 <em>metal-chromate complexes</em></p>
+<p><span class="citation">Accornero et al. (2010)</span> – 43 <em>metal-chromate complexes</em></p>
 <p><span class="citation">Akinfiev and Zotov (2010)</span> – 6 <em>MHS and M(HS)<sub>2</sub><sup>-</sup> (M = Au<sup>+</sup>, Ag<sup>+</sup>, or Cu<sup>+</sup>)</em></p>
 <ul>
 <li><span class="citation">Pokrovski et al. (2014)</span> – 1 <em>corrected H of AuHS</em></li>
@@ -239,38 +242,37 @@ $(document).ready(function () {
 <p><span class="citation">Akinfiev and Tagirov (2014)</span> – 13 <em>Zn<sup>+2</sup> and complexes</em></p>
 <p><span class="citation">Tagirov et al. (2015)</span> – 5 <em>Pt<sup>+2</sup> and complexes</em></p>
 </div>
-<div id="organic-683" class="section level3">
-<h3><code>Organic</code> (683)</h3>
+<div id="organic-674" class="section level3">
+<h3><code>Organic</code> (674)</h3>
 <p><span class="citation">Shock and Helgeson (1990)</span> – 47 <em>organic species</em> (ø)</p>
 <ul>
-<li>slop15.dat – 3 <em>hexanol, heptanol, and octanol: “Minor differences in Gibbs energy, entropy, ω, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub> and c<sub>1</sub> values compared to <span class="citation">Shock and Helgeson (1990)</span>.”</em> (‡)</li>
+<li>slop16.dat – 3 <em>hexanol, heptanol, and octanol: “Minor differences in Gibbs energy, entropy, ω, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub> and c<sub>1</sub> values compared to <span class="citation">Shock and Helgeson (1990)</span>.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Shock (1993)</span> – 2 <em>ethylacetate and acetamide</em> (*)</p>
 <p><span class="citation">Shock and Koretsky (1993)</span> – 104 <em>metal-acetate complexes</em> (*)</p>
 <ul>
-<li>slop15.dat – 32 <em>“Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements.”</em> (‡)</li>
+<li>slop16.dat – 32 <em>“Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Shock and McKinnon (1993)</span> – 3 <em>CO, HCN, urea</em> (*)</p>
 <p><span class="citation">Schulte and Shock (1993)</span> – 10 <em>aldehydes</em> (*)</p>
 <ul>
-<li>slop15.dat – 1 <em>formaldehyde: “Entropy corrected to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote i in table 2 of <span class="citation">Schulte and Shock (1993)</span>.”</em> (‡)</li>
+<li>slop16.dat – 1 <em>formaldehyde: “Entropy corrected to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote i in table 2 of <span class="citation">Schulte and Shock (1993)</span>.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Shock and Koretsky (1995)</span> – 226 <em>metal-organic acid complexes</em> (*)</p>
 <ul>
 <li><p>slop98.dat – 6 <em>“These data were used in <span class="citation">Shock and Koretsky (1995)</span>, but were not tabulated in the paper.”</em> (*)</p></li>
-<li><p>slop15.dat – 55 <em>“Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements.”</em> (‡)</p></li>
+<li><p>slop16.dat – 55 <em>“Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements.”</em> (‡)</p></li>
 </ul>
 <p><span class="citation">Shock (1995)</span> – 77 <em>carboxylic acids</em> (*)</p>
 <ul>
-<li><p>slop15.dat – 2 <em>adipic acid and n-dodecanoate: “Gibbs free energy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote y in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
-<li><p>slop15.dat – 1 <em>n-octanoate: “Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote ab in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
+<li><p>slop16.dat – 2 <em>adipic acid and n-dodecanoate: “Gibbs free energy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote y in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
+<li><p>slop16.dat – 1 <em>n-octanoate: “Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote ab in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
 </ul>
 <p><span class="citation">Dale et al. (1997)</span> – 10 <em>alkylphenols</em> (*)</p>
 <p><span class="citation">Haas and Shock (1999)</span> – 6 <em>chloroethylene species</em> (†)</p>
-<p><span class="citation">Prapaipong et al. (1999)</span> – 160 <em>metal-dicarboxylate complexes</em> (†)</p>
+<p><span class="citation">Prapaipong et al. (1999)</span> – 151 <em>metal-dicarboxylate complexes</em> (†)</p>
 <ul>
-<li><p>slop07.dat – 1 <em>corrected charge of Pu(Oxal)<sup>+2</sup></em> (†)</p></li>
-<li><p>CHNOSZ – 4 <em>charge of NpO2(Oxal), La(Succ)+, NH4(Succ)-, and NpO2(Succ) as listed by <span class="citation">Prapaipong et al. (1999)</span></em></p></li>
+<li>CHNOSZ – 2 <em>charge of NpO2(Oxal), La(Succ)+, NH4(Succ)-, and NpO2(Succ) as listed by <span class="citation">Prapaipong et al. (1999)</span></em></li>
 </ul>
 <p><span class="citation">Plyasunov and Shock (2001)</span> – 11 <em>aqueous nonelectrolytes</em> (†)</p>
 <p><span class="citation">Schulte and Rogers (2004)</span> – 12 <em>alkane thiols</em> (†)</p>
@@ -297,14 +299,14 @@ $(document).ready(function () {
 <li><span class="citation">Canovas and Shock (2016)</span> – 4 <em>citric acid species HKF a<sub>1</sub>–a<sub>4</sub> parameters</em></li>
 </ul>
 <p><span class="citation">LaRowe and Harold C. Helgeson (2006b)</span> – 32 <em>Mg-complexed adenosine nucleotides (ATP), NAD, and NADP</em> (†)</p>
-<p><span class="citation">Dick et al. (2006)</span> – 38 <em>amino acid, protein, and organic groups</em> (‡)</p>
+<p><span class="citation">Dick et al. (2006)</span> – 38 <em>amino acid, protein, and organic groups</em></p>
 <ul>
 <li><p><span class="citation">LaRowe and Dick (2012)</span> – 1 <em>methionine sidechain GHS</em></p></li>
-<li><p>CHNOSZ – 1 <em>Incorrect values of HKF a<sub>1</sub>–a<sub>4</sub> parameters for [-CH2NH2] were printed in Table 6 of <span class="citation">Dick et al. (2006)</span>; corrected values are used here.</em> (‡)</p></li>
+<li><p>CHNOSZ – 1 <em>Incorrect values of HKF a<sub>1</sub>–a<sub>4</sub> parameters for [-CH2NH2] were printed in Table 6 of <span class="citation">Dick et al. (2006)</span>; corrected values are used here.</em></p></li>
 </ul>
 <p><span class="citation">Dick et al. (2006)</span> – 19 <em>Gly-X-Gly tripeptides Cp, V, and HKF c<sub>1</sub>, c<sub>2</sub>, ω parameters</em></p>
 <p><span class="citation">Dick (2007)</span> – 4 <em>glutathione, cystine, and cystine sidechain</em></p>
-<p><span class="citation">LaRowe and Dick (2012)</span> – 1 <em>methionine GHS</em> (‡)</p>
+<p><span class="citation">LaRowe and Dick (2012)</span> – 1 <em>methionine GHS</em></p>
 <ul>
 <li><span class="citation">Dick et al. (2006)</span> – 1 <em>methionine HKF parameters</em> (†)</li>
 </ul>
@@ -363,7 +365,7 @@ The source of parameters used here for goethite is different from that in the sl
 <ul>
 <li><span class="citation">Zimmer et al. (2016)</span> – 1 <em>data listed in spronsbl.dat</em></li>
 </ul>
-<p><span class="citation">Hemingway et al. (1991)</span> – 1 <em>bohemite</em></p>
+<p><span class="citation">Hemingway et al. (1991)</span> – 1 <em>boehmite</em></p>
 <ul>
 <li><span class="citation">Zimmer et al. (2016)</span> – 1 <em>Cp parameters listed in spronsbl.dat</em></li>
 </ul>
@@ -412,16 +414,16 @@ The source of parameters used here for goethite is different from that in the sl
 <p><span class="citation">Grevel and Majzlan (2009)</span> – 4 <em>kieserite, starkeyite, hexahydrite, and epsomite</em></p>
 <p><span class="citation">Zimmer et al. (2016)</span> – 1 <em>dawsonite GHS</em></p>
 <ul>
-<li><span class="citation">Ferrante et al. (1976)</span> – 1 <em>dawsonite Cp (value at 25 °C as listed by <span class="citation">Bénézeth et al. (2007)</span>; not present in spronsbl.dat)</em></li>
+<li><span class="citation">Robie and Hemingway (1995)</span> – 1 <em>dawsonite: Cp coefficients corrected in <span class="citation">Tutolo et al. (2014)</span>; Cp value at 25 °C from <span class="citation">Bénézeth et al. (2007)</span>, citing <span class="citation">Ferrante et al. (1976)</span></em></li>
 </ul>
 </div>
 <div id="organic-479" class="section level3">
 <h3><code>Organic</code> (479)</h3>
 <p><span class="citation">Tardy et al. (1997)</span> – 5 <em>humic acid, microflora, and plants</em></p>
 <p><span class="citation">Helgeson et al. (1998)</span> – 59 <em>organic molecules and groups</em></p>
-<p><span class="citation">Helgeson et al. (1998)</span> – 20 <em>amino acids</em> (‡)</p>
+<p><span class="citation">Helgeson et al. (1998)</span> – 20 <em>amino acids</em></p>
 <ul>
-<li><span class="citation">LaRowe and Dick (2012)</span> – 4 <em>updated and corrected parameters for cysteine, glycine, leucine, and methionine</em> (‡)</li>
+<li><span class="citation">LaRowe and Dick (2012)</span> – 4 <em>updated and corrected parameters for cysteine, glycine, leucine, and methionine</em></li>
 </ul>
 <p><span class="citation">Richard and Helgeson (1998)</span> – 311 <em>organic molecules and groups</em></p>
 <p><span class="citation">Richard (2001)</span> – 8 <em>organic sulfur compounds</em></p>
@@ -429,10 +431,10 @@ The source of parameters used here for goethite is different from that in the sl
 <p><span class="citation">LaRowe and Harold C. Helgeson (2006b)</span> – 9 <em>Mg-complexed adenosine nucleotides (ATP), NAD, and NADP</em></p>
 <p><span class="citation">Helgeson et al. (2009)</span> – 5 <em>kerogens</em></p>
 <p><span class="citation">Richard and Gaona (2011)</span> – 13 <em>organic iodine compounds</em></p>
-<p><span class="citation">LaRowe and Dick (2012)</span> – 30 <em>4-hydroxyproline, 5-hydroxylysine, 4 dipeptides, and sidechain and backbone groups in proteins</em> (‡)</p>
+<p><span class="citation">LaRowe and Dick (2012)</span> – 30 <em>4-hydroxyproline, 5-hydroxylysine, 4 dipeptides, and sidechain and backbone groups in proteins</em></p>
 </div>
-<div id="berman-86" class="section level3">
-<h3><code>Berman</code> (86)</h3>
+<div id="berman-90" class="section level3">
+<h3><code>Berman</code> (90)</h3>
 <p>This file gives the identifiying information for minerals whose properties are calculated using the formulation of <a href="https://doi.org/10.1093/petrology/29.2.445">Berman (1988)</a>. Note that thermodynamic properties for these minerals are listed as NA in <code>thermo()$obigt</code>; the actual data are stored separately, as CSV files in <code>extdata/Berman/*.csv</code>.</p>
 <p><span class="citation">Berman (1988)</span> – 67 <em>minerals</em></p>
 <ul>
@@ -449,7 +451,10 @@ The source of parameters used here for goethite is different from that in the sl
 <ul>
 <li><span class="citation">JUN92.bs (1992)</span> – 2 <em>data as listed in <code>JUN92.bs</code> data file</em></li>
 </ul>
+<p><span class="citation">Vidal et al. (1992)</span> – 1 <em>sudoite</em></p>
 <p><span class="citation">Zhu and Sverjensky (1992)</span> – 10 <em>F,Cl,OH biotite and apatite endmembers. GHS and V were taken from Table 6 of <span class="citation">Zhu and Sverjensky (1992)</span>; heat capacity and volume parameters from <code>berman.dat</code>.</em></p>
+<p><span class="citation">Vidal et al. (2001)</span> – 2 <em>daphnite and Mg-amesite</em></p>
+<p><span class="citation">Vidal et al. (2005)</span> – 1 <em>Fe-amesite</em></p>
 <p><span class="citation">Delgado Martín and Soler i Gil (2010)</span> – 5 <em>hedenbergite, andradite, ferro-actinolite, grunerite, and ilvaite</em></p>
 <p><span class="citation">Facq et al. (2014)</span> – 1 <em>aragonite; source of data: <code>berman.dat</code></em></p>
 </div>
@@ -495,7 +500,7 @@ The source of parameters used here for goethite is different from that in the sl
 <h2>Optional Data</h2>
 <div id="dew-199" class="section level3">
 <h3><code>DEW</code> (199)</h3>
-<p>The <a href="http://www.dewcommunity.org/">Deep Earth Water</a> (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by <a href="https://doi.org/10.1016/j.gca.2013.12.019">Sverjensky et al., 2014</a>. The data here were taken from the May 2017 version of the DEW spreadsheet (<a href="http://www.dewcommunity.org/resources.html">Dew Model, 2017</a>). The following species are present in the spreadsheet, but are not listed in <code>DEW_aq.csv</code> because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.</p>
+<p>The <a href="http://www.dewcommunity.org/">Deep Earth Water</a> (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by <a href="https://doi.org/10.1016/j.gca.2013.12.019">Sverjensky et al., 2014</a>. The data here were taken from the May 2017 version of the DEW spreadsheet (<a href="http://www.dewcommunity.org/resources.html">Dew Model, 2017</a>). The following species are present in the spreadsheet, but are not used here because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.</p>
 Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to load these data, you should also run <span style="color:red"><code>water('DEW')</code></span> to activate the DEW equations in CHNOSZ. See <a href="../demo"><span style="color:blue"><code>demo(DEW)</code></span></a> for some examples.
 <hr>
 <p><span class="citation">Shock and Helgeson (1988)</span> – 2 <em>ionic species</em></p>
@@ -529,9 +534,9 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <li><p><span class="citation">DEW model (2017)</span> – 1 <em>NaCl: revised with new predicted a1 for complex species</em></p></li>
 </ul>
 </div>
-<div id="supcrt92-186" class="section level3">
-<h3><code>SUPCRT92</code> (186)</h3>
-<p>These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by <span class="citation">Berman (1988)</span> (minerals) and <span class="citation">Nordstrom and Archer (2003)</span> (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from <span class="citation">Helgeson et al. (1978)</span>, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red"><code>add.obigt(&quot;SUPCRT92&quot;)</code></span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (<strong>inorganic_cr.csv</strong>).</p>
+<div id="supcrt92-185" class="section level3">
+<h3><code>SUPCRT92</code> (185)</h3>
+<p>These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by <span class="citation">Berman (1988)</span> (minerals) and <span class="citation">Nordstrom and Archer (2003)</span> (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from <span class="citation">Helgeson et al. (1978)</span>, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red"><code>add.obigt(&quot;SUPCRT92&quot;)</code></span> to load the data. <strong>NOTE:</strong> Other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (<strong>inorganic_cr.csv</strong>).</p>
 <p><span class="citation">Helgeson et al. (1978)</span> – 183 <em>data for minerals and phase transitions</em> (ø)</p>
 <ul>
 <li><p><span class="citation">Kelley (1960)</span> – 1 <em>larnite Cp</em> (ø)</p></li>
@@ -547,11 +552,11 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <li><p><span class="citation">Bowers and Helgeson (1983)</span> – 1 <em>rutile</em> (ø)</p></li>
 <li><p>sprons92.dat – 1 <em>titanite: <span class="citation">Bowers and Helgeson (1983)</span> + “Gibbs free energies and enthalpies were corrected to be consistent with updated values of Gibbs free energies of Ca<sup>2+</sup> and CO<sub>3</sub><sup>2-</sup> <span class="citation">(Shock and Helgeson, 1988)</span> together with the solubilities of calcite and aragonite reported by <span class="citation">Plummer and Busenberg (1982)</span>”</em> (ø)</p></li>
 </ul>
-<p><span class="citation">Shock and Helgeson (1988)</span> – 1 <em>H<sub>2</sub>AsO<sub>3</sub><sup>-</sup></em> (ø)</p>
 </div>
-<div id="slop98-119" class="section level3">
-<h3><code>SLOP98</code> (119)</h3>
-<p>These species, many of which were taken from slop98.dat and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with other updates for aqueous Al species <span class="citation">(Tagirov and Schott, 2001)</span>, As species <span class="citation">(Nordstrom and Archer, 2003)</span>, Au, Ag, and Cu species <span class="citation">(Akinfiev and Zotov, 2001; Akinfiev and Zotov, 2010)</span>, Pd species <span class="citation">(Tagirov et al., 2013)</span>, Zn species <span class="citation">(Akinfiev and Tagirov, 2014)</span>, and Pt species <span class="citation">(Tagirov et al., 2015)</span>. The data are kept here to enable comparisons with newer data and reproduction of published calculations. Use <span style="color:red"><code>add.obigt(&quot;SLOP98&quot;)</code></span> to load the data.</p>
+<div id="slop98-169" class="section level3">
+<h3><code>SLOP98</code> (169)</h3>
+<p>These species, which were taken from or are linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database, including aqueous Al species <span class="citation">(Tagirov and Schott, 2001)</span>, As species <span class="citation">(Nordstrom and Archer, 2003)</span>, Au, Ag, and Cu species <span class="citation">(Akinfiev and Zotov, 2001; Akinfiev and Zotov, 2010)</span>, Pd species <span class="citation">(Tagirov et al., 2013)</span>, Zn species <span class="citation">(Akinfiev and Tagirov, 2014)</span>, and Pt species <span class="citation">(Tagirov et al., 2015)</span>. This file also contains aqueous transuranic actinide complexes, for which estimated thermodynamic properties have been reported, but no entropies of the corresponding elements at 298.15 K are available to check the self-consistency of the GHS values for the complexes. Use <span style="color:red"><code>add.obigt(&quot;SLOP98&quot;)</code></span> to load the data. <strong>NOTE:</strong> Many other species found in slop98.dat and later versions are still present in the default database.</p>
+<p><span class="citation">Shock and Helgeson (1988)</span> – 1 <em>H<sub>2</sub>AsO<sub>3</sub><sup>-</sup></em> (ø)</p>
 <p><span class="citation">Shock and Helgeson (1988)</span> – 1 <em>Ag<sup>+</sup></em> (ø)</p>
 <p><span class="citation">Shock and Koretsky (1993)</span> – 9 <em>Ag-, Au-, Cu(I)- and Al-acetate complexes</em> (*)</p>
 <p><span class="citation">McCollom and Shock (1997)</span> – 1 <em>aqueous HCl</em> (*)</p>
@@ -573,18 +578,25 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p><span class="citation">Sverjensky et al. (1997)</span> – 10 <em>Au-, Ag-, Cu- and Zn-chloride complexes</em> (*)</p>
 <p><span class="citation">Sverjensky et al. (1997)</span> – 3 <em>Zn-acetate complexes</em> (*)</p>
 <ul>
-<li>slop15.dat – 1 <em>Zn(Ac)3-: “Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote h in table 2 of <span class="citation">Sverjensky et al. (1997)</span>.”</em> (‡)</li>
+<li>slop16.dat – 1 <em>Zn(Ac)3-: “Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote h in table 2 of <span class="citation">Sverjensky et al. (1997)</span>.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Sassani and Shock (1998)</span> – 20 <em>Pd<sup>+2</sup> and Pt<sup>+2</sup> and their complexes</em> (*)</p>
+<p><span class="citation">Murphy and Shock (1999)</span> – 38 <em>actinides</em> (†)</p>
+<p><span class="citation">Prapaipong et al. (1999)</span> – 9 <em>metal-dicarboxylate complexes</em> (†)</p>
+<ul>
+<li><p>slop07.dat – 1 <em>corrected charge of Pu(Oxal)<sup>+2</sup></em> (†)</p></li>
+<li><p>CHNOSZ – 2 <em>charge of NpO2(Oxal), La(Succ)+, NH4(Succ)-, and NpO2(Succ) as listed by <span class="citation">Prapaipong et al. (1999)</span></em></p></li>
+</ul>
 <p><span class="citation">Prapaipong et al. (1999)</span> – 2 <em>Al(Mal)<sup>+</sup> and Al(Oxal)<sup>+</sup></em> (†)</p>
 <p><span class="citation">Marini and Accornero (2007)</span> – 52 <em>metal-arsenate and metal-arsenite complexes; linked to properties of arsenate and arsenite from <span class="citation">Shock et al. (1997)</span></em></p>
 <ul>
 <li><span class="citation">Marini and Accornero (2010)</span> – 52 <em>corrected values</em></li>
 </ul>
+<p><span class="citation">Accornero et al. (2010)</span> – 2 <em>Np- and Am-chromate complexes</em></p>
 </div>
 <div id="oldaa-64" class="section level3">
 <h3><code>OldAA</code> (64)</h3>
-<p>Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates <span class="citation">(LaRowe and Dick, 2012; Kitadai, 2014; Azadi et al., 2019)</span>. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red"><code>add.obigt(&quot;OldAA&quot;)</code></span> to load the data.</p>
+<p>Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates <span class="citation">(LaRowe and Dick, 2012; Kitadai, 2014; Azadi et al., 2019)</span>. Use <span style="color:red"><code>add.obigt(&quot;OldAA&quot;)</code></span> to load the data.</p>
 <p><span class="citation">Shock (1992)</span> – 4 <em>diglycine, alanylglycine, leucylglycine, and diketopiperazine; not present in slop files after slop98.dat</em> (*)</p>
 <p><span class="citation">Shock and Koretsky (1995)</span> – 54 <em>alanate, glycinate and their complexes with metals. Values are taken from slop98.dat, which notes corrected values for some species.</em> (*)</p>
 <ul>
@@ -597,13 +609,14 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 </ul>
 <p><span class="citation">Dick et al. (2006)</span> – 3 <em>[Gly], [Met], and [UPBB]</em></p>
 </div>
-<div id="as04-2" class="section level3">
-<h3><code>AS04</code> (2)</h3>
-<p>This file has data for aqueous SiO<sub>2</sub> from <span class="citation">Apps and Spycher (2004)</span> and modified HSiO<sub>3</sub><sup>-</sup>. Use <span style="color:red"><code>add.obigt(&quot;AS04&quot;)</code></span> to load the data; see <a href="../demo"><span style="color:blue"><code>demo(go-IU)</code></span></a> for an example.</p>
+<div id="as04-3" class="section level3">
+<h3><code>AS04</code> (3)</h3>
+<p>This file has data for aqueous SiO<sub>2</sub> from <span class="citation">Apps and Spycher (2004)</span> and a modified HSiO<sub>3</sub><sup>-</sup> to be consistent with the SiO<sub>2</sub> here. This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication <span class="citation">(Stefánsson, 2001)</span> that is roughly consistent with SiO<sub>2</sub> here (see <span style="color:red"><code><a href="../html/add.obigt.html" style="color:red;">?add.obigt</a></code></span>). Use <span style="color:red"><code>add.obigt(&quot;AS04&quot;)</code></span> to load the data; see <a href="eos-regress.html"><span style="color:blue"><em>Regressing thermodynamic data</em></span></a> for an example.</p>
 <p><span class="citation">Sverjensky et al. (1997)</span> – 1 <em>HSiO<sub>3</sub><sup>-</sup></em> (*)</p>
 <ul>
 <li>CHNOSZ – 1 <em>GHS recalculated by adding difference from SiO<sub>2</sub> <span class="citation">(Sverjensky et al., 1997)</span> to updated values for SiO<sub>2</sub> <span class="citation">(Apps and Spycher, 2004)</span></em></li>
 </ul>
+<p><span class="citation">Stefánsson (2001)</span> – 1 <em>aqueous H<sub>4</sub>SiO<sub>4</sub></em></p>
 <p><span class="citation">Apps and Spycher (2004)</span> – 1 <em>aqueous SiO<sub>2</sub></em></p>
 </div>
 <div id="akdi-21" class="section level3">
@@ -626,8 +639,8 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p><span style="color:red">**</span>Likewise, <a href="http://gems.web.psi.ch/">GEM-Selektor</a> defines “independent components” to be stoichiometric units usually consisting of elements and charge; the latter, <a href="http://gems.web.psi.ch/tests/TestNaCl-dep.html">which is named Zz</a> and has a standard molal entropy of -65.34 J/mol/K and heat capacity of -14.418 J/mol/K (negative one-half those of gaseous hydrogen), is negated in the formula of the fictive “aqueous electron” (<a href="https://doi.org/10.1016/j.chemgeo.2005.08.014">Kulik, 2006</a>).</p>
 <p><span style="color:red">^^</span> Relatedly, charged amino acid sidechain groups have a charge that is tabulated as zero, because other values would be incompatible with group additivity of cations and anions (which have derivatives of the omega parameter (ω) in the revised HKF equations of state that are not opposites of each other) to give a neutral species (for which the derivatives of ω are taken to be zero) (cf. <a href="https://doi.org/10.5194/bg-3-311-2006">Dick et al., 2006</a>).</p>
 </div>
-<div id="inorganic-877-1" class="section level4">
-<h4><code>Inorganic</code> (877)</h4>
+<div id="inorganic-836-1" class="section level4">
+<h4><code>Inorganic</code> (836)</h4>
 <p><span class="citation">Shock and Helgeson (1988)</span> – 57 <em>ionic species</em> (ø)</p>
 <p><span class="citation">Shock et al. (1989)</span> – 13 <em>inorganic neutral species</em> (ø)</p>
 <p><span class="citation">Shock et al. (1989)</span> – 1 <em>aqueous SiO<sub>2</sub></em> (ø)</p>
@@ -651,9 +664,7 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p><span class="citation">Shock et al. (1997b)</span> – 15 <em>uranium species</em> (*)</p>
 <p><span class="citation">Tagirov et al. (1997)</span> – 1 <em>aqueous HCl</em></p>
 <p><span class="citation">Sassani and Shock (1998)</span> – 41 <em>platinum-group ions and complexes</em> (*)</p>
-<p><span class="citation">Murphy and Shock (1999)</span> – 38 <em>actinides</em> (†)</p>
 <p><span class="citation">Akinfiev and Zotov (2001)</span> – 15 <em>M<sup>+</sup>, MCl<sub>2</sub><sup>-</sup>, M(OH)<sub>2</sub><sup>-</sup>, MCl, and MOH (M = Au<sup>+</sup>, Ag<sup>+</sup>, or Cu<sup>+</sup>)</em></p>
-<p><span class="citation">Stefánsson (2001)</span> – 1 <em>aqueous H<sub>4</sub>SiO<sub>4</sub></em></p>
 <p><span class="citation">Schulte et al. (2001)</span> – 10 <em>AsH<sub>3</sub>, CF<sub>4</sub>, CH<sub>3</sub>F, Cl<sub>2</sub>, ClO<sub>2</sub>, N<sub>2</sub>O, NF<sub>3</sub>, NO, PH<sub>3</sub>, and SF<sub>6</sub></em></p>
 <p><span class="citation">Tagirov and Schott (2001)</span> – 17 <em>aqueous Al<sup>+3</sup> and complexes</em></p>
 <ul>
@@ -661,7 +672,7 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 </ul>
 <p><span class="citation">Nordstrom and Archer (2003)</span> – 10 <em>aqueous As oxides and sulfides</em></p>
 <p><span class="citation">Akinfiev et al. (2006)</span> – 1 <em>AgCl<sub>3</sub><sup>-2</sup></em></p>
-<p><span class="citation">Accornero et al. (2010)</span> – 45 <em>metal-chromate complexes</em></p>
+<p><span class="citation">Accornero et al. (2010)</span> – 43 <em>metal-chromate complexes</em></p>
 <p><span class="citation">Akinfiev and Zotov (2010)</span> – 6 <em>MHS and M(HS)<sub>2</sub><sup>-</sup> (M = Au<sup>+</sup>, Ag<sup>+</sup>, or Cu<sup>+</sup>)</em></p>
 <ul>
 <li><span class="citation">Pokrovski et al. (2014)</span> – 1 <em>corrected H of AuHS</em></li>
@@ -670,38 +681,37 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p><span class="citation">Akinfiev and Tagirov (2014)</span> – 13 <em>Zn<sup>+2</sup> and complexes</em></p>
 <p><span class="citation">Tagirov et al. (2015)</span> – 5 <em>Pt<sup>+2</sup> and complexes</em></p>
 </div>
-<div id="organic-683-1" class="section level4">
-<h4><code>Organic</code> (683)</h4>
+<div id="organic-674-1" class="section level4">
+<h4><code>Organic</code> (674)</h4>
 <p><span class="citation">Shock and Helgeson (1990)</span> – 47 <em>organic species</em> (ø)</p>
 <ul>
-<li>slop15.dat – 3 <em>hexanol, heptanol, and octanol: “Minor differences in Gibbs energy, entropy, ω, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub> and c<sub>1</sub> values compared to <span class="citation">Shock and Helgeson (1990)</span>.”</em> (‡)</li>
+<li>slop16.dat – 3 <em>hexanol, heptanol, and octanol: “Minor differences in Gibbs energy, entropy, ω, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub> and c<sub>1</sub> values compared to <span class="citation">Shock and Helgeson (1990)</span>.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Shock (1993)</span> – 2 <em>ethylacetate and acetamide</em> (*)</p>
 <p><span class="citation">Shock and Koretsky (1993)</span> – 104 <em>metal-acetate complexes</em> (*)</p>
 <ul>
-<li>slop15.dat – 32 <em>“Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements.”</em> (‡)</li>
+<li>slop16.dat – 32 <em>“Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Shock and McKinnon (1993)</span> – 3 <em>CO, HCN, urea</em> (*)</p>
 <p><span class="citation">Schulte and Shock (1993)</span> – 10 <em>aldehydes</em> (*)</p>
 <ul>
-<li>slop15.dat – 1 <em>formaldehyde: “Entropy corrected to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote i in table 2 of <span class="citation">Schulte and Shock (1993)</span>.”</em> (‡)</li>
+<li>slop16.dat – 1 <em>formaldehyde: “Entropy corrected to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote i in table 2 of <span class="citation">Schulte and Shock (1993)</span>.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Shock and Koretsky (1995)</span> – 226 <em>metal-organic acid complexes</em> (*)</p>
 <ul>
 <li><p>slop98.dat – 6 <em>“These data were used in <span class="citation">Shock and Koretsky (1995)</span>, but were not tabulated in the paper.”</em> (*)</p></li>
-<li><p>slop15.dat – 55 <em>“Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements.”</em> (‡)</p></li>
+<li><p>slop16.dat – 55 <em>“Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements.”</em> (‡)</p></li>
 </ul>
 <p><span class="citation">Shock (1995)</span> – 77 <em>carboxylic acids</em> (*)</p>
 <ul>
-<li><p>slop15.dat – 2 <em>adipic acid and n-dodecanoate: “Gibbs free energy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote y in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
-<li><p>slop15.dat – 1 <em>n-octanoate: “Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote ab in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
+<li><p>slop16.dat – 2 <em>adipic acid and n-dodecanoate: “Gibbs free energy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote y in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
+<li><p>slop16.dat – 1 <em>n-octanoate: “Enthalpy corrected to be compatible with the equation ΔG=ΔH-TΔS for the formation reaction from elements. See footnote ab in table 4 of <span class="citation">Shock (1995)</span>.”</em> (‡)</p></li>
 </ul>
 <p><span class="citation">Dale et al. (1997)</span> – 10 <em>alkylphenols</em> (*)</p>
 <p><span class="citation">Haas and Shock (1999)</span> – 6 <em>chloroethylene species</em> (†)</p>
-<p><span class="citation">Prapaipong et al. (1999)</span> – 160 <em>metal-dicarboxylate complexes</em> (†)</p>
+<p><span class="citation">Prapaipong et al. (1999)</span> – 151 <em>metal-dicarboxylate complexes</em> (†)</p>
 <ul>
-<li><p>slop07.dat – 1 <em>corrected charge of Pu(Oxal)<sup>+2</sup></em> (†)</p></li>
-<li><p>CHNOSZ – 4 <em>charge of NpO2(Oxal), La(Succ)+, NH4(Succ)-, and NpO2(Succ) as listed by <span class="citation">Prapaipong et al. (1999)</span></em></p></li>
+<li>CHNOSZ – 2 <em>charge of NpO2(Oxal), La(Succ)+, NH4(Succ)-, and NpO2(Succ) as listed by <span class="citation">Prapaipong et al. (1999)</span></em></li>
 </ul>
 <p><span class="citation">Plyasunov and Shock (2001)</span> – 11 <em>aqueous nonelectrolytes</em> (†)</p>
 <p><span class="citation">Schulte and Rogers (2004)</span> – 12 <em>alkane thiols</em> (†)</p>
@@ -728,14 +738,14 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <li><span class="citation">Canovas and Shock (2016)</span> – 4 <em>citric acid species HKF a<sub>1</sub>–a<sub>4</sub> parameters</em></li>
 </ul>
 <p><span class="citation">LaRowe and Harold C. Helgeson (2006b)</span> – 32 <em>Mg-complexed adenosine nucleotides (ATP), NAD, and NADP</em> (†)</p>
-<p><span class="citation">Dick et al. (2006)</span> – 38 <em>amino acid, protein, and organic groups</em> (‡)</p>
+<p><span class="citation">Dick et al. (2006)</span> – 38 <em>amino acid, protein, and organic groups</em></p>
 <ul>
 <li><p><span class="citation">LaRowe and Dick (2012)</span> – 1 <em>methionine sidechain GHS</em></p></li>
-<li><p>CHNOSZ – 1 <em>Incorrect values of HKF a<sub>1</sub>–a<sub>4</sub> parameters for [-CH2NH2] were printed in Table 6 of <span class="citation">Dick et al. (2006)</span>; corrected values are used here.</em> (‡)</p></li>
+<li><p>CHNOSZ – 1 <em>Incorrect values of HKF a<sub>1</sub>–a<sub>4</sub> parameters for [-CH2NH2] were printed in Table 6 of <span class="citation">Dick et al. (2006)</span>; corrected values are used here.</em></p></li>
 </ul>
 <p><span class="citation">Dick et al. (2006)</span> – 19 <em>Gly-X-Gly tripeptides Cp, V, and HKF c<sub>1</sub>, c<sub>2</sub>, ω parameters</em></p>
 <p><span class="citation">Dick (2007)</span> – 4 <em>glutathione, cystine, and cystine sidechain</em></p>
-<p><span class="citation">LaRowe and Dick (2012)</span> – 1 <em>methionine GHS</em> (‡)</p>
+<p><span class="citation">LaRowe and Dick (2012)</span> – 1 <em>methionine GHS</em></p>
 <ul>
 <li><span class="citation">Dick et al. (2006)</span> – 1 <em>methionine HKF parameters</em> (†)</li>
 </ul>
@@ -794,7 +804,7 @@ The source of parameters used here for goethite is different from that in the sl
 <ul>
 <li><span class="citation">Zimmer et al. (2016)</span> – 1 <em>data listed in spronsbl.dat</em></li>
 </ul>
-<p><span class="citation">Hemingway et al. (1991)</span> – 1 <em>bohemite</em></p>
+<p><span class="citation">Hemingway et al. (1991)</span> – 1 <em>boehmite</em></p>
 <ul>
 <li><span class="citation">Zimmer et al. (2016)</span> – 1 <em>Cp parameters listed in spronsbl.dat</em></li>
 </ul>
@@ -843,16 +853,16 @@ The source of parameters used here for goethite is different from that in the sl
 <p><span class="citation">Grevel and Majzlan (2009)</span> – 4 <em>kieserite, starkeyite, hexahydrite, and epsomite</em></p>
 <p><span class="citation">Zimmer et al. (2016)</span> – 1 <em>dawsonite GHS</em></p>
 <ul>
-<li><span class="citation">Ferrante et al. (1976)</span> – 1 <em>dawsonite Cp (value at 25 °C as listed by <span class="citation">Bénézeth et al. (2007)</span>; not present in spronsbl.dat)</em></li>
+<li><span class="citation">Robie and Hemingway (1995)</span> – 1 <em>dawsonite: Cp coefficients corrected in <span class="citation">Tutolo et al. (2014)</span>; Cp value at 25 °C from <span class="citation">Bénézeth et al. (2007)</span>, citing <span class="citation">Ferrante et al. (1976)</span></em></li>
 </ul>
 </div>
 <div id="organic-479-1" class="section level4">
 <h4><code>Organic</code> (479)</h4>
 <p><span class="citation">Tardy et al. (1997)</span> – 5 <em>humic acid, microflora, and plants</em></p>
 <p><span class="citation">Helgeson et al. (1998)</span> – 59 <em>organic molecules and groups</em></p>
-<p><span class="citation">Helgeson et al. (1998)</span> – 20 <em>amino acids</em> (‡)</p>
+<p><span class="citation">Helgeson et al. (1998)</span> – 20 <em>amino acids</em></p>
 <ul>
-<li><span class="citation">LaRowe and Dick (2012)</span> – 4 <em>updated and corrected parameters for cysteine, glycine, leucine, and methionine</em> (‡)</li>
+<li><span class="citation">LaRowe and Dick (2012)</span> – 4 <em>updated and corrected parameters for cysteine, glycine, leucine, and methionine</em></li>
 </ul>
 <p><span class="citation">Richard and Helgeson (1998)</span> – 311 <em>organic molecules and groups</em></p>
 <p><span class="citation">Richard (2001)</span> – 8 <em>organic sulfur compounds</em></p>
@@ -860,11 +870,11 @@ The source of parameters used here for goethite is different from that in the sl
 <p><span class="citation">LaRowe and Harold C. Helgeson (2006b)</span> – 9 <em>Mg-complexed adenosine nucleotides (ATP), NAD, and NADP</em></p>
 <p><span class="citation">Helgeson et al. (2009)</span> – 5 <em>kerogens</em></p>
 <p><span class="citation">Richard and Gaona (2011)</span> – 13 <em>organic iodine compounds</em></p>
-<p><span class="citation">LaRowe and Dick (2012)</span> – 30 <em>4-hydroxyproline, 5-hydroxylysine, 4 dipeptides, and sidechain and backbone groups in proteins</em> (‡)</p>
+<p><span class="citation">LaRowe and Dick (2012)</span> – 30 <em>4-hydroxyproline, 5-hydroxylysine, 4 dipeptides, and sidechain and backbone groups in proteins</em></p>
 </div>
 </div>
-<div id="berman-86-1" class="section level3">
-<h3><code>Berman</code> (86)</h3>
+<div id="berman-90-1" class="section level3">
+<h3><code>Berman</code> (90)</h3>
 <p>This file gives the identifiying information for minerals whose properties are calculated using the formulation of <a href="https://doi.org/10.1093/petrology/29.2.445">Berman (1988)</a>. Note that thermodynamic properties for these minerals are listed as NA in <code>thermo()$obigt</code>; the actual data are stored separately, as CSV files in <code>extdata/Berman/*.csv</code>.</p>
 <p><span class="citation">Berman (1988)</span> – 67 <em>minerals</em></p>
 <ul>
@@ -881,7 +891,10 @@ The source of parameters used here for goethite is different from that in the sl
 <ul>
 <li><span class="citation">JUN92.bs (1992)</span> – 2 <em>data as listed in <code>JUN92.bs</code> data file</em></li>
 </ul>
+<p><span class="citation">Vidal et al. (1992)</span> – 1 <em>sudoite</em></p>
 <p><span class="citation">Zhu and Sverjensky (1992)</span> – 10 <em>F,Cl,OH biotite and apatite endmembers. GHS and V were taken from Table 6 of <span class="citation">Zhu and Sverjensky (1992)</span>; heat capacity and volume parameters from <code>berman.dat</code>.</em></p>
+<p><span class="citation">Vidal et al. (2001)</span> – 2 <em>daphnite and Mg-amesite</em></p>
+<p><span class="citation">Vidal et al. (2005)</span> – 1 <em>Fe-amesite</em></p>
 <p><span class="citation">Delgado Martín and Soler i Gil (2010)</span> – 5 <em>hedenbergite, andradite, ferro-actinolite, grunerite, and ilvaite</em></p>
 <p><span class="citation">Facq et al. (2014)</span> – 1 <em>aragonite; source of data: <code>berman.dat</code></em></p>
 </div>
@@ -926,7 +939,7 @@ The source of parameters used here for goethite is different from that in the sl
 <h3>Optional Data</h3>
 <div id="dew-199-1" class="section level4">
 <h4><code>DEW</code> (199)</h4>
-<p>The <a href="http://www.dewcommunity.org/">Deep Earth Water</a> (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by <a href="https://doi.org/10.1016/j.gca.2013.12.019">Sverjensky et al., 2014</a>. The data here were taken from the May 2017 version of the DEW spreadsheet (<a href="http://www.dewcommunity.org/resources.html">Dew Model, 2017</a>). The following species are present in the spreadsheet, but are not listed in <code>DEW_aq.csv</code> because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.</p>
+<p>The <a href="http://www.dewcommunity.org/">Deep Earth Water</a> (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by <a href="https://doi.org/10.1016/j.gca.2013.12.019">Sverjensky et al., 2014</a>. The data here were taken from the May 2017 version of the DEW spreadsheet (<a href="http://www.dewcommunity.org/resources.html">Dew Model, 2017</a>). The following species are present in the spreadsheet, but are not used here because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn.</p>
 Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to load these data, you should also run <span style="color:red"><code>water('DEW')</code></span> to activate the DEW equations in CHNOSZ. See <a href="../demo"><span style="color:blue"><code>demo(DEW)</code></span></a> for some examples.
 <hr>
 <p><span class="citation">Shock and Helgeson (1988)</span> – 2 <em>ionic species</em></p>
@@ -960,9 +973,9 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <li><p><span class="citation">DEW model (2017)</span> – 1 <em>NaCl: revised with new predicted a1 for complex species</em></p></li>
 </ul>
 </div>
-<div id="supcrt92-186-1" class="section level4">
-<h4><code>SUPCRT92</code> (186)</h4>
-<p>These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by <span class="citation">Berman (1988)</span> (minerals) and <span class="citation">Nordstrom and Archer (2003)</span> (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from <span class="citation">Helgeson et al. (1978)</span>, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red"><code>add.obigt(&quot;SUPCRT92&quot;)</code></span> to load the data. Note that other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (<strong>inorganic_cr.csv</strong>).</p>
+<div id="supcrt92-185-1" class="section level4">
+<h4><code>SUPCRT92</code> (185)</h4>
+<p>These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by <span class="citation">Berman (1988)</span> (minerals) and <span class="citation">Nordstrom and Archer (2003)</span> (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from <span class="citation">Helgeson et al. (1978)</span>, as well as calcite, dolomite, hematite, and magnetite. Use <span style="color:red"><code>add.obigt(&quot;SUPCRT92&quot;)</code></span> to load the data. <strong>NOTE:</strong> Other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (<strong>inorganic_cr.csv</strong>).</p>
 <p><span class="citation">Helgeson et al. (1978)</span> – 183 <em>data for minerals and phase transitions</em> (ø)</p>
 <ul>
 <li><p><span class="citation">Kelley (1960)</span> – 1 <em>larnite Cp</em> (ø)</p></li>
@@ -978,11 +991,11 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <li><p><span class="citation">Bowers and Helgeson (1983)</span> – 1 <em>rutile</em> (ø)</p></li>
 <li><p>sprons92.dat – 1 <em>titanite: <span class="citation">Bowers and Helgeson (1983)</span> + “Gibbs free energies and enthalpies were corrected to be consistent with updated values of Gibbs free energies of Ca<sup>2+</sup> and CO<sub>3</sub><sup>2-</sup> <span class="citation">(Shock and Helgeson, 1988)</span> together with the solubilities of calcite and aragonite reported by <span class="citation">Plummer and Busenberg (1982)</span>”</em> (ø)</p></li>
 </ul>
-<p><span class="citation">Shock and Helgeson (1988)</span> – 1 <em>H<sub>2</sub>AsO<sub>3</sub><sup>-</sup></em> (ø)</p>
 </div>
-<div id="slop98-119-1" class="section level4">
-<h4><code>SLOP98</code> (119)</h4>
-<p>These species, many of which were taken from slop98.dat and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with other updates for aqueous Al species <span class="citation">(Tagirov and Schott, 2001)</span>, As species <span class="citation">(Nordstrom and Archer, 2003)</span>, Au, Ag, and Cu species <span class="citation">(Akinfiev and Zotov, 2001; Akinfiev and Zotov, 2010)</span>, Pd species <span class="citation">(Tagirov et al., 2013)</span>, Zn species <span class="citation">(Akinfiev and Tagirov, 2014)</span>, and Pt species <span class="citation">(Tagirov et al., 2015)</span>. The data are kept here to enable comparisons with newer data and reproduction of published calculations. Use <span style="color:red"><code>add.obigt(&quot;SLOP98&quot;)</code></span> to load the data.</p>
+<div id="slop98-169-1" class="section level4">
+<h4><code>SLOP98</code> (169)</h4>
+<p>These species, which were taken from or are linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database, including aqueous Al species <span class="citation">(Tagirov and Schott, 2001)</span>, As species <span class="citation">(Nordstrom and Archer, 2003)</span>, Au, Ag, and Cu species <span class="citation">(Akinfiev and Zotov, 2001; Akinfiev and Zotov, 2010)</span>, Pd species <span class="citation">(Tagirov et al., 2013)</span>, Zn species <span class="citation">(Akinfiev and Tagirov, 2014)</span>, and Pt species <span class="citation">(Tagirov et al., 2015)</span>. This file also contains aqueous transuranic actinide complexes, for which estimated thermodynamic properties have been reported, but no entropies of the corresponding elements at 298.15 K are available to check the self-consistency of the GHS values for the complexes. Use <span style="color:red"><code>add.obigt(&quot;SLOP98&quot;)</code></span> to load the data. <strong>NOTE:</strong> Many other species found in slop98.dat and later versions are still present in the default database.</p>
+<p><span class="citation">Shock and Helgeson (1988)</span> – 1 <em>H<sub>2</sub>AsO<sub>3</sub><sup>-</sup></em> (ø)</p>
 <p><span class="citation">Shock and Helgeson (1988)</span> – 1 <em>Ag<sup>+</sup></em> (ø)</p>
 <p><span class="citation">Shock and Koretsky (1993)</span> – 9 <em>Ag-, Au-, Cu(I)- and Al-acetate complexes</em> (*)</p>
 <p><span class="citation">McCollom and Shock (1997)</span> – 1 <em>aqueous HCl</em> (*)</p>
@@ -1004,18 +1017,25 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p><span class="citation">Sverjensky et al. (1997)</span> – 10 <em>Au-, Ag-, Cu- and Zn-chloride complexes</em> (*)</p>
 <p><span class="citation">Sverjensky et al. (1997)</span> – 3 <em>Zn-acetate complexes</em> (*)</p>
 <ul>
-<li>slop15.dat – 1 <em>Zn(Ac)3-: “Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote h in table 2 of <span class="citation">Sverjensky et al. (1997)</span>.”</em> (‡)</li>
+<li>slop16.dat – 1 <em>Zn(Ac)3-: “Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote h in table 2 of <span class="citation">Sverjensky et al. (1997)</span>.”</em> (‡)</li>
 </ul>
 <p><span class="citation">Sassani and Shock (1998)</span> – 20 <em>Pd<sup>+2</sup> and Pt<sup>+2</sup> and their complexes</em> (*)</p>
+<p><span class="citation">Murphy and Shock (1999)</span> – 38 <em>actinides</em> (†)</p>
+<p><span class="citation">Prapaipong et al. (1999)</span> – 9 <em>metal-dicarboxylate complexes</em> (†)</p>
+<ul>
+<li><p>slop07.dat – 1 <em>corrected charge of Pu(Oxal)<sup>+2</sup></em> (†)</p></li>
+<li><p>CHNOSZ – 2 <em>charge of NpO2(Oxal), La(Succ)+, NH4(Succ)-, and NpO2(Succ) as listed by <span class="citation">Prapaipong et al. (1999)</span></em></p></li>
+</ul>
 <p><span class="citation">Prapaipong et al. (1999)</span> – 2 <em>Al(Mal)<sup>+</sup> and Al(Oxal)<sup>+</sup></em> (†)</p>
 <p><span class="citation">Marini and Accornero (2007)</span> – 52 <em>metal-arsenate and metal-arsenite complexes; linked to properties of arsenate and arsenite from <span class="citation">Shock et al. (1997)</span></em></p>
 <ul>
 <li><span class="citation">Marini and Accornero (2010)</span> – 52 <em>corrected values</em></li>
 </ul>
+<p><span class="citation">Accornero et al. (2010)</span> – 2 <em>Np- and Am-chromate complexes</em></p>
 </div>
 <div id="oldaa-64-1" class="section level4">
 <h4><code>OldAA</code> (64)</h4>
-<p>Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates <span class="citation">(LaRowe and Dick, 2012; Kitadai, 2014; Azadi et al., 2019)</span>. The data are kept here to reproduce published calculations and for comparison with newer data. Use <span style="color:red"><code>add.obigt(&quot;OldAA&quot;)</code></span> to load the data.</p>
+<p>Data for these amino acids and related species were present in earlier versions of CHNOSZ but have been replaced by or are incompatible with later updates <span class="citation">(LaRowe and Dick, 2012; Kitadai, 2014; Azadi et al., 2019)</span>. Use <span style="color:red"><code>add.obigt(&quot;OldAA&quot;)</code></span> to load the data.</p>
 <p><span class="citation">Shock (1992)</span> – 4 <em>diglycine, alanylglycine, leucylglycine, and diketopiperazine; not present in slop files after slop98.dat</em> (*)</p>
 <p><span class="citation">Shock and Koretsky (1995)</span> – 54 <em>alanate, glycinate and their complexes with metals. Values are taken from slop98.dat, which notes corrected values for some species.</em> (*)</p>
 <ul>
@@ -1028,13 +1048,14 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 </ul>
 <p><span class="citation">Dick et al. (2006)</span> – 3 <em>[Gly], [Met], and [UPBB]</em></p>
 </div>
-<div id="as04-2-1" class="section level4">
-<h4><code>AS04</code> (2)</h4>
-<p>This file has data for aqueous SiO<sub>2</sub> from <span class="citation">Apps and Spycher (2004)</span> and modified HSiO<sub>3</sub><sup>-</sup>. Use <span style="color:red"><code>add.obigt(&quot;AS04&quot;)</code></span> to load the data; see <a href="../demo"><span style="color:blue"><code>demo(go-IU)</code></span></a> for an example.</p>
+<div id="as04-3-1" class="section level4">
+<h4><code>AS04</code> (3)</h4>
+<p>This file has data for aqueous SiO<sub>2</sub> from <span class="citation">Apps and Spycher (2004)</span> and a modified HSiO<sub>3</sub><sup>-</sup> to be consistent with the SiO<sub>2</sub> here. This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication <span class="citation">(Stefánsson, 2001)</span> that is roughly consistent with SiO<sub>2</sub> here (see <span style="color:red"><code><a href="../html/add.obigt.html" style="color:red;">?add.obigt</a></code></span>). Use <span style="color:red"><code>add.obigt(&quot;AS04&quot;)</code></span> to load the data; see <a href="eos-regress.html"><span style="color:blue"><em>Regressing thermodynamic data</em></span></a> for an example.</p>
 <p><span class="citation">Sverjensky et al. (1997)</span> – 1 <em>HSiO<sub>3</sub><sup>-</sup></em> (*)</p>
 <ul>
 <li>CHNOSZ – 1 <em>GHS recalculated by adding difference from SiO<sub>2</sub> <span class="citation">(Sverjensky et al., 1997)</span> to updated values for SiO<sub>2</sub> <span class="citation">(Apps and Spycher, 2004)</span></em></li>
 </ul>
+<p><span class="citation">Stefánsson (2001)</span> – 1 <em>aqueous H<sub>4</sub>SiO<sub>4</sub></em></p>
 <p><span class="citation">Apps and Spycher (2004)</span> – 1 <em>aqueous SiO<sub>2</sub></em></p>
 </div>
 <div id="akdi-21-1" class="section level4">
@@ -1049,7 +1070,7 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 </div>
 <div id="total-count-of-species" class="section level1">
 <h1>Total count of species</h1>
-<p>3406 of 3406 entries in <code>thermo()$obigt</code> and 591 optional data entries are documented here.</p>
+<p>3360 of 3360 entries in <code>thermo()$obigt</code> and 641 optional data entries are documented here.</p>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
@@ -1061,7 +1082,7 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p>Akinfiev NN, Diamond LW. 2003. Thermodynamic description of aqueous nonelectrolytes at infinite dilution over a wide range of state parameters. <em>Geochimica et Cosmochimica Acta</em> <strong>67</strong>(4): 613–629. doi: <a href="https://doi.org/10.1016/S0016-7037(02)01141-9">10.1016/S0016-7037(02)01141-9</a></p>
 </div>
 <div id="ref-AP14">
-<p>Akinfiev NN, Plyasunov AV. 2014. Application of the Akinfiev–Diamond equation of state to neutral hydroxides of metalloids (B(OH)<span class="math inline"><em></em><sub>3</sub></span>, Si(OH)<span class="math inline"><em></em><sub>4</sub></span>, As(OH)<span class="math inline"><em></em><sub>3</sub></span>) at infinite dilution in water over a wide range of the state parameters, including steam conditions. <em>Geochimica et Cosmochimica Acta</em> <strong>126</strong>: 338–351. doi: <a href="https://doi.org/10.1016/j.gca.2013.11.013">10.1016/j.gca.2013.11.013</a></p>
+<p>Akinfiev NN, Plyasunov AV. 2014. Application of the Akinfiev-Diamond equation of state to neutral hydroxides of metalloids (B(OH)<span class="math inline"><em></em><sub>3</sub></span>, Si(OH)<span class="math inline"><em></em><sub>4</sub></span>, As(OH)<span class="math inline"><em></em><sub>3</sub></span>) at infinite dilution in water over a wide range of the state parameters, including steam conditions. <em>Geochimica et Cosmochimica Acta</em> <strong>126</strong>: 338–351. doi: <a href="https://doi.org/10.1016/j.gca.2013.11.013">10.1016/j.gca.2013.11.013</a></p>
 </div>
 <div id="ref-AT14">
 <p>Akinfiev NN, Tagirov BR. 2014. Zn in hydrothermal systems: Thermodynamic description of hydroxide, chloride, and hydrosulfide complexes. <em>Geochemistry International</em> <strong>52</strong>(3): 197–214. doi: <a href="https://doi.org/10.1134/S0016702914030021">10.1134/S0016702914030021</a></p>
@@ -1358,13 +1379,13 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p>Shock EL, Sassani DC, Willis M, Sverjensky DA. 1997. Inorganic species in geologic fluids: Correlations among standard molal thermodynamic properties of aqueous ions and hydroxide complexes. <em>Geochimica et Cosmochimica Acta</em> <strong>61</strong>(5): 907–950. doi: <a href="https://doi.org/10.1016/S0016-7037(96)00339-0">10.1016/S0016-7037(96)00339-0</a></p>
 </div>
 <div id="ref-SLOP07">
-<p>slop07.dat. 2007. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 2008-04-17. Accessed from http://geopig.asu.edu/?q=tools on 2017-03-02.</p>
+<p>slop07.dat. 2007. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 2008-04-17. Accessed on 2019-04-08. doi: <a href="https://doi.org/10.5281/zenodo.2630820">10.5281/zenodo.2630820</a></p>
 </div>
-<div id="ref-SLOP15">
-<p>slop15.dat. 2015. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 2015-03-03. Accessed from http://geopig.asu.edu/?q=tools on 2017-03-03.</p>
+<div id="ref-SLOP16">
+<p>slop16.dat. 2016. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 2019-03-12. Accessed on 2019-04-08. doi: <a href="https://doi.org/10.5281/zenodo.2630820">10.5281/zenodo.2630820</a></p>
 </div>
 <div id="ref-SLOP98">
-<p>slop98.dat. 1998. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 1998-08-20. Accessed from http://geopig.asu.edu/?q=tools on 2017-03-01.</p>
+<p>slop98.dat. 1998. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 1998-08-20. Accessed on 2019-04-08. doi: <a href="https://doi.org/10.5281/zenodo.2630820">10.5281/zenodo.2630820</a></p>
 </div>
 <div id="ref-SPRONS92">
 <p>sprons92.dat. 1992. S[equential-access] pro[perties of] n[atural] s[ubstances].dat; datafile used by PROGRAM supcrt91. Included with the SUPCRT92 package (Johnson et al., 1992). Last updated on 1991-02-15.</p>
@@ -1402,6 +1423,18 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <div id="ref-TSD97">
 <p>Tardy Y, Schaul R, Duplay J. 1997. Domaines de stabilité thermodynamiques des humus, de la microflore et des plantes. <em>Comptes Rendus de l’Academie des Sciences, Serie IIa: Sciences de la Terre et des Planetes</em> <strong>324</strong>(12): 969–976. doi: <a href="https://doi.org/10.1016/S1251-8050(97)83981-X">10.1016/S1251-8050(97)83981-X</a></p>
 </div>
+<div id="ref-TKSS14">
+<p>Tutolo BM, Kong X-Z, Seyfried J William E., Saar MO. 2014. Internal consistency in aqueous geochemical data revisited: Applications to the aluminum system. <em>Geochimica et Cosmochimica Acta</em> <strong>133</strong>: 216–234. doi: <a href="https://doi.org/10.1016/j.gca.2014.02.036">10.1016/j.gca.2014.02.036</a></p>
+</div>
+<div id="ref-VGT92">
+<p>Vidal O, Goffé B, Theye T. 1992. Experimental study of the stability of sudoite and magnesiocarpholite and calculation of a new petrogenetic grid for the system FeO–MgO–Al<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–SiO<span class="math inline"><em></em><sub>2</sub></span>–H<span class="math inline"><em></em><sub>2</sub></span>O. <em>Journal of Metamorphic Geology</em> <strong>10</strong>(5): 603–614. doi: <a href="https://doi.org/10.1111/j.1525-1314.1992.tb00109.x">10.1111/j.1525-1314.1992.tb00109.x</a></p>
+</div>
+<div id="ref-VPT01">
+<p>Vidal O, Parra T, Trotet F. 2001. A thermodynamic model for fe-mg aluminous chlorite using data from phase equilibrium experiments and natural pelitic assemblages in the 100° to 600°C, 1 to 25 kb range. <em>American Journal of Science</em> <strong>301</strong>(6): 557–592. doi: <a href="https://doi.org/10.2475/ajs.301.6.557">10.2475/ajs.301.6.557</a></p>
+</div>
+<div id="ref-VPV05">
+<p>Vidal O, Parra T, Viellard P. 2005. Thermodynamic properties of the Tschermak solid solution in Fe-chlorite: Application to natural examples and possible role of oxidation. <em>American Mineralogist</em> <strong>90</strong>(2-3): 347–358. Mineralogical Society of America. doi: <a href="https://doi.org/10.2138/am.2005.1554">10.2138/am.2005.1554</a></p>
+</div>
 <div id="ref-WEP+82">
 <p>Wagman DD, Evans WH, Parker VB, Schumm RH, Halow I, Bailey SM, Churney KL, Nuttall RL. 1982. The NBS tables of chemical thermodynamic properties. Selected values for inorganic and C<span class="math inline"><em></em><sub>1</sub></span> and C<span class="math inline"><em></em><sub>2</sub></span> organic substances in SI units. <em>Journal of Physical and Chemical Reference Data</em> <strong>11</strong>(Suppl. 2): 1–392. Available at <a href="https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf" class="uri">https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf</a>. </p>
 </div>
@@ -1418,7 +1451,7 @@ Besides using <span style="color:red"><code>add.obigt('DEW')</code></span> to lo
 <p>Zhu C, Sverjensky DA. 1992. F-Cl-OH partitioning between biotite and apatite. <em>Geochimica et Cosmochimica Acta</em> <strong>56</strong>(9): 3435–3467. doi: <a href="https://doi.org/10.1016/0016-7037(92)90390-5">10.1016/0016-7037(92)90390-5</a></p>
 </div>
 <div id="ref-ZZX+05">
-<p>Zhu Y, Zhang X, Xie Q, Chen Y, Wang D, Liang Y, Lu J. 2005. Solubility and stability of barium arsenate and barium hydrogen arsenate at 25 °C. <em>Journal of Hazardous materials</em> <strong>120</strong>(1): 37–44. doi: <a href="https://doi.org/10.1016/j.jhazmat.2004.12.025">10.1016/j.jhazmat.2004.12.025</a></p>
+<p>Zhu Y, Zhang X, Xie Q, Chen Y, Wang D, Liang Y, Lu J. 2005. Solubility and stability of barium arsenate and barium hydrogen arsenate at 25 °C. <em>Journal of Hazardous Materials</em> <strong>120</strong>(1): 37–44. doi: <a href="https://doi.org/10.1016/j.jhazmat.2004.12.025">10.1016/j.jhazmat.2004.12.025</a></p>
 </div>
 <div id="ref-ZZL+16">
 <p>Zimmer K, Zhang Y, Lu P, Chen Y, Zhang G, Dalkilic M, Zhu C. 2016. SUPCRTBL: A revised and extended thermodynamic dataset and software package of SUPCRT92. <em>Computers &amp; Geosciences</em> <strong>90</strong>: 97–111. doi: <a href="https://doi.org/10.1016/j.cageo.2016.02.013">10.1016/j.cageo.2016.02.013</a></p>

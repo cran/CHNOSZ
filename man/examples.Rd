@@ -16,8 +16,9 @@
   demos(which = c("sources", "protein.equil", "affinity", "NaCl",
     "density", "ORP", "revisit", "findit", "ionize", "buffer",
     "protbuff", "yeastgfp", "glycinate", "mosaic", "copper",
-    "solubility", "gold", "wjd", "bugstab", "Shh", "saturation",
-    "adenine", "DEW", "lambda", "TCA", "go-IU", "bison", "AkDi"),
+    "arsenic", "solubility", "gold", "contour", "wjd", "bugstab",
+    "Shh", "saturation", "adenine", "DEW", "lambda", "TCA", "aluminum",
+    "bison", "AkDi"),
     save.png=FALSE)
 }
 
@@ -45,8 +46,10 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \code{glycinate} \tab Metal-glycinate complexes (Shock and Koretsky, 1995; Azadi et al., 2019) \cr
     \code{mosaic} \tab Eh-pH diagram with two sets of changing basis species (Garrels and Christ, 1965) \cr
     \code{copper} \tab Another example of \code{\link{mosaic}}: complexation of Cu with glycine (Aksu and Doyle, 2001) \cr
+    \code{arsenic} \tab Another example of \code{\link{mosaic}}: Eh-pH diagram for the system As-O-H-S (Lu and Zhu, 2011) \cr
     \code{solubility} \tab Solubility of calcite (cf. Manning et al., 2013) and \CO2 (cf. Stumm and Morgan, 1996) \cr
     \code{gold} \tab Solubility of gold (Akinfiev and Zotov; 2001; Stef{\aacute}nsson and Seward, 2004; Williams-Jones et al., 2009) \cr
+    \code{contour} \tab Gold solubility contours on a log fO2 - pH diagram (Williams-Jones et al., 2009) \cr
     \code{wjd} \tab \eqn{G}{G} minimization: prebiological atmospheres (Dayhoff et al., 1964) and cell periphery of yeast \cr
     \code{dehydration} \tab \logK of dehydration reactions; SVG file contains tooltips and links \cr
     \code{bugstab} \tab Formation potential of microbial proteins in colorectal cancer (Dick, 2016) \cr
@@ -56,7 +59,7 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \code{DEW} \tab Deep Earth Water (DEW) model for high pressures (Sverjensky et al., 2014a and 2014b) \cr
     \code{lambda} \tab Effects of lambda transition on thermodynamic properties of quartz (Berman, 1988) \cr
     \code{TCA} \tab Standard Gibbs energies of the tricarboxylic (citric) acid cycle (Canovas and Shock, 2016) \cr
-    \code{go-IU} \tab Diagrams using thermodynamic data in the SUPCRTBL compilation (Zimmer et al., 2016) \cr
+    \code{aluminum} \tab Reactions involving Al-bearing minerals (Zimmer et al., 2016; Tutolo et al., 2014) \cr
     \code{carboxylase} \tab Rank abundance distribution for RuBisCO and acetyl-CoA carboxylase \cr
     \code{bison} \tab Average oxidation state of carbon in proteins for phyla at Bison Pool (Dick and Shock, 2013) \cr
     \code{AkDi} \tab Henry's constant of dissolved gases (Akinfiev and Diamond, 2003) \cr
@@ -118,6 +121,8 @@ Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibri
 Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
 
 Lowe, A. R., Cox, J. S. and Tremaine, P. R. (2017) Thermodynamics of aqueous adenine: Standard partial molar volumes and heat capacities of adenine, adeninium chloride, and sodium adeninate from \emph{T} = 278.15 K to 393.15 K. \emph{J. Chem. Thermodyn.} \bold{112}, 129--145. \url{https://doi.org/10.1016/j.jct.2017.04.005}
+
+Lu, P. and Zhu, C. (2011) Arsenic Eh--pH diagrams at 25\degC and 1 bar. \emph{Environ. Earth Sci.} \bold{62}, 1673--1683. \url{https://doi.org/10.1007/s12665-010-0652-x}
   
 Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \url{https://doi.org/10.2138/rmg.2013.75.5}
 
@@ -136,6 +141,8 @@ Sverjensky, D. A., Harrison, B. and Azzolini, D. (2014a) Water in the deep Earth
 Sverjensky, D. A., Hemley, J. J. and D'Angelo, W. M. (1991) Thermodynamic assessment of hydrothermal alkali feldspar-mica-aluminosilicate equilibria. \emph{Geochim. Cosmochim. Acta} \bold{55}, 989-1004. \url{https://doi.org/10.1016/0016-7037(91)90157-Z}
 
 Sverjensky, D. A., Stagno, V. and Huang, F. (2014b) Important role for organic carbon in subduction-zone fluids in the deep carbon cycle. \emph{Nat. Geosci.} \bold{7}, 909--913. \url{https://doi.org/10.1038/ngeo2291}
+
+Tutolo, B. M., Kong, X.-Z., Seyfried, W. E., Jr. and Saar, M. O. (2014) Internal consistency in aqueous geochemical data revisited: Applications to the aluminum system. \emph{Geochim. Cosmochim. Acta} \bold{133}, 216--234. \url{https://doi.org/10.1016/j.gca.2014.02.036}
 
 Williams-Jones, A. E., Bowell, R. J. and Migdisov, A. A. (2009) Gold in solution. \emph{Elements} \bold{5}, 281--287. \url{https://doi.org/10.2113/gselements.5.5.281}
 

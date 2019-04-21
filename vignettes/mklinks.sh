@@ -96,3 +96,8 @@ sed -i '120,$s/seq()/<a href="..\/..\/base\/html\/seq.html" style="background-im
 sed -i '120,$s/substitute()/<a href="..\/..\/base\/html\/substitute.html" style="background-image:none;">substitute()<\/a>/g' anintro.html
 sed -i '120,$s/for()/<a href="..\/..\/base\/html\/Control.html" style="background-image:none;">for()<\/a>/g' anintro.html
 sed -i '120,$s/browseURL()/<a href="..\/..\/utils\/html\/browseURL.html" style="background-image:none;">browseURL()<\/a>/g' anintro.html
+
+# add links to obigt.Rmd
+sed -i '120,$s/<code>add.obigt()<\/code>/<code><a href="..\/html\/add.obigt.html" style="color:red;">add.obigt()<\/a><\/code>/g' obigt.html
+sed -i '120,$s/<code>reset()<\/code>/<code><a href="..\/html\/reset.html" style="color:red;">reset()<\/a><\/code>/g' obigt.html
+sed -i 's/<code>?add.obigt<\/code>/<code><a href="..\/html\/add.obigt.html" style="color:red;">?add.obigt<\/a><\/code>/g' obigt.html

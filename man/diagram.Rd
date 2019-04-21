@@ -26,7 +26,7 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
     contour.method = "edge",
     # colors
     col = par("col"), col.names = par("col"), fill = NULL,
-    fill.NA = "slategray1", limit.water = TRUE,
+    fill.NA = "gray80", limit.water = TRUE,
     # field and line labels
     names = NULL, format.names = TRUE, bold = FALSE, italic = FALSE, 
     font = par("font"), family = par("family"), adj = 0.5, dy = 0, srt = 0,
@@ -134,8 +134,10 @@ To connect the points with splines instead of lines, set \code{spline.method} to
 \section{2-D diagrams}{
 On 2-D diagrams, the fields represent the species with the highest equilibrium activity.
 \code{fill} determines the color of the predominance fields, \code{col} that of the boundary lines.
-By default, \code{\link{heat.colors}} are used to fill the predominance fields in diagrams on the screen plot device.
-\code{fill} can be any color specification, or the word \samp{rainbow}, \samp{heat}, \samp{terrain}, \samp{topo}, or \samp{cm}, indicating a palette from \pkg{grDevices}.
+The default of NULL for \code{fill} produces transparent predominance fields.
+\code{fill} can be any \code{\link{colors}}, or the word \samp{rainbow}, \samp{heat}, \samp{terrain}, \samp{topo}, or \samp{cm}, indicating a palette from \pkg{grDevices}.
+Starting with \R version 3.6.0, \code{fill} can be the name of any available HCL color palette, matched in the same way as the \code{palette} argument of \code{hcl.colors}.
+
 \code{fill.NA} gives the color for empty fields, i.e. points for which NA values are present, possibly by using \code{\link{equilibrate}} at extreme conditions (see \code{test-diagram.Rd}).
 \code{fill.NA} is also used to specify the color outside the water stability limits on Eh-pH or pe-pH diagrams, when \code{limit.water} is TRUE.
 Note that the default for \code{fill.NA} is automatically changed to \samp{transparent} when \code{add} is TRUE.
@@ -262,6 +264,22 @@ water.lines(d, lwd=2)
 text(3, 22, describe.basis(thermo()$basis[2:3,], digits=2, oneline=TRUE))
 text(3, 21, describe.property(c("T", "P"), c(25, 1), oneline=TRUE))
 
+## aqueous Al species, after Tagirov and Schott, 2001
+# this uses a HCL palette for the fill colors
+basis(c("Al+3", "F-", "H+", "O2", "H2O"))
+AlOH <- c("Al(OH)4-", "Al(OH)3", "Al(OH)2+", "AlOH+2")
+Al <- "Al+3"
+AlF <- c("AlF+2", "AlF2+", "AlF3", "AlF4-")
+AlOHF <- c("Al(OH)2F2-", "Al(OH)2F", "AlOHF2")
+species(c(AlOH, Al, AlF, AlOHF), "aq")
+res <- 300
+a <- affinity(pH = c(0.5, 6.5, res), `F-` = c(-2, -9, res), T = 200)
+diagram(a, fill = "terrain")
+dprop <- describe.property(c("T", "P"), c(200, "Psat"))
+legend("topright", legend = dprop, bty = "n")
+mtitle(c("Aqueous aluminum species",
+         "After Tagirov and Schott, 2001 Fig. 4d"), cex = 0.95)
+
 ## Temperature-Pressure: kayanite-sillimanite-andalusite
 # cf. Fig. 49 of Helgeson et al., 1978
 # this is a system of one component (Al2SiO5), however:
@@ -298,6 +316,9 @@ stopifnot(species()$name[d$predominant[99, 101]]=="sillimanite")
   LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \url{https://doi.org/10.1111/j.1472-4669.2007.00099.x}
 
   Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N. (2006) Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe\s{2}(SO\s{4})\s{3}(H\s{2}O)\s{5}. \emph{Eur. J. Mineral.} \bold{18}, 175--186. \url{https://doi.org/10.1127/0935-1221/2006/0018-0175}
+
+  Tagirov, B. and Schott, J. (2001) Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta} \bold{65}, 3965--3992. \url{https://doi.org/10.1016/S0016-7037(01)00705-0}
+
 }
 
 \concept{Main workflow}

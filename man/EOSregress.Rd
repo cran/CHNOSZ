@@ -87,7 +87,7 @@ If \code{var} is a user-defined function, the function can be given a \samp{labe
 \code{EOScoeffs} retrieves coefficients in the Helgeson-Kirkham-Flowers equations from the thermodynamic database (\code{\link{thermo}$obigt}) for the given aqueous \code{species}.
 If the \code{property} is \samp{Cp}, the resulting data frame has column names of \samp{(Intercept)}, \samp{invTTheta2} and \samp{TX}, respectively holding the coefficients \eqn{c_1}{c1}, \eqn{c_2}{c2} and \eqn{\omega}{omega} in the equation \eqn{Cp^\circ = c_1 + c_2/(T-\Theta)^2 + {\omega}TX}{Cp = c1 + c2/(T-Theta)^2 + omega*TX}.
 If the \code{property} is \samp{V}, the data frame has column names of \samp{(Intercept)}, \samp{invTTheta} and \samp{Q}, respectively holding the coefficients \eqn{\sigma}{sigma}, \eqn{\xi}{xi} and \eqn{\omega}{omega} in \eqn{V^\circ = \sigma + \xi/(T-\Theta) - {\omega}Q}{V = sigma + xi/(T-Theta) - omega*Q}.
-Here, \eqn{\sigma}{sigma} and \eqn{\xi}{xi} are calculated from a1, a2, a3 and a4 in \code{thermo$obigt} at the pressure indicated by \code{P} (default 1 bar).
+Here, \eqn{\sigma}{sigma} and \eqn{\xi}{xi} are calculated from a1, a2, a3 and a4 in \code{thermo()$obigt} at the pressure indicated by \code{P} (default 1 bar).
 
 The original motivation for writing these functions was to explore alternatives or possible modifications to the revised Helgeson-Kirkham-Flowers equations applied to aqueous nonelectrolytes.
 As pointed out by Schulte et al., 2001, the functional forms of the equations do not permit retrieving values of the solvation parameter (\eqn{\omega}{omega}) that closely represent the observed trends in both heat capacity and volume at high temperatures (above ca. 200 \degC).
@@ -121,7 +121,7 @@ The vignette \emph{Regressing thermodynamic data} has more references and exampl
 \dontshow{reset()}
 ## fit experimental heat capacities of CH4
 ## using revised Helgeson-Kirkham-Flowers equations
-# read the data from Hnědkovský and Wood, 1997
+# read the data from Hnedkovsky and Wood, 1997
 f <- system.file("extdata/cpetc/Cp.CH4.HW97.csv", package="CHNOSZ")
 d <- read.csv(f)
 # have to convert J to cal and MPa to bar
@@ -137,16 +137,17 @@ EOScalc(EOSlm$coefficients, 298.15, 1)
 CH4coeffs <- EOScoeffs("CH4", "Cp")
 ## make plots comparing the regressions
 ## with the accepted EOS parameters of CH4
-par(mfrow=c(2,2))
+opar <- par(mfrow=c(2,2))
 EOSplot(d, T.max=600)
 title("Cp of CH4(aq), fit to 600 K")
-legend("bottomleft", pch=1, legend="Hnědkovský and Wood, 1997")
+legend("bottomleft", pch=1, legend="Hnedkovsky and Wood, 1997")
 EOSplot(d, coefficients=CH4coeffs)
 title("Cp from EOS parameters in database")
 EOSplot(d, T.max=600, T.plot=600)
 title("Cp fit to 600 K, plot to 600 K")
 EOSplot(d, coefficients=CH4coeffs, T.plot=600)
 title("Cp from EOS parameters in database")
+par(opar)
 
 # continuing from above, with user-defined variables
 Theta <- 228  # K 
@@ -173,11 +174,11 @@ d$P <- convert(d$P, "bar")
 varHKF <- c("invTTheta", "QBorn")
 # alpha is the expansivity coefficient of water
 varal <- c("invTTheta", "alpha")
-par(mfrow=c(2,2))
+opar <- par(mfrow=c(2,2))
 # for both HKF and the expansivity equation
 # we'll fit up to a temperature limit
 EOSplot(d, varHKF, T.max=663, T.plot=625)
-legend("bottomright", pch=1, legend="Hnědkovský et al., 1996")
+legend("bottomright", pch=1, legend="Hnedkovsky et al., 1996")
 title("V of CH4(aq), HKF equation")
 EOSplot(d, varal, T.max=663, T.plot=625)
 title("V of CH4(aq), expansivity equation")
@@ -185,6 +186,7 @@ EOSplot(d, varHKF, T.max=663)
 title("V of CH4(aq), HKF equation")
 EOSplot(d, varal, T.max=663)
 title("V of CH4(aq), expansivity equation")
+par(opar)
 # note that the volume regression using the HKF gives
 # a result for omega (coefficient on Q) that is
 # not consistent with the high-T heat capacities

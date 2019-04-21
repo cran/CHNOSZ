@@ -76,7 +76,7 @@ knit_hooks$set(warning = color_block('magenta'), error = color_block('red'), mes
 ## ----library_CHNOSZ-----------------------------------------------------------
 library(CHNOSZ)
 
-## ----data_thermo--------------------------------------------------------------
+## ----reset--------------------------------------------------------------------
 reset()
 
 ## ----pseudocode, eval=FALSE---------------------------------------------------
@@ -130,15 +130,9 @@ info("methane")
 ## ----info_methane_gas---------------------------------------------------------
 info("methane", "gas")
 
-## ----info_methane_test, echo=FALSE, results="hide"----------------------------
-# this prevents the vignette from compiling in case
-# database updates cause the species index of methane to change
-stopifnot(info("methane")==881)
-# it is up to the editor of this vignette to ensure that number
-# is used in the hard-coded examples below!
-
-## ----info_881, message=FALSE--------------------------------------------------
-info(881)
+## ----info_imethane, message=FALSE---------------------------------------------
+imethane <- info("methane")
+info(imethane)
 
 ## ----info_info_water----------------------------------------------------------
 info(info("water"))
@@ -155,17 +149,17 @@ options(width = 80)
 ## ----info_ribose--------------------------------------------------------------
 info(" ribose")
 
-## ----info_881_formula, message=FALSE------------------------------------------
-info(881)$formula
+## ----info_imethane_formula, message=FALSE-------------------------------------
+info(imethane)$formula
 
-## ----makeup_881---------------------------------------------------------------
-makeup(881)
-as.chemical.formula(makeup(881))
+## ----makeup_imethane----------------------------------------------------------
+makeup(imethane)
+as.chemical.formula(makeup(imethane))
 
-## ----ZC_881, message=FALSE----------------------------------------------------
-ZC(881)
-ZC(info(881)$formula)
-ZC(makeup(881))
+## ----ZC_imethane, message=FALSE-----------------------------------------------
+ZC(imethane)
+ZC(info(imethane)$formula)
+ZC(makeup(imethane))
 
 ## ----subcrt_water-------------------------------------------------------------
 subcrt("water")
@@ -192,7 +186,7 @@ subcrt("methane", T = 298.15, P = 0.1)$out$methane$G
 ## ----convert_G, message=FALSE-------------------------------------------------
 convert(info(info("methane"))$G, "J")
 
-## ----data_thermo--------------------------------------------------------------
+## ----reset--------------------------------------------------------------------
 reset()
 
 ## ----subcrt_CO2---------------------------------------------------------------
@@ -306,7 +300,7 @@ legend("topleft", c("acetate oxidation", "acetoclastic methanogenesis",
 #  legend("topleft", c("acetate oxidation", "acetoclastic methanogenesis",
 #    "hydrogenotrophic methanogenesis"), lty = 1, col = 2:4)
 
-## ----data_thermo, message=FALSE-----------------------------------------------
+## ----reset, message=FALSE-----------------------------------------------------
 reset()
 
 ## ----basis_CHNOSZ, results="hide"---------------------------------------------
