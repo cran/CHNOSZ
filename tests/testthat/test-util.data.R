@@ -56,6 +56,65 @@ test_that("reset() and obigt() produce the same database", {
   expect_equal(d1, d2)
 })
 
+test_that("add.obigt() is backwards compatibile for a file that doesn't have an E_units column", {
+  # test added 20190529
+  file <- system.file("extdata/adds/BZA10.csv", package="CHNOSZ")
+  rc <- read.csv(file)
+  expect_false("E_units" %in% colnames(rc))
+  inew <- add.obigt(file)
+  expect_true(unique(info(inew)$E_units) == "cal")
+})
+
+test_that("info() gives consistent messages for cal and J", {
+  # test added 20190529
+  # add data for dimethylamine and trimethylamine in different units (cal or J)
+  expect_message(add.obigt(system.file("extdata/adds/LA19_test.csv", package = "CHNOSZ")), "energy units: J and cal")
+  expect_message(info(info("DMA_cal")), "-1.92 cal")
+  expect_message(info(info("DMA_J")), "-8.02 J")
+  # for TMA, only a checkGHS message for the entry in J is produced,
+  # because it's above the threshold of 100 set in thermo()$opt$G.tol
+  expect_silent(info(info("TMA_cal")))
+  expect_message(info(info("TMA_J")), "-102 J")
+})
+
+test_that("missing values for G, Cp, and V are correct in cal and J", {
+  # test added 20190530
+  # add data for dimethylamine and trimethylamine in different units (cal or J)
+  add.obigt(system.file("extdata/adds/LA19_test.csv", package = "CHNOSZ"))
+  calccal <- info(info("DMA_cal_NA"))
+  expect_equal(round(calccal$G), 13934)
+  expect_equal(round(calccal$Cp, 1), 60.3)
+  expect_equal(round(calccal$V, 1), 58.2)
+  calcJ <- info(info("DMA_J_NA"))
+  expect_equal(round(calcJ$G), 58304)
+  expect_equal(round(calcJ$Cp, 1), 252.4)
+  expect_equal(round(calcJ$V, 1), 58.2)
+})
+
+test_that("subcrt() gives same results for data entered in cal and J", {
+  # test added 20190530
+  # add data for dimethylamine and trimethylamine in different units (cal or J)
+  add.obigt(system.file("extdata/adds/LA19_test.csv", package = "CHNOSZ"))
+  E.units("cal")
+  scal <- subcrt("DMA_cal")
+  sJ <- subcrt("DMA_J")
+  expect_maxdiff(scal$out[[1]]$G, sJ$out[[1]]$G, 2)
+  expect_maxdiff(scal$out[[1]]$H, sJ$out[[1]]$H, 1)
+  expect_maxdiff(scal$out[[1]]$S, sJ$out[[1]]$S, 0.006)
+  expect_maxdiff(scal$out[[1]]$V, sJ$out[[1]]$V, 0.011)
+  expect_maxdiff(scal$out[[1]]$Cp, sJ$out[[1]]$Cp, 0.16)
+  # if we set the output to J, it should be the same as the parameters at 25 degC
+  E.units("J")
+  calcJ25 <- subcrt("DMA_J", T = 25)$out[[1]]
+  infoJ25 <- info(info("DMA_J"))
+  expect_equivalent(calcJ25[, c("G", "H", "S")], calcJ25[, c("G", "H", "S")])
+  # in the case of Cp and V, there are bigger difference because they are calculated from the HKF parameters
+  expect_maxdiff(calcJ25$Cp, infoJ25$Cp, 8.1)
+  expect_maxdiff(calcJ25$V, infoJ25$V, 0.55)
+  # go back to default units
+  E.units("cal")
+})
+
 # reference
 
 # Richard, L. and Helgeson, H. C. (1998) Calculation of the thermodynamic properties at elevated 

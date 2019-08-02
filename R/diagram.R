@@ -24,7 +24,8 @@ diagram <- function(
   # sizes
   cex=par("cex"), cex.names=1, cex.axis=par("cex"),
   # line styles
-  lty=NULL, lwd=par("lwd"), dotted=NULL, spline.method=NULL, contour.method="edge",
+  lty=NULL, lty.cr=NULL, lty.aq=NULL, lwd=par("lwd"), dotted=NULL,
+  spline.method=NULL, contour.method="edge", levels=NULL,
   # colors
   col=par("col"), col.names=par("col"), fill=NULL,
   fill.NA="gray80", limit.water=TRUE,
@@ -228,7 +229,8 @@ diagram <- function(
     ## make up some names for lines/fields if they are missing
     is.pname <- FALSE
     onames <- names
-    if(missing(names) | all(is.numeric(names))) {
+    if(identical(names, FALSE) | identical(names, NA)) names <- ""
+    else if(!is.character(names)) {
       # properties of basis species or reactions?
       if(eout$property %in% c("G.basis", "logact.basis")) names <- rownames(eout$basis)
       else {
@@ -256,8 +258,8 @@ diagram <- function(
     }
     # numeric values indicate a subset 20181007
     if(all(is.numeric(onames))) {
-      if(all(onames > 0)) names[-onames] <- ""
-      else if(all(onames < 0)) names[-onames] <- ""
+      if(isTRUE(all(onames > 0))) names[-onames] <- ""
+      else if(isTRUE(all(onames < 0))) names[-onames] <- ""
       else stop("numeric 'names' should be all positive or all negative")
     }
 
@@ -289,7 +291,14 @@ diagram <- function(
       # initialize the plot
       if(!add) {
         if(missing(xlab)) xlab <- axis.label(eout$vars[1], basis=eout$basis, molality=molality)
-        if(missing(ylab)) ylab <- axis.label(plotvar, units="", molality=molality)
+        if(missing(ylab)) {
+          ylab <- axis.label(plotvar, units="", molality=molality)
+          # use ppb, ppm, ppt (or log ppb etc.) for converted values of solubility 20190526
+          if(grepl("solubility.", eout$fun, fixed=TRUE)) {
+            ylab <- strsplit(eout$fun, ".", fixed=TRUE)[[1]][2]
+            ylab <- gsub("log", "log ", ylab)
+          }
+        }
         # to get range for y-axis, use only those points that are in the xrange
         if(is.null(ylim)) {
           isx <- xvalues >= min(xlim) & xvalues <= max(xlim)
@@ -503,12 +512,21 @@ diagram <- function(
               # loop in case contourLines returns multiple lines
               for(k in 1:length(cLines)) {
                 # draw the lines
-                lines(cLines[[k]][2:3], lty=lty, col=col, lwd=lwd)
+                mylty <- lty
+                if(!is.null(lty.cr)) {
+                  # use lty.cr for cr-cr boundaries 20190530
+                  if(all(grepl("cr", eout$species$state[c(zvals[i], zvals[j])]))) mylty <- lty.cr
+                }
+                if(!is.null(lty.aq)) {
+                  # use lty.aq for aq-aq boundaries 20190531
+                  if(all(grepl("aq", eout$species$state[c(zvals[i], zvals[j])]))) mylty <- lty.aq
+                }
+                lines(cLines[[k]][2:3], lty=mylty, col=col, lwd=lwd)
                 # keep the x and y values (list components 2 and 3)
                 linesout[[iout]] <- cLines[[k]][[2]]
-                names(linesout)[iout] <- paste0("x", k, "_", i, ".", j)
+                names(linesout)[iout] <- paste0("x", k, "_", zvals[i], ".", zvals[j])
                 linesout[[iout+1]] <- cLines[[k]][[3]]
-                names(linesout)[iout+1] <- paste0("y", k, "_", i, ".", j)
+                names(linesout)[iout+1] <- paste0("y", k, "_", zvals[i], ".", zvals[j])
                 iout <- iout + 2
               }
             }
@@ -613,7 +631,8 @@ diagram <- function(
           # contour solubilities (loga.balance), or properties using first species only
           if(length(plotvals) > 1) warning("showing only first species in 2-D property diagram")
           zs <- plotvals[[1]]
-          contour(xs, ys, zs, add=TRUE, col=col, lty=lty, lwd=lwd, labcex=cex, method=contour.method[1])
+          if(is.null(levels)) contour(xs, ys, zs, add=TRUE, col=col, lty=lty, lwd=lwd, labcex=cex, method=contour.method[1])
+          else contour(xs, ys, zs, add=TRUE, col=col, lty=lty, lwd=lwd, labcex=cex, method=contour.method[1], levels = levels)
         }
         pn <- list(namesx=NULL, namesy=NULL)
       } else {

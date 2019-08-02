@@ -9,9 +9,26 @@
 equilibrate <- function(aout, balance=NULL, loga.balance=NULL, 
   ispecies=1:length(aout$values), normalize=FALSE, as.residue=FALSE,
   method=c("boltzmann", "reaction"), tol=.Machine$double.eps^0.25) {
-  ### set up calculation of equilibrium activities of species from the affinities 
-  ### of their formation reactions from basis species at known activities
+  ### calculate equilibrium activities of species from the affinities 
+  ### of their formation reactions from basis species at given activities
   ### split from diagram() 20120925 jmd
+  ## if aout is the output from mosaic(), combine the equilibrium activities of basis species
+  ## and formed species into an object that can be plotted with diagram() 20190505
+  if(aout$fun == "mosaic") {
+    # calculate equilibrium activities of species
+    if(missing(ispecies)) ispecies <- 1:length(aout$A.species$values)
+    if(missing(method)) eqc <- equilibrate(aout$A.species, balance = balance, loga.balance = loga.balance,
+      ispecies = ispecies, normalize = normalize, as.residue = as.residue, tol = tol)
+    else eqc <- equilibrate(aout$A.species, balance = balance, loga.balance = loga.balance,
+      ispecies = ispecies, normalize = normalize, as.residue = as.residue, method = method, tol = tol)
+    # make combined object for basis species and species:
+    # put together the species matrix and logarithms of equilibrium activity
+    eqc$species <- rbind(aout$E.bases[[1]]$species, eqc$species)
+    eqc$loga.equil <- c(aout$E.bases[[1]]$loga.equil, eqc$loga.equil)
+    # we also need to combine 'values' (values of affinity) because diagram() uses this to get the number of species
+    eqc$values <- c(aout$E.bases[[1]]$values, eqc$values)
+    return(eqc)
+  }
   ## number of possible species
   nspecies <- length(aout$values)
   ## get the balancing coefficients
@@ -247,6 +264,39 @@ equil.reaction <- function(Astar, n.balance, loga.balance, tol=.Machine$double.e
   names(logact) <- Anames
   # all done!
   return(logact)
+}
+
+# a function to calculate the total moles of the elements in the output from equilibrate 20190505
+moles <- function(eout) {
+  # exponentiate loga.equil to get activities
+  act <- lapply(eout$loga.equil, function(x) 10^x)
+  # initialize list for moles of basis species
+  nbasis <- rep(list(act[[1]] * 0), nrow(eout$basis))
+  # loop over species
+  for(i in 1:nrow(eout$species)) {
+    # loop over basis species
+    for(j in 1:nrow(eout$basis)) {
+      # the coefficient of this basis species in the formation reaction of this species
+      n <- eout$species[i, j]
+      # accumulate the number of moles of basis species
+      nbasis[[j]] <- nbasis[[j]] + act[[i]] * n
+    }
+  }
+  # initialize list for moles of elements (same as number of basis species)
+  nelem <- rep(list(act[[1]] * 0), nrow(eout$basis))
+  # loop over basis species
+  for(i in 1:nrow(eout$basis)) {
+    # loop over elements
+    for(j in 1:nrow(eout$basis)) {
+      # the coefficient of this element in the formula of this basis species
+      n <- eout$basis[i, j]
+      # accumulate the number of moles of elements
+      nelem[[j]] <- nelem[[j]] + nbasis[[i]] * n
+    }
+  }
+  # add element names
+  names(nelem) <- colnames(eout$basis)[1:nrow(eout$basis)]
+  nelem
 }
 
 ### unexported functions ###

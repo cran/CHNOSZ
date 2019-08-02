@@ -443,13 +443,13 @@ species(c("CO2", "HCO3-", "CO3-2"))
 a25 <- affinity(pH = c(4, 13))
 a150 <- affinity(pH = c(4, 13), T = 150)
 diagram(a25, dy = 0.4)
-diagram(a150, add = TRUE, names = NULL, col = "red")
+diagram(a150, add = TRUE, names = FALSE, col = "red")
 e25 <- equilibrate(a25, loga.balance = -3)
 e150 <- equilibrate(a150, loga.balance = -3)
 diagram(e25, ylim = c(-6, 0), dy = 0.15)
-diagram(e150, add = TRUE, names = NULL, col = "red")
+diagram(e150, add = TRUE, names = FALSE, col = "red")
 diagram(e25, alpha = TRUE, dy = -0.25)
-diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
+diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 
 ## ----bjerrum_diagram, echo=1:7, eval=FALSE------------------------------------
 #  par(mfrow = c(3, 1))
@@ -458,13 +458,13 @@ diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
 #  a25 <- affinity(pH = c(4, 13))
 #  a150 <- affinity(pH = c(4, 13), T = 150)
 #  diagram(a25, dy = 0.4)
-#  diagram(a150, add = TRUE, names = NULL, col = "red")
+#  diagram(a150, add = TRUE, names = FALSE, col = "red")
 #  e25 <- equilibrate(a25, loga.balance = -3)
 #  e150 <- equilibrate(a150, loga.balance = -3)
 #  diagram(e25, ylim = c(-6, 0), dy = 0.15)
-#  diagram(e150, add = TRUE, names = NULL, col = "red")
+#  diagram(e150, add = TRUE, names = FALSE, col = "red")
 #  diagram(e25, alpha = TRUE, dy = -0.25)
-#  diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
+#  diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 
 ## ----bjerrum_diagram, echo=8:11, eval=FALSE-----------------------------------
 #  par(mfrow = c(3, 1))
@@ -473,13 +473,13 @@ diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
 #  a25 <- affinity(pH = c(4, 13))
 #  a150 <- affinity(pH = c(4, 13), T = 150)
 #  diagram(a25, dy = 0.4)
-#  diagram(a150, add = TRUE, names = NULL, col = "red")
+#  diagram(a150, add = TRUE, names = FALSE, col = "red")
 #  e25 <- equilibrate(a25, loga.balance = -3)
 #  e150 <- equilibrate(a150, loga.balance = -3)
 #  diagram(e25, ylim = c(-6, 0), dy = 0.15)
-#  diagram(e150, add = TRUE, names = NULL, col = "red")
+#  diagram(e150, add = TRUE, names = FALSE, col = "red")
 #  diagram(e25, alpha = TRUE, dy = -0.25)
-#  diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
+#  diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 
 ## ----bjerrum_diagram, echo=12:13, eval=FALSE----------------------------------
 #  par(mfrow = c(3, 1))
@@ -488,13 +488,13 @@ diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
 #  a25 <- affinity(pH = c(4, 13))
 #  a150 <- affinity(pH = c(4, 13), T = 150)
 #  diagram(a25, dy = 0.4)
-#  diagram(a150, add = TRUE, names = NULL, col = "red")
+#  diagram(a150, add = TRUE, names = FALSE, col = "red")
 #  e25 <- equilibrate(a25, loga.balance = -3)
 #  e150 <- equilibrate(a150, loga.balance = -3)
 #  diagram(e25, ylim = c(-6, 0), dy = 0.15)
-#  diagram(e150, add = TRUE, names = NULL, col = "red")
+#  diagram(e150, add = TRUE, names = FALSE, col = "red")
 #  diagram(e25, alpha = TRUE, dy = -0.25)
-#  diagram(e150, alpha = TRUE, add = TRUE, names = NULL, col = "red")
+#  diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 
 ## ----corundum, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", results="hide", message=FALSE, cache=TRUE, fig.cap="Solubility of corundum (green line) and equilibrium concentrations of aqueous species (black lines).", pngquant=pngquant, timeit=timeit----
 add.obigt("SLOP98")
@@ -1494,7 +1494,7 @@ T <- c(50, 100)
 res <- 300
 a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
 fill <- ZC.col(ZC(protein.formula(ip)))
-diagram(a, normalize = TRUE, fill = fill, names = 1:5)
+diagram(a, normalize = TRUE, fill = fill, names = as.character(1:5))
 T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
 logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
 lines(T, logaH2, lty = 2, lwd = 2)
@@ -1511,7 +1511,7 @@ points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
 #  res <- 300
 #  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
 #  fill <- ZC.col(ZC(protein.formula(ip)))
-#  diagram(a, normalize = TRUE, fill = fill, names = 1:5)
+#  diagram(a, normalize = TRUE, fill = fill, names = as.character(1:5))
 #  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
 #  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
 #  lines(T, logaH2, lty = 2, lwd = 2)
@@ -1528,7 +1528,7 @@ points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
 #  res <- 300
 #  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
 #  fill <- ZC.col(ZC(protein.formula(ip)))
-#  diagram(a, normalize = TRUE, fill = fill, names = 1:5)
+#  diagram(a, normalize = TRUE, fill = fill, names = as.character(1:5))
 #  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
 #  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
 #  lines(T, logaH2, lty = 2, lwd = 2)
@@ -1744,30 +1744,63 @@ options(width = 80)
 #  ref <- thermo.refs(iFo)
 #  browseURL(ref$URL)  ## opens a link to worldcat.org
 
-## ----BZA10, echo=1:2----------------------------------------------------------
+## ----BZA10--------------------------------------------------------------------
 file <- system.file("extdata/adds/BZA10.csv", package = "CHNOSZ")
 read.csv(file, as.is = TRUE)
 
-## ----mod_obigt_S3_ghs, echo=1:2-----------------------------------------------
-mod.obigt("S3-", formula = "S3-", state = "aq", ref1 = "PD15", date = today(),
-          G = 13160, H = 10840, S = 28.6, Cp = 62.3, V = 37.7)
+## ----BZA10_Cd-----------------------------------------------------------------
+iCd <- add.obigt(file)
+subcrt(c("CdCl+", "Cl-", "CdCl2"), c(-1, -1, 1), T = 25, P = c(1, 2000))
 
-## ----mod_obigt_S3_eos, echo=1:2-----------------------------------------------
-mod.obigt("S3-", state = "aq", a1 = 2.5, a2 = 19.9, a3 = 9.2, a4 = -3.6,
-          c1 = 50.2, c2 = 9.6, omega = 0.8, z = -1)
+## ----SSH97_subcrt-------------------------------------------------------------
+reset()
+thermo.refs(iCd)[, 1:3]
+subcrt(c("CdCl+", "Cl-", "CdCl2"), c(-1, -1, 1), T = 25, P = c(1, 2000))
 
-## ----S3_reaction, message=FALSE-----------------------------------------------
-basis(c("S3-", "O2", "H2O", "H+"), c("aq", "gas", "liq", "aq"))
-subcrt(c("H2S", "SO4-2"), c(-2, -1), T = c(25, 500), P = c(1, 700))
+## ----mod_obigt_CoCl4_ghs------------------------------------------------------
+mod.obigt("CoCl4-2", formula = "CoCl4-2", state = "aq", ref1 = "LBT+11",
+  date = today(), G = -134150, H = -171558, S = 19.55, Cp = 72.09, V = 27.74)
 
-## ----info_S3------------------------------------------------------------------
-iS3 <- info("S3-")
-info(iS3)
+## ----mod_obigt_CoCl4_eos------------------------------------------------------
+mod.obigt("CoCl4-2", a1 = 6.5467, a2 = 8.2069, a3 = 2.0130, a4 = -3.1183,
+  c1 = 76.3357, c2 = 11.6389, omega = 2.9159, z = -2)
 
-## ----info_cyclohexane, message=FALSE, results="hide"--------------------------
-info(info("cyclohexane"))
-## checkEOS: Cp of cyclohexane aq (1762) differs by 9.35 cal K-1 mol-1 from tabulated value
-## checkEOS: V of cyclohexane aq (1762) differs by 6.64 cm3 mol-1 from tabulated value
+## ----CoCl4_reaction, message = FALSE, echo = 1:3------------------------------
+T <- c(25, seq(50, 350, 50))
+sres <- subcrt(c("Co+2", "Cl-", "CoCl4-2"), c(-1, -4, 1), T = T)
+round(sres$out$logK, 2)
+stopifnot(identical(round(sres$out$logK, 2), c(-3.2, -2.96, -2.02, -0.74, 0.77, 2.5, 4.57, 7.29)))
+
+## ----mod_obigt_magnesiochromite_ghs-------------------------------------------
+H <- -1762000
+S <- 119.6
+V <- 43.56
+mod.obigt("magnesiochromite", formula = "MgCr2O4", state = "cr", ref1 = "KOSG00",
+          date = today(), E_units = "J", H = H, S = S, V = V)
+
+## ----mod_obigt_magnesiochromite_eos-------------------------------------------
+a <- 221.4
+b <- -0.00102030 * 1e3
+c <- -1757210 * 1e-5
+d <- -1247.9
+mod.obigt("magnesiochromite", E_units = "J", a = a, b = b, c = c, d = d,
+          e = 0, f = 0, lambda = 0, T = 1500)
+
+## ----subcrt_magnesiochromite--------------------------------------------------
+T.units("K")
+E.units("J")
+subcrt("magnesiochromite", property = "Cp", T = c(250, 300, 340), P = 1)
+
+## ----restore_units_magnesiochromite-------------------------------------------
+T.units("C")
+E.units("cal")
+
+## ----info_CoCl4, results = "hide"---------------------------------------------
+inew <- info("CoCl4-2")
+info(inew)
+
+## ----info_S3, results="hide"--------------------------------------------------
+info(info("S3-"))
 
 ## ----check_obigt--------------------------------------------------------------
 file <- system.file("extdata/adds/obigt_check.csv", package = "CHNOSZ")

@@ -76,11 +76,23 @@ entropy <- function(formula) {
   ielem <- match(colnames(formula), thermo$element$element)
   if(any(is.na(ielem))) warning(paste("element(s)",
     paste(colnames(formula)[is.na(ielem)], collapse=" "), "not available in thermo$element"))
-  entropy <- as.numeric( formula %*% (thermo$element$s[ielem] / thermo$element$n[ielem]) )
+  # entropy per atom
+  Sn <- thermo$element$s[ielem] / thermo$element$n[ielem]
+  # if there are any NA values of entropy, put NA in the matrix, then set the value to zero
+  # this allows mixed finite and NA values to be calculated 20190802
+  ina <- is.na(Sn)
+  if(any(ina)) {
+    for(i in which(ina)) {
+      hasNA <- formula[, i] != 0
+      formula[hasNA, i] <- NA
+    }
+    Sn[ina] <- 0
+  }
+  entropy <- as.numeric( formula %*% Sn )
   return(entropy)
 }
 
-GHS <- function(formula, G=NA, H=NA, S=NA, T=298.15) {
+GHS <- function(formula, G=NA, H=NA, S=NA, T=298.15, E_units = "cal") {
   # for all NA in G, H and S, do nothing
   # for no  NA in G, H and S, do nothing
   # for one NA in G, H and S, calculate its value from the other two:
@@ -92,6 +104,7 @@ GHS <- function(formula, G=NA, H=NA, S=NA, T=298.15) {
     stop("formula, G, H and S arguments are not same length")
   # calculate Se (entropy of elements)
   Se <- entropy(formula)
+  if(E_units == "J") Se <- convert(Se, "J")
   # calculate one of G, H, or S if the other two are given
   GHS <- lapply(seq_along(G), function(i) {
     G <- G[i]

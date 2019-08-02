@@ -3,6 +3,7 @@
 \alias{equilibrate}
 \alias{equil.boltzmann}
 \alias{equil.reaction}
+\alias{moles}
 \title{Equilibrium Chemical Activities of Species}
 \description{
 Calculate equilibrium chemical activities of species from the affinities of formation of the species at unit activity. 
@@ -14,10 +15,11 @@ Calculate equilibrium chemical activities of species from the affinities of form
     method=c("boltzmann", "reaction"), tol=.Machine$double.eps^0.25)
   equil.boltzmann(Astar, n.balance, loga.balance)
   equil.reaction(Astar, n.balance, loga.balance, tol=.Machine$double.eps^0.25)
+  moles(eout)
 }
 
 \arguments{
-  \item{aout}{list, output from \code{\link{affinity}}}
+  \item{aout}{list, output from \code{\link{affinity}}} or \code{\link{mosaic}}
   \item{balance}{character or numeric, how to balance the transformations}
   \item{ispecies}{numeric, which species to include}
   \item{normalize}{logical, normalize the molar formulas of species by the balancing coefficients?}
@@ -27,15 +29,17 @@ Calculate equilibrium chemical activities of species from the affinities of form
   \item{loga.balance}{numeric (single value or vector), logarithm of total activity of balanced quantity}
   \item{method}{character, equilibration method to use}
   \item{tol}{numeric, convergence tolerance for \code{\link{uniroot}}}
+  \item{eout}{list, output from \code{\link{equilibrate}}}
 }
 
 \details{
 \code{equilibrate} calculates the chemical activities of species in metastable equilibrium, for constant temperature, pressure and chemical activities of basis species, using specified balancing constraints on reactions between species.
 
-It takes as input \code{aout}, the output from \code{\link{affinity}}, which may be calculated from a multidimensional grid of conditions.
+It takes as input \code{aout}, the output from \code{\link{affinity}}, giving the chemical affinities of formation reaction of each species, which may be calculated on a multidimensional grid of conditions.
+Alternatively, \code{aout} can be the output from \code{\link{mosaic}}, in which case the equilibrium activities of the formed species are calculated and combined with those of the changing basis species to make an object that can be plotted with \code{\link{diagram}}.
+
 The equilibrium chemical activities of species are calculated using either the \code{equil.reaction} or \code{equil.boltzmann} functions, the latter only if the balance is on one mole of species.
 
-\code{aout} contains the chemical affinities of formation reactions of each species of interest.
 \code{equilibrate} needs to be provided constraints on how to balance the reactions representing transformations between the species.
 \code{balance} indicates the balancing component, according to the following scheme:
 
@@ -65,6 +69,8 @@ The default behavior can be overriden by specifying either \samp{boltzmann} or \
 Using \code{equil.reaction} may be needed for systems with huge (negative or positive) affinities, where \code{equil.boltzmann} produces a NaN result.
 
 \code{ispecies} can be supplied to identify a subset of the species to include in the calculation.
+
+\code{moles} simply calculates the total number of moles of elements corresponding to the activities of formed species in the output from \code{equilibrate}.
 }
 
 \section{Algorithms}{
@@ -125,6 +131,23 @@ pKa.equil <- seq(0, 14, length.out=res)[ipKa]
 logK <- subcrt(c("CO2","H2O","HCO3-","H+"), c(-1, -1, 1, 1), T=25)$out$logK
 # we could decrease tolerance here by increasing res
 stopifnot(all.equal(pKa.equil, -logK, tolerance=1e-2))
+
+# equilibrate with mosaic: balancing on two elements (N and C)
+# thanks to Kirt Robinson for the feature request and test system
+loga_N <- -4
+loga_C <- -3
+basis(c("CO2", "NH3", "O2", "H2O", "H+"))
+basis("NH3", loga_N)
+species(c("acetamide", "acetic acid", "acetate"))
+# this calculates equilibrium activities of NH3 and NH4+ for given loga_N
+# and calculates the corresponding affinities of the formed species
+m <- mosaic(c("NH3", "NH4+"), pH = c(0, 14))
+# this calculates equilibrium activities of the formed species for given loga_C
+# and combines them with the activities of the changing basis species (NH3 and NH4+)
+eqc <- equilibrate(m, loga.balance = loga_C)
+diagram(eqc, ylim = c(-10, -2))
+title(main = paste("log(total N in basis species) =", loga_N,
+                   "\nlog(total C in formed species) =", loga_C), font.main = 1)
 }
 
 \references{

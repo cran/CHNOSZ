@@ -11,7 +11,10 @@ release checklist for CHNOSZ
   write.csv(co, "obigt_check.csv", row.names=FALSE, na="")
 
 - recreate extdata/thermo/stoich.csv.xz after all data updates
-  (see testthat/test-retrieve.R for instructions)
+  formula <- thermo()$obigt$formula
+  stoich <- i2A(formula)
+  write.csv(stoich, "stoich.csv")
+  system("xz -f stoich.csv")
 
 - check that uniprot.aa() works with current UniProt web pages
 
@@ -30,7 +33,7 @@ release checklist for CHNOSZ
 - build the package using both qpdf and ghostscript to compact vignettes:
   R CMD build --compact-vignettes=both chnosz/
 
-- vignettes/obigt.bib: check correct year for CHNOSZ reference
+- vignettes/obigt.bib: check correct year and version for CHNOSZ reference
 
 - documentation links: after installation, run doc/mklinks.sh
   and put the modified anintro.html and obigt.html in the package
@@ -38,7 +41,7 @@ release checklist for CHNOSZ
 - backwards compatibility: build and check the package with the
   *minimum* R version (from the DESCRIPTION file)
 
-- check reverse dependencies on CRAN: LipidMS, canprot, ecipex, iemisc as of 2019-02-09
+- check reverse dependencies on CRAN: canprot, ecipex, iemisc as of 2019-08-02
 
 OTHER THINGS TO DO (depending on changes made in development):
 

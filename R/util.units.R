@@ -44,8 +44,43 @@ convert <- function(value, units, T=298.15,
   P=1, pH=7, logaH2O=0) {
   # converts value(s) to the specified units
 
+  # process a list value if it's the output from solubility 20190525
+  if(is.list(value) & !is.data.frame(value)) {
+    if(!isTRUE(value$fun == "solubility")) stop("'value' is a list but is not the output from solubility()")
+    if(!is.character(units)) stop("please specify a character argument for the destination units (e.g. ppm or logppm)")
+    # determine the element from 'balance' or 'in.terms.of', if it's available
+    element <- value$in.terms.of
+    if(is.null(element)) element <- value$balance
+    grams.per.mole <- mass(element)
+    message(paste("solubility: converting to", units, "by weight using the mass of", element))
+    ppfun <- function(loga, units, grams.per.mole) {
+      # exponentiate loga to get molality
+      moles <- 10^loga
+      # convert moles to mass (g)
+      grams <- moles * grams.per.mole
+      # convert grams to ppb, ppm, or ppt
+      ppx <- NULL
+      # 1 ppt = 1 g / kg H2O
+      # 1 ppm = 1 mg / kg H2O
+      if(grepl("ppt", units)) ppx <- grams * 1e0
+      if(grepl("ppm", units)) ppx <- grams * 1e3
+      if(grepl("ppb", units)) ppx <- grams * 1e6
+      if(is.null(ppx)) stop(paste("units", units, "not available for conversion"))
+      # use the logarithm if specified
+      if(grepl("log", units)) ppx <- log10(ppx)
+      ppx
+    }
+    # do the conversion for the conserved basis species, then each species
+    value$loga.balance <- ppfun(value$loga.balance, units, grams.per.mole)
+    value$loga.equil <- lapply(value$loga.equil, ppfun, units = units, grams.per.mole = grams.per.mole)
+    # identify the units in the function text
+    value$fun <- paste(value$fun, units, sep = ".")
+    # return the updated object
+    return(value)
+  }
+
+  ### argument handling for non-list value
   if(is.null(value)) return(NULL)
-  ### argument handling
   if(!is.character(units)) stop(paste('convert: please specify',
     'a character argument for the destination units.\n',
     'possibilities include (G or logK) (C or K) (J or cal) (cm3bar or calories) (Eh or pe)\n',

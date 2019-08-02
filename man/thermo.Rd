@@ -38,7 +38,10 @@ The main data files provided with CHNOSZ, as \code{*.csv} files in the \code{ext
   \itemize{
      
     \item \code{thermo()$opt} 
-    List of computational settings. Square brackets indicate default values.
+    List of computational settings.
+    Square brackets indicate default values.
+    Note that the units of \code{G.tol} and \code{Cp.tol} depend on the \code{E_units} for each species in \code{thermo()$obigt}.
+    Therefore, species with \code{E_units} of \samp{J} have a lower absolute tolerance for producing messages (because Joules are smaller than calories).
     \tabular{lll}{
       \code{cutoff} \tab numeric \tab Cutoff below which values are taken to be zero [1e-10] (see \code{\link{makeup}})\cr
       \code{E.units} \tab character \tab The user's units of energy ([\samp{cal}] or \samp{J}) (see \code{\link{subcrt}})\cr
@@ -106,7 +109,7 @@ This process was repeated as necessary to generate the standard molar properties
 A consequence of tabulating the standard molar thermodynamic properties of the phase species is that the values of \eqn{(dP/dT)} and \eqn{{\Delta}H^{\circ}}{DeltaH0} of phase transitions can be calculated using the equations of state and therefore do not need to be stored in the thermodynamic database.
 However, the transition temperatures (\eqn{T_{tr}}{Ttr}) generally can not be assessed by comparing the Gibbs energies of phase species and are tabulated in the database.
 
-The identification of species and their standard molal thermodynamic properties at 25 \degC and 1 bar are located in the first 12 columns of \code{thermo()$obigt}:
+The identification of species and their standard molal thermodynamic properties at 25 \degC and 1 bar are located in the first 13 columns of \code{thermo()$obigt}:
 
     \tabular{lll}{
       \code{name}     \tab character \tab Species name\cr
@@ -116,6 +119,7 @@ The identification of species and their standard molal thermodynamic properties 
       \code{ref1}  \tab character \tab Primary source\cr
       \code{ref2}  \tab character \tab Secondary source\cr
       \code{date}     \tab character \tab Date of data entry (formatted as in SUPCRT92)\cr
+      \code{E_units}     \tab character \tab Units of energy: cal or J\cr
       \code{G}        \tab numeric   \tab Standard molal Gibbs energy of formation\cr
       \tab \tab from the elements (cal mol\eqn{^{-1}}{^-1})\cr
       \code{H}        \tab numeric   \tab Standard molal enthalpy of formation\cr
@@ -130,7 +134,7 @@ The meanings of the remaining columns depend on the model used for a particular 
 The names of these columns are compounded from those of the parameters in the HKF equations of state and general heat capacity polynomial; for example, column 13 is named \code{a1.a}.
 Scaling of the values by orders of magnitude is adopted for some of the parameters, following common usage in the literature.
 
-Columns 13-20 for aqueous species (parameters in the revised HKF equations of state):
+Columns 14-21 for aqueous species (parameters in the revised HKF equations of state):
 
     \tabular{lll}{
       \code{a1} \tab numeric \tab \eqn{a_1\times10}{a1 * 10} (cal mol\eqn{^{-1}}{^-1} bar\eqn{^{-1}}{^-1})\cr
@@ -143,7 +147,7 @@ Columns 13-20 for aqueous species (parameters in the revised HKF equations of st
       \code{Z}  \tab numeric \tab Charge
     }
 
-Columns 13-20 for crystalline, gas and liquid species (\eqn{Cp=a+bT+cT^{-2}+dT^{-0.5}+eT^2+fT^{\lambda}}{Cp = a + bT + cT^-2 + dT^-0.5 + eT^2 + fT^lambda}).
+Columns 14-21 for crystalline, gas and liquid species (\eqn{Cp=a+bT+cT^{-2}+dT^{-0.5}+eT^2+fT^{\lambda}}{Cp = a + bT + cT^-2 + dT^-0.5 + eT^2 + fT^lambda}).
 
     \tabular{lll}{
       \code{a} \tab numeric \tab \eqn{a} (cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1})\cr
@@ -157,7 +161,7 @@ Columns 13-20 for crystalline, gas and liquid species (\eqn{Cp=a+bT+cT^{-2}+dT^{
       \tab \tab temperature limit of validity of extrapolation (K)
     }
 
-Columns 13-20 for aqueous species using the Akinfiev-Diamond model. Note that the \code{c} column is used to store the \eqn{\xi}{xi} parameter, and that \code{Z} must be NA to activate the code for this model. The remaining columns are not used.
+Columns 14-21 for aqueous species using the Akinfiev-Diamond model. Note that the \code{c} column is used to store the \eqn{\xi}{xi} parameter, and that \code{Z} must be NA to activate the code for this model. The remaining columns are not used.
 
     \tabular{lll}{
       \code{a} \tab numeric \tab \eqn{a} (cm\S{3} g\S{-1}) \cr

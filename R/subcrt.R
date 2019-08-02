@@ -10,6 +10,7 @@
 #source("util.data.R")
 #source("species.R")
 #source("AkDi.R")
+#source("nonideal.R")
 
 subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "H", "S", "V", "Cp"),
   T = seq(273.15, 623.15, 25), P = "Psat", grid = NULL, convert = TRUE, exceed.Ttr = FALSE,
@@ -56,9 +57,11 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   if(length(notprop) > 1) stop(paste("invalid property names:", paste(notprop, collapse=" ")))
   # length checking
   if(do.reaction & length(species)!=length(coeff)) 
-    stop('coeff must be same length as the number of species.')
-  if(!is.null(logact)) logact <- rep(logact,length.out=length(coeff))
-  # normalize temperature units
+    stop("the length of 'coeff' must equal the number of species")
+  if(!is.null(logact)) {
+    if(length(logact)!=length(species)) stop("the length of 'logact' must equal the number of species")
+  }
+  # normalize temperature and pressure units
   if(!missing(T)) {
     if(convert) T <- envert(T,'K')
     else if(!missing(convert) & convert) T <- envert(T,'K')
@@ -189,21 +192,25 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   isH2O <- reaction$name=='water' & reaction$state=='liq'
   isaq <- reaction$state=='aq'
 
-  ut <- T
-  if(identical(grid,'IS')) ut <- unique(ut)
-  if(length(ut)==1) T.text <- paste(ut,'K') else {
-    T.text <- paste(length(ut),'values of T')
-  }
-  if(length(P)==1) {
-    if(can.be.numeric(P)) P.text <- paste(round(as.numeric(P),2),'bar')
-    else P.text <- "P"
-  } else P.text <- 'P'
-  if(identical(P[[1]],'Psat')) P.text <- P
-  if(any(c(isH2O,isaq))) P.text <- paste(P.text,' (wet)',sep='')
+  # produce message about conditions
   if(length(species)==1 & convert==FALSE) {
-    # no message produced here
+    # no message produced here (internal calls from other functions)
   } else {
-    message(paste('subcrt:',length(species),'species at',T.text,'and',P.text))
+    # include units here 20190530
+    uT <- outvert(T, "K")
+    if(identical(grid,'IS')) uT <- unique(uT)
+    if(length(uT)==1) T.text <- paste(uT, T.units()) else {
+      T.text <- paste0(length(uT), " values of T (", T.units(), ")")
+    }
+    uP <- outvert(P, "bar")
+    if(length(P)==1) {
+      if(can.be.numeric(P)) P.text <- paste(round(as.numeric(uP),2), P.units())
+      else P.text <- paste0("P (", P.units(), ")")
+    } else P.text <- paste0("P (", P.units(), ")")
+    if(identical(P[[1]],'Psat')) P.text <- P
+    if(any(c(isH2O,isaq))) P.text <- paste(P.text,' (wet)',sep='')
+    E.text <- paste0("[energy units: ", E.units(), "]")
+    message(paste("subcrt:", length(species), "species at", T.text, "and", P.text, E.text))
   }
 
   # inform about unbalanced reaction
@@ -235,7 +242,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
           b.state <- as.character(thermo$basis$state)[bc[1,]!=0]
           bc <- bc.new
           # special thing for Psat
-          if(P.text=='Psat') P <- P.text
+          if(identical(P[[1]], "Psat")) P <- "Psat"
           else P <- outvert(P,"bar")
           # add to logact values if present
           if(!is.null(logact)) {
@@ -280,7 +287,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   # aqueous species and H2O properties
   if(TRUE %in% isaq) {
     # 20110808 get species parameters using obigt2eos() (faster than using info())
-    param <- obigt2eos(thermo$obigt[iphases[isaq],], "aq", fixGHS = TRUE)
+    param <- obigt2eos(thermo$obigt[iphases[isaq],], "aq", fixGHS = TRUE, tocal = TRUE)
     # aqueous species with NA for Z use the AkDi model
     isAkDi <- is.na(param$Z)
     # always get density
@@ -308,7 +315,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
     # calculate properties using Akinfiev-Diamond model 20190219
     if(any(isAkDi)) {
       # get the parameters with the right names
-      param <- obigt2eos(param[isAkDi, ], "aq")
+      param <- obigt2eos(param[isAkDi, ], "aq", tocal = TRUE)
       p.aq[isAkDi] <- AkDi(eosprop, parameters = param, T = T, P = P, isPsat = isPsat)
     }
     # calculate activity coefficients if ionic strength is not zero
@@ -327,7 +334,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   iscgl <- reaction$state %in% cglstates & reaction$name != "water"
 
   if(TRUE %in% iscgl) {
-    param <- obigt2eos(thermo$obigt[iphases[iscgl],], "cgl", fixGHS = TRUE)
+    param <- obigt2eos(thermo$obigt[iphases[iscgl],], "cgl", fixGHS = TRUE, tocal = TRUE)
     p.cgl <- cgl(eosprop, parameters = param, T = T, P = P)
     # replace Gibbs energies with NA where the
     # phases are beyond their temperature range

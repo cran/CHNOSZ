@@ -1,10 +1,13 @@
 # CHNOSZ/info.R
 # search database for species names or formulas
 # and retrieve thermodynamic properties of species
-# 20061024 extraced from species.R jmd
+# 20061024 extracted from species.R jmd
 # 20120507 code rewrite and split into info.[character,approx,numeric];
 #   these functions expect arguments of length 1; 
 #   info() handles longer arguments
+
+## if this file is interactively sourced, the following are also needed to provide unexported functions:
+#source("util.data.R")
 
 info <- function(species=NULL, state=NULL, check.it=TRUE) {
   ## return information for one or more species in thermo$obigt
@@ -186,25 +189,25 @@ info.numeric <- function(ispecies, check.it=TRUE) {
   # use new obigt2eos function here
   this <- obigt2eos(this, this$state)
   # identify any missing GHS values
-  naGHS <- is.na(this[8:10])
+  naGHS <- is.na(this[9:11])
   # a missing one of G, H or S can cause problems for subcrt calculations at high T
   if(sum(naGHS)==1) {
     # calculate a single missing one of G, H, or S from the others
-    GHS <- as.numeric(GHS(as.character(this$formula), G=this[,8], H=this[,9], S=this[,10]))
-    message("info.numeric: ", colnames(this)[8:10][naGHS], " of ",
-      this$name, "(", this$state, ") is NA; set to ", round(GHS[naGHS],2))
-    this[, which(naGHS)+7] <- GHS[naGHS]
+    GHS <- as.numeric(GHS(as.character(this$formula), G=this[,9], H=this[,10], S=this[,11], E_units=this$E_units))
+    message("info.numeric: ", colnames(this)[9:11][naGHS], " of ",
+      this$name, "(", this$state, ") is NA; set to ", round(GHS[naGHS],2), " ", this$E_units, " mol-1")
+    this[, which(naGHS)+8] <- GHS[naGHS]
   } 
   # now perform consistency checks for GHS and EOS parameters if check.it=TRUE
   # don't do it for the AkDi species 20190219
   if(check.it & !"xi" %in% colnames(this)) {
-    # check GHS if they were all present
+    # check GHS if they are all present
     if(sum(naGHS)==0) calcG <- checkGHS(this)
     # check tabulated heat capacities against EOS parameters
     calcCp <- checkEOS(this, this$state, "Cp")
     # fill in NA heat capacity
     if(!is.na(calcCp) & is.na(this$Cp)) {
-      message("info.numeric: Cp of ", this$name, "(", this$state, ") is NA; set by EOS parameters to ", round(calcCp, 2))
+      message("info.numeric: Cp of ", this$name, "(", this$state, ") is NA; set by EOS parameters to ", round(calcCp, 2), " ", this$E_units, " K-1 mol-1")
       this$Cp <- as.numeric(calcCp)
     }
     # check tabulated volumes - only for aq (HKF equation)
@@ -212,7 +215,7 @@ info.numeric <- function(ispecies, check.it=TRUE) {
       calcV <- checkEOS(this, this$state, "V")
       # fill in NA volume
       if(!is.na(calcV) & is.na(this$V)) {
-        message("info.numeric: V of ", this$name, "(", this$state, ") is NA; set by EOS parameters to ", round(calcV, 2))
+        message("info.numeric: V of ", this$name, "(", this$state, ") is NA; set by EOS parameters to ", round(calcV, 2), " cm3 mol-1")
         this$V <- as.numeric(calcV)
       }
     }

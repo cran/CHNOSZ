@@ -88,6 +88,8 @@ SSB97,"E. L. Shock, D. C. Sassani and H. Betz",1997,"Geochim. Cosmochim. Acta 61
 SSB97.1,"E. L. Shock, D. C. Sassani and H. Betz",1997,"Geochim. Cosmochim. Acta 61, 4245-4266",uraninite,https://doi.org/10.1016/S0016-7037(97)00240-8
 TSD97,"Y. Tardy, R. Schaul, J. Duplay",1997,"C. R. Acad. Sci. Paris 324, 969-976","humic acid, microflora, and plants",https://doi.org/10.1016/S1251-8050(97)83981-X
 TZA97,"B. R. Tagirov, A. V. Zotov and N. N. Akinfiev",2007,"Geochim. Cosmochim. Acta 61, 4267-4280","aqueous HCl",https://doi.org/10.1016/S0016-7037(97)00274-3
+ST97,"D. Shvedov and P. R. Tremaine",1997,"J. Solution Chem. 26, 1113-1143","dimethylammonium chloride HKF parameters",https://doi.org/10.1023/A:1022977006327
+ST97.1,"D. Shvedov and P. R. Tremaine",1997,"J. Solution Chem. 26, 1113-1143","dimethylamine HKF parameters",https://doi.org/10.1023/A:1022977006327
 HOKR98,"H. C. Helgeson, C. E. Owens et al.",1998,"Geochim. Cosmochim. Acta 62, 985-1081","organic molecules and groups",https://doi.org/10.1016/S0016-7037(97)00219-6
 HOKR98.1,"H. C. Helgeson, C. E. Owens et al.",1998,"Geochim. Cosmochim. Acta 62, 985-1081","amino acids",https://doi.org/10.1016/S0016-7037(97)00219-6
 RH98,"L. Richard and H. C. Helgeson",1998,"Geochim. Cosmochim. Acta 62, 3591-3636","organic molecules and groups",https://doi.org/10.1016/S0016-7037(97)00345-1
@@ -126,6 +128,7 @@ NA03,"D. K. Nordstrom and D. G. Archer",2003,"Arsenic thermodynamic data and env
 NA03.1,"D. K. Nordstrom and D. G. Archer",2003,"Arsenic thermodynamic data and environmental geochemistry. In Arsenic in Groundwater, eds. Welch and Stollenwerk, Kluwer","aqueous As oxides and sulfides",
 MLS+03,"J. Majzlan, B. E. Lang et al.",2003,"Am. Mineral. 88, 846-854","goethite, lepidocrocite, and maghemite Cp",https://doi.org/10.2138/am-2003-5-613
 AS04,"J. Apps and N. Spycher",2004,"Data qualification for thermodynamic data used to support THC calculations. Bechtel SAIC Company, LLC. ANL-NBS-HS-000043 REV 00 (DOC.20041118.0004)","aqueous SiO<sub>2</sub>",
+Got04,"M. Gottschalk",2004,"Rev. Mineral. Geochem. 56, 83-124","zoisite, clinozoisite, and epidote",https://doi.org/10.2138/gsrmg.56.1.83
 MSB+04,"J. Majzlan, R. Stevens et al.",2004,"Phys. Chem. Mineral. 31, 518-531","hydronium jarosite",https://doi.org/10.1007/s00269-004-0405-z
 SR04,"M. D. Schulte and K. L. Rogers",2004,"Geochim. Cosmochim. Acta 68, 1087-1097","alkane thiols",https://doi.org/10.1016/j.gca.2003.06.001
 VPV05,"O. Vidal, T. Parra and P. Viellard",2005,"Am. Mineral. 90, 347-358",Fe-amesite,https://doi.org/10.2138/am.2005.1554
@@ -175,6 +178,7 @@ SHA14,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","Si
 SHA14.1,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","revisions for AlO<sub>2</sub><sup>-</sup> and HAlO<sub>2</sub>",https://doi.org/10.1016/j.gca.2013.12.019
 SHA14.2,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","revisions for BO(OH) and BO<sub>2</sub><sup>-</sup>",https://doi.org/10.1016/j.gca.2013.12.019
 SHA14.3,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","Fitted to @HP97 data with a1 pred. from the sum of the ions and used to predict the volume",https://doi.org/10.1016/j.gca.2013.12.019
+PD15,"G. S. Pokrovski and J. Dubessy",2015,"Earth Planet. Sci. Lett. 411, 298-309","trisulfur radical ion",https://doi.org/10.1016/j.epsl.2014.11.035
 SLOP16.1,"E. L. Shock et al.",2016,"slop16.dat computer data file","&quot;Enthalpy changed to be compatible with the equation &Delta;H=&Delta;G+T&Delta;S for the formation reaction from elements.&quot;",https://doi.org/10.5281/zenodo.2630820
 SLOP16.2,"E. L. Shock et al.",2016,"slop16.dat computer data file","Zn(Ac)3-: &quot;Enthalpy changed to be compatible with the equation &Delta;H=&Delta;G+T&Delta;S for the formation reaction from elements. See footnote h in table 2 of @SSH97.&quot;",https://doi.org/10.5281/zenodo.2630820
 SLOP16.3,"E. L. Shock et al.",2016,"slop16.dat computer data file","formaldehyde: &quot;Entropy corrected to be compatible with the equation &Delta;H=&Delta;G+T&Delta;S for the formation reaction from elements. See footnote i in table 2 of @SS93.&quot;",https://doi.org/10.5281/zenodo.2630820
@@ -208,3 +212,4 @@ DEW17.103,"D. A. Sverjensky et al.",2017,"Deep Earth Water (DEW) spreadsheet","N
 DEW17.104,"D. A. Sverjensky et al.",2017,"Deep Earth Water (DEW) spreadsheet","propanoate: Revised a1 from new delVn correlation for -1 ions",http://www.dewcommunity.org
 BDat17.1,"D. A. Sverjensky et al.",2017,"berman.dat file in SUPCRT92b.zip on the DEW website","antigorite: &quot;Oct. 21, 2016: Revised volume coefficients consistent with @HDR06 and @YIY+14 &quot;",http://www.dewcommunity.org/resources.html
 AKAE19,"M. R. Azadi et al.",2019,"Fluid Phase Equilib. 480, 25-40","metal-glycinate complexes",https://doi.org/10.1016/j.fluid.2018.10.002
+LA19,"D. E. LaRowe and J. P. Amend",2019,"Geomicrobiol. J. 36, 492-505","dimethylamine, trimethylamine, resorcinol, phloroglucinol, cyclohexane carboxylate, and cyclohexane carboxylic acid",https://doi.org/10.1080/01490451.2019.1573278
