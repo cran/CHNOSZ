@@ -56,13 +56,19 @@ test_that("reset() and obigt() produce the same database", {
   expect_equal(d1, d2)
 })
 
-test_that("add.obigt() is backwards compatibile for a file that doesn't have an E_units column", {
+test_that("add.obigt() is backwards compatible for a file that doesn't have an E_units column", {
   # test added 20190529
   file <- system.file("extdata/adds/BZA10.csv", package="CHNOSZ")
   rc <- read.csv(file)
   expect_false("E_units" %in% colnames(rc))
   inew <- add.obigt(file)
   expect_true(unique(info(inew)$E_units) == "cal")
+})
+
+test_that("add.obigt() gives an error for an incompatible file", {
+  # test added 20191210
+  file <- system.file("extdata/Berman/Ber88_1988.csv", package="CHNOSZ")
+  expect_error(add.obigt(file))
 })
 
 test_that("info() gives consistent messages for cal and J", {
@@ -113,6 +119,20 @@ test_that("subcrt() gives same results for data entered in cal and J", {
   expect_maxdiff(calcJ25$V, infoJ25$V, 0.55)
   # go back to default units
   E.units("cal")
+})
+
+test_that("obigt2eos() doesn't convert lambda for cr species", {
+  ## bug visible with change of ferberite data to J:
+  ## lambda (exponent on heat capacity term)
+  ## was incorrectly going through a units conversion  20190903
+  # this was working
+  mod.obigt("test_cal", formula = "C0", state = "cr", E_units = "cal", a = 10, b = 100, f = 1, lambda = 0)
+  mod.obigt("test_J", formula = "C0", state = "cr", E_units = "J", a = 41.84, b = 418.4, f = 4.184, lambda = 0)
+  expect_equal(subcrt("test_cal", T = 25)$out[[1]]$Cp, subcrt("test_J", T = 25)$out[[1]]$Cp)
+  # this wasn't working
+  mod.obigt("test_cal2", formula = "C0", state = "cr", E_units = "cal", a = 10, b = 100, f = 1, lambda = -1)
+  mod.obigt("test_J2", formula = "C0", state = "cr", E_units = "J", a = 41.84, b = 418.4, f = 4.184, lambda = -1)
+  expect_equal(subcrt("test_cal2", T = 25)$out[[1]]$Cp, subcrt("test_J2", T = 25)$out[[1]]$Cp)
 })
 
 # reference

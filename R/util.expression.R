@@ -19,7 +19,7 @@ expr.species <- function(species, state = "aq", value = NULL, log = FALSE, molal
     elements <- suppressWarnings(try(makeup(species), TRUE))
   } else elements <- split.formula(species)
   # if species can't be parsed as a chemical formula, we don't do the formula formatting
-  if(identical(class(elements), "try-error") | !is.numeric(elements)) expr <- species
+  if(inherits(elements, "try-error") | !is.numeric(elements)) expr <- species
   else {
     # where we'll put the expression
     expr <- ""
@@ -279,7 +279,8 @@ describe.reaction <- function(reaction, iname=numeric(), states=NULL) {
   }
   # put an equals sign between reactants and products
   # change this to unicode for the reaction double-arrow 20190218 \u21cc
-  desc <- substitute(a ~ "\u21cc" ~ b, list(a=reactexpr, b=prodexpr))
+  # go back to equals - the arrow only works out-of-the-box on linux 20190817
+  desc <- substitute(a ~ "=" ~ b, list(a=reactexpr, b=prodexpr))
   return(desc)
 }
 

@@ -1270,17 +1270,23 @@ lapply(c("CHNOS", "QEC"), function(thisbasis) {
 #  })
 
 ## ----yeastgfp-----------------------------------------------------------------
-y <- yeastgfp("ER.to.Golgi")
-ina <- is.na(y$abundance)
+protein <- c("YDL195W", "YHR098C", "YIL109C", "YLR208W", "YNL049C", "YPL085W")
+abundance <- c(1840, 12200, NA, 21400, 1720, 358)
+ina <- is.na(abundance)
 
 ## ----add_protein_yeast, message=FALSE-----------------------------------------
-aa <- yeast.aa(y$protein[!ina])
-ip <- add.protein(aa)
+ip <- match(protein[!ina], thermo()$protein$protein)
+
+## ----JMDplots, eval = FALSE---------------------------------------------------
+#  y <- JMDplots::yeastgfp("ER.to.Golgi")
+#  ina <- is.na(y$abundance)
+#  aa <- JMDplots::yeast.aa(y$protein[!ina])
+#  ip <- add.protein(aa)
 
 ## ----unitize------------------------------------------------------------------
 pl <- protein.length(ip)
 logact <- unitize(numeric(5), pl)
-logabundance <- unitize(log10(y$abundance[!ina]), pl)
+logabundance <- unitize(log10(abundance[!ina]), pl)
 
 ## ----yeastplot, eval=FALSE, echo=1:6------------------------------------------
 #  par(mfrow = c(1, 3))
@@ -1392,9 +1398,6 @@ mtext(axis.label("O2"), line = 1.2)
 file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
 aa_bison <- read.csv(file, as.is = TRUE, nrows = 5)
 
-## ----yeast_aa-----------------------------------------------------------------
-aa_YML020W <- yeast.aa("YML020W")
-
 ## ----read_fasta, message=FALSE------------------------------------------------
 file <- system.file("extdata/fasta/EF-Tu.aln", package = "CHNOSZ")
 aa_Ef <- read.fasta(file, iseq = 1:2)
@@ -1418,7 +1421,7 @@ ILLISFLIFLIVG
 #  aa_UniProt <- do.call(rbind, aa)
 
 ## ----uniprot_aa_offline, echo=FALSE-------------------------------------------
-aa_ALAT1 <- seq2aa("sp|P24298_HUMAN", "
+aa_ALAT1 <- seq2aa("ALAT1_HUMAN", "
 MASSTGDRSQAVRHGLRAKVLTLDGMNPRVRRVEYAVRGPIVQRALELEQELRQGVKKPF
 TEVIRANIGDAQAMGQRPITFLRQVLALCVNPDLLSSPNFPDDAKKRAERILQACGGHSL
 GAYSVSSGIQLIREDVARYIERRDGGIPADPNNVFLSTGASDAIVTVLKLLVAGEGHTRT
@@ -1429,7 +1432,7 @@ VVSPPAPTDPSFAQFQAEKQAVLAELAAKAKLTEQVFNEAPGISCNPVQGAMYSFPRVQL
 PPRAVERAQELGLAPDMFFCLRLLEETGICVVPGSGFGQREGTYHFRMTILPPLEKLRLL
 LEKLSRFHAKFTLEYS
 ")
-aa_CO1A1 <- seq2aa("sp|P02452_HUMAN", "
+aa_CO1A1 <- seq2aa("CO1A1_HUMAN", "
 MFSFVDLRLLLLLAATALLTHGQEEGQVEGQDEDIPPITCVQNGLRYHDRDVWKPEPCRI
 CVCDNGKVLCDDVICDETKNCPGAEVPEGECCPVCPDGSESPTDQETTGVEGPKGDTGPR
 GPRGPAGPPGRDGIPGQPGLPGPPGPPGPPGPPGLGGNFAPQLSYGYDEKSTGGISVPGP
@@ -1463,7 +1466,7 @@ aa_UniProt$abbrv <- c("ALAT1", "CO1A1")
 aa_UniProt
 
 ## ----protein_length-----------------------------------------------------------
-myaa <- rbind(aa_YML020W, aa_Ef, aa_PRIO)
+myaa <- rbind(aa_Ef, aa_PRIO, aa_ALAT1)
 protein.length(myaa)
 
 ## ----add_protein--------------------------------------------------------------
@@ -1475,8 +1478,8 @@ subcrt("PRIO_HUMAN", T = 25)
 ## ----basis_CHNOS, results="hide"----------------------------------------------
 basis("CHNOS")
 
-## ----YML020W_affinity, message=FALSE------------------------------------------
-species("YML020W_Sce")
+## ----ALAT1_affinity, message=FALSE--------------------------------------------
+species("ALAT1_HUMAN")
 a <- affinity()
 
 ## ----affinity_iprotein, message=FALSE-----------------------------------------

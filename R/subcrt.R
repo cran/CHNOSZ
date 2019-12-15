@@ -357,11 +357,11 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
             # so use iphases[i-1] here, not iphases[i]-1  20181107
             Ttr <- Ttr(iphases[i-1], iphases[i], P=P, dPdT = dPdTtr(iphases[i-1], iphases[i]))
             if(all(is.na(Ttr))) next
-            if(any(T < Ttr)) {
+            if(any(T <= Ttr)) {
               status.Ttr <- "(extrapolating G)"
               if(!exceed.Ttr) {
                 # put NA into the value of G
-                p.cgl[[ncgl[i]]]$G[T<Ttr] <- NA
+                p.cgl[[ncgl[i]]]$G[T <= Ttr] <- NA
                 status.Ttr <- "(using NA for G)"
               } 
               #message(paste('subcrt: some points below transition temperature for',myname, mystate, status.Ttr))
@@ -382,13 +382,13 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
           }
         }
         if(any(is.na(Ttr))) next
-        if(!all(Ttr == 0) & any(T >= Ttr)) {
+        if(!all(Ttr == 0) & any(T > Ttr)) {
           status.Ttr <- "(extrapolating G)"
           if(!exceed.Ttr) {
-            p.cgl[[ncgl[i]]]$G[T >= Ttr] <- NA
+            p.cgl[[ncgl[i]]]$G[T > Ttr] <- NA
             status.Ttr <- "(using NA for G)"
           }
-          Tmax <- min(T[T >= Ttr])
+          Tmax <- min(T[T > Ttr])
           if(warn.above) message(paste("subcrt: temperature(s) of", Tmax, "K and above exceed limit for", myname, mystate, status.Ttr))
         }
       }
@@ -439,7 +439,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
     # deal with repeated species here
     if(TRUE %in% duplicated(iphases[arephases])) {
       # only take the first, not the duplicates
-      ndups <- length(which(ispecies==ispecies[i]))
+      ndups <- sum(ispecies==ispecies[i])
       nphases <- length(arephases) / ndups
       arephases <- arephases[1:nphases]
     }
@@ -448,7 +448,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
       # assemble the Gibbs energies for each species
       for(j in 1:length(arephases)) {
         G.this <- outprops[[arephases[j]]]$G
-        if(length(which(is.na(G.this))) > 0 & exceed.Ttr) warning(paste('subcrt: NAs found for G of ',
+        if(sum(is.na(G.this)) > 0 & exceed.Ttr) warning(paste('subcrt: NAs found for G of ',
           reaction$name[arephases[j]],' ',reaction$state[arephases[j]],' at T-P point(s) ',
           c2s(which(is.na(G.this)),sep=' '),sep=''),call.=FALSE)
         if(j==1) G <- as.data.frame(G.this)
