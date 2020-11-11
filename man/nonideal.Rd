@@ -139,11 +139,11 @@ title(main = "activity coefficients of -3, -2, -1, 0, +1, +2, +3 charged species
 # (needed for replication of the values in Alberty's book)
 nonideal("Alberty")
 thermo("opt$ideal.H" = FALSE)
-(sres <- subcrt(c("acetate", "H+", "acetic acid"), c(-1, -1, 1),
-  IS=c(0, 0.1, 0.25), T=25, property="logK"))
-# we're within 0.01 log of Alberty's pK values
+sres <- subcrt(c("acetate", "H+", "acetic acid"), c(-1, -1, 1),
+  IS=c(0, 0.1, 0.25), T=25, property="logK")
+# we're within 0.01 of Alberty's pK values
 Alberty_logK <- c(4.75, 4.54, 4.47)
-stopifnot(maxdiff(sres$out$logK, Alberty_logK) < 0.01)
+maxdiff(sres$out$logK, Alberty_logK) # 0.0072
 # reset option to default
 thermo("opt$ideal.H" = TRUE)
 
@@ -181,11 +181,9 @@ oldwat <- water("DEW")
 sres <- subcrt("Na+", T = 700, P = 10000, IS = IS)
 water(oldwat)
 # compare the calculated activity coefficient to values from Manning's figure
-Manning_gamma <- c(0.93, 0.82, 0.65, 0.76, 1.28, 2)
 gamma <- 10^sres$out[[1]]$loggam
-# the error is larger at higher IS
-stopifnot(maxdiff(gamma[1], Manning_gamma[1]) < 0.01)
-stopifnot(maxdiff(gamma, Manning_gamma) < 0.2)
+Manning_gamma <- c(0.93, 0.82, 0.65, 0.76, 1.28, 2)
+gamma - Manning_gamma
 
 ## Plot the data and splines used for calculating b_gamma
 ## (extended term parameter)
@@ -226,11 +224,11 @@ nonideal("Bdot")  # or reset()
 \references{
 Alberty, R. A. (2001) Effect of temperature on standard transformed Gibbs energies of formation of reactants at specified pH and ionic strength and apparent equilibrium constants of biochemical reactions. \emph{J. Phys. Chem. B} \bold{105}, 7865--7870. \url{https://doi.org/10.1021/jp011308v}
 
-Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{http://www.worldcat.org/oclc/51242181}
+Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{https://www.worldcat.org/oclc/51242181}
 
 Clarke, E. C. W. and Glew, D. N. (1980) Evaluation of Debye-Hückel limiting slopes for water between 0 and 150 °C. \emph{J. Chem. Soc. Faraday Trans.} \bold{76}, 1911--1916. \url{https://doi.org/10.1039/f19807601911}
 
-Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{http://www.worldcat.org/oclc/517586}
+Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{https://www.worldcat.org/oclc/517586}
 
 Helgeson, H. C. (1969) Thermodynamics of hydrothermal systems at elevated temperatures and pressures. \emph{Am. J. Sci.} \bold{267}, 729--804. \url{https://doi.org/10.2475/ajs.267.7.729}
 

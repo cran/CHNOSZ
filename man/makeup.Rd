@@ -31,7 +31,7 @@ Any sequence of one uppercase letter followed by zero or more lowercase letters 
 \code{makeup} will issue a warning for elemental symbols that are not present in \code{\link{thermo}$element}.
 
 \code{makeup} can handle numeric and length > 1 values for the \code{formula} argument.
-If the argument is numeric, it identifies row number(s) in \code{thermo()$obigt} from which to take the formulas of species.
+If the argument is numeric, it identifies row number(s) in \code{thermo()$OBIGT} from which to take the formulas of species.
 If \code{formula} has length > 1, the function returns a list containing the elemental counts in each of the formulas.
 If \code{count.zero} is TRUE, the elemental counts for each formula include zeros to indicate elements that are only present in any of the other formulas.
 
@@ -52,9 +52,8 @@ makeup("CO2")     # 1 carbon, 2 oxygen
 # the formula of lawsonite, with a parenthetical part and a suffix
 makeup("CaAl2Si2O7(OH)2*H2O")
 # fractional coefficients are ok
-redfield <- c(106, 16, 1)
 reddiv10 <- makeup("C10.6N1.6P0.1")
-stopifnot(10*reddiv10 == redfield)
+10*reddiv10 # 106, 16, 1 (Redfield ratio)
 
 # the coefficient for charge is a number with a *preceding* sign
 # e.g., ferric iron, with a charge of +3 is expressed as
@@ -67,8 +66,8 @@ makeup("Fe3+")
 # these all represent a single negative charge, i.e., electron
 makeup("-1")
 makeup("Z-1+0")
-makeup("Z0-1")   # the "old" formula for the electron in thermo()$obigt
-makeup("(Z-1)")  # the current formula in thermo()$obigt
+makeup("Z0-1")   # the "old" formula for the electron in thermo()$OBIGT
+makeup("(Z-1)")  # the current formula in thermo()$OBIGT
 
 # hypothetical compounds with negative numbers of elements
 makeup("C-4(O-2)")   # -4 carbon, -2 oxygen
@@ -78,8 +77,8 @@ makeup("C-4O-2-2")   # -4 carbon, -2 oxygen, -2 charge
 # the 'sum' argument can be used to check mass and charge
 # balance in a chemical reaction
 formula <- c("H2O", "H+", "(Z-1)", "O2")
-(mf <- makeup(formula, c(-1, 2, 2, 0.5), sum=TRUE))
-stopifnot(all(mf==0))
+mf <- makeup(formula, c(-1, 2, 2, 0.5), sum = TRUE)
+all(mf==0)  # TRUE
 }
 
 \seealso{ \code{\link{mass}}, \code{\link{entropy}}, \code{\link{basis}}, \code{\link{i2A}} }

@@ -2,6 +2,8 @@
 ## after Amend and Shock, 2001, Fig. 7
 ##  Amend, J. P. and Shock, E. L. (2001) Energetics of overall metabolic reactions of thermophilic and hyperthermophilic Archaea and Bacteria.
 ##  FEMS Microbiol. Rev. 25, 175--243. https://doi.org/10.1016/S0168-6445(00)00062-0
+library(CHNOSZ)
+
 # use aq state for all basis species (including O2)
 basis(c("CO2", "H2", "NH3", "O2", "H2S", "H+"), "aq")
 # we're going to make H2O
@@ -23,8 +25,10 @@ doplot <- function(T) {
     legend=describe.property("T", T, digits=0, ret.val=TRUE) )
 }
 # plot layout with space for title at top
+opar <- par(no.readonly = TRUE)
 layout(matrix(c(1, 1, 2, 3, 4, 5), ncol=2, byrow=TRUE), heights=c(1, 4, 4))
-opar <- par(mar=c(0, 0, 0, 0))
+
+par(mar=c(0, 0, 0, 0))
 plot.new()
 # we use subcrt() to generate a reaction for titling the plot
 rxnexpr <- describe.reaction(subcrt("H2O", 1)$reaction, states="all")
@@ -40,6 +44,7 @@ sapply(c(25, 55, 100, 150), doplot)
 print(affinity(H2=c(-10, 0, 3), O2=c(-10, 0, 3), T=c(25, 150, 4))$values)
 # this is so the plots in the next examples show up OK
 E.units("cal")
+
 layout(matrix(1))
 par(opar)
 
@@ -73,7 +78,7 @@ a <- affinity(T=T)
 G.100.cal <- convert(unlist(a$values), "G", T=TK)
 G.100.kJ <- convert(G.100.cal, "J")/1000
 # the average oxidation states of carbon
-Z.C <- ZC(thermo()$obigt$formula[thermo()$species$ispecies])
+Z.C <- ZC(thermo()$OBIGT$formula[thermo()$species$ispecies])
 # put everything together a la Table 3 in the paper
 print(out <- data.frame(G.18=G.18.kJ, G.100=G.100.kJ, Z.C=Z.C))
 # make a plot; set units to get correct label
@@ -87,6 +92,5 @@ title(main="Amino acid synthesis, after Amend and Shock, 1998")
 # 9 amino acids have negative delta Gr under hydrothermal conditions
 # (cf. AS98 with 11; we are using more recent thermodynamic data)
 stopifnot(sum(out$G.100 < 0)==9)
-# reset units and species to run next examples
+# reset units to run next examples
 E.units("cal")
-species(delete=TRUE)

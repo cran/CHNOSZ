@@ -18,7 +18,7 @@ Calculate thermodynamic properties using the revised Helgeson-Kirkham-Flowers (H
 
 \arguments{
   \item{property}{character, name(s) of properties to calculate}
-  \item{parameters}{dataframe, species parameters as one or more rows from \code{thermo()$obigt}}
+  \item{parameters}{dataframe, species parameters as one or more rows from \code{thermo()$OBIGT}}
   \item{T}{numeric, temperature(s) at which to calculate properties (K)}
   \item{P}{numeric, pressure(s) at which to calculate properties (bar)}
   \item{contrib}{character, which contributions to consider in the revised HKF equations equations of state: (\code{n})onsolvation, (\code{s})olvation (the \eqn{\omega}{omega} terms), or (o)rigination contributions (i.e., the property itself at 25 \degC and 1 bar). Default is \code{c("n","s","o")}, for all contributions}
@@ -33,8 +33,8 @@ The units of these properties are the first ones shown in the description for \c
 The names of the properties are matched without regard to case. 
 
 \code{hkf} implements the revised HKF equations of state (Helgeson et al., 1981; Tanger and Helgeson, 1988; Shock and Helgeson, 1988).
-The equations-of-state parameters are \code{a1}, \code{a2}, \code{a3}, \code{a4}, \code{c1}, \code{c2}, \code{omega} and \code{Z}; the units of these parameters are as indicated for \code{\link{thermo}$obigt}, without the order of magnitude multipliers.
-Note that the equation-of-state parameter \code{Z} (appearing in the \eqn{g}{g}-function for the temperature derivatives of the omega parameter; Shock et al., 1992) is taken from \code{thermo()$obigt} and \emph{not} from the \code{\link{makeup}} of the species.
+The equations-of-state parameters are \code{a1}, \code{a2}, \code{a3}, \code{a4}, \code{c1}, \code{c2}, \code{omega} and \code{Z}; the units of these parameters are as indicated for \code{\link{thermo}$OBIGT}, without the order of magnitude multipliers.
+Note that the equation-of-state parameter \code{Z} (appearing in the \eqn{g}{g}-function for the temperature derivatives of the omega parameter; Shock et al., 1992) is taken from \code{thermo()$OBIGT} and \emph{not} from the \code{\link{makeup}} of the species.
 \code{H2O.props} is an optional argument that lists the properties of water that should be returned; it is used by \code{\link{subcrt}} so that the time-consuming water calculations are only performed once.
 
 The temperature and pressure derivatives of the \code{omega} parameter for charged species (where \code{Z != 0}, but not for the aqueous proton, H+) are calculated using the \eqn{g}{g}- and \eqn{f}{f}-functions described by Shock et al., 1992 and Johnson et al., 1992.
@@ -74,7 +74,7 @@ Furthermore, in \code{hkf}, the output is a list consisting of the above-describ
 \examples{
 \dontshow{reset()}
 ## aqueous species
-CH4aq <- info(info("methane", "aq"))	
+CH4aq <- info(info("CH4", "aq"))	
 hkf(property = "Cp", parameters = CH4aq)
 # the non-solvation heat capacity
 hkf(property = "Cp", parameters = CH4aq, contrib = "n")	
@@ -82,13 +82,13 @@ hkf(property = "Cp", parameters = CH4aq, contrib = "n")
 hkf(property = "Cp", parameters = CH4aq, T = c(373.15,473.15), P = 1000)
 
 ## crystalline, gas, liquid species
-CH4gas <- info(info("methane", "gas"))	
+CH4gas <- info(info("CH4", "gas"))	
 cgl(property = "Cp", parameters = CH4gas)
 # melting and vaporization of octane
 C8H18par <- info(info(rep("octane", 3), c("cr", "liq", "gas")))
 myT <- seq(200, 420, 10)
 DG0f <- cgl(property = "G", parameters = C8H18par, T = myT, P = 1)
-cbind(T = myT, which.pmax(DG0f, pmin = TRUE))  # 1 = cr, 2 = liq, 3 = gas
+cbind(T = myT, which.pmax(DG0f, FALSE))  # 1 = cr, 2 = liq, 3 = gas
 # compare that result with the tabulated transition temperatures
 print(C8H18par)
 }
@@ -103,7 +103,7 @@ print(C8H18par)
 
   Maier, C. G. and Kelley, K. K. (1932) An equation for the representation of high-temperature heat content data. \emph{J. Am. Chem. Soc.} \bold{54}, 3243--3246. \url{https://doi.org/10.1021/ja01347a029}
 
-  Robie, R. A. and Hemingway, B. S. (1995) \emph{Thermodynamic Properties of Minerals and Related Substances at 298.15 K and 1 Bar (\eqn{10^5} Pascals) Pressure and at Higher Temperatures}. U. S. Geol. Surv., Bull. 2131, 461 p. \url{http://www.worldcat.org/oclc/32590140}
+  Robie, R. A. and Hemingway, B. S. (1995) \emph{Thermodynamic Properties of Minerals and Related Substances at 298.15 K and 1 Bar (\eqn{10^5} Pascals) Pressure and at Higher Temperatures}. U. S. Geol. Surv., Bull. 2131, 461 p. \url{https://www.worldcat.org/oclc/32590140}
 
   Shock, E. L. and Helgeson, H. C. (1988) Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Correlation algorithms for ionic species and equation of state predictions to 5 kb and 1000\degC. \emph{Geochim. Cosmochim. Acta} \bold{52}, 2009--2036. \url{https://doi.org/10.1016/0016-7037(88)90181-0}
   

@@ -15,7 +15,7 @@ expr.species <- function(species, state = "aq", value = NULL, log = FALSE, molal
   if(use.makeup) {
     # the counts of elements in the species:
     # here we don't care too much if an "element" is a real element
-    # (listed in thermo$element), so we suppress warnings
+    # (listed in thermo()$element), so we suppress warnings
     elements <- suppressWarnings(try(makeup(species), TRUE))
   } else elements <- split.formula(species)
   # if species can't be parsed as a chemical formula, we don't do the formula formatting
@@ -29,15 +29,18 @@ expr.species <- function(species, state = "aq", value = NULL, log = FALSE, molal
         # append the elemental symbol
         expr <- substitute(paste(a, b), list(a=expr, b=names(elements)[i]))
         # recover the coefficient
-        if(elements[i]==1) coeff <- "" else coeff <- elements[i]
-        # append the coefficient
-        expr <- substitute(a[b], list(a=expr, b=coeff))
+        coeff <- elements[i]
+        if(coeff!=1) {
+          # append the coefficient
+          expr <- substitute(a[b], list(a=expr, b=as.character(coeff)))
+        }
       } else {
         # for charged species, don't show "Z" but do show e.g. "+2"
         coeff <- elements[i]
         if(coeff==-1) coeff <- "-"
         else if(coeff==1) coeff <- "+"
         else if(coeff > 0) coeff <- paste("+", as.character(coeff), sep="")
+        else coeff <- as.character(coeff)
         # append the coefficient as a superscript
         expr <- substitute(a^b, list(a=expr, b=coeff))
       }
@@ -285,19 +288,24 @@ describe.reaction <- function(reaction, iname=numeric(), states=NULL) {
 }
 
 # make formatted text for activity ratio 20170217
-ratlab <- function(ion="K+", molality=FALSE) {
-  # the charge
-  Z <- makeup(ion)["Z"]
-  # the text for the exponent on aH+
-  exp.H <- as.character(Z)
-  # the expression for the ion and H+
-  expr.ion <- expr.species(ion)
-  expr.H <- expr.species("H+")
+# allow changing the bottom ion 20200716
+ratlab <- function(top = "K+", bottom = "H+", molality = FALSE) {
+  # the charges
+  Ztop <- makeup(top)["Z"]
+  Zbottom <- makeup(bottom)["Z"]
+  # the text for the exponents
+  exp.bottom <- as.character(Ztop)
+  exp.top <- as.character(Zbottom)
+  if(exp.top=="1") exp.top <- ""
+  if(exp.bottom=="1") exp.bottom <- ""
+  # the expression for the top and bottom
+  expr.top <- expr.species(top)
+  expr.bottom <- expr.species(bottom)
   # with molality, change a to m
   a <- ifelse(molality, "m", "a")
   # the final expression
-  if(exp.H=="1") substitute(log~(italic(a)[expr.ion] / italic(a)[expr.H]), list(a=a, expr.ion=expr.ion, expr.H=expr.H))
-  else substitute(log~(italic(a)[expr.ion] / italic(a)[expr.H]^exp.H), list(a=a, expr.ion=expr.ion, expr.H=expr.H, exp.H=exp.H))
+  substitute(log~(italic(a)[expr.top]^exp.top / italic(a)[expr.bottom]^exp.bottom),
+             list(a = a, expr.top = expr.top, exp.top = exp.top, expr.bottom = expr.bottom, exp.bottom = exp.bottom))
 }
 
 # make formatted text for thermodynamic system 20170217

@@ -1,15 +1,16 @@
 # CHNOSZ/demo/AkDi.R
 # calculations using the Akinfiev-Diamond model 20190220
 # after Fig. 1 of Akinfiev and Diamond, 2003
+library(CHNOSZ)
 
 # function to plot natural logarithm of Henry's constant
 lines.KH <- function(name = "CO2", T = 1:373, P = "Psat", HKF = FALSE, altH2S = FALSE) {
   # use AkDi or HKF model?
-  if(!HKF) add.obigt("AkDi")
+  if(!HKF) add.OBIGT("AkDi")
   # use alternative parameters for H2S? (AD03 Table 1)
-  if(altH2S) mod.obigt("H2S", state="aq", a=-11.2303, b=12.6104, c=-0.2102)
+  if(altH2S) mod.OBIGT("H2S", state="aq", a=-11.2303, b=12.6104, c=-0.2102)
   # get properties of aq - gas reaction
-  sres <- subcrt(c(name, name), c("aq", "gas"), c(-1, 1), T = T, P = P)
+  sres <- suppressWarnings(subcrt(c(name, name), c("aq", "gas"), c(-1, 1), T = T, P = P))
   # calculate natural logarithm of Henry's constant in mole-fraction units
   ln_KH <- log(1000/18.0153) + log(10) * sres$out$logK
   # plot with units of reciprocal temperature (1000/K)
@@ -23,7 +24,9 @@ lines.KH <- function(name = "CO2", T = 1:373, P = "Psat", HKF = FALSE, altH2S = 
 }
 
 # set up plot
+opar <- par(no.readonly = TRUE)
 par(mfrow=c(2, 2))
+
 ylab <- quote(ln~italic(K[H]))
 xlab <- quote(1000 / list(italic(T), K))
 
@@ -78,3 +81,4 @@ text(3.4, 11, quote(italic(P)[sat]))
 legend("bottomright", c("Data (AD03, Fig. 1d)", "AkDi model", "HKF model"), lty=c(0, 1, 3), pch=c(1, NA, NA), col=c(1, 1, 2), bty="n")
 title(main=syslab(c("CH4", "H2O"), dash = " - "))
 
+par(opar)

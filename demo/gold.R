@@ -2,6 +2,7 @@
 # 20181101 jmd first version
 # 20181109 add calculation of K+ molality
 # 20190127 update Au species in OBIGT, not here
+library(CHNOSZ)
 
 # set up system
 # use H2S here: it's the predominant species at the pH of the QMK buffer -- see sulfur()
@@ -21,7 +22,6 @@ col <- c("#ED4037", "#F58645", "#0F9DE2", "#22CC88")
 
 # sulfur logfO2-pH diagrams showing redox and pH buffers at four temperatures 20181031
 sulfur <- function() {
-  species(delete = TRUE)
   species(c("H2S", "HS-", "HSO4-", "SO4-2"))
   T <- c(200, 300, 400, 500)
   P <- 1000
@@ -174,7 +174,8 @@ Au_T2 <- function() {
 }
 
 # make plots
-opar <- par(mfrow = c(2, 2))
+opar <- par(no.readonly = TRUE)
+par(mfrow = c(2, 2))
 Au_pH1()
 Au_pH2()
 Au_T1()

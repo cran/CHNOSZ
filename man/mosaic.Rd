@@ -7,13 +7,14 @@ Calculate chemical affinities of formation reactions of species using basis spec
 }
 
 \usage{
-  mosaic(bases, bases2 = NULL, blend = TRUE, ...)
+  mosaic(bases, bases2 = NULL, blend = TRUE, stable = list(), ...)
 }
 
 \arguments{
   \item{bases}{character, basis species to be changed in the calculation, or list, containing vectors for each group of changing basis species}
   \item{bases2}{character, second set of changing basis species}
   \item{blend}{logical, use relative abundances of basis species?}
+  \item{stable}{list, previously determined stable species}
   \item{...}{additional arguments to be passed to \code{\link{affinity}}}
 }
 
@@ -22,16 +23,26 @@ Calculate chemical affinities of formation reactions of species using basis spec
 \code{mosaic} can be used to calculate the affinities of formation of species when the relative abundances of the basis species listed in \code{bases} change over the range of conditions, due to e.g. ionization, complexation or redox reactions.
 This is a way to \dQuote{speciate the basis species}.
 For example, the speciation of sulfur (\samp{SO4-2}, \samp{HSO4-}, \samp{HS-} and \samp{H2S}) as a function of Eh and pH affects the formation affinities, and therefore relative stabilities of iron oxide and sulfide minerals.
-Chemical activity diagrams constructed by assembling sub-diagrams corresponding to the predominant basis species can described as \dQuote{mosaic diagrams}.
+Chemical activity diagrams constructed by assembling sub-diagrams corresponding to the predominant (i.e. most stable) basis species can described as \dQuote{mosaic diagrams}.
 
 The function calculates the affinities using all combination of basis species given as vector arguments to \code{bases} and \code{bases2}.
 The first species listed in each group should be in the current basis definition, and all the basis species in each group should be related to the first basis species there (i.e. all share the same element).
 A second, independent set of basis species can be provided in \code{bases2} (for example \samp{CO3-2}, \samp{HCO3-}, \samp{CO2}, if the first set of basis species are the sulfur-bearing ones listed above).
 The arguments in \code{...} are passed to \code{affinity} to specify the variable conditions, such as temperature, pressure, and activities of other basis species.
 
+\code{blend} can be a single logical value or multiple values, in order to control the calculations for individual groups of basis species.
+
 If \code{blend} is TRUE (the default), the relative abundances of the basis species in each group are calculated using \code{\link{equilibrate}}, with the total activity taken from the corresponding basis species in the incoming \code{\link{basis}} definition.
 Then, the function calculates overall affinities of the formation reactions of each species by combining reactions written using individual basis species in proportion to the relative abundances of the basis species.
+
 If \code{blend} is FALSE, the function returns the affinities calculated using the single predominant basis species in \code{bases} at each condition.
+This is appropriate when minerals, rather than aqueous species, are used as the changing basis species.
+Note, however, that \code{mosaic} is not internally recursive: the stabilities of one group of basis species (e.g. minerals) are not affected by changes in another group (e.g. aqueous species).
+
+This limitation can be overcome by supplying the calculated stabilities (from the \code{predominant} element of the output of \code{\link{diagram}}) as an element of the list in the \code{stable} argument whose position corresponds to the appropriate group of basis species.
+By using the stabilities of minerals in one calculation to identify the basis species in a subsequent calculation, a series of linked \code{mosaic} diagrams with increasing complexity can be made.
+This is useful for diagrams for minerals with multiple metallic elements.
+Note that a value in any position of the \code{stable} list forces \code{blend = FALSE} for the corresponding group of basis species, so there is no need to explicity change the \code{blend} argument.
 
 A more flexible method of specifying multiple sets of basis species is now available.
 Instead of using \code{bases} and \code{bases2}, supply a list for just the \code{bases} argument.
@@ -56,13 +67,13 @@ The help page of \code{\link{solubility}} has an example combining \code{mosaic}
 \dontshow{reset()}# Fe-minerals and aqueous species in Fe-S-O-H system
 # speciate SO4-2, HSO4-, HS-, H2S as a function of Eh and pH
 # after Garrels and Christ, 1965 Figure 7.20
-pH <- c(0, 14, 250)
-Eh <- c(-1, 1, 250)
+pH <- c(0, 14)
+Eh <- c(-1, 1)
 T <- 25
 basis(c("FeO", "SO4-2", "H2O", "H+", "e-"))
 basis("SO4-2", -6)
 species(c("Fe+2", "Fe+3"), -6)
-species(c("pyrrhotite", "pyrite", "hematite", "magnetite"))
+species(c("pyrrhotite", "pyrite", "hematite", "magnetite"), add = TRUE)
 # the basis species we'll swap through
 bases <- c("SO4-2", "HSO4-", "HS-", "H2S")
 # calculate affinities using the relative abundances of the basis species
@@ -84,7 +95,7 @@ legend("bottomleft", c("log(act_Fe) = -4", "log(act_Fe) = -6"), lwd = c(2, 1), b
 }
 
 \references{
-  Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{http://www.worldcat.org/oclc/517586}
+  Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{https://www.worldcat.org/oclc/517586}
 }
 
 \concept{Extended workflow}

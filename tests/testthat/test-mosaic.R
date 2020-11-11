@@ -1,5 +1,8 @@
 context("mosaic")
 
+# this is a long test ... skip it if we're on R CMD check --as-cran
+if(!any(grepl("R_CHECK_TIMINGS", names(Sys.getenv())))) {
+
 test_that("results are consistent with affinity()", {
   basis(c("CO2", "H2O", "NH3", "O2"), c(0, 0, 0, 0))
   species(c("alanine", "glycine"))
@@ -13,11 +16,11 @@ test_that("results are consistent with affinity()", {
   m2_25 <- mosaic("NH3", "CO2", blend = FALSE)
   expect_equal(a25$values, m2_25$A.species$values)
   # make sure the function works when all affinities are NA
-  a500 <- affinity(T=500)
+  a500 <- suppressWarnings(affinity(T=500))
   # using blend=TRUE was failing prior to version 1.1.3-37
-  m1_500 <- mosaic("NH3", "CO2", T=500)
+  m1_500 <- suppressWarnings(mosaic("NH3", "CO2", T=500))
   expect_equal(a500$values, m1_500$A.species$values)
-  m2_500 <- mosaic("NH3", "CO2", blend = FALSE, T=500)
+  m2_500 <- suppressWarnings(mosaic("NH3", "CO2", blend = FALSE, T=500))
   expect_equal(a500$values, m2_500$A.species$values)
 })
 
@@ -155,3 +158,5 @@ test_that("mosaic() - equilibrate() produces equilibrium activities that are con
 })
 
 # TODO: test that basis specifications can be exchanged between bases and bases2 without altering output
+
+}

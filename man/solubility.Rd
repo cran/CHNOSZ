@@ -56,7 +56,7 @@ See the second example for this method.
 The output of \code{solubility} has the same format as that of \code{equilibrate}, and can be used by \code{\link{diagram}} with \code{type = "loga.balance"} to plot the solubilities, or with \code{type = NULL} to plot the activities of species. 
 The value of \code{loga.balance} reflects the activity (or molality) of the conserved basis species, i.e. the thing being dissolved.
 Use \code{in.terms.of} to express this value in terms of another species.
-For example, the solubility of corundum (Al\s{2}O\s{3}) can be expressed in terms of the moles of Al\S{+3} in solution (see the vignette \code{anintro.Rmd}).
+For example, the solubility of corundum (Al\s{2}O\s{3}) can be expressed in terms of the moles of Al\S{+3} in solution (see the vignette \viglink{anintro}).
 }
 
 \section{Warning}{
@@ -117,17 +117,17 @@ par(opar)
 basis(c("calcite", "Ca+2", "H2O", "O2", "H+"))
 species(c("CO2", "HCO3-", "CO3-2"))
 # ionic strength calculations don't converge below around pH=3
-a <- affinity(pH = c(3, 14))
+a <- affinity(pH = c(4, 14))
 sa0 <- solubility(a)
 saI <- solubility(a, find.IS = TRUE)
 ## method 2: CO2 and carbonate species as basis species
 basis(c("calcite", "CO2", "H2O", "O2", "H+"))
 species(c("Ca+2"))
-m <- mosaic(c("CO2", "HCO3-", "CO3-2"), pH = c(3, 14))
+m <- mosaic(c("CO2", "HCO3-", "CO3-2"), pH = c(4, 14))
 sm0 <- solubility(m)
 smI <- solubility(m, find.IS = TRUE)
 ## plot the results
-plot(0, 0, xlab="pH", ylab="solubility, log mol", xlim = c(3, 14), ylim = c(-5, 2))
+plot(0, 0, xlab="pH", ylab="solubility, log mol", xlim = c(4, 14), ylim = c(-5, 2))
 # method 1 with/without ionic strength
 lines(a$vals[[1]], saI$loga.balance, lwd=5, col="lightblue")
 lines(a$vals[[1]], sa0$loga.balance, lwd=5, col="pink")
@@ -147,7 +147,7 @@ stopifnot(all.equal(saI$loga.balance, smI$loga.balance, tolerance = 0.003))
 \references{
 Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \url{https://doi.org/10.2138/rmg.2013.75.5}
 
-Stumm, W. and Morgan, J. J. (1996) \emph{Aquatic Chemistry: Chemical Equilibria and Rates in Natural Waters}, John Wiley & Sons, New York, 1040 p. \url{http://www.worldcat.org/oclc/31754493}
+Stumm, W. and Morgan, J. J. (1996) \emph{Aquatic Chemistry: Chemical Equilibria and Rates in Natural Waters}, John Wiley & Sons, New York, 1040 p. \url{https://www.worldcat.org/oclc/31754493}
 }
 
 \concept{Main workflow}

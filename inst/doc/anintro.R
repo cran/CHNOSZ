@@ -10,6 +10,7 @@ zc <- "<i>Z</i><sub>C</sub>"
 o2 <- "O<sub>2</sub>"
 h2o <- "H<sub>2</sub>O"
 sio2 <- "SiO<sub>2</sub>"
+ch4 <- "CH<sub>4</sub>"
 
 ## ----setup, include=FALSE-----------------------------------------------------
 library(knitr)
@@ -80,7 +81,6 @@ library(CHNOSZ)
 reset()
 
 ## ----pseudocode, eval=FALSE---------------------------------------------------
-#  reset()         ## initialize system settings
 #  basis(...)
 #  species(...)
 #  a <- affinity(...)
@@ -88,51 +88,24 @@ reset()
 #  diagram(e)           ## or diagram(a)
 #  reset()         ## clear settings for next calculation
 
-## ----info_adenine-------------------------------------------------------------
-info("aden ")
-info("adenine")
-iadenine <- info("adenine")
-info(iadenine)
+## ----info_CH4-----------------------------------------------------------------
+info("CH4")
 
-## ----refs_adenine-------------------------------------------------------------
-thermo.refs(iadenine)
+## ----info_CH4_gas-------------------------------------------------------------
+info("CH4", "gas")
 
-## ----bsad_adenine, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Nucleobase equal-activity diagram at <i>T</i> = 100 °C.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-basis("CHNOSe")
-species(c("adenine", "cytosine", "guanine", "thymine", "uracil"))
-a <- affinity(H2O = c(-12, -0), Eh = c(-0.4, -0.2), T = 100)
-diagram(a)
-
-## ----subcrt_adenine-----------------------------------------------------------
-subcrt("adenine", T = 100)
-
-## ----equil_adenine, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, results="hide", fig.cap="Activities of nucleobases in metastable equilibrium at <i>T</i> = 100 °C.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-basis("e-", 3.6)
-a <- affinity(H2O = c(-12, 0), T = 100)
-e <- equilibrate(a)
-diagram(e, ylim = c(-5, -1))
-
-## ----bsad_adenine, eval=FALSE-------------------------------------------------
-#  basis("CHNOSe")
-#  species(c("adenine", "cytosine", "guanine", "thymine", "uracil"))
-#  a <- affinity(H2O = c(-12, -0), Eh = c(-0.4, -0.2), T = 100)
-#  diagram(a)
-
-## ----equil_adenine, eval=FALSE------------------------------------------------
-#  basis("e-", 3.6)
-#  a <- affinity(H2O = c(-12, 0), T = 100)
-#  e <- equilibrate(a)
-#  diagram(e, ylim = c(-5, -1))
-
-## ----info_methane-------------------------------------------------------------
+## ----info_names_gas-----------------------------------------------------------
 info("methane")
+info("oxygen")
+info("carbon dioxide")
 
-## ----info_methane_gas---------------------------------------------------------
-info("methane", "gas")
+## ----info_S_S2----------------------------------------------------------------
+info("S")
+info("S2")
 
-## ----info_imethane, message=FALSE---------------------------------------------
-imethane <- info("methane")
-info(imethane)
+## ----iCH4, message=FALSE------------------------------------------------------
+iCH4 <- info("CH4")
+info(iCH4)
 
 ## ----info_info_water----------------------------------------------------------
 info(info("water"))
@@ -149,17 +122,17 @@ options(width = 80)
 ## ----info_ribose--------------------------------------------------------------
 info(" ribose")
 
-## ----info_imethane_formula, message=FALSE-------------------------------------
-info(imethane)$formula
+## ----info_CH4_formula, message=FALSE------------------------------------------
+info(iCH4)$formula
 
-## ----makeup_imethane----------------------------------------------------------
-makeup(imethane)
-as.chemical.formula(makeup(imethane))
+## ----makeup_iCH4--------------------------------------------------------------
+makeup(iCH4)
+as.chemical.formula(makeup(iCH4))
 
-## ----ZC_imethane, message=FALSE-----------------------------------------------
-ZC(imethane)
-ZC(info(imethane)$formula)
-ZC(makeup(imethane))
+## ----ZC_iCH4, message=FALSE---------------------------------------------------
+ZC(iCH4)
+ZC(info(iCH4)$formula)
+ZC(makeup(iCH4))
 
 ## ----subcrt_water-------------------------------------------------------------
 subcrt("water")
@@ -177,14 +150,14 @@ plot(water$P, water$rho, type = "l")
 #  water <- substuff$out$water
 #  plot(water$P, water$rho, type = "l")
 
-## ----units_methane, message=FALSE---------------------------------------------
+## ----units_CH4, message=FALSE-------------------------------------------------
 T.units("K")
 P.units("MPa")
 E.units("J")
-subcrt("methane", T = 298.15, P = 0.1)$out$methane$G
+subcrt("CH4", T = 298.15, P = 0.1)$out$CH4$G
 
 ## ----convert_G, message=FALSE-------------------------------------------------
-convert(info(info("methane"))$G, "J")
+convert(info(info("CH4"))$G, "J")
 
 ## ----reset--------------------------------------------------------------------
 reset()
@@ -233,12 +206,12 @@ basis(c("CO2", "H2", "H2O"))
 basis(c("CO2", "H2", "H2O", "H+"))
 
 ## ----subcrt_acetoclastic, message=FALSE---------------------------------------
-subcrt(c("acetate", "methane"), c(-1, 1))$reaction
+subcrt(c("acetate", "CH4"), c(-1, 1))$reaction
 
 ## ----subcrt_methanogenesis, message=FALSE-------------------------------------
 acetate_oxidation <- subcrt("acetate", -1)
-hydrogenotrophic <- subcrt("methane", 1)
-acetoclastic <- subcrt(c("acetate", "methane"), c(-1, 1))
+hydrogenotrophic <- subcrt("CH4", 1)
+acetoclastic <- subcrt(c("acetate", "CH4"), c(-1, 1))
 
 ## ----describe_reaction_plot, fig.margin=TRUE, fig.width=3.5, fig.height=1.8, tiny.mar=TRUE, dpi=dpi, out.width="100%", pngquant=pngquant, timeit=timeit----
 plot(0, 0, type = "n", axes = FALSE, ann=FALSE, xlim=c(0, 5), ylim=c(5.2, -0.2))
@@ -256,15 +229,15 @@ basis(c("CO2", "H2"), "gas")
 basis(c("H2", "pH"), c(-3.92, 7.3))
 
 ## ----affinity_acetoclastic, message=FALSE-------------------------------------
-subcrt(c("acetate", "methane"), c(-1, 1),
+subcrt(c("acetate", "CH4"), c(-1, 1),
        c("aq", "gas"), logact = c(-3.4, -0.18), T = 55, P = 50)$out
 
 ## ----affinity_hydrogenotrophic, message=FALSE---------------------------------
-subcrt("methane", 1, "gas", logact = -0.18, T = 55, P = 50)$out
+subcrt("CH4", 1, "gas", logact = -0.18, T = 55, P = 50)$out
 
 ## ----rxnfun, message=FALSE----------------------------------------------------
 rxnfun <- function(coeffs) {
-  subcrt(c("acetate", "methane"), coeffs,
+  subcrt(c("acetate", "CH4"), coeffs,
          c("aq", "gas"), logact = c(-3.4, -0.18), T = 55, P = 50)$out
 }
 
@@ -304,7 +277,7 @@ legend("topleft", c("acetate oxidation", "acetoclastic methanogenesis",
 reset()
 
 ## ----basis_CHNOSZ, results="hide"---------------------------------------------
-basis("CHNOS+")
+basis("CHNOSe")
 
 ## ----species_sulfur-----------------------------------------------------------
 species(c("H2S", "HS-", "HSO4-", "SO4-2"))
@@ -312,33 +285,58 @@ species(c("H2S", "HS-", "HSO4-", "SO4-2"))
 ## ----affinity-----------------------------------------------------------------
 unlist(affinity()$values)
 
-## ----swap_basis---------------------------------------------------------------
-swap.basis("O2", "e-")
-
-## ----EhpH_plot, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, cache=TRUE, fig.cap="Aqueous sulfur species at 25 °C.", pngquant=pngquant, timeit=timeit----
+## ----EhpH_plot, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo = FALSE, message=FALSE, cache=TRUE, fig.cap="Aqueous sulfur species at 25 °C.", pngquant=pngquant, timeit=timeit----
 a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
-diagram(a, fill = "heat")
-water.lines(a)
+diagram(a, limit.water = TRUE)
 
-## ----EhpH_plot, echo=1, eval=FALSE--------------------------------------------
+## ----EhpH_plot, echo=TRUE, eval=FALSE-----------------------------------------
 #  a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
-#  diagram(a, fill = "heat")
-#  water.lines(a)
-
-## ----EhpH_plot, echo=-1, eval=FALSE-------------------------------------------
-#  a <- affinity(pH = c(0, 12), Eh = c(-0.5, 1))
-#  diagram(a, fill = "heat")
-#  water.lines(a)
+#  diagram(a, limit.water = TRUE)
 
 ## ----EhpH_plot_color, fig.margin=TRUE, fig.width=4, fig.height=4, smallish.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, cache=TRUE, fig.cap="The same plot, with different colors and labels.", pngquant=pngquant, timeit=timeit----
 diagram(a, fill = "terrain", lwd = 2, lty = 3,
         names = c("hydrogen sulfide", "bisulfide", "bisulfate", "sulfate"),
-        tplot = FALSE, main = "sulfur species, 25 °C", bty = "n")
+        las = 0)
+water.lines(a, col = 6, lwd = 2)
 
 ## ----EhpH_plot_color, echo=TRUE, eval=FALSE-----------------------------------
 #  diagram(a, fill = "terrain", lwd = 2, lty = 3,
 #          names = c("hydrogen sulfide", "bisulfide", "bisulfate", "sulfate"),
-#          tplot = FALSE, main = "sulfur species, 25 °C", bty = "n")
+#          las = 0)
+#  water.lines(a, col = 6, lwd = 2)
+
+## ----retrieve-----------------------------------------------------------------
+retrieve("Mn", c("O", "H"), "aq")
+retrieve("Mn", c("O", "H"), "cr")
+
+## ----retrieve_diagram, fig.margin=TRUE, fig.width=5, fig.height=5, dpi=dpi, out.width="100%", message=FALSE, results = "hide", cache=TRUE, fig.cap="Pourbaix diagram for the Mn-O-H system.", pngquant=pngquant, timeit=timeit----
+# Set decimal logarithm of activity of aqueous species,
+# temperature and plot resolution
+logact <- -4
+T <- 100
+res <- 400
+# Start with the aqueous species
+basis(c("Mn+2", "H2O", "H+", "e-"))
+iaq <- retrieve("Mn", c("O", "H"), "aq")
+species(iaq, logact)
+aaq <- affinity(pH = c(4, 16, res), Eh = c(-1.5, 1.5, res), T = T)
+# Show names for only the metastable species here
+names <- names(iaq)
+names[!names(iaq) %in% c("MnOH+", "MnO", "HMnO2-")] <- ""
+diagram(aaq, lty = 2, col = "#4169E188", names = names, col.names = 4)
+# Overlay mineral stability fields
+icr <- retrieve("Mn", c("O", "H"), "cr")
+species(icr, add = TRUE)
+# Supply the previous result from affinity() to use
+# argument recall (for plotted variables and T)
+acr <- affinity(aaq)
+diagram(acr, add = TRUE, bold = acr$species$state=="cr", limit.water = FALSE)
+# Add legend
+legend <- c(
+  bquote(log * italic(a)["Mn(aq)"] == .(logact)),
+  bquote(italic(T) == .(T) ~ degree*C)
+)
+legend("topright", legend = as.expression(legend), bty = "n")
 
 ## ----info_CuCl, results="hide"------------------------------------------------
 info(" CuCl")
@@ -348,38 +346,20 @@ basis(c("Cu", "H2S", "Cl-", "H2O", "H+", "e-"))
 basis("H2S", -6)
 basis("Cl-", -0.7)
 species(c("CuCl", "CuCl2-", "CuCl3-2", "CuCl+", "CuCl2", "CuCl3-", "CuCl4-2"))
-species(c("chalcocite", "tenorite", "cuprite", "copper"))
+species(c("chalcocite", "tenorite", "cuprite", "copper"), add = TRUE)
 
 ## ----info_chalcocite, message=FALSE-------------------------------------------
 info(info("chalcocite", c("cr", "cr2", "cr3")))$T
 
 ## ----copper_mosaic, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", message=FALSE, cache=TRUE, fig.cap="Copper minerals and aqueous complexes with chloride, 200 °C.", pngquant=pngquant, timeit=timeit----
 T <- 200
-res <- 300
+res <- 200
 bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
 m1 <- mosaic(bases, pH = c(0, 12, res), Eh=c(-1.2, 0.75, res), T=T)
-diagram(m1$A.species, lwd = 2, fill = NA, limit.water = FALSE)
+diagram(m1$A.species, lwd = 2)
 diagram(m1$A.bases, add = TRUE, col = "red1", col.names = "red1", lty = 3,
-        limit.water = FALSE, italic = TRUE)
+        italic = TRUE)
 water.lines(m1$A.species, col = "blue1")
-
-## ----mosaicfun, fig.fullwidth=TRUE, fig.width=9, fig.height=3, dpi=dpi, out.width="85%", message=FALSE, results="hide", cache=TRUE, fig.cap="The same chemical system projected into different sets of basis species.", pngquant=pngquant, timeit=timeit----
-mosaicfun <- function(newvar, T = 200) {
-  swap.basis("e-", names(newvar))
-  if (names(newvar) == "O2") basis("O2", "gas")
-  mosaicargs <- c(list(bases), pH = list(c(-2, 12, res)), newvar, T = T)
-  m1 <- do.call(mosaic, mosaicargs)
-  diagram(m1$A.species, lwd = 2, fill = "terrain",
-          limit.water = FALSE)
-  diagram(m1$A.bases, add = TRUE, col = "red1", col.names = "red1", lty = 3,
-          limit.water = FALSE, italic = TRUE)
-  water.lines(m1$A.species, col = "blue1")
-  swap.basis(names(newvar), "e-")
-}
-par(mfrow = c(1, 3))
-mosaicfun(list(Eh = c(-1, 1, res)))
-mosaicfun(list(H2 = c(-30, 10, res)))
-mosaicfun(list(O2 = c(-70, 5, res)))
 
 ## ----rainbow_data-------------------------------------------------------------
 file <- system.file("extdata/cpetc/SC10_Rainbow.csv", package = "CHNOSZ")
@@ -389,7 +369,7 @@ rb <- read.csv(file, check.names = FALSE)
 basis(c("CO2", "H2", "NH4+", "H2O", "H2S", "H+"))
 species("CH4", -3)
 species(c("adenine", "cytosine", "aspartic acid", "deoxyribose",
-          "methane", "leucine", "tryptophan", "n-nonanoic acid"), -6)
+          "CH4", "leucine", "tryptophan", "n-nonanoic acid"), -6)
 
 ## ----rainbow_affinity, message=FALSE------------------------------------------
 a <- affinity(T = rb$T, CO2 = rb$CO2, H2 = rb$H2,
@@ -497,7 +477,7 @@ diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 #  diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 
 ## ----corundum, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", results="hide", message=FALSE, cache=TRUE, fig.cap="Solubility of corundum (green line) and equilibrium concentrations of aqueous species (black lines).", pngquant=pngquant, timeit=timeit----
-add.obigt("SLOP98")
+add.OBIGT("SLOP98")
 basis(c("corundum", "H2O", "H+", "O2"))
 species(c("Al+3", "AlO2-", "AlOH+2", "AlO+", "HAlO2"))
 a <- affinity(pH = c(0, 10), IS = 0)
@@ -506,91 +486,6 @@ diagram(s, type = "loga.balance", ylim = c(-10, 0), lwd = 4, col = "green3")
 diagram(s, add = TRUE, adj = c(0, 1, 2.1, -0.2, -1.5), dy = c(0, 0, 4, -0.3, 0.1))
 legend("topright", c("25 °C", "1 bar"), text.font = 2, bty = "n")
 reset()
-
-## ----groups_basis, results="hide", message=FALSE------------------------------
-basis("CHNOS+")
-ii <- species(c("CO2", "HCO3-"), index.return = TRUE)
-
-## ----groups_species, message=FALSE--------------------------------------------
-seq2 <- function(x) seq(x[1], x[2])
-ia <- species(seq2(info(c("methanol", "octanol"))), index.return = TRUE)
-ik <- species(seq2(info(c("acetone", "2-octanone"))), index.return = TRUE)
-ic <- species(seq2(info(c("acetic acid","n-dodecanoic acid"))),index.return=TRUE)
-ica <- species(seq2(info(c("acetate", "n-dodecanoate"))), index.return = TRUE)
-ie <- species(seq2(info(c("ethylene", "octene"))), index.return = TRUE)
-
-## ----groups_data--------------------------------------------------------------
-O2dat <- read.csv(system.file(
-  "extdata/cpetc/SS98_Fig5a.csv", package = "CHNOSZ"))
-pHdat <- read.csv(system.file(
-  "extdata/cpetc/SS98_Fig5b.csv", package = "CHNOSZ"))
-T <- seq(8, 350)
-O2 <- predict(smooth.spline(O2dat$T, O2dat$logfO2), T)$y
-pH <- predict(smooth.spline(pHdat$T, pHdat$pH), T)$y
-
-## ----groups_affinity, message=FALSE, cache=TRUE-------------------------------
-a <- affinity(T = T, O2 = O2, pH = pH)
-e <- equilibrate(a, loga.balance = -2.5)
-
-## ----groups_diagram, echo=1:4, eval=FALSE-------------------------------------
-#  par(mfrow = c(1, 3))
-#  groups <- list(inorganic = ii, alcohols = ia, ketones = ik,
-#                 `carboxylic acids` = c(ic, ica), alkenes = ie)
-#  diagram(e, alpha = TRUE, groups = groups, col = 1:5)
-#  # plot only alcohols
-#  names <- within(species(), name[-ia] <- "")$name
-#  lty <- ifelse(names == "", 0, 1)
-#  diagram(e, alpha = TRUE, ylim = c(0, 0.32), lty = lty, names = names)
-#  # plot only ketones
-#  names <- within(species(), name[-ik] <- "")$name
-#  lty <- ifelse(names == "", 0, 1)
-#  diagram(e, alpha = TRUE, ylim = c(0, 0.16), lty = lty, names = names)
-
-## ----groups_diagram, echo=-(1:4), eval=FALSE----------------------------------
-#  par(mfrow = c(1, 3))
-#  groups <- list(inorganic = ii, alcohols = ia, ketones = ik,
-#                 `carboxylic acids` = c(ic, ica), alkenes = ie)
-#  diagram(e, alpha = TRUE, groups = groups, col = 1:5)
-#  # plot only alcohols
-#  names <- within(species(), name[-ia] <- "")$name
-#  lty <- ifelse(names == "", 0, 1)
-#  diagram(e, alpha = TRUE, ylim = c(0, 0.32), lty = lty, names = names)
-#  # plot only ketones
-#  names <- within(species(), name[-ik] <- "")$name
-#  lty <- ifelse(names == "", 0, 1)
-#  diagram(e, alpha = TRUE, ylim = c(0, 0.16), lty = lty, names = names)
-
-## ----groups_diagram, fig.fullwidth=TRUE, fig.width=9, fig.height=3, dpi=dpi, out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="Distribution of inorganic and groups of organic species (left plot) and of alcohols and ketones (middle and right plots) as a function of <i>T</i>, pH, and log<i>f</i><sub>O<sub>2</sub></sub>.", pngquant=pngquant, timeit=timeit----
-par(mfrow = c(1, 3))
-groups <- list(inorganic = ii, alcohols = ia, ketones = ik,
-               `carboxylic acids` = c(ic, ica), alkenes = ie)
-diagram(e, alpha = TRUE, groups = groups, col = 1:5)
-# plot only alcohols
-names <- within(species(), name[-ia] <- "")$name
-lty <- ifelse(names == "", 0, 1)
-diagram(e, alpha = TRUE, ylim = c(0, 0.32), lty = lty, names = names)
-# plot only ketones
-names <- within(species(), name[-ik] <- "")$name
-lty <- ifelse(names == "", 0, 1)
-diagram(e, alpha = TRUE, ylim = c(0, 0.16), lty = lty, names = names)
-
-## ----aminoacids_setup, results="hide", message=FALSE--------------------------
-basis("CHNOS")
-basis("CO2", "gas")
-swap.basis("NH3", "N2")
-species(aminoacids(""))
-a <- affinity(O2 = c(-50, -25, 200), CO2 = c(-10, 15, 200), T = 250, P = 265)
-aa.ZC <- ZC(info(aminoacids("")))
-col <- ZC.col(aa.ZC)
-
-## ----aafun, fig.fullwidth=TRUE, fig.width=12.5, fig.height=2.5, dpi=dpi, out.width="100%", message=FALSE, results="hide", fig.cap="Plots of maximum affinity at 250 °C and 265 bar using different reaction balances for 20 amino acids.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-aafun <- function(balance) {
-  diagram(a, balance = balance, fill = col)
-  blab <- expr.species(balance)
-  title(main = substitute("balanced on" ~ b, list(b = blab)))
-}
-par(mfrow = c(1, 5))
-lapply(c("1", "CO2", "H2O", "N2", "volume"), aafun)
 
 ## ----Alberty------------------------------------------------------------------
 oldnon <- nonideal("Alberty")
@@ -626,7 +521,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -677,7 +572,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -728,7 +623,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -779,7 +674,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -830,7 +725,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -881,7 +776,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -932,7 +827,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -983,7 +878,7 @@ T <- 100
 #  legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 #  ATP.H <- substitute("ATP and H"^`+`)
 #  title(main = ATP.H)
-#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+#  species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 #  Hplot <- function(pMg, IS = 0.25) {
 #    basis("Mg+2", -pMg)
 #    a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -1034,7 +929,7 @@ lines(a$vals[[1]], colSums(nH))
 legend("topright", legend = c("I = 0 M", "I = 0.25 M"), lty = 2:1, col = 2:1, cex = 0.8)
 ATP.H <- substitute("ATP and H"^`+`)
 title(main = ATP.H)
-species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"))
+species(c("MgATP-2", "MgHATP-", "MgH2ATP", "Mg2ATP"), add = TRUE)
 Hplot <- function(pMg, IS = 0.25) {
   basis("Mg+2", -pMg)
   a <- affinity(pH = c(3, 9), IS = IS, T = T)
@@ -1184,7 +1079,7 @@ file.copy("rubisco.svg", fig_path(".svg"))
 ## the code for making the SVG image -- not "live" in the vignette because RSVGTipsDevice isn't available on Windows
 #if(require(RSVGTipsDevice)) {
 #  datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
-#  fastafile <- system.file("extdata/fasta/rubisco.fasta", package = "CHNOSZ")
+#  fastafile <- system.file("extdata/protein/rubisco.fasta", package = "CHNOSZ")
 #  dat <- read.csv(datfile)
 #  aa <- read.fasta(fastafile)
 #  Topt <- (dat$T1 + dat$T2) / 2
@@ -1218,7 +1113,7 @@ file.copy("rubisco.svg", fig_path(".svg"))
 
 ## ----rubisco_ZC, fig.keep="none", message=FALSE-------------------------------
 datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
-fastafile <- system.file("extdata/fasta/rubisco.fasta", package = "CHNOSZ")
+fastafile <- system.file("extdata/protein/rubisco.fasta", package = "CHNOSZ")
 dat <- read.csv(datfile)
 aa <- read.fasta(fastafile)
 Topt <- (dat$T1 + dat$T2) / 2
@@ -1291,7 +1186,7 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, eval=FALSE, echo=1:6------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
-#  #add.obigt("OldAA")
+#  #add.OBIGT("OldAA")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 #  e <- equilibrate(a)
 #  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1303,7 +1198,7 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, eval=FALSE, echo=7:9------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
-#  #add.obigt("OldAA")
+#  #add.OBIGT("OldAA")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 #  e <- equilibrate(a)
 #  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1315,7 +1210,7 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, eval=FALSE, echo=10-------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
-#  #add.obigt("OldAA")
+#  #add.OBIGT("OldAA")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 #  e <- equilibrate(a)
 #  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1327,7 +1222,7 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, fig.fullwidth=TRUE, fig.width=7.5, fig.height=2.5, dpi=ifelse(dpi==50, 50, 100), out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="ER-to-Golgi proteins: calculations without and with length normalization, and free energy difference between experimental and calculated abundances in metastable equilibrium with normalization.", pngquant=pngquant, timeit=timeit----
 par(mfrow = c(1, 3))
 basis("CHNOS+")
-#add.obigt("OldAA")
+#add.OBIGT("OldAA")
 a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 e <- equilibrate(a)
 diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1336,70 +1231,12 @@ diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
 abline(h = logabundance, lty = 1:5, col = 1:5)
 revisit(e, "DGinf", logabundance)
 
-## ----Shh_pname----------------------------------------------------------------
-pname <- c("SHH", "OLIG2", "NKX22", "FOXA2", "IRX3",
-  "PAX6", "NKX62", "DBX1", "DBX2", "NKX61", "PAX7")
-ip <- pinfo(pname, "HUMAN")
-
-## ----Shh_basis, results="hide"------------------------------------------------
-basis("CHNOS")
-basis("NH3", -7)
-
-## ----Shh_affinity, message=FALSE----------------------------------------------
-O2 <- seq(-70, -106, length.out = 50)
-H2O <- seq(0.5, -5.5, length.out = 50)
-a <- affinity(H2O = H2O, O2 = O2, iprotein = ip)
-
-## ----Shh_residue--------------------------------------------------------------
-pl <- protein.length(ip)
-for(i in seq_along(a$values)) a$values[[i]] <- a$values[[i]] / pl[i]
-
-## ----Shh_minusShh-------------------------------------------------------------
-a.Shh <- a$values[[1]]
-for(i in 1:length(a$values)) a$values[[i]] <- a$values[[i]] - a.Shh
-
-## ----Shh_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Per-residue affinities for formation of transcription factors relative to Shh.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-# line type, width, and color
-twc <- lapply(c(3, 1, 1), rep, length(pname))
-ihigh <- c(2, 5, 7, 8, 1)
-twc[[1]][ihigh] <- 1
-twc[[2]][ihigh] <- 3
-col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
-twc[[3]][ihigh] <- col
-names <- rep("", length(pname))
-names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
-ylab <- substitute(italic(A) / (2.303 * italic(RT)) * " relative to Shh")
-diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
-  lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
-  names = names, adj = 0, dy = 0.1, format.names = FALSE)
-par(usr = c(-70, -106, -0.5, 5), tcl = -0.3)
-axis(3, at = seq(-70, -106, by = -10))
-mtext(axis.label("O2"), line = 1.2)
-
-## ----Shh_diagram, eval=FALSE--------------------------------------------------
-#  # line type, width, and color
-#  twc <- lapply(c(3, 1, 1), rep, length(pname))
-#  ihigh <- c(2, 5, 7, 8, 1)
-#  twc[[1]][ihigh] <- 1
-#  twc[[2]][ihigh] <- 3
-#  col <- c("#f9a330", "#63c54e", "#f24e33", "#d4e94e", "#0f0f0f")
-#  twc[[3]][ihigh] <- col
-#  names <- rep("", length(pname))
-#  names[ihigh] <- c("Olig2", "Irx3", "Nkx6.2", "Dbx1", "Shh")
-#  ylab <- substitute(italic(A) / (2.303 * italic(RT)) * " relative to Shh")
-#  diagram(a, balance = 1, ylim = c(-0.5, 5), xlim = c(0.5, -5.5),
-#    lty = twc[[1]], lwd=twc[[2]], col = twc[[3]], ylab = ylab,
-#    names = names, adj = 0, dy = 0.1, format.names = FALSE)
-#  par(usr = c(-70, -106, -0.5, 5), tcl = -0.3)
-#  axis(3, at = seq(-70, -106, by = -10))
-#  mtext(axis.label("O2"), line = 1.2)
-
 ## ----read_csv-----------------------------------------------------------------
-file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-aa_bison <- read.csv(file, as.is = TRUE, nrows = 5)
+file <- system.file("extdata/protein/POLG.csv", package = "CHNOSZ")
+aa_POLG <- read.csv(file, as.is = TRUE, nrows = 5)
 
 ## ----read_fasta, message=FALSE------------------------------------------------
-file <- system.file("extdata/fasta/EF-Tu.aln", package = "CHNOSZ")
+file <- system.file("extdata/protein/EF-Tu.aln", package = "CHNOSZ")
 aa_Ef <- read.fasta(file, iseq = 1:2)
 
 ## ----seq2aa-------------------------------------------------------------------
@@ -1469,258 +1306,6 @@ aa_UniProt
 myaa <- rbind(aa_Ef, aa_PRIO, aa_ALAT1)
 protein.length(myaa)
 
-## ----add_protein--------------------------------------------------------------
-add.protein(myaa)
-
-## ----subcrt_PRIO, message=FALSE-----------------------------------------------
-subcrt("PRIO_HUMAN", T = 25)
-
-## ----basis_CHNOS, results="hide"----------------------------------------------
-basis("CHNOS")
-
-## ----ALAT1_affinity, message=FALSE--------------------------------------------
-species("ALAT1_HUMAN")
-a <- affinity()
-
-## ----affinity_iprotein, message=FALSE-----------------------------------------
-ip <- add.protein(aa_UniProt)
-a <- affinity(iprotein = ip)
-
-## ----bison_transferase, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap='Potential diagram for metagenomically identified sequences of transferases in Bison Pool hot spring. See also the vignette [<span style="color:blue">*Hot-spring proteins in CHNOSZ*</span>](hotspring.pdf).', cache=TRUE, pngquant=pngquant, timeit=timeit----
-file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-aa <- read.csv(file, as.is = TRUE)
-aa <- aa[grep("transferase", aa$protein), ]
-ip <- add.protein(aa)
-basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
-basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
-T <- c(50, 100)
-res <- 300
-a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
-fill <- ZC.col(ZC(protein.formula(ip)))
-diagram(a, normalize = TRUE, fill = fill, names = as.character(1:5))
-T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
-logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
-lines(T, logaH2, lty = 2, lwd = 2)
-points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
-
-## ----bison_transferase, eval=FALSE, echo=1:11---------------------------------
-#  file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-#  aa <- read.csv(file, as.is = TRUE)
-#  aa <- aa[grep("transferase", aa$protein), ]
-#  ip <- add.protein(aa)
-#  basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
-#  basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
-#  T <- c(50, 100)
-#  res <- 300
-#  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
-#  fill <- ZC.col(ZC(protein.formula(ip)))
-#  diagram(a, normalize = TRUE, fill = fill, names = as.character(1:5))
-#  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
-#  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
-#  lines(T, logaH2, lty = 2, lwd = 2)
-#  points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
-
-## ----bison_transferase, eval=FALSE, echo=12:15--------------------------------
-#  file <- system.file("extdata/protein/DS11.csv", package = "CHNOSZ")
-#  aa <- read.csv(file, as.is = TRUE)
-#  aa <- aa[grep("transferase", aa$protein), ]
-#  ip <- add.protein(aa)
-#  basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"))
-#  basis(c("HCO3-", "NH3", "HS-", "H+"), c(-3, -4, -7, -7.9))
-#  T <- c(50, 100)
-#  res <- 300
-#  a <- affinity(T = c(T, res), H2 = c(-8, -3, res), iprotein = ip)
-#  fill <- ZC.col(ZC(protein.formula(ip)))
-#  diagram(a, normalize = TRUE, fill = fill, names = as.character(1:5))
-#  T <- c(93.3, 79.4, 67.5, 65.3, 57.1)
-#  logaH2 <- c(-3.38, -4.14, -5.66, -7.47, -10.02)
-#  lines(T, logaH2, lty = 2, lwd = 2)
-#  points(T, logaH2, pch = 21, bg = "white", cex = 1.5)
-
-## ----smoker_vars--------------------------------------------------------------
-vars <- list(O2 = c(-50, -25), NH3 = c(-15, 10), H2O = c(-15, 10))
-
-## ----smoker_aa, message=FALSE-------------------------------------------------
-aa <- c("D", "T", "S", "E", "G", "A", "K", "H")
-AA <- aminoacids("", aa)
-AA.formula <- do.call(rbind, makeup(info(AA)))
-AA
-
-## ----smoker_uM----------------------------------------------------------------
-uM <- c(1.10, 0.70, 3.73, 0.39, 3.04, 1.83, 0.27, 0.21)
-loga2 <- log10(uM * 1e-6)
-nC <- AA.formula[, "C"]
-Ctot <- sum(nC * uM * 1e-6)
-
-## ----smoker_basis, results="hide"---------------------------------------------
-basis("CHNOS")
-species(AA)
-T <- 270
-res <- 64
-objective <- "RMSD"
-
-## ----smoker_plot, eval=FALSE, echo=1:6----------------------------------------
-#  layout(matrix(1:6, nrow = 2))
-#  a <- affinity(O2 = c(vars[[1]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  d.basis <- describe.basis(ibasis = 1:4)
-#  legend("topleft", d.basis)
-#  ourfun <- function(ibasis = 1:5, x = "bottomright") {
-#    a <- affinity(T = T)
-#    e <- equilibrate(a, loga.balance = log10(Ctot))
-#    revisit(e, objective, loga2, cex = 2.7, pch = 21)
-#    text(loga2, unlist(e$loga.equil), aa)
-#    d.basis <- describe.basis(ibasis = ibasis)
-#    legend(x, d.basis)
-#  }
-#  basis("O2", r$xopt)
-#  ourfun(5)
-#  a <- affinity(O2 = c(vars[[1]], res), NH3 = c(vars[[2]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  basis("O2", r$xopt)
-#  basis("NH3", r$yopt)
-#  ourfun(c(3, 5))
-#  findit(vars[1:3], objective, loga2 = loga2, loga.balance = log10(Ctot),
-#         T = T, res = 8, niter = 3, rat = 0.6)
-#  ourfun(c(2, 3, 5), "right")
-
-## ----smoker_plot, eval=FALSE, echo=7:14---------------------------------------
-#  layout(matrix(1:6, nrow = 2))
-#  a <- affinity(O2 = c(vars[[1]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  d.basis <- describe.basis(ibasis = 1:4)
-#  legend("topleft", d.basis)
-#  ourfun <- function(ibasis = 1:5, x = "bottomright") {
-#    a <- affinity(T = T)
-#    e <- equilibrate(a, loga.balance = log10(Ctot))
-#    revisit(e, objective, loga2, cex = 2.7, pch = 21)
-#    text(loga2, unlist(e$loga.equil), aa)
-#    d.basis <- describe.basis(ibasis = ibasis)
-#    legend(x, d.basis)
-#  }
-#  basis("O2", r$xopt)
-#  ourfun(5)
-#  a <- affinity(O2 = c(vars[[1]], res), NH3 = c(vars[[2]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  basis("O2", r$xopt)
-#  basis("NH3", r$yopt)
-#  ourfun(c(3, 5))
-#  findit(vars[1:3], objective, loga2 = loga2, loga.balance = log10(Ctot),
-#         T = T, res = 8, niter = 3, rat = 0.6)
-#  ourfun(c(2, 3, 5), "right")
-
-## ----smoker_plot, eval=FALSE, echo=15:16--------------------------------------
-#  layout(matrix(1:6, nrow = 2))
-#  a <- affinity(O2 = c(vars[[1]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  d.basis <- describe.basis(ibasis = 1:4)
-#  legend("topleft", d.basis)
-#  ourfun <- function(ibasis = 1:5, x = "bottomright") {
-#    a <- affinity(T = T)
-#    e <- equilibrate(a, loga.balance = log10(Ctot))
-#    revisit(e, objective, loga2, cex = 2.7, pch = 21)
-#    text(loga2, unlist(e$loga.equil), aa)
-#    d.basis <- describe.basis(ibasis = ibasis)
-#    legend(x, d.basis)
-#  }
-#  basis("O2", r$xopt)
-#  ourfun(5)
-#  a <- affinity(O2 = c(vars[[1]], res), NH3 = c(vars[[2]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  basis("O2", r$xopt)
-#  basis("NH3", r$yopt)
-#  ourfun(c(3, 5))
-#  findit(vars[1:3], objective, loga2 = loga2, loga.balance = log10(Ctot),
-#         T = T, res = 8, niter = 3, rat = 0.6)
-#  ourfun(c(2, 3, 5), "right")
-
-## ----smoker_plot, eval=FALSE, echo=17:22--------------------------------------
-#  layout(matrix(1:6, nrow = 2))
-#  a <- affinity(O2 = c(vars[[1]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  d.basis <- describe.basis(ibasis = 1:4)
-#  legend("topleft", d.basis)
-#  ourfun <- function(ibasis = 1:5, x = "bottomright") {
-#    a <- affinity(T = T)
-#    e <- equilibrate(a, loga.balance = log10(Ctot))
-#    revisit(e, objective, loga2, cex = 2.7, pch = 21)
-#    text(loga2, unlist(e$loga.equil), aa)
-#    d.basis <- describe.basis(ibasis = ibasis)
-#    legend(x, d.basis)
-#  }
-#  basis("O2", r$xopt)
-#  ourfun(5)
-#  a <- affinity(O2 = c(vars[[1]], res), NH3 = c(vars[[2]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  basis("O2", r$xopt)
-#  basis("NH3", r$yopt)
-#  ourfun(c(3, 5))
-#  findit(vars[1:3], objective, loga2 = loga2, loga.balance = log10(Ctot),
-#         T = T, res = 8, niter = 3, rat = 0.6)
-#  ourfun(c(2, 3, 5), "right")
-
-## ----smoker_plot, eval=FALSE, echo=23:25--------------------------------------
-#  layout(matrix(1:6, nrow = 2))
-#  a <- affinity(O2 = c(vars[[1]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  d.basis <- describe.basis(ibasis = 1:4)
-#  legend("topleft", d.basis)
-#  ourfun <- function(ibasis = 1:5, x = "bottomright") {
-#    a <- affinity(T = T)
-#    e <- equilibrate(a, loga.balance = log10(Ctot))
-#    revisit(e, objective, loga2, cex = 2.7, pch = 21)
-#    text(loga2, unlist(e$loga.equil), aa)
-#    d.basis <- describe.basis(ibasis = ibasis)
-#    legend(x, d.basis)
-#  }
-#  basis("O2", r$xopt)
-#  ourfun(5)
-#  a <- affinity(O2 = c(vars[[1]], res), NH3 = c(vars[[2]], res), T = T)
-#  e <- equilibrate(a, loga.balance = log10(Ctot))
-#  r <- revisit(e, objective, loga2)
-#  basis("O2", r$xopt)
-#  basis("NH3", r$yopt)
-#  ourfun(c(3, 5))
-#  findit(vars[1:3], objective, loga2 = loga2, loga.balance = log10(Ctot),
-#         T = T, res = 8, niter = 3, rat = 0.6)
-#  ourfun(c(2, 3, 5), "right")
-
-## ----smoker_plot, fig.fullwidth=TRUE, fig.width=9, fig.height=5, dpi=dpi, out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="Optimization of a thermodynamic model for relative abundances of amino acids in a 270 °C black smoker fluid using 1, 2, or 3 variables (left to right).", pngquant=pngquant, timeit=timeit----
-layout(matrix(1:6, nrow = 2))
-a <- affinity(O2 = c(vars[[1]], res), T = T)
-e <- equilibrate(a, loga.balance = log10(Ctot))
-r <- revisit(e, objective, loga2)
-d.basis <- describe.basis(ibasis = 1:4)
-legend("topleft", d.basis)
-ourfun <- function(ibasis = 1:5, x = "bottomright") {
-  a <- affinity(T = T)
-  e <- equilibrate(a, loga.balance = log10(Ctot))
-  revisit(e, objective, loga2, cex = 2.7, pch = 21)
-  text(loga2, unlist(e$loga.equil), aa)
-  d.basis <- describe.basis(ibasis = ibasis)
-  legend(x, d.basis)
-}
-basis("O2", r$xopt)
-ourfun(5)
-a <- affinity(O2 = c(vars[[1]], res), NH3 = c(vars[[2]], res), T = T)
-e <- equilibrate(a, loga.balance = log10(Ctot))
-r <- revisit(e, objective, loga2)
-basis("O2", r$xopt)
-basis("NH3", r$yopt)
-ourfun(c(3, 5))
-findit(vars[1:3], objective, loga2 = loga2, loga.balance = log10(Ctot),
-       T = T, res = 8, niter = 3, rat = 0.6)
-ourfun(c(2, 3, 5), "right")
-
 ## ----thermo_refs_table, eval=FALSE--------------------------------------------
 #  thermo.refs()  ## shows table in a browser
 
@@ -1752,7 +1337,7 @@ file <- system.file("extdata/adds/BZA10.csv", package = "CHNOSZ")
 read.csv(file, as.is = TRUE)
 
 ## ----BZA10_Cd-----------------------------------------------------------------
-iCd <- add.obigt(file)
+iCd <- add.OBIGT(file)
 subcrt(c("CdCl+", "Cl-", "CdCl2"), c(-1, -1, 1), T = 25, P = c(1, 2000))
 
 ## ----SSH97_subcrt-------------------------------------------------------------
@@ -1760,12 +1345,12 @@ reset()
 thermo.refs(iCd)[, 1:3]
 subcrt(c("CdCl+", "Cl-", "CdCl2"), c(-1, -1, 1), T = 25, P = c(1, 2000))
 
-## ----mod_obigt_CoCl4_ghs------------------------------------------------------
-mod.obigt("CoCl4-2", formula = "CoCl4-2", state = "aq", ref1 = "LBT+11",
-  date = today(), G = -134150, H = -171558, S = 19.55, Cp = 72.09, V = 27.74)
+## ----mod_OBIGT_CoCl4_ghs------------------------------------------------------
+mod.OBIGT("CoCl4-2", formula = "CoCl4-2", state = "aq", ref1 = "LBT+11",
+  date = as.character(Sys.Date()), G = -134150, H = -171558, S = 19.55, Cp = 72.09, V = 27.74)
 
-## ----mod_obigt_CoCl4_eos------------------------------------------------------
-mod.obigt("CoCl4-2", a1 = 6.5467, a2 = 8.2069, a3 = 2.0130, a4 = -3.1183,
+## ----mod_OBIGT_CoCl4_eos------------------------------------------------------
+mod.OBIGT("CoCl4-2", a1 = 6.5467, a2 = 8.2069, a3 = 2.0130, a4 = -3.1183,
   c1 = 76.3357, c2 = 11.6389, omega = 2.9159, z = -2)
 
 ## ----CoCl4_reaction, message = FALSE, echo = 1:3------------------------------
@@ -1774,19 +1359,19 @@ sres <- subcrt(c("Co+2", "Cl-", "CoCl4-2"), c(-1, -4, 1), T = T)
 round(sres$out$logK, 2)
 stopifnot(identical(round(sres$out$logK, 2), c(-3.2, -2.96, -2.02, -0.74, 0.77, 2.5, 4.57, 7.29)))
 
-## ----mod_obigt_magnesiochromite_ghs-------------------------------------------
+## ----mod_OBIGT_magnesiochromite_ghs-------------------------------------------
 H <- -1762000
 S <- 119.6
 V <- 43.56
-mod.obigt("magnesiochromite", formula = "MgCr2O4", state = "cr", ref1 = "KOSG00",
-          date = today(), E_units = "J", H = H, S = S, V = V)
+mod.OBIGT("magnesiochromite", formula = "MgCr2O4", state = "cr", ref1 = "KOSG00",
+          date = as.character(Sys.Date()), E_units = "J", H = H, S = S, V = V)
 
-## ----mod_obigt_magnesiochromite_eos-------------------------------------------
+## ----mod_OBIGT_magnesiochromite_eos-------------------------------------------
 a <- 221.4
 b <- -0.00102030 * 1e3
 c <- -1757210 * 1e-5
 d <- -1247.9
-mod.obigt("magnesiochromite", E_units = "J", a = a, b = b, c = c, d = d,
+mod.OBIGT("magnesiochromite", E_units = "J", a = a, b = b, c = c, d = d,
           e = 0, f = 0, lambda = 0, T = 1500)
 
 ## ----subcrt_magnesiochromite--------------------------------------------------
@@ -1805,37 +1390,10 @@ info(inew)
 ## ----info_S3, results="hide"--------------------------------------------------
 info(info("S3-"))
 
-## ----check_obigt--------------------------------------------------------------
-file <- system.file("extdata/adds/obigt_check.csv", package = "CHNOSZ")
+## ----check_OBIGT--------------------------------------------------------------
+file <- system.file("extdata/adds/OBIGT_check.csv", package = "CHNOSZ")
 dat <- read.csv(file, as.is = TRUE)
 nrow(dat)
-
-## ----affinity_error, error=TRUE, message=FALSE, results="hide"----------------
-basis("CHNOS")
-aa <- c("D", "T", "S", "E", "G", "A", "K", "H")
-species(aminoacids("", aa))
-a <- affinity(O2 = seq(-80, -50), T = seq(0, 100))
-
-## ----message_example, results="hide"------------------------------------------
-a <- affinity(O2 = seq(-80, -50, length.out = 101), T = seq(0, 100))
-e <- equilibrate(a)
-#diagram(e, alpha=TRUE, legend.x=NA)
-
-## ----message_subcrt, results="hide"-------------------------------------------
-subcrt(c("C2H5OH", "O2", "CO2", "H2O"), c(-1, -3, 2, 3))
-
-## ----equilibrate_error, error=TRUE, results="hide", warning=FALSE-------------
-basis("QEC")
-species(aminoacids("", aa))
-a <- affinity()
-e <- equilibrate(a)
-## Warning in logafun(logactfun(Abar, i)): NaNs produced
-
-## ----file_tests, eval=FALSE---------------------------------------------------
-#  system.file("tests/testthat/", package = "CHNOSZ")
-
-## ----test_package, eval=FALSE-------------------------------------------------
-#  test_package("CHNOSZ")
 
 ## ----citation_CHNOSZ, results="asis"------------------------------------------
 cref <- citation("CHNOSZ")

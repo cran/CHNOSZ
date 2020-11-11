@@ -1,11 +1,11 @@
 context("diagram")
 
 test_that("expected errors are produced for inconsistent arguments", {
-  expect_error(diagram(list()), "'eout' does not look like output from equil\\(\\) or affinity\\(\\)")
+  expect_error(diagram(list()), "'eout' is not the output from")
   basis("CHNOS")
   species(c("glycine", "alanine"))
   a <- affinity()
-  expect_message(diagram(a, plot.it=FALSE), "balance: moles of CO2 in formation reactions")
+  expect_message(diagram(a, plot.it=FALSE), "balance: on moles of CO2 in formation reactions")
   e <- equilibrate(a)
   expect_error(diagram(e, "Z"), "Z is not a valid diagram type")
 })
@@ -22,7 +22,7 @@ test_that("expected messages, errors and results arise using output from affinit
   # we can't calculate the equilibrium activity of a basis species if it's externally buffered
   expect_error(diagram(a, "O2"), "is not numeric - was a buffer selected\\?")
   # this one works - a barplot of A/2.303RT
-  expect_message(diagram(a, plot.it=FALSE), "balance: moles of CO2 in formation reactions")
+  expect_message(diagram(a, plot.it=FALSE), "balance: on moles of CO2 in formation reactions")
   # if we're plotting A/2.303RT the values can be divided by balancing coefficient or not
   d.1 <- diagram(a, balance=1, plot.it=FALSE)
   d.CO2 <- diagram(a, plot.it=FALSE)
@@ -37,7 +37,7 @@ test_that("expected messages, errors and results arise using output from affinit
   d <- diagram(a, "CO2", plot.it=FALSE)
   # test that the result does in fact correspond to zero affinity of formation, how about for acetate?
   a <- affinity(O2=d$vals[[1]], CO2=d$plotvals[[4]])
-  expect_equal(a$values[[4]], array(numeric(128)))
+  expect_equal(a$values[[4]], array(numeric(256)))
 })
 
 test_that("'groups' and 'alpha' work as expected", {
@@ -55,7 +55,7 @@ test_that("'groups' and 'alpha' work as expected", {
   # ask for degrees of formation instead of logarithms of activities
   d <- diagram(e, alpha=TRUE, plot.it=FALSE)
   # we should find that the sum of alphas is one
-  expect_equal(Reduce("+", d$plotvals), array(rep(1, 128)), check.attributes=FALSE)
+  expect_equal(Reduce("+", d$plotvals), array(rep(1, 256)), check.attributes=FALSE)
 })
 
 test_that("'normalize' and 'as.residue' work as expected", {
@@ -77,14 +77,6 @@ test_that("'normalize' and 'as.residue' work as expected", {
   expect_equal(d3$predominant, d4$predominant)
 })
 
-test_that("diagram() handles 2D plots with different x and y resolution and warns for >1 species in contour plot", {
-  basis("CHNOS")
-  species(c("alanine", "glycine", "serine", "methionine"))
-  a <- affinity(T=c(0, 200, 6), O2=c(-90, -60, 5))
-  # now the warning is invokes next to the actual plotting, so no warning is produced with plot.it=FALSE 20180315
-  #expect_warning(diagram(a, type="CO2", plot.it=FALSE), "showing only first species in 2-D property diagram")
-})
-
 test_that("NaN values from equilibrate() are preserved (as NA in predominance calculation)", {
   # example provided by Grayson Boyer 20170411
   basis(c("H2", "O2", "CO2"), c(-7.19, -60, -2.65))
@@ -94,8 +86,8 @@ test_that("NaN values from equilibrate() are preserved (as NA in predominance ca
   d <- diagram(e, plot.it = FALSE)
   # equilibrate() here with default "boltzmann" method produces
   # NaN at very high O2 + low H2 or very low O2 + high H2 
-  expect_equal(d$predominant[1, 128], as.numeric(NA))
-  expect_equal(d$predominant[128, 1], as.numeric(NA))
+  expect_equal(d$predominant[1, 256], as.numeric(NA))
+  expect_equal(d$predominant[256, 1], as.numeric(NA))
 })
 
 ## add the test but exclude it for now because plot.it=FALSE doesn't produce values for namesx 20190223
@@ -114,3 +106,34 @@ test_that("NaN values from equilibrate() are preserved (as NA in predominance ca
 #  d <- diagram(a, fill="heat", xlim=c(-50, -20), ylim=c(-90, -50), plot.it=FALSE)
 #  expect_equal(sum(is.na(d$namesx)), 2)
 #})
+
+test_that("P-T diagram has expected geometry", {
+  # modifified from kayanite-sillimanite-andalusite example in ?diagram 20200811
+  basis(c("corundum", "quartz", "oxygen"))
+  species(c("kyanite", "sillimanite", "andalusite"))
+  a <- affinity(T = c(200, 900, 50), P = c(0, 9000, 51), exceed.Ttr = TRUE)
+  d <- diagram(a, plot.it = FALSE)
+  expect_equal(species()$name[d$predominant[1, 1]], "andalusite")
+  expect_equal(species()$name[d$predominant[1, 51]], "kyanite")
+  expect_equal(species()$name[d$predominant[50, 51]], "sillimanite")
+})
+
+test_that("diagram(type = .) and affinity(return.buffer = TRUE) give the same results", {
+  # extracted from ?buffer 20200811
+  O2 <- c(-85, -70, 4)
+  T <- c(25, 100, 4)
+  basis("CHNOS")
+  basis("CO2", 999)
+  species("acetic acid", -3)
+  species(1, -10)
+  a <- affinity(O2 = O2, T = T)
+  d <- diagram(a, type = "CO2", plot.it = FALSE)
+  and <- as.numeric(d$plotvals[[1]])
+  # now do the calculation with affinity(return.buffer = TRUE)
+  basis("CO2", "AC")
+  mod.buffer("AC", logact = -10)
+  a.buffer <- affinity(O2 = O2, T = T, return.buffer = TRUE)
+  ana <- as.numeric(unlist(a.buffer[[1]]))
+  expect_equal(ana, and)
+})
+

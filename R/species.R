@@ -1,11 +1,12 @@
 # CHNOSZ/species.R
 # define species of interest 
 
-# to add to or alter the species definition
-species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) {
+# Function to create or add to the species data frame
+species <- function(species=NULL, state=NULL, delete=FALSE, add=FALSE, index.return=FALSE) {
   # 20080925 default quiet=TRUE 20101003 default quiet=FALSE
   # 20120128 remove 'quiet' argument (messages can be hidden with suppressMessages())
-  # 20120523 return thermo$species instead of rownumbers therein, and remove message showing thermo$species
+  # 20120523 return thermo()$species instead of rownumbers therein, and remove message showing thermo()$species
+  # 20200714 add 'add' argument (by default, previous species are deleted)
   thermo <- get("thermo", CHNOSZ)
   ## argument processing
   # we can't deal with NA species
@@ -46,6 +47,11 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
   }
   # if no species or states are given, just return the species list
   if(is.null(species) & is.null(state)) return(thermo$species)
+#  # delete the previous species definition unless add = TRUE 20200714
+#  if(!add) {
+#    thermo$species <- NULL
+#    assign("thermo", thermo, CHNOSZ)
+#  }
   # if no species are given use all of them if available
   if(is.null(species) & !is.null(thermo$species)) species <- 1:nrow(thermo$species)
   # parse state argument
@@ -60,52 +66,53 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
   } else logact <- NULL
   # if they don't look like states (aq,gas,cr) or activities (numeric), 
   # use them as a suffix for species name (i.e., a protein_organism)
-  allstates <- unique(thermo$obigt$state)
+  allstates <- unique(thermo$OBIGT$state)
   if( sum(state %in% allstates) < length(state) & !can.be.numeric(state[1]) & !can.be.numeric(species[1]) ) {
     species <- paste(species, state, sep="_")
     state <- rep(thermo$opt$state, length.out=length(state))
   }
   # parse species argument
-  iobigt <- NULL
+  iOBIGT <- NULL
   if(is.character(species[1])) {
     # look for named species in species definition
     ispecies <- match(species, thermo$species$name)
     # if all species names match, and logact is given, re-call the function with the species indices
     if(!any(is.na(ispecies)) & !is.null(logact)) return(species(ispecies, state=logact, index.return=index.return))
-    # look for species in thermo$obigt
-    iobigt <- suppressMessages(info(species, state))
-    # since that could have updated thermo$obigt (with proteins), re-read thermo
+    # look for species in thermo()$OBIGT
+    iOBIGT <- suppressMessages(info(species, state))
+    # since that could have updated thermo()$OBIGT (with proteins), re-read thermo
     thermo <- get("thermo", CHNOSZ)
     # check if we got all the species
-    ina <- is.na(iobigt)
+    ina <- is.na(iOBIGT)
     if(any(ina)) stop(paste("species not available:", paste(species[ina], collapse=" ")))
   } else {
-    # if species is numeric and low number it refers to the index of existing species, else to thermo$obigt
+    # if species is numeric and a small number it refers to the species definition,
+    # else to species index in thermo()$OBIGT
     nspecies <- nrow(thermo$species)
     if(is.null(thermo$species)) nspecies <- 0
-    if(max(species) > nspecies) iobigt <- species
+    if(max(species) > nspecies) iOBIGT <- species
   }
   ## done with argument processing ... now to do work
   # create or add to species definition
-  if(!is.null(iobigt)) {
+  if(!is.null(iOBIGT)) {
     if(is.null(thermo$basis)) stop("basis species are not defined")
     # the coefficients in reactions to form the species from basis species
     # wrap values in unname in case they have names from retrieve(), otherwise makeup() doesn't work as intended 20190225
-    f <- (species.basis(unname(iobigt)))
+    f <- (species.basis(unname(iOBIGT)))
     # the states and species names
-    state <- as.character(thermo$obigt$state[iobigt])
-    name <- as.character(thermo$obigt$name[iobigt])
+    state <- as.character(thermo$OBIGT$state[iOBIGT])
+    name <- as.character(thermo$OBIGT$name[iOBIGT])
     # get default values of logact
     if(is.null(logact)) {
       logact <- rep(0, length(species))
       logact[state=="aq"] <- -3
     }
     # create the new species
-    newspecies <- data.frame(f, ispecies=iobigt, logact=logact, state=state, name=name, stringsAsFactors=FALSE)
+    newspecies <- data.frame(f, ispecies=iOBIGT, logact=logact, state=state, name=name, stringsAsFactors=FALSE)
     # "H2PO4-" looks better than "H2PO4."
     colnames(newspecies)[1:nrow(thermo$basis)] <- rownames(thermo$basis)
     # initialize or add to species data frame
-    if(is.null(thermo$species)) {
+    if(is.null(thermo$species) | !add) {
       thermo$species <- newspecies
       ispecies <- 1:nrow(thermo$species)
     } else {
@@ -117,7 +124,7 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
     rownames(thermo$species) <- seq(nrow(thermo$species))
   } else {
     # update activities or states of existing species
-    # first get the rownumbers in thermo$species
+    # first get the rownumbers in thermo()$species
     if(is.numeric(species[1])) {
       ispecies <- species
       # if state and logact are both NULL we don't do anything but return the selected species
@@ -132,27 +139,27 @@ species <- function(species=NULL, state=NULL, delete=FALSE, index.return=FALSE) 
     } else {
       # change states, checking for availability of the desired state
       for(i in 1:length(ispecies)) {
-        myform <- thermo$obigt$formula[thermo$species$ispecies[ispecies[i]]]
-        #iobigt <- which(thermo$obigt$name==thermo$species$name[ispecies[k]] | thermo$obigt$formula==myform)
+        myform <- thermo$OBIGT$formula[thermo$species$ispecies[ispecies[i]]]
+        #iOBIGT <- which(thermo$OBIGT$name==thermo$species$name[ispecies[k]] | thermo$OBIGT$formula==myform)
         # 20080925 don't match formula -- two proteins might have the
         # same formula (e.g. YLR367W and YJL190C)
-        #iobigt <- which(thermo$obigt$name==thermo$species$name[ispecies[k]])
+        #iOBIGT <- which(thermo$OBIGT$name==thermo$species$name[ispecies[k]])
         # 20091112 do match formula if it's not a protein -- be able to 
         # change "carbon dioxide(g)" to "CO2(aq)"
         if(length(grep("_",thermo$species$name[ispecies[i]])) > 0)  
-          iobigt <- which(thermo$obigt$name==thermo$species$name[ispecies[i]])
+          iOBIGT <- which(thermo$OBIGT$name==thermo$species$name[ispecies[i]])
         else {
-          iobigt <- which(thermo$obigt$name==thermo$species$name[ispecies[i]] & thermo$obigt$state==state[i])
-          if(length(iobigt)==0)
-            iobigt <- which(thermo$obigt$name==thermo$species$name[ispecies[i]] | thermo$obigt$formula==myform)
+          iOBIGT <- which(thermo$OBIGT$name==thermo$species$name[ispecies[i]] & thermo$OBIGT$state==state[i])
+          if(length(iOBIGT)==0)
+            iOBIGT <- which(thermo$OBIGT$name==thermo$species$name[ispecies[i]] | thermo$OBIGT$formula==myform)
         }
-        if(!state[i] %in% thermo$obigt$state[iobigt]) 
+        if(!state[i] %in% thermo$OBIGT$state[iOBIGT]) 
           warning(paste("can't update state of species", ispecies[i], "to", state[i], "\n"), call.=FALSE)
         else {
-          ii <- match(state[i], thermo$obigt$state[iobigt])
+          ii <- match(state[i], thermo$OBIGT$state[iOBIGT])
           thermo$species$state[ispecies[i]] <- state[i]
-          thermo$species$name[ispecies[i]] <- thermo$obigt$name[iobigt[ii]]
-          thermo$species$ispecies[ispecies[i]] <- as.numeric(rownames(thermo$obigt)[iobigt[ii]])
+          thermo$species$name[ispecies[i]] <- thermo$OBIGT$name[iOBIGT[ii]]
+          thermo$species$ispecies[ispecies[i]] <- as.numeric(rownames(thermo$OBIGT)[iOBIGT[ii]])
         }
       }
     }

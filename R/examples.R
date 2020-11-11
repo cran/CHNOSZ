@@ -7,12 +7,15 @@ examples <- function(save.png=FALSE) {
   .ptime <- proc.time()
   topics <- c("thermo", "examples",
     "util.array", "util.blast", "util.data", "util.expression", "util.legend", "util.plot",
-    "util.fasta", "util.formula", "util.matrix", "util.misc", "util.seq", "util.units",
-    "util.water", "taxonomy", "info", "retrieve", "add.obigt", "protein.info",
+    "util.fasta", "util.formula", "util.misc", "util.seq", "util.units",
+    "util.water", "taxonomy", "info", "retrieve", "add.OBIGT", "protein.info",
     "hkf", "water", "IAPWS95", "subcrt", "berman",
-    "makeup", "basis", "swap.basis", "species", "affinity", "solubility", "equilibrate", 
-    "diagram", "buffer", "nonideal", "NaCl", "add.protein", "protein", "ionize.aa",
-    "objective", "revisit", "EOSregress", "wjd")
+    "makeup", "basis", "swap.basis", "species", "affinity",
+    "solubility", "equilibrate", 
+    "diagram", "mosaic", "mix",
+    "buffer", "nonideal", "NaCl",
+    "add.protein", "ionize.aa",
+    "objective", "revisit", "EOSregress")
   plot.it <- FALSE
   if(is.character(save.png))
     png(paste(save.png,"%d.png",sep=""),width=500,height=500,pointsize=12)
@@ -29,8 +32,9 @@ examples <- function(save.png=FALSE) {
 
 demos <- function(which=c("sources", "protein.equil", "affinity", "NaCl", "density", 
   "ORP", "findit", "ionize", "buffer", "protbuff", "glycinate",
-  "mosaic", "copper", "arsenic", "solubility", "gold", "contour", "sphalerite", "wjd",
-  "bugstab", "Shh", "saturation", "adenine", "DEW", "lambda", "TCA", "aluminum", "bison", "AkDi"), save.png=FALSE) {
+  "mosaic", "copper", "arsenic", "solubility", "gold", "contour", "sphalerite", "zinc",
+  "Shh", "saturation", "adenine", "DEW", "lambda", "berman", "TCA", "aluminum",
+  "AkDi", "comproportionation"), save.png=FALSE) {
   # run one or more demos from CHNOSZ with ask=FALSE, and return the value of the last one
   for(i in 1:length(which)) {
     # say something so the user sees where we are
@@ -40,8 +44,10 @@ demos <- function(which=c("sources", "protein.equil", "affinity", "NaCl", "densi
       next 
     } else message(paste("demos: running '", which[i], "'", sep=""))
     if(save.png & !which[i]=="dehydration") {
-      if(which[i]=="bugstab") png(paste(which[i], "%d.png", sep=""), width=700, height=500, pointsize=12)
-      else png(paste(which[i], "%d.png", sep=""), width=500, height=500, pointsize=12)
+      width <- 500
+      height <- 500
+      if(which[i]=="comproportionation") width <- 600
+      png(paste(which[i], "%d.png", sep=""), width = width, height = height, pointsize = 12)
     }
     out <- demo(which[i], package="CHNOSZ", character.only=TRUE, echo=FALSE, ask=FALSE)
     if(save.png & !which[i]=="dehydration") dev.off()

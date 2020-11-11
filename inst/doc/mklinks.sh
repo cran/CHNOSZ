@@ -1,8 +1,8 @@
 # CHNOSZ/vignettes/mklinks.sh
-# add documentation links to anintro.html
+# add documentation links to vignettes
 # 20190125 jmd
 
-# add links to help topics
+# anintro.html: add links to help topics
 # set background-image:none to remove underlines (from bootstrap theme)
 sed -i 's/<code>?`CHNOSZ-package`<\/code>/<code><a href="..\/html\/CHNOSZ-package.html" style="background-image:none;">?`CHNOSZ-package`<\/a><\/code>/g' anintro.html
 sed -i 's/<code>?basis<\/code>/<code><a href="..\/html\/basis.html" style="background-image:none;">?basis<\/a><\/code>/g' anintro.html
@@ -18,10 +18,9 @@ sed -i 's/<code>?cgl<\/code>/<code><a href="..\/html\/eos.html" style="backgroun
 sed -i 's/<code>?water<\/code>/<code><a href="..\/html\/water.html" style="background-image:none;">?water<\/a><\/code>/g' anintro.html
 sed -i 's/<code>?subcrt<\/code>/<code><a href="..\/html\/subcrt.html" style="background-image:none;">?subcrt<\/a><\/code>/g' anintro.html
 sed -i 's/<code>?EOSregress<\/code>/<code><a href="..\/html\/EOSregress.html" style="background-image:none;">?EOSregress<\/a><\/code>/g' anintro.html
-sed -i 's/<code>?wjd<\/code>/<code><a href="..\/html\/wjd.html" style="background-image:none;">?wjd<\/a><\/code>/g' anintro.html
 sed -i 's/<code>?taxonomy<\/code>/<code><a href="..\/html\/taxonomy.html" style="background-image:none;">?taxonomy<\/a><\/code>/g' anintro.html
 
-# add links to function names
+# anintro.html: add links to function names
 # start at line 120 (below the TOC)
 sed -i '120,$s/<code>info()<\/code>/<code><a href="..\/html\/info.html" style="background-image:none;">info()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>ZC()<\/code>/<code><a href="..\/html\/util.formula.html" style="background-image:none;">ZC()<\/a><\/code>/g' anintro.html
@@ -65,18 +64,17 @@ sed -i '120,$s/<code>uniprot.aa()<\/code>/<code><a href="..\/html\/util.fasta.ht
 sed -i '120,$s/<code>add.protein()<\/code>/<code><a href="..\/html\/add.protein.html" style="background-image:none;">add.protein()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>aminoacids()<\/code>/<code><a href="..\/html\/util.seq.html" style="background-image:none;">aminoacids()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>findit()<\/code>/<code><a href="..\/html\/findit.html" style="background-image:none;">findit()<\/a><\/code>/g' anintro.html
-sed -i '120,$s/<code>add.obigt()<\/code>/<code><a href="..\/html\/add.obigt.html" style="background-image:none;">add.obigt()<\/a><\/code>/g' anintro.html
-sed -i '120,$s/<code>mod.obigt()<\/code>/<code><a href="..\/html\/add.obigt.html" style="background-image:none;">mod.obigt()<\/a><\/code>/g' anintro.html
-sed -i '120,$s/<code>today()<\/code>/<code><a href="..\/html\/add.obigt.html" style="background-image:none;">today()<\/a><\/code>/g' anintro.html
+sed -i '120,$s/<code>add.OBIGT()<\/code>/<code><a href="..\/html\/add.OBIGT.html" style="background-image:none;">add.OBIGT()<\/a><\/code>/g' anintro.html
+sed -i '120,$s/<code>mod.OBIGT()<\/code>/<code><a href="..\/html\/add.OBIGT.html" style="background-image:none;">mod.OBIGT()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>checkGHS()<\/code>/<code><a href="..\/html\/util.data.html" style="background-image:none;">checkGHS()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>checkEOS()<\/code>/<code><a href="..\/html\/util.data.html" style="background-image:none;">checkEOS()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>equil.reaction()<\/code>/<code><a href="..\/html\/equilibrate.html" style="background-image:none;">equil.reaction()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>EOSregress()<\/code>/<code><a href="..\/html\/EOSregress.html" style="background-image:none;">EOSregress()<\/a><\/code>/g' anintro.html
-sed -i '120,$s/<code>wjd()<\/code>/<code><a href="..\/html\/wjd.html" style="background-image:none;">wjd()<\/a><\/code>/g' anintro.html
-sed -i '120,$s/<code>RH2obigt()<\/code>/<code><a href="..\/html\/util.data.html" style="background-image:none;">RH2obigt()<\/a><\/code>/g' anintro.html
+sed -i '120,$s/<code>RH2OBIGT()<\/code>/<code><a href="..\/html\/util.data.html" style="background-image:none;">RH2OBIGT()<\/a><\/code>/g' anintro.html
 sed -i '120,$s/<code>eqdata()<\/code>/<code><a href="..\/html\/eqdata.html" style="background-image:none;">eqdata()<\/a><\/code>/g' anintro.html
+sed -i '120,$s/<code>retrieve()<\/code>/<code><a href="..\/html\/retrieve.html" style="background-image:none;">retrieve()<\/a><\/code>/g' anintro.html
 
-# functions from R base packages
+# anintro.html: functions from R base packages
 sed -i '120,$s/<code>install.packages/<code><a href="..\/..\/utils\/html\/install.packages.html" style="background-image:none;">install.packages<\/a>/g' anintro.html
 sed -i '120,$s/<code>library/<code><a href="..\/..\/base\/html\/library.html" style="background-image:none;">library<\/a>/g' anintro.html
 sed -i '120,$s/help()/<a href="..\/..\/utils\/html\/help.html" style="background-image:none;">help()<\/a>/g' anintro.html
@@ -94,8 +92,33 @@ sed -i '120,$s/seq()/<a href="..\/..\/base\/html\/seq.html" style="background-im
 sed -i '120,$s/substitute()/<a href="..\/..\/base\/html\/substitute.html" style="background-image:none;">substitute()<\/a>/g' anintro.html
 sed -i '120,$s/for()/<a href="..\/..\/base\/html\/Control.html" style="background-image:none;">for()<\/a>/g' anintro.html
 sed -i '120,$s/browseURL()/<a href="..\/..\/utils\/html\/browseURL.html" style="background-image:none;">browseURL()<\/a>/g' anintro.html
+sed -i '120,$s/Sys.Date()/<a href="..\/..\/base\/html\/Sys.time.html" style="background-image:none;">Sys.Date()<\/a>/g' anintro.html
 
-# add links to obigt.Rmd
-sed -i '120,$s/<code>add.obigt()<\/code>/<code><a href="..\/html\/add.obigt.html" style="color:red;">add.obigt()<\/a><\/code>/g' obigt.html
-sed -i '120,$s/<code>reset()<\/code>/<code><a href="..\/html\/thermo.html" style="color:red;">reset()<\/a><\/code>/g' obigt.html
-sed -i 's/<code>?add.obigt<\/code>/<code><a href="..\/html\/add.obigt.html" style="color:red;">?add.obigt<\/a><\/code>/g' obigt.html
+# add links to OBIGT.html
+sed -i 's/reset()/<a href="..\/html\/thermo.html">reset()<\/a>/g' OBIGT.html
+sed -i 's/OBIGT()/<a href="..\/html\/thermo.html">OBIGT()<\/a>/g' OBIGT.html
+sed -i 's/thermo()/<a href="..\/html\/thermo.html">thermo()<\/a>/g' OBIGT.html
+sed -i 's/add.OBIGT(/<a href="..\/html\/add.OBIGT.html">add.OBIGT<\/a>(/g' OBIGT.html
+sed -i 's/water(/<a href="..\/html\/water.html">water<\/a>(/g' OBIGT.html
+sed -i 's/demo(/<a href="..\/demo">demo<\/a>(/g' OBIGT.html
+
+# add links to equilibrium.html 20200710
+sed -i 's/equilibrate()/<a href="..\/html\/equilibrate.html">equilibrate()<\/a>/g' equilibrium.html
+sed -i 's/solubility()/<a href="..\/html\/solubility.html">solubility()<\/a>/g' equilibrium.html
+sed -i 's/add.OBIGT()/<a href="..\/html\/add.OBIGT.html">add.OBIGT()<\/a>/g' equilibrium.html
+
+# add links to multi-metal.html 20200716
+sed -i 's/affinity()/<a href="..\/html\/affinity.html">affinity()<\/a>/g' multi-metal.html
+sed -i 's/mash()/<a href="..\/html\/mix.html">mash()<\/a>/g' multi-metal.html
+sed -i 's/diagram()/<a href="..\/html\/diagram.html">diagram()<\/a>/g' multi-metal.html
+sed -i 's/mosaic()/<a href="..\/html\/mosaic.html">mosaic()<\/a>/g' multi-metal.html
+sed -i 's/equilibrate()/<a href="..\/html\/equilibrate.html">equilibrate()<\/a>/g' multi-metal.html
+sed -i 's/rebalance()/<a href="..\/html\/mix.html">rebalance()<\/a>/g' multi-metal.html
+sed -i 's/ratlab()/<a href="..\/html\/util.expression.html">ratlab()<\/a>/g' multi-metal.html
+sed -i 's/mix()/<a href="..\/html\/mix.html">mix()<\/a>/g' multi-metal.html
+sed -i 's/mod.OBIGT()/<a href="..\/html\/add.OBIGT.html">mod.OBIGT()<\/a>/g' multi-metal.html
+sed -i 's/retrieve()/<a href="..\/html\/retrieve.html">retrieve()<\/a>/g' multi-metal.html
+sed -i 's/NaCl()/<a href="..\/html\/NaCl.html">NaCl()<\/a>/g' multi-metal.html
+sed -i 's/solubility()/<a href="..\/html\/solubility.html">solubility()<\/a>/g' multi-metal.html
+sed -i 's/subcrt()/<a href="..\/html\/subcrt.html">subcrt()<\/a>/g' multi-metal.html
+sed -i 's/convert()/<a href="..\/html\/util.units.html">convert()<\/a>/g' multi-metal.html

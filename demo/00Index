@@ -16,16 +16,16 @@ solubility      Solubility of calcite and CO2(gas) as a function of pH
 gold            Solubility of gold
 contour         Gold solubility contours on a log fO2 - pH diagram
 sphalerite      Solubility of sphalerite
-wjd             Gibbs energy minimization: prebiological atmospheres and cell periphery of yeast
+zinc            Solubilities of multiple minerals (zincite and sphalerite)
 dehydration     log K of dehydration reactions; SVG file contains tooltips and links
-bugstab         Formation potential of microbial proteins in colorectal cancer
 Shh             Affinities of transcription factors relative to Sonic hedgehog
 saturation      Equilibrium activity diagram showing activity ratios and mineral saturation limits
 adenine         HKF parameters regressed from heat capacity and volume of aqueous adenine
 DEW             Deep Earth Water (DEW) model for high pressures
 lambda          Thermodynamic properties of lambda transition in quartz
+berman          Mineral stabilities in Berman and Helgeson et al. datasets
 TCA             Standard Gibbs energies of steps of the citric acid cycle
 aluminum        Reactions involving Al-bearing minerals
 carboxylase     Rank abundance distribution for RuBisCO and acetyl-CoA carboxylase
-bison           Average oxidation state of carbon in proteins for phyla at Bison Pool
 AkDi            Henry's constant of dissolved gases
+comproportionation  Gibbs energy of sulfur comproportionation

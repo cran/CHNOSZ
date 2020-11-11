@@ -58,10 +58,10 @@ makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
   }
   # if the formula argument is numeric,
   # and if the thermo object is available,
-  # get the formula of that numbered species from thermo$obigt
-  if(exists("CHNOSZ")) {
+  # get the formula of that numbered species from thermo()$OBIGT
+  if("CHNOSZ" %in% .packages()) {
     thermo <- get("thermo", CHNOSZ)
-    if(is.numeric(formula)) formula <- thermo$obigt$formula[formula]
+    if(is.numeric(formula)) formula <- thermo$OBIGT$formula[formula]
   }
   # first deal with charge
   cc <- count.charge(formula)
@@ -87,9 +87,9 @@ makeup <- function(formula, multiplier=1, sum=FALSE, count.zero=FALSE) {
   # all done with the counting, now apply the multiplier
   out <- out * multiplier
   # complain if there are any elements that look strange
-  if(exists("CHNOSZ")) {
+  if("CHNOSZ" %in% .packages()) {
     are.elements <- names(out) %in% thermo$element$element
-    if(!all(are.elements)) warning(paste("element(s) not in thermo$element:", 
+    if(!all(are.elements)) warning(paste("element(s) not in thermo()$element:", 
       paste(names(out)[!are.elements], collapse=" ") ))
   }
   # done!

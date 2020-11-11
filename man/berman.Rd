@@ -15,7 +15,7 @@ Calculate thermodynamic properties of minerals using the equations of Berman (19
   \item{name}{character, name of mineral}
   \item{T}{numeric, temperature(s) at which to calculate properties (K)}
   \item{P}{numeric, pressure(s) at which to calculate properties (bar)}
-  \item{thisinfo}{dataframe, row for mineral from \code{thermo()$obigt}}
+  \item{thisinfo}{dataframe, row for mineral from \code{thermo()$OBIGT}}
   \item{check.G}{logical, check consistency of G, H, and S?}
   \item{calc.transition}{logical, include calculation of polymorphic transition properties?}
   \item{calc.disorder}{logical, include calculation of disordering properties?}
@@ -24,7 +24,7 @@ Calculate thermodynamic properties of minerals using the equations of Berman (19
 
 \details{
 This function calculates the thermodynamic properties of minerals at high \P and \T using equations given by Berman (1988).
-These minerals should be listed in \code{thermo()$obigt} with the state \samp{cr} and chemical formula, and optionally an abbreviation and references, but all other properties set to NA.
+These minerals should be listed in \code{thermo()$OBIGT} with the state \samp{cr} and chemical formula, and optionally an abbreviation and references, but all other properties set to NA.
 
 The standard state thermodynamic properties and parameters for the calculations are stored in data files under \code{extdata/Berman}, or can be read from a user-created file (if available) named \samp{berman.csv} in the working directory.
 
@@ -43,7 +43,7 @@ Missing (or NA) values are permitted for the transition and disorder parameters,
 The data files have the following 30 columns:
 
     \tabular{lll}{
-      \code{name} \tab mineral name (must match an entry with a formula but NA properties in \code{thermo()$obigt})\cr
+      \code{name} \tab mineral name (must match an entry with a formula but NA properties in \code{thermo()$OBIGT})\cr
       \code{GfPrTr} \tab standard Gibbs energy at 298.15 K and 1 bar (J mol\S{-1}) (Benson-Helgeson convention)\cr
       \code{HfPrTr} \tab standard enthalpy at 298.15 K and 1 bar (J mol\S{-1})\cr
       \code{SPrTr} \tab standard entropy at 298.15 K and 1 bar (J mol\S{-1} K\S{-1})\cr
@@ -69,7 +69,7 @@ The function outputs apparent Gibbs energies according to the Benson-Helgeson co
 If \code{check.G} is TRUE, the tabulated value of \code{GfTrPr} (Benson-Helgeson) is compared with that calculated from \code{HfPrTr} - 298.15*\code{DSPrTr} (\code{DSPrTr} is the difference between the entropies of the elements in the formula and \code{SPrTr} in the table).
 A warning is produced if the absolute value of the difference between tabulated and calculated \code{GfTrPr} is greater than 1000 J/mol.
 
-Providing \code{thisinfo} avoids searching for the mineral in \code{thermo()$obigt}, potentially saving some running time.
+Providing \code{thisinfo} avoids searching for the mineral in \code{thermo()$OBIGT}, potentially saving some running time.
 If the function is called with missing \code{name}, the parameters for all available minerals are returned.
 }
 
@@ -80,7 +80,7 @@ A data frame with \code{T} (K), \code{P} (bar), \code{G}, \code{H}, \code{S}, an
 \examples{
 \dontshow{reset()}
 # other than the formula, the parameters aren't stored in
-# thermo()$obigt, so this shows NAs
+# thermo()$OBIGT, so this shows NAs
 info(info("quartz", "cr"))
 # properties of alpha-quartz (aQz) at 298.15 K and 1 bar
 berman("quartz")
@@ -92,57 +92,7 @@ G_Cs <- berman("coesite", T=T, P=P)$G
 # that is close to the univariant curve (Ber88 Fig. 4),
 # so the difference in G is close to 0
 DGrxn <- G_Cs - G_aQz
-stopifnot(all(abs(DGrxn) < 100))
-
-### compare mineral stabilities in the Berman and Helgeson datasets
-### on a T - log(K+/H+) diagram, after Sverjensky et al., 1991
-### (doi:10.1016/0016-7037(91)90157-Z)
-## set up the system: basis species
-basis(c("K+", "Al+3", "quartz", "H2O", "O2", "H+"))
-# use pH = 0 so that aK+ = aK+/aH+
-basis("pH", 0)
-# load the species
-species(c("K-feldspar", "muscovite", "kaolinite",
-          "pyrophyllite", "andalusite"), "cr")
-## start with the data from Helgeson et al., 1978
-add.obigt("SUPCRT92")
-# calculate affinities in aK+ - temperature space
-# exceed.Tr: enable calculations above stated temperature limit of pyrophyllite
-res <- 400
-a <- affinity(`K+` = c(0, 5, res), T = c(200, 650, res), P = 1000, exceed.Ttr = TRUE)
-# make base plot with colors and no lines
-diagram(a, xlab = ratlab("K+", molality = TRUE), lty = 0, fill = "terrain")
-# add the lines, extending into the low-density region (exceed.rhomin = TRUE)
-a <- affinity(`K+` = c(0, 5, res), T = c(200, 650, res), P = 1000, 
-              exceed.Ttr = TRUE, exceed.rhomin = TRUE)
-diagram(a, add = TRUE, names = FALSE, col = "red", lwd = 1.5)
-# the list of references:
-ref1 <- thermo.refs(species()$ispecies)$key
-## now use the (default) data from Berman, 1988
-# this resets the thermodynamic database
-# without affecting the basis and species settings
-obigt()
-# we can check that we have Berman's quartz
-# and not coesite or some other phase of SiO2
-iSiO2 <- rownames(basis()) == "SiO2"
-stopifnot(info(basis()$ispecies[iSiO2])$name == "quartz")
-# Berman's dataset doesn't have the upper temperature limits,
-# so we don't need exceed.Ttr here
-a <- affinity(`K+` = c(0, 5, res), T = c(200, 650, res), P = 1000, exceed.rhomin = TRUE)
-diagram(a, add = TRUE, names = FALSE, col = "blue", lwd = 1.5)
-# the list of references:
-ref2 <- thermo.refs(species()$ispecies)$key
-ref2 <- paste(ref2, collapse = ", ")
-# add legend and title
-legend("top", "low-density region", text.font = 3, bty = "n")
-legend("topleft", describe.property(c("P", "IS"), c(1000, 1)), bty = "n")
-legend("left", c(ref1, ref2),
-       lty = c(1, 1), lwd = 1.5, col = c(2, 4), bty = "n")
-title(main = syslab(c("K2O", "Al2O3", "SiO2", "H2O", "HCl")), line = 1.8)
-title(main = "Helgeson and Berman minerals, after Sverjensky et al., 1991",
-      line = 0.3, font.main = 1)
-# cleanup for next example
-reset()
+all(abs(DGrxn) < 100)  # TRUE
 
 # make a P-T diagram for SiO2 minerals (Ber88 Fig. 4)
 basis(c("SiO2", "O2"), c("cr", "gas"))
@@ -159,20 +109,20 @@ T <- seq(600, 1500, 50)
 Gex_Ber88 <- subcrt(species, coeffs, T=T, P=1)$out$G
 # add data from BA96
 datadir <- system.file("extdata/Berman/testing", package="CHNOSZ")
-add.obigt(file.path(datadir, "BA96_obigt.csv"))
+add.OBIGT(file.path(datadir, "BA96_OBIGT.csv"))
 thermo("opt$Berman" = file.path(datadir, "BA96_berman.csv"))
 Gex_BA96 <- subcrt(species, coeffs, T=seq(600, 1500, 50), P=1)$out$G
 # Ber88 is lower than BA96 at low T
-stopifnot((Gex_BA96 - Gex_Ber88)[1] > 0)
+(Gex_BA96 - Gex_Ber88)[1] > 0  # TRUE
 # the curves cross at about 725 deg C (BA96 Fig. 8)
 # (actually, in our calculation they cross closer to 800 deg C)
-stopifnot(T[which.min(abs(Gex_BA96 - Gex_Ber88))] == 800)
-# reset the database (thermo()$opt$E.units, thermo()$obigt, and thermo()$opt$Berman)
+T[which.min(abs(Gex_BA96 - Gex_Ber88))]  # 800
+# reset the database (thermo()$opt$E.units, thermo()$OBIGT, and thermo()$opt$Berman)
 reset()
 }
 
 \references{
-Anderson, G. M. (2005) \emph{Thermodynamics of Natural Systems}, 2nd ed., Cambridge University Press, 648 p. \url{http://www.worldcat.org/oclc/474880901}
+Anderson, G. M. (2005) \emph{Thermodynamics of Natural Systems}, 2nd ed., Cambridge University Press, 648 p. \url{https://www.worldcat.org/oclc/474880901}
 
 Berman, R. G. (1988) Internally-consistent thermodynamic data for minerals in the system Na{\s2}O-K{\s2}O-CaO-MgO-FeO-Fe{\s2}O{\s3}-Al{\s2}O{\s3}-SiO{\s2}-TiO{\s2}-H{\s2}O-CO{\s2}. \emph{J. Petrol.} \bold{29}, 445-522. \url{https://doi.org/10.1093/petrology/29.2.445}
 
@@ -180,7 +130,7 @@ Berman, R. G. and Aranovich, L. Ya. (1996) Optimized standard state and solution
 
 Berman, R. G. (2007) winTWQ (version 2.3): A software package for performing internally-consistent thermobarometric calculations. \emph{Open File} \bold{5462}, Geological Survey of Canada, 41 p. \url{https://doi.org/10.4095/223425}
 
-Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{http://www.worldcat.org/oclc/13594862}
+Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{https://www.worldcat.org/oclc/13594862}
 }
 
 \concept{Thermodynamic calculations}

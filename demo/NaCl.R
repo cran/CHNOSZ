@@ -4,10 +4,11 @@
 ##  Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: 
 ##  Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 degrees C and 5 kbar. 
 ##  J. Chem. Soc. Faraday Trans. 88, 803-826. https://doi.org/10.1039/FT9928800803 )
+library(CHNOSZ)
 
 ## uncomment these lines to make the plot with the g-function disabled
-#mod.obigt("Cl-", z=0)
-#mod.obigt("Na+", z=0)
+#mod.OBIGT("Cl-", z=0)
+#mod.OBIGT("Na+", z=0)
 
 # start a new plot and show the experimental logK
 thermo.plot.new(xlim=c(0, 1000), ylim=c(-5.5, 1),
@@ -34,7 +35,7 @@ species <- c("NaCl", "Na+", "Cl-")
 coeffs <- c(-1, 1, 1)
 logK <- numeric()
 for(i in 1:length(T)) {
-  s <- subcrt(species, coeffs, T=T[[i]], P=P[[i]])
+  s <- suppressWarnings(subcrt(species, coeffs, T=T[[i]], P=P[[i]]))
   if(i==2) lty <- 3 else lty <- 1
   lines(s$out$T, s$out$logK, lty=lty)
   # keep the calculated values for each experimental condition (excluding Psat)

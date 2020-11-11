@@ -1,7 +1,7 @@
 context("makeup")
 
 test_that("chemical formulas with unknown elements cause a warning", {
-  expect_warning(makeup("X"), "element\\(s\\) not in thermo\\$element")
+  expect_warning(makeup("X"), "element\\(s\\) not in thermo\\(\\)\\$element")
 })
 
 test_that("unparseable chemical formulas cause an error", {
@@ -16,7 +16,7 @@ test_that("numeric species indices, and coefficients indicating charge can be pa
   expect_equal(makeup("-1"), makeup("Z0-1"))
   expect_equal(makeup("-1"), makeup("(Z-1)"))
   expect_equal(makeup("-1"), makeup("Z-1+0"))
-  # the species index of the electron in thermo$obigt
+  # the species index of the electron in thermo()$OBIGT
   ie <- info("e-")
   expect_equal(makeup("-1"), makeup(ie))
 })
@@ -63,4 +63,13 @@ test_that("makeup has a fall-through mechanism for matrices and named objects", 
 test_that("as.chemical.formula moves charge to the end", {
   mkp <- makeup("Z-1HCO3")
   expect_equal(as.chemical.formula(mkp), "HCO3-1")  # i.e. not -1HCO3
+})
+
+test_that("makeup can process formulas if the package is not attached", {
+  # test added 20200727
+  CHNOSZattached <- "CHNOSZ" %in% (.packages())
+  if(CHNOSZattached) detach("package:CHNOSZ", unload = TRUE)
+  mH2O <- CHNOSZ::makeup("H2O")
+  expect_identical(mH2O, c(H = 2, O = 1))
+  if(CHNOSZattached) library(CHNOSZ)
 })

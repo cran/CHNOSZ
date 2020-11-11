@@ -5,7 +5,7 @@ suppressMessages(reset())
 
 test_that("add.protein works as expected", {
   # factors causing problems again ...
-  f <- system.file("extdata/protein/DS11.csv", package="CHNOSZ")
+  f <- system.file("extdata/protein/POLG.csv", package="CHNOSZ")
   aa <- read.csv(f, as.is = TRUE)
   # this adds the proteins
   ip1 <- add.protein(aa)
@@ -16,7 +16,7 @@ test_that("add.protein works as expected", {
 
 test_that("errors and messages occur in some circumstances", {
   expect_error(seq2aa("LYS_CHICK", "XXX"), "no characters match an amino acid")
-  expect_error(add.protein(count.aa("AAA")), "does not have the same columns as thermo\\$protein")
+  expect_error(add.protein(count.aa("AAA")), "does not have the same columns as thermo\\(\\)\\$protein")
   expect_message(add.protein(pinfo(pinfo("CYC_BOVIN"))), "replaced 1 existing protein\\(s\\)")
 })
 
@@ -28,7 +28,7 @@ test_that("group additivity for proteins gives expected values", {
   V <- 10421
   formula <- "C613H959N193O185S10"
   # to reproduce, use superseded properties of [Met], [Gly], and [UPBB] (Dick et al., 2006)
-  add.obigt("OldAA")
+  add.OBIGT("OldAA")
   lprop <- info(info("LYSC_CHICK"))
   expect_equal(G, lprop$G)
   expect_equal(Cp, lprop$Cp, tolerance=1e-5)
@@ -37,7 +37,7 @@ test_that("group additivity for proteins gives expected values", {
 })
 
 test_that("read.fasta() identifies sequences correctly and gives amino acid compositions in the correct format",{
-  ffile <- system.file("extdata/fasta/EF-Tu.aln", package="CHNOSZ")
+  ffile <- system.file("extdata/protein/EF-Tu.aln", package="CHNOSZ")
   aa <- read.fasta(ffile)
   expect_equal(aa[1, ], read.fasta(ffile, 1))
   # use unlist here so that different row names are not compared

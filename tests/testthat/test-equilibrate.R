@@ -6,30 +6,29 @@ basis("CHNOS+")
 species("acetic acid")
 aone <- suppressMessages(affinity())
 # acids
-species(c("formic acid", "formate", "acetate"))
+species(c("formic acid", "formate", "acetate"), add = TRUE)
 aacid <- suppressMessages(affinity())
 # acids plus a sulfur species
-species("H2S")
+species("H2S", add = TRUE)
 aacidS <- suppressMessages(affinity())
 # proteins
-species(delete=TRUE)
 species(c("LYSC_CHICK", "MYG_PHYCA", "RNAS1_BOVIN", "CYC_BOVIN"))
 aprot <- suppressMessages(affinity())
 
 test_that("equilibrate() gives expected messages and errors for balance calculation", {
   # the following error is triggered by equil.react, not equil.boltzmann
   expect_error(equilibrate(aone), "at least two species needed")
-  expect_message(equilibrate(aacid), "balance: moles of CO2")
+  expect_message(equilibrate(aacid), "balance: on moles of CO2")
   expect_message(equilibrate(aacid), "n.balance is 2 1 1 2")
   expect_message(equilibrate(aacid), "loga.balance is -2.221848")
   expect_message(equilibrate(aacid, loga.balance=-3), "loga.balance is -3")
   expect_error(equilibrate(aacid, balance="length"), "some species are not proteins")
   expect_error(equilibrate(aacidS), "no basis species is present in all formation reactions")
-  expect_message(equilibrate(aacidS, balance=1), "balance: from numeric argument value")
+  expect_message(equilibrate(aacidS, balance=1), "balance: on supplied numeric argument")
   expect_message(equilibrate(aacidS, balance=1), "n.balance is 1 1 1 1 1")
   expect_message(equilibrate(aacidS, balance=1), "loga.balance is -2.301029")
   expect_error(equilibrate(aacidS, balance="CO2"), "some species have no CO2 in the formation reaction")
-  expect_message(equilibrate(aprot), "balance: from protein length")
+  expect_message(equilibrate(aprot), "balance: on protein length")
   expect_message(equilibrate(aprot), "n.balance is 129 153 124 104")
   expect_message(equilibrate(aprot), "loga.balance is -0.292429")
   expect_message(equilibrate(aprot, normalize=TRUE), "using 'normalize' for molar formulas")
@@ -166,7 +165,7 @@ test_that("normalizing formulas of only selected species works as expected", {
   basis("CHNOS")
   basis("O2", -49.5)
   species(`n-alkane`)
-  species(`2-isoalkane`)
+  species(`2-isoalkane`, add = TRUE)
   # approximate conditions of Computer Experiment 27 (Helgeson et al., 2009, GCA)
   a <- affinity(T=150, P=830, exceed.Ttr=TRUE)
   # using full chemical formulas
@@ -198,12 +197,17 @@ test_that("solids are not equilibrated, but their stability fields are calculate
   basis("O2", -35)
   basis("H+", -5)
   species(Cu_aq, -3)
-  species(Cu_cr)
+  species(Cu_cr, add = TRUE)
   a <- affinity("Cl-" = c(-3, 0, 200), "HS-" = c(-10, 0, 200), T = 325, P = 500)
   apredom <- diagram(a, plot.it = FALSE)$predominant
   e <- equilibrate(a)
   epredom <- diagram(e, plot.it = FALSE)$predominant
   expect_equal(apredom, epredom)
+  # also test that equilibrate() works with *only* solids 20200715
+  species(Cu_cr)
+  acr <- affinity(a)
+  ecr <- equilibrate(acr)
+  expect_identical(e$values[8:9], ecr$values)
 })
 
 # references

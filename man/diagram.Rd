@@ -1,7 +1,6 @@
 \encoding{UTF-8}
 \name{diagram}
 \alias{diagram}
-\alias{strip}
 \alias{find.tp}
 \title{Chemical Activity Diagrams}
 \description{
@@ -22,20 +21,19 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
     # character sizes
     cex = par("cex"), cex.names = 1, cex.axis = par("cex"),
     # line styles
-    lty = NULL, lty.cr = NULL, lty.aq = NULL, lwd = par("lwd"), dotted = NULL,
+    lty = NULL, lwd = par("lwd"), dotted = NULL,
     spline.method = NULL, contour.method = "edge", levels = NULL,
     # colors
     col = par("col"), col.names = par("col"), fill = NULL,
-    fill.NA = "gray80", limit.water = TRUE,
+    fill.NA = "gray80", limit.water = NULL,
     # field and line labels
     names = NULL, format.names = TRUE, bold = FALSE, italic = FALSE, 
-    font = par("font"), family = par("family"), adj = 0.5, dy = 0, srt = 0,
+    font = par("font"), family = par("family"), adj = 0.5,
+    dx = 0, dy = 0, srt = 0, min.area = 0,
     # title and legend
     main = NULL, legend.x = NA,
     # plotting controls
     add = FALSE, plot.it = TRUE, tplot = TRUE, ...)
-  strip(affinity, ispecies = NULL, col = NULL, ns = NULL, 
-    xticks = NULL, ymin = -0.2, xpad = 1, cex.names = 0.7)
   find.tp(x)
 }
 
@@ -60,18 +58,16 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
   \item{cex.names}{numeric, character expansion factor to be used for names of species on plots}
   \item{cex.axis}{numeric, character expansion factor for names of axes}
   \item{lty}{numeric, line types to be used in plots}
-  \item{lty.cr}{numeric, line types for cr-cr boundaries (between two minerals)}
-  \item{lty.aq}{numeric, line types for aq-aq boundaries (between two aqueous species)}
   \item{lwd}{numeric, line width}
   \item{dotted}{numeric, how often to skip plotting points on predominance field boundaries (to gain the effect of dotted or dashed boundary lines)}
   \item{spline.method}{character, method used in \code{\link{splinefun}}}
   \item{contour.method}{character, labelling method used in \code{\link{contour}} (use NULL for no labels).}
   \item{levels}{numeric, levels at which to draw contour lines}
-  \item{col}{character, color of activity lines (1D diagram) or predominance field boundaries (2D diagram), or colors of bars in a strip diagram (\code{strip})}
+  \item{col}{character, color of activity lines (1D diagram) or predominance field boundaries (2D diagram)}
   \item{col.names}{character, colors for labels of species}
   \item{fill}{character, colors used to fill predominance fields}
   \item{fill.NA}{character, color for grid points with NA values}
-  \item{limit.water}{logical, set NA values beyond water stability limits?}
+  \item{limit.water}{NULL or logical, set NA values beyond water stability limits?}
   \item{names}{character, names of species for activity lines or predominance fields}
   \item{format.names}{logical, apply formatting to chemical formulas?}
   \item{bold}{logical, use bold formatting for names?}
@@ -79,19 +75,15 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
   \item{font}{character, font type for names (has no effect if \code{format.names} is TRUE)}
   \item{family}{character, font family for names}
   \item{adj}{numeric, adjustment for line labels}
-  \item{dy}{numeric, y offset for line labels}
+  \item{dx}{numeric, x offset for line or field labels}
+  \item{dy}{numeric, y offset for line or field labels}
   \item{srt}{numeric, rotation for line labels}
+  \item{min.area}{numeric, minimum area of fields that should be labeled, expressed as a fraction of the total plot area}
   \item{main}{character, a main \code{\link{title}} for the plot; \code{NULL} means to plot no title}
   \item{legend.x}{character, description of legend placement passed to \code{\link{legend}}}
   \item{add}{logical, add to current plot?}
   \item{plot.it}{logical, make a plot?}
   \item{tplot}{logical, set up plot with \code{\link{thermo.plot.new}}?}
-  \item{affinity}{list, object returned by \code{\link{affinity}}}
-  \item{ispecies}{numeric, which species to consider (default of \code{NULL} is to consider all species)}
-  \item{ns}{numeric, numbers of species, used to make inset plots for strip diagrams}
-  \item{xticks}{numeric, location of supplemental tick marks on x-axis}
-  \item{ymin}{numeric, lower limit of y-axis}
-  \item{xpad}{numeric, amount to extend x-axis on each side}
   \item{x}{matrix, value of the \code{predominant} list element from \code{diagram}}
   \item{...}{additional arguments passed to \code{\link{plot}} or \code{\link{barplot}}}
 }
@@ -105,20 +97,10 @@ The first argument is the output from \code{\link{affinity}}, \code{\link{equili
 2-D diagrams, for two variables, are plotted as predominance fields.
 The allowed variables are any that \code{\link{affinity}} or the other functions accepts: temperature, pressure, or the chemical activities of the basis species.
 
-The \code{type} argument only applies when the output from \code{affinity} is being used.
-For \code{type} set to \samp{auto}, and 0 or 1 variables, the property computed by \code{\link{affinity}} for each species is plotted.
-This is usually the affinity of the formation reaction, but can be set to some other property, such as the equilibrium constant (\samp{logK}).
-For two variables, equilibrium predominance (maximum affinity) fields are plotted.
-This \dQuote{maximum affinity method} (Dick, 2019) uses balancing coefficients that are specified by the \code{balance} argument.
-If \code{type} is \samp{saturation}, the function plots the line for each species where the affinity of formation equals zero (see \code{demo("saturation")} for an example).
-If for a given species no saturation line is possible or the range of the diagram does not include the saturation line, the function prints a message instead.
-If \code{type} is the name of a basis species, then the equilibrium activity of the selected basis species in each of the formation reactions is plotted (see the \CO2-acetic acid example in \code{\link{buffer}}).
-In the case of 2-D diagrams, both of these options use \code{\link{contour}} to draw the lines, with the method specified in \code{contour.method}.
-
 A new plot is started unless \code{add} is TRUE.
 If \code{plot.it} is FALSE, no plot will be generated but all the intermediate computations will be performed and the results returned.
 
-Line or field labels use the names of the species as provided in \code{eout}; formatting is applied to chemical formulas unless \code{format.names} is FALSE.
+Line or field labels use the names of the species as provided in \code{eout}; formatting is applied to chemical formulas (see \code{\link{expr.species}}) unless \code{format.names} is FALSE.
 Set \code{names} to TRUE or NULL to plot the names, or FALSE, NA, or \code{""} to prevent plotting the names, or a character argument to replace the default species names.
 Alternatively, supply a numeric value to \code{names} to indicate a subset of default names that should or shouldn't be plotted (positive and negative indices, respectively).
 Use \code{col.names} and \code{cex.names} to change the colors and size of the labels.
@@ -130,6 +112,23 @@ The names of the list are used to label the lines or fields for the summed activ
 
 }
 
+\section{\code{type} argument}{
+This paragraph describes the effect of the \code{type} argument when the output from \code{affinity} is being used.
+For \code{type} set to \samp{auto}, and with 0 or 1 variables defined in \code{\link{affinity}}, the property computed by \code{affinity} for each species is plotted.
+This is usually the affinity of the formation reactions, but can be set to some other property (using the \code{property} argument of \code{affinity}), such as the equilibrium constant (\samp{logK}).
+For two variables, equilibrium predominance (maximum affinity) fields are plotted.
+This \dQuote{maximum affinity method} (Dick, 2019) uses balancing coefficients that are specified by the \code{balance} argument.
+If \code{type} is \samp{saturation}, the function plots the line for each species where the affinity of formation equals zero (see \code{demo("saturation")} for an example).
+If for a given species no saturation line is possible or the range of the diagram does not include the saturation line, the function prints a message instead.
+If \code{type} is the name of a basis species, then the equilibrium activity of the selected basis species in each of the formation reactions is plotted (see the \CO2-acetic acid example in \code{\link{buffer}}).
+In the case of 2-D diagrams, both of these options use \code{\link{contour}} to draw the lines, with the method specified in \code{contour.method}.
+
+This paragraph describes the effect of the \code{type} argument when the output from \code{solubility} is being used.
+For \code{type} set to \samp{auto}, the equilibrium activities (i.e. computed solubilities) of each species are plotted.
+If \code{type} is \samp{loga.balance}, the activity of the balancing basis species (i.e. total solubility) is plotted; this is represented by contours on a 2-D diagram.
+For examples that use these features, see \code{\link{solubility}} and various \code{\link{demos}}: \samp{DEW}, \samp{contour}, \samp{gold}, \samp{solubility}, \samp{sphalerite}, \samp{zinc}.
+}
+
 \section{1-D diagrams}{
 For 1-D diagrams, the default setting for the y-axis is a logarithmic scale (unless \code{alpha} is TRUE) with limits corresponding to the range of logarithms of activities (or 0,1 if \code{alpha} is TRUE); these actions can be overridden by \code{ylog} and \code{ylim}.
 If \code{legend.x} is NA (the default), the lines are labeled with the names of the species near the maximum value.
@@ -138,20 +137,26 @@ Otherwise, a \code{\link{legend}} is placed at the location identified by \code{
 If \code{alpha} is TRUE, the fractional degrees of formation (ratios of activities to total activity) are plotted.
 Or, setting \code{alpha} to \samp{balance} allows the activities to be multiplied by the number of the balancing component; this is useful for making \dQuote{percent carbon} diagrams where the species differ in carbon number.
 The line type and line width can be controlled with \code{lty} and \code{lwd}, respectively.
-Set \code{lty.cr} to 0 to disable drawing lines between minerals (to show equal-activity lines for only aqueous species), or set \code{lty.aq} to 0 to disable drawing lines between aqueous species.
 To connect the points with splines instead of lines, set \code{spline.method} to one of the methods in \code{\link{splinefun}}.
 }
 
 \section{2-D diagrams}{
 On 2-D diagrams, the fields represent the species with the highest equilibrium activity.
 \code{fill} determines the color of the predominance fields, \code{col} that of the boundary lines.
-The default of NULL for \code{fill} produces transparent predominance fields.
-\code{fill} can be any \code{\link{colors}}, or the word \samp{rainbow}, \samp{heat}, \samp{terrain}, \samp{topo}, or \samp{cm}, indicating a palette from \pkg{grDevices}.
+The default of NULL for \code{fill} uses a light blue, light tan, and darker tan color for fields with aqueous species, one solid, or two solids.
+These correspond to the web colors "aliceblue", "antiquewhite", and "burlywood" with some transparency added; see \viglink{multi-metal} for an example with two solids produced using \code{\link{mix}}.
+If all the species in the diagram have the same state, or if the \code{fill} argument is NA or a 0-length value, the predominance fields are transparent, i.e. no fill color is used.
+Otherwise, \code{fill} can be any \code{\link{colors}}, or the word \samp{rainbow}, \samp{heat}, \samp{terrain}, \samp{topo}, or \samp{cm}, indicating a palette from \pkg{grDevices}.
 Starting with \R version 3.6.0, \code{fill} can be the name of any available HCL color palette, matched in the same way as the \code{palette} argument of \code{hcl.colors}.
 
-\code{fill.NA} gives the color for empty fields, i.e. points for which NA values are present, possibly by using \code{\link{equilibrate}} at extreme conditions (see \code{test-diagram.Rd}).
-\code{fill.NA} is also used to specify the color outside the water stability limits on Eh-pH or pe-pH diagrams, when \code{limit.water} is TRUE.
-Note that the default for \code{fill.NA} is automatically changed to \samp{transparent} when \code{add} is TRUE.
+\code{fill.NA} gives the color for empty fields, i.e. points at which NA values are present for any species.
+This may occur when there are missing thermodynamic data or the temperature or pressure are not in the range of the equations of state.
+To make overlay diagrams easier to construct, the default for \code{fill.NA} is automatically changed to \samp{transparent} when \code{add} is TRUE.
+
+If \code{limit.water} is TRUE, the diagram is clipped to the the water stability region on Eh-pH (and some other) diagrams.
+That is, predominance fields are shown only where water is stable, and \code{fill.NA} is used for areas where \H2O is not stable.
+The default of NULL for \code{limit.water} does not clip the main diagram but instead overlays it on the water stability fields.
+Change \code{limit.water} to FALSE to not show the water stability regions at all; this is automatically done if \code{limit.water} is missing and \code{add} is TRUE.
 
 The default line-drawing algorithm uses \code{\link{contourLines}} to obtain smooth-looking diagonal and curved lines, at the expense of not coinciding exactly with the rectangular grid that is used for drawing colors.
 \code{lty}, \code{col}, and \code{lwd} can be specified, but limiting the lines via \code{xrange} is not currently supported.
@@ -171,34 +176,23 @@ The labeling as molality takes effect even if \code{IS} is set to 0; this way, b
 }
 
 \section{Other Functions}{
-A different incarnation of 1-D speciation diagrams is provided by \code{strip}.
-This function generates any number of strip diagrams in a single plot.
-The diagrams are made up of colors bars whose heights represent the relative abundances of species; the color bars are arranged in order of abundance and the total height of the stack of colors bars is constant.
-If \code{ispecies} is a list, the number of strip diagrams is equal to the number of elements of the list, and the elements of this list are numeric vectors that identify the species to consider for each diagram.
-The strips are labeled with the \code{\link{names}} of \code{ispecies}.
-If \code{col} is NULL, the colors of the bars are generated using \code{\link{rainbow}}.
-Supplemental ticks can be added to the x-axis at the locations specified in \code{xtick}; they are larger than the standard ticks and have colors corresponding to those of the color bars.
-\code{ymin} can be decreased in order to add more space at the bottom of the plot, and \code{xpad} can be changed in order to increase or decrease the size of the x-axis relative to the width of the strips.
-An inset dot-and-line plot is created below each strip if \code{ns} is given.
-This argument has the same format as \code{ispecies}, and can be used e.g. to display the relative numbers of species for comparison with the stability calculations.
-
 \code{find.tp} finds the locations in a matrix of integers that are surrounded by the greatest number of different values.
 The function counts the unique values in a 3x3 grid around each point and returns a matrix of indices (similar to \code{\link{which}(..., arr.ind = TRUE)}) for the maximum count (ties result in more than one pair of indices).
 It can be used with the output from \code{diagram} for calculations in 2 dimensions to approximately locate the triple points on the diagram.
 }
 
 \section{Value}{
-  \code{diagram} returns an \code{\link{invisible}} list containing, first, the contents of \code{eout}, i.e. the provided output of \code{\link{affinity}} or \code{\link{equilibrate}}.
-  To this are added the name of the plotted variable in \code{plotvar}, the plotted values in \code{plotvals}, and the names used for labeling the plot in \code{names}.
+  \code{diagram} returns an \code{\link{invisible}} list containing, first, the contents of \code{eout}, i.e. the output of \code{\link{affinity}} or \code{\link{equilibrate}} supplied in the function call.
+  To this are added the names of the plotted variable in \code{plotvar}, the labels used for species (which may be \code{\link{plotmath}} expressions if \code{format.names} is TRUE) in \code{names}, and the values used for plotting in a list named \code{plotvals}.
   For 1-D diagrams, \code{plotvals} usually corresponds to the chemical activities of the species (i.e. \code{eout$loga.equil}), or, if \code{alpha} is \code{TRUE}, their mole fractions (degrees of formation).
-  For 2-D diagrams, the output also contains \code{predominant}, giving the numbers (from the \code{\link{species}} definition) of the predominant (aka maximum-affinity) species at each grid point.
-  The rows and columns of \code{predominant} correspond to the x- and y-variables, respectively.
-  Finally, the output for 2-D diagrams contains a \code{lines} component, giving the x- and y-coordinates of the field boundaries computed using \code{\link{contourLines}}; the values are padded to equal length with NAs to faciliate exporting the results using \code{\link{write.csv}}.
+  For 2-D diagrams, \code{plotvals} corresponds to the values of affinity (from \code{eout$values}) divided by the respective balancing coefficients for each species.
+  For 2-D diagrams, the output also contains the matrices \code{predominant}, which identifies the predominant species in \code{eout$species} at each grid point, and \code{predominant.values}, which has the affinities of the predominant species.
+  The rows and columns of these matrices correspond to the \emph{x} and \emph{y} variables, respectively.
+  Finally, the output for 2-D diagrams contains a \code{lines} component, giving the \emph{x} and \emph{y} coordinates of the field boundaries computed using \code{\link{contourLines}}; the values are padded to equal length with NAs to faciliate exporting the results using \code{\link{write.csv}}.
 }
 
 \seealso{ 
-Other examples are present in the help for \code{\link{protein}} and \code{\link{buffer}}, and even more can be found in \code{\link{demos}}.
-See the vignette \emph{Hot-spring proteins in CHNOSZ} for an example of the \code{strip} charts.
+Other examples are present in the help for \code{\link{buffer}}, and even more can be found in \code{\link{demos}}.
 }
 
 \examples{
@@ -259,8 +253,6 @@ species(c("rhomboclase", "ferricopiapite", "hydronium jarosite",
   "goethite", "melanterite", "pyrite"))
 a <- affinity(pH=c(-1, 4, 256), pe=c(-5, 23, 256))
 d <- diagram(a, main="Fe-S-O-H, after Majzlan et al., 2006")
-# the first four species show up in order near pe=15
-stopifnot(all.equal(unique(d$predominant[, 183]), 1:4))
 water.lines(d, lwd=2)
 text(3, 22, describe.basis(thermo()$basis[2:3,], digits=2, oneline=TRUE))
 text(3, 21, describe.property(c("T", "P"), c(25, 1), oneline=TRUE))
@@ -299,21 +291,17 @@ tp <- find.tp(d$predominant)
 Ttp <- a$vals[[1]][tp[1, 2]]
 Ptp <- rev(a$vals[[2]])[tp[1, 1]]
 points(Ttp, Ptp, pch=10, cex=5)
-# some testing of the overall geometry
-stopifnot(species()$name[d$predominant[1, 1]]=="andalusite")
-stopifnot(species()$name[d$predominant[1, 101]]=="kyanite")
-stopifnot(species()$name[d$predominant[99, 101]]=="sillimanite")
 }
 
 \references{
 
-Aksu, S. and Doyle, F. M. (2001) Electrochemistry of copper in aqueous glycine solutions. \emph{J. Electrochem. Soc.} \bold{148}, B51--B57. \url{https://doi.org/10.1149/1.1344532}
+Aksu, S. and Doyle, F. M. (2001) Electrochemistry of copper in aqueous glycine solutions. \emph{J. Electrochem. Soc.} \bold{148}, B51--B57.
 
 Dick, J. M. (2019) CHNOSZ: Thermodynamic calculations and diagrams for geochemistry. \emph{Front. Earth Sci.} \bold{7}:180. \url{https://doi.org/10.3389/feart.2019.00180}
 
-Helgeson, H. C. (1970) A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.} \bold{3}, 155--186. \url{http://www.worldcat.org/oclc/583263}
+Helgeson, H. C. (1970) A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.} \bold{3}, 155--186. \url{https://www.worldcat.org/oclc/583263}
 
-Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{http://www.worldcat.org/oclc/13594862}
+Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{https://www.worldcat.org/oclc/13594862}
 
 LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \url{https://doi.org/10.1111/j.1472-4669.2007.00099.x}
 

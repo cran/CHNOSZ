@@ -1,5 +1,8 @@
 context("affinity")
 
+# this is a long test ... skip it if we're on R CMD check --as-cran
+if(!any(grepl("R_CHECK_TIMINGS", names(Sys.getenv())))) {
+
 # clear out any previous basis definition or database alterations
 suppressMessages(reset())
 
@@ -50,7 +53,7 @@ test_that("pe, pH and Eh are correctly handled", {
   expect_equal(a$vars, c("pH", "Eh"))
   expect_equal(range(a$vals[[1]]), pH)
   expect_equal(range(a$vals[[2]]), Eh)
-  expect_equal(length(a$vals[[2]]), 128)
+  expect_equal(length(a$vals[[2]]), 256)
   # since Eh has to be reconstructed, check it's done correctly
   a129 <- affinity(pH=pH, Eh=c(Eh, 129))
   expect_equal(length(a129$vals[[2]]), 129)
@@ -103,16 +106,14 @@ test_that("'iprotein' gives consistent results on a transect", {
   pH <- c(7.350, 7.678, 7.933, 7.995, 8.257)
   # Eq. 24 of the paper
   H2 <- -11+T*3/40
-  # remove "RESIDUE" entries in thermo$obigt (clutter from first test)
+  # remove "RESIDUE" entries in thermo()$OBIGT (clutter from first test)
   reset()
   basis(c("HCO3-", "H2O", "NH3", "HS-", "H2", "H+"),
     "aq", c(-3, 0, -4, -7, 999, 999))
   sites <- c("N", "S", "R", "Q", "P")
-  file <- system.file("extdata/protein/DS11.csv", package="CHNOSZ")
-  aa <- read.csv(file, as.is=TRUE)
-  ip <- add.protein(aa[1:5, ])
+  ip <- pinfo("overall", c("bisonN", "bisonS", "bisonR", "bisonQ", "bisonP"))
   # to reproduce, use superseded properties of [Met], [Gly], and [UPBB] (Dick et al., 2006)
-  add.obigt("OldAA")
+  add.OBIGT("OldAA")
   a <- affinity(T=T, pH=pH, H2=H2, iprotein=ip)
   # divide A/2.303RT by protein length
   pl <- protein.length(ip)
@@ -200,3 +201,5 @@ test_that("sout is processed correctly", {
   a2 <- affinity(T = c(0, 100), sout = a0$sout)
   expect_equal(a1$values, a2$values)
 })
+
+}

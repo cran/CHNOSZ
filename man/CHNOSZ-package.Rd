@@ -11,7 +11,7 @@ It can be used to calculate the standard molal thermodynamic properties and chem
 \section{Warm Tips}{
   \itemize{
     \item To view the manual, run \code{help.start()} then select \sQuote{Packages} and \sQuote{CHNOSZ}. Examples in the function help pages can be run by pasting the code block into the \R console.
-    \item Be sure to check out the vignette titled \emph{An Introduction to CHNOSZ}, which is available by following the link in \code{help.start} to \sQuote{User guides, package vignettes and other documentation}.
+    \item Also check out the vignette \viglink{anintro} (\emph{An Introduction to CHNOSZ}).
     \item Run the command \code{\link{examples}()} to run all of the examples provided in CHNOSZ. This should take about a minute.
   }
 }
@@ -20,13 +20,13 @@ It can be used to calculate the standard molal thermodynamic properties and chem
 Each help page (other than this one) has been given one of the following \dQuote{concept index entries}:
 \itemize{
   \item Main workflow: \code{\link{info}}, \code{\link{subcrt}}, \code{\link{basis}}, \code{\link{species}}, \code{\link{affinity}}, \code{\link{equilibrate}}, \code{\link{diagram}}
-  \item Extended workflow: \code{\link{swap.basis}}, \code{\link{buffer}}, \code{\link{mosaic}}, \code{\link{objective}}, \code{\link{revisit}}, \code{\link{findit}}, \code{\link{EOSregress}}, \code{\link{wjd}}
-  \item Thermodynamic data: \code{\link{data}}, \code{\link{extdata}}, \code{\link{add.obigt}}, \code{\link{util.data}}
+  \item Extended workflow: \code{\link{swap.basis}}, \code{\link{buffer}}, \code{\link{mosaic}}, \code{\link{objective}}, \code{\link{revisit}}, \code{\link{findit}}, \code{\link{EOSregress}}
+  \item Thermodynamic data: \code{\link{data}}, \code{\link{extdata}}, \code{\link{add.OBIGT}}, \code{\link{util.data}}
   \item Thermodynamic calculations: \code{\link{util.formula}}, \code{\link{makeup}}, \code{\link{util.units}}, \code{\link{eos}}, \code{\link{berman}}, \code{\link{nonideal}}, \code{\link{util.misc}}
   \item Water properties: \code{\link{water}}, \code{\link{util.water}}, \code{\link{DEW}}, \code{\link{IAPWS95}}
-  \item Protein properties: \code{\link{protein}}, \code{\link{protein.info}}, \code{\link{add.protein}}, \code{\link{util.fasta}}, \code{\link{util.protein}}, \code{\link{util.seq}}, \code{\link{ionize.aa}}
+  \item Protein properties: \code{\link{protein.info}}, \code{\link{add.protein}}, \code{\link{util.fasta}}, \code{\link{util.protein}}, \code{\link{util.seq}}, \code{\link{ionize.aa}}
   \item Other tools: \code{\link{examples}}, \code{\link{eqdata}}, \code{\link{taxonomy}}, \code{\link{util.blast}}
-  \item Utility functions: \code{\link{util.expression}}, \code{\link{util.plot}}, \code{\link{util.array}}, \code{\link{util.matrix}}, \code{\link{util.list}}, \code{\link{util.test}}, \code{\link{palply}}
+  \item Utility functions: \code{\link{util.expression}}, \code{\link{util.plot}}, \code{\link{util.array}}, \code{\link{util.list}}, \code{\link{util.test}}, \code{\link{palply}}
 }
 These concept entries are visible to \code{\link{help.search}} (aka \code{??}).
 For example, help pages related to thermodynamic data can be listed using \code{??"thermodynamic data"}.

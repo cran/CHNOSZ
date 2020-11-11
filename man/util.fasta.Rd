@@ -48,7 +48,7 @@ A warning is generated if any character in \code{seq}, excluding spaces, is not 
 \code{start} and/or \code{stop} can be provided to count a fragment of the sequence (extracted using \code{\link{substr}}).
 If only one of \code{start} or \code{stop} is present, the other defaults to 1 (\code{start}) or the length of the sequence (\code{stop}).
 
-\code{uniprot.aa} returns a data frame of amino acid composition, in the format of \code{thermo()$protein}, retrieved from the protein sequence if it is available from UniProt (\url{http://uniprot.org}).
+\code{uniprot.aa} returns a data frame of amino acid composition, in the format of \code{thermo()$protein}, retrieved from the protein sequence if it is available from UniProt (\url{https://www.uniprot.org/}).
 The \code{protein} argument corresponds to the \samp{Entry name} on the UniProt search pages.
 
 }
@@ -65,7 +65,7 @@ The \code{protein} argument corresponds to the \samp{Entry name} on the UniProt 
 \examples{\dontshow{reset()}
 ## reading a protein FASTA file
 # the path to the file
-file <- system.file("extdata/fasta/EF-Tu.aln", package="CHNOSZ")
+file <- system.file("extdata/protein/EF-Tu.aln", package="CHNOSZ")
 # read the sequences, and print the first one
 read.fasta(file, ret="seq")[[1]]
 # count the amino acids in the sequences
@@ -77,6 +77,8 @@ protein.length(aa)
 # download amino acid composition of a protein
 # start at position 2 to remove the initiator methionine
 aa <- uniprot.aa("ALAT1_HUMAN", start=2)
+# change the name from "sp|P24298" to "ALAT1" 20201110
+aa$protein <- "ALAT1"
 # add it to thermo()$protein
 ip <- add.protein(aa)
 # now it's possible to calculate some properties
@@ -94,7 +96,7 @@ count.aa("GGSGG")
 # warnings are issued for unrecognized characters
 atest <- count.aa("WhatAmIMadeOf?")
 # there are 3 "A" (alanine)
-stopifnot(atest[, "A"]==3)
+atest[, "A"]
 }
 }
 

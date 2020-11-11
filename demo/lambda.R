@@ -1,5 +1,7 @@
 # plot effects of lambda transition in quartz
 # after Berman 1988 Figs. 1 and 2
+library(CHNOSZ)
+
 opar <- par(no.readonly = TRUE)
 layout(matrix(c(1, 4:2, 1, 7:5), nrow=4), heights=c(0.7, 3, 3, 3))
 # plot title first
@@ -85,4 +87,6 @@ plot(Pkb, Qz_lambda$S, type="l", ylim=c(0, 3), ylab=axis.label("DlS"), xlab=Plab
 labplot("f")
 
 reset()
+
+layout(matrix(1))
 par(opar)

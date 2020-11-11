@@ -207,7 +207,7 @@ energy <- function(what,vars,vals,lims,T=298.15,P="Psat",IS=0,sout=NULL,exceed.T
       # which species are proteins
       isprotein <- grepl("_", myspecies$name)
       if(any(isprotein)) {
-        # the rownumbers in thermo$protein
+        # the rownumbers in thermo()$protein
         ip <- pinfo(myspecies$name[isprotein])
         # get the affinity of ionization
         iHplus <- match("H+", rownames(mybasis))
@@ -293,15 +293,18 @@ energy.args <- function(args, transect = FALSE) {
     if(length(IS) > 1) IS.is.var <- TRUE
   }
   # report non-variables to user
-  if(!T.is.var)
-    message('affinity: temperature is ',outvert(T,'K'),' ',T.units())
+  if(!T.is.var) {
+    Tunits <- T.units()
+    if(Tunits=="C") Tunits <- "\u00BAC"
+    message('affinity: temperature is ', outvert(T, 'K'), ' ', Tunits)
+  }
   if(!P.is.var) {
     if(identical(P,"Psat")) message("affinity: pressure is Psat")
     else message('affinity: pressure is ',outvert(P,'bar'),' ',P.units())
   }
   if(!IS.is.var & !identical(IS,0)) message('affinity: ionic strength is ',IS)
-  # default values for resolution
-  res <- 128
+  # default value for resolution
+  res <- 256
   # where we store the output
   what <- "A"
   vars <- character()

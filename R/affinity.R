@@ -75,7 +75,7 @@ affinity <- function(..., property=NULL, sout=NULL, exceed.Ttr=FALSE, exceed.rho
     if(!is.null(iprotein)) {
       # check all proteins are available
       if(any(is.na(iprotein))) stop("`iprotein` has some NA values")
-      if(!all(iprotein %in% 1:nrow(thermo$protein))) stop("some value(s) of `iprotein` are not rownumbers of thermo$protein")
+      if(!all(iprotein %in% 1:nrow(thermo$protein))) stop("some value(s) of `iprotein` are not rownumbers of thermo()$protein")
       # add protein residues to the species list
       resnames <- c("H2O",aminoacids(3))
       # residue activities set to zero;
@@ -102,8 +102,8 @@ affinity <- function(..., property=NULL, sout=NULL, exceed.Ttr=FALSE, exceed.rho
       for(i in 1:length(is.buffer)) is.buff <- c(is.buff,as.numeric(is.buffer[[i]]))
       is.only.buffer <- is.buff[!is.buff %in% is.species]
       buffers <- names(is.buffer)
-      # reorder the buffers according to thermo$buffers
-      buffers <- buffers[order(match(buffers,thermo$buffers$name))]
+      # reorder the buffers according to thermo$buffer
+      buffers <- buffers[order(match(buffers,thermo$buffer$name))]
     }
 
     # here we call 'energy'
@@ -127,12 +127,6 @@ affinity <- function(..., property=NULL, sout=NULL, exceed.Ttr=FALSE, exceed.rho
           logK[[i]] <- logK[[i]] + thermo$species$logact[i]
           for(j in 1:length(logact.basis.new)) {
             logK[[i]] <- logK[[i]] - logact.basis.new[[j]] * thermo$species[i,j]
-            # add ionization correction to proteins
-            #if(i %in% is.buffer & length(grep('_',as.character(thermo$species$name[i])))>0 & 
-            #  thermo$opt$ionize & rownames(mybasis)[j]=='H+') {
-            #  logK[[i]] <- logK[[i]] - logact.basis[[j]] * 
-            #    as.data.frame(charge[[match(thermo$species$ispecies[i],names(charge))]]) 
-            #}
           }
         }
         lbn <- buffer(logK=logK,ibasis=ibasis,logact.basis=logact.basis.new,
@@ -167,9 +161,9 @@ affinity <- function(..., property=NULL, sout=NULL, exceed.Ttr=FALSE, exceed.rho
         if(nd < 3) {
           for(i in 1:length(tb)) {
             #tb[[i]] <- as.data.frame(tb[[i]])
-            if(nd > 0) colnames(tb[[i]]) <- 
+            if(nd > 0) rownames(tb[[i]]) <- 
               seq(args$lims[[1]][1],args$lims[[1]][2],length.out=args$lims[[1]][3])
-            if(nd > 1) rownames(tb[[i]]) <- 
+            if(nd > 1) colnames(tb[[i]]) <- 
               seq(args$lims[[2]][1],args$lims[[2]][2],length.out=args$lims[[2]][3])
           }
         }
@@ -243,7 +237,7 @@ affinity <- function(..., property=NULL, sout=NULL, exceed.Ttr=FALSE, exceed.rho
     Eharg <- args.orig[[iEh]]
     if(length(Eharg) > 3) Ehvals <- Eharg
     else if(length(Eharg) == 3) Ehvals <- seq(Eharg[1], Eharg[2], length.out=Eharg[3])
-    else if(length(Eharg) == 2) Ehvals <- seq(Eharg[1], Eharg[2], length.out=128)
+    else if(length(Eharg) == 2) Ehvals <- seq(Eharg[1], Eharg[2], length.out=256)
     vals[[iEh]] <- Ehvals
   }
   # get pe and pH

@@ -187,7 +187,7 @@ EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
 #    omega.PrTr = convert(coefficients["V_s_var"], "calories"))
 
 ## ----AS04, message=FALSE------------------------------------------------------
-add.obigt("AS04")
+add.OBIGT("AS04")
 
 ## ----SiO2_2H2O, message=FALSE-------------------------------------------------
 s_25C <- subcrt(c("SiO2", "H2O"), c(1, 2), T = 25)$out
@@ -198,8 +198,8 @@ s_P500 <- subcrt(c("SiO2", "H2O"), c(1, 2), T = seq(0, 1000, 100), P = 500)$out
 s_P1000 <- subcrt(c("SiO2", "H2O"), c(1, 2), T = seq(0, 1000, 100), P = 1000)$out
 
 ## ----new_H4SiO4---------------------------------------------------------------
-mod.obigt("calc-H4SiO4", formula = "H4SiO4", ref1 = "this_vignette",
-          date = today(), G = s_25C$G, H = s_25C$H, S = s_25C$S,
+mod.OBIGT("calc-H4SiO4", formula = "H4SiO4", ref1 = "this_vignette",
+          date = as.character(Sys.Date()), G = s_25C$G, H = s_25C$H, S = s_25C$S,
           Cp = s_25C$Cp, V = s_25C$V, z = 0)
 
 ## ----substuff-----------------------------------------------------------------
@@ -211,7 +211,7 @@ Cpdat <- substuff[, c("T", "P", "Cp")]
 var <- c("invTTheta2", "TXBorn")
 Cplm <- EOSregress(Cpdat, var) 
 Cpcoeffs <- Cplm$coefficients
-mod.obigt("calc-H4SiO4", c1 = Cpcoeffs[1],
+mod.OBIGT("calc-H4SiO4", c1 = Cpcoeffs[1],
   c2 = Cpcoeffs[2]/10000, omega = Cpcoeffs[3]/100000)
 
 ## ----V_H4SiO4_nonsolvation----------------------------------------------------
@@ -226,7 +226,7 @@ Vdat$V <- V_non
 var <- c("invPPsi", "invTTheta", "invPPsiTTheta")
 Vlm <- EOSregress(Vdat, var)
 Vcoeffs <- convert(Vlm$coefficients, "calories")
-mod.obigt("calc-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
+mod.OBIGT("calc-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
   a3 = Vcoeffs[3], a4 = Vcoeffs[4]/10000)
 
 ## ----width180, include=FALSE------------------------------------------------------------------------------------------------------------------------------------------------------

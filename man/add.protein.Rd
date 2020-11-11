@@ -49,7 +49,7 @@ The value returned by this function is the rownumbers of \code{thermo()$protein}
 # Human Gastric juice peptide 1
 aa <- seq2aa("GAJU_HUMAN", "LAAGKVEDSD")
 ip <- add.protein(aa)
-stopifnot(protein.length(ip)==10)
+protein.length(ip) # 10
 # the chemical formula of this peptide
 as.chemical.formula(protein.formula(ip)) # "C41H69N11O18"
 # we can also calculate a formula without using add.protein
@@ -61,8 +61,6 @@ as.chemical.formula(protein.formula(aa))
 \code{\link{read.fasta}} and \code{\link{uniprot.aa}} for other ways of getting amino acid compositions.
 
 \code{\link{pinfo}} for protein-level functions (length, chemical formulas, reaction coefficients of basis species).
-
-\code{\link{protein}} for examples of affinity calculations and diagrams.
 }
 
 \concept{Protein properties}

@@ -6,7 +6,7 @@ thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par(
   las=1,xline=NULL, grid = "", col.grid = "gray", ...) {
   # start a new plot with some customized settings
   thermo <- get("thermo", CHNOSZ)
-  # 20120523 store the old par in thermo$opar
+  # 20120523 store the old par in thermo()$opar
   if(is.null(thermo$opar)) {
     thermo$opar <- par(no.readonly=TRUE)
     assign("thermo", thermo, CHNOSZ)
@@ -37,7 +37,7 @@ thermo.plot.new <- function(xlim,ylim,xlab,ylab,cex=par('cex'),mar=NULL,lwd=par(
   if(4 %in% side) thermo.axis(NULL,side=4,lwd=lwd, plot.line = !plot.box)
 }
 
-label.plot <- function(x, xfrac=0.05, yfrac=0.95, paren=FALSE, italic=FALSE, ...) {
+label.plot <- function(x, xfrac=0.07, yfrac=0.93, paren=FALSE, italic=FALSE, ...) {
   # make a text label e.g., "(a)" in the corner of a plot
   # xfrac, yfrac: fraction of axis where to put label (default top right)
   # paren: put a parenthesis around the text, and italicize it?
@@ -74,9 +74,10 @@ label.figure <- function(x, xfrac=0.05, yfrac=0.95, paren=FALSE, italic=FALSE, .
 
 water.lines <- function(eout, which=c('oxidation','reduction'),
   lty=2, lwd=1, col=par('fg'), plot.it=TRUE) {
-  # draw water stability limits
-  # for Eh-pH, logfO2-pH, logfO2-T or Eh-T diagrams
+
+  # draw water stability limits for Eh-pH, logfO2-pH, logfO2-T or Eh-T diagrams
   # (i.e. redox variable is on the y axis)
+
   # get axes, T, P, and xpoints from output of affinity() or equilibrate()
   if(missing(eout)) stop("'eout' (the output of affinity(), equilibrate(), or diagram()) is missing")
   # number of variables used in affinity()
@@ -85,11 +86,14 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
   dim <- dim(eout$loga.equil[[1]]) # for output from equilibrate()
   if(is.null(dim)) dim <- dim(eout$values[[1]]) # for output from affinity()
   nvar2 <- length(dim)
-  # we only work on diagrams with 2 variables
-  if(nvar1 != 2 | nvar2 != 2) return(NA)
-  # if needed, swap axes so T or P is on x-axis
+  # we only work on diagrams with 1 or 2 variables
+  if(!nvar1 %in% c(1,2) | !nvar2 %in% c(1,2)) return(NA)
+
+  # if needed, swap axes so redox variable is on y-axis
+  # also do this for 1-D diagrams 20200710
+  if(is.na(eout$vars[2])) eout$vars[2] <- "nothing"
   swapped <- FALSE
-  if(eout$vars[2] %in% c("T", "P")) {
+  if(eout$vars[2] %in% c("T", "P", "nothing")) {
     eout$vars <- rev(eout$vars)
     eout$vals <- rev(eout$vals)
     swapped <- TRUE
@@ -97,6 +101,10 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
   xaxis <- eout$vars[1]
   yaxis <- eout$vars[2]
   xpoints <- eout$vals[[1]]
+  # make xaxis "nothing" if it is not pH, T, or P 20201110
+  # (so that horizontal water lines can be drawn for any non-redox variable on the x-axis)
+  if(!identical(xaxis, "pH") & !identical(xaxis, "T") & !identical(xaxis, "P")) xaxis <- "nothing"
+
   # T and P are constants unless they are plotted on one of the axes
   T <- eout$T
   if(eout$vars[1]=="T") T <- envert(xpoints, "K")
@@ -114,15 +122,17 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
     if(can.be.numeric(minuspH)) pH <- -as.numeric(minuspH) else pH <- NA
   }
   else pH <- 7
+
   # O2state is gas unless given in eout$basis
   iO2 <- match("O2", rownames(eout$basis))
   if(is.na(iO2)) O2state <- "gas" else O2state <- eout$basis$state[iO2]
   # H2state is gas unles given in eout$basis
   iH2 <- match("H2", rownames(eout$basis))
   if(is.na(iH2)) H2state <- "gas" else H2state <- eout$basis$state[iH2]
+
   # where the calculated values will go
   y.oxidation <- y.reduction <- NULL
-  if(xaxis %in% c("pH", "T", "P") & yaxis %in% c("Eh", "pe", "O2", "H2")) {
+  if(xaxis %in% c("pH", "T", "P", "nothing") & yaxis %in% c("Eh", "pe", "O2", "H2")) {
     # Eh/pe/logfO2/logaO2/logfH2/logaH2 vs pH/T/P
     if('reduction' %in% which) {
       logfH2 <- logaH2O # usually 0
@@ -157,12 +167,19 @@ water.lines <- function(eout, which=c('oxidation','reduction'),
       }
     }
   } else return(NA)
+
   # now plot the lines
   if(plot.it) {
     if(swapped) {
-      # xpoints above is really the ypoints
-      lines(y.oxidation, xpoints, lty=lty, lwd=lwd, col=col)
-      lines(y.reduction, xpoints, lty=lty, lwd=lwd, col=col)
+      if(nvar1 == 1 | nvar2 == 2) {
+        # add vertical lines on 1-D diagram 20200710
+        abline(v = y.oxidation[1], lty=lty, lwd=lwd, col=col)
+        abline(v = y.reduction[1], lty=lty, lwd=lwd, col=col)
+      } else {
+        # xpoints above is really the ypoints
+        lines(y.oxidation, xpoints, lty=lty, lwd=lwd, col=col)
+        lines(y.reduction, xpoints, lty=lty, lwd=lwd, col=col)
+      }
     } else {
       lines(xpoints, y.oxidation, lty=lty, lwd=lwd, col=col)
       lines(xpoints, y.reduction, lty=lty, lwd=lwd, col=col)
@@ -202,8 +219,14 @@ thermo.axis <- function(lab=NULL,side=1:4,line=1.5,cex=par('cex'),lwd=par('lwd')
   if(!is.null(lwd)) {
     for(thisside in side) {
 
-      ## get the positions of major tick marks and make grid lines
+      ## get the positions of major tick marks
       at <- axis(thisside,labels=FALSE,tick=FALSE) 
+      # get nicer divisions for axes that span exactly 15 units 20200719
+      if(thisside %in% c(1,3)) lim <- par("usr")[1:2]
+      if(thisside %in% c(2,4)) lim <- par("usr")[3:4]
+      if(abs(diff(lim)) == 15) at <- seq(lim[1], lim[2], length.out = 6)
+      if(abs(diff(lim)) == 1.5) at <- seq(lim[1], lim[2], length.out = 4)
+      # make grid lines
       if(grid %in% c("major", "both") & thisside==1) abline(v = at, col=col.grid)
       if(grid %in% c("major", "both") & thisside==2) abline(h = at, col=col.grid)
       ## plot major tick marks and numeric labels
@@ -224,7 +247,8 @@ thermo.axis <- function(lab=NULL,side=1:4,line=1.5,cex=par('cex'),lwd=par('lwd')
       da <- abs(diff(at[1:2]))
       # distance between minor tick marks
       di <- da / 4
-      if(da %% 2 | !(da %% 10)) di <- da / 5
+      if(!da %% 3) di <- da / 3
+      else if(da %% 2 | !(da %% 10)) di <- da / 5
       # number of minor tick marks
       if(thisside %in% c(1,3)) {
         ii <- c(1,2) 

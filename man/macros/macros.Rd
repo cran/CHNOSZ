@@ -25,9 +25,10 @@
 % other common variables
 \newcommand{\T}{\ifelse{latex}{\eqn{T}}{\ifelse{html}{\out{<I>T</I>}}{T}}}
 \newcommand{\P}{\ifelse{latex}{\eqn{P}}{\ifelse{html}{\out{<I>P</I>}}{P}}}
+\newcommand{\DG0}{\ifelse{latex}{\eqn{{\Delta}G^{\circ}}}{\ifelse{html}{\out{&Delta;<I>G</I>&deg;}}{ΔG°}}}
 % italicize any letter
 \newcommand{\I}{\ifelse{latex}{\eqn{#1}}{\ifelse{html}{\out{<I>#1</I>}}{#1}}}
-\newcommand{\logK}{\ifelse{latex}{\eqn{\log K}}{\ifelse{html}{\out{log<i>K</i>}}{log K}}}
+\newcommand{\logK}{\ifelse{latex}{\out{log\,\emph{K}}}{\ifelse{html}{\out{log&thinsp;<i>K</i>}}{log K}}}
 \newcommand{\logfO2}{\ifelse{latex}{\eqn{\log f_{\mathrm{O_{2}}}}}{\ifelse{html}{\out{log<i>f</i><sub>O<sub>2</sub></sub>}}{logfO2}}}
 \newcommand{\logfH2}{\ifelse{latex}{\eqn{\log f_{\mathrm{H_{2}}}}}{\ifelse{html}{\out{log<i>f</i><sub>H<sub>2</sub></sub>}}{logfH2}}}
 \newcommand{\logaH2}{\ifelse{latex}{\eqn{\log a_{\mathrm{H_{2}}}}}{\ifelse{html}{\out{log<i>a</i><sub>H<sub>2</sub></sub>}}{logaH2}}}
@@ -49,3 +50,16 @@
 \newcommand{\eacute}{\ifelse{latex}{\out{\'{e}}}{\ifelse{html}{\out{&eacute;}}{é}}}
 \newcommand{\gamma}{\ifelse{latex}{\eqn{\gamma}}{\ifelse{html}{\out{&gamma;}}{γ}}}
 \newcommand{\alpha}{\ifelse{latex}{\eqn{\alpha}}{\ifelse{html}{\out{&alpha;}}{α}}}
+\newcommand{\lambda}{\ifelse{latex}{\eqn{\lambda}}{\ifelse{html}{\out{&lambda;}}{α}}}
+
+% links to vignettes 20200716
+\newcommand{\viglink}{\ifelse{html}{\out{<a href="../doc/#1.html"><strong>#1</strong></a>}}{\bold{#1.html}}}
+
+% HKF parameters 20200815
+\newcommand{\a1}{\ifelse{latex}{\eqn{a_1}}{\ifelse{html}{\out{<I>a</I><sub>1</sub>}}{a1}}}
+\newcommand{\a2}{\ifelse{latex}{\eqn{a_2}}{\ifelse{html}{\out{<I>a</I><sub>2</sub>}}{a2}}}
+\newcommand{\a3}{\ifelse{latex}{\eqn{a_3}}{\ifelse{html}{\out{<I>a</I><sub>3</sub>}}{a3}}}
+\newcommand{\a4}{\ifelse{latex}{\eqn{a_4}}{\ifelse{html}{\out{<I>a</I><sub>4</sub>}}{a4}}}
+\newcommand{\c1}{\ifelse{latex}{\eqn{c_1}}{\ifelse{html}{\out{<I>c</I><sub>1</sub>}}{c1}}}
+\newcommand{\c2}{\ifelse{latex}{\eqn{c_2}}{\ifelse{html}{\out{<I>c</I><sub>2</sub>}}{c2}}}
+\newcommand{\omega}{\ifelse{latex}{\eqn{\omega}}{\ifelse{html}{\out{&omega;}}{ω}}}

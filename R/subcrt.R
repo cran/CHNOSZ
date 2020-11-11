@@ -14,7 +14,7 @@
 
 subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "H", "S", "V", "Cp"),
   T = seq(273.15, 623.15, 25), P = "Psat", grid = NULL, convert = TRUE, exceed.Ttr = FALSE,
-  exceed.rhomin = FALSE, logact = NULL, action.unbalanced = "warn", IS = 0) {
+  exceed.rhomin = FALSE, logact = NULL, autobalance = TRUE, IS = 0) {
 
   # revise the call if the states have 
   # come as the second argument 
@@ -123,9 +123,9 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   # so now phase species stuff will only work for character species names
   if(is.numeric(species[1])) {
     ispecies <- species
-    species <- as.character(thermo$obigt$name[ispecies])
-    state <- as.character(thermo$obigt$state[ispecies])
-    newstate <- as.character(thermo$obigt$state[ispecies])
+    species <- as.character(thermo$OBIGT$name[ispecies])
+    state <- as.character(thermo$OBIGT$state[ispecies])
+    newstate <- as.character(thermo$OBIGT$state[ispecies])
   } else {
     # from names, get species indices and states and possibly
     # keep track of phase species (cr,cr2 ...)
@@ -135,19 +135,19 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
       # get the species index for a named species
       if(!can.be.numeric(species[i])) si <- info.character(species[i], state[i])
       else {
-        # check that a numeric argument is a rownumber of thermo$obigt
+        # check that a numeric argument is a rownumber of thermo()$OBIGT
         si <- as.numeric(species[i])
-        if(!si %in% 1:nrow(thermo$obigt)) stop(paste(species[i], "is not a row number of thermo$obigt"))
+        if(!si %in% 1:nrow(thermo$OBIGT)) stop(paste(species[i], "is not a row number of thermo()$OBIGT"))
       }
       # that could have the side-effect of adding a protein; re-read thermo
       thermo <- get("thermo", CHNOSZ)
       if(is.na(si[1])) stop('no info found for ',species[i],' ',state[i])
       if(!is.null(state[i])) is.cr <- state[i]=='cr' else is.cr <- FALSE
-      if(thermo$obigt$state[si[1]]=='cr' & (is.null(state[i]) | is.cr)) {
+      if(thermo$OBIGT$state[si[1]]=='cr' & (is.null(state[i]) | is.cr)) {
         newstate <- c(newstate,'cr')
         ispecies <- c(ispecies,si[1])
       } else {
-        newstate <- c(newstate,as.character(thermo$obigt$state[si[1]]))
+        newstate <- c(newstate,as.character(thermo$OBIGT$state[si[1]]))
         ispecies <- c(ispecies,si[1])
       }
     }
@@ -159,31 +159,31 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
     stop(paste('species',species[noname],'not found.\n'))
 
   # take care of mineral phases
-  state <- as.character(thermo$obigt$state[ispecies])
-  name <- as.character(thermo$obigt$name[ispecies])
+  state <- as.character(thermo$OBIGT$state[ispecies])
+  name <- as.character(thermo$OBIGT$name[ispecies])
   # a counter of all species considered
   # iphases is longer than ispecies if cr,cr2 ... phases are present
   # phasespecies shows which of ispecies correspond to iphases
   # pre-20091114: the success of this depends on there not being duplicated aqueous or other
-  # non-mineral-phase species (i.e., two entries in obigt for Cu+ screw this up
+  # non-mineral-phase species (i.e., two entries in OBIGT for Cu+ screw this up
   # when running the skarn example).
   # after 20091114: we can deal with duplicated species (aqueous at least)
   iphases <- phasespecies <- coeff.new <- numeric()
   for(i in 1:length(ispecies)) {
      if(newstate[i]=='cr') {
        searchstates <- c('cr','cr2','cr3','cr4','cr5','cr6','cr7','cr8','cr9') 
-       tghs <- thermo$obigt[(thermo$obigt$name %in% name[i]) & thermo$obigt$state %in% searchstates,]
+       tghs <- thermo$OBIGT[(thermo$OBIGT$name %in% name[i]) & thermo$OBIGT$state %in% searchstates,]
        # we only take one if they are in fact duplicated species and not phase species
-       if(all(tghs$state==tghs$state[1])) tghs <- thermo$obigt[ispecies[i],]
-     } else tghs <- thermo$obigt[ispecies[i],]
+       if(all(tghs$state==tghs$state[1])) tghs <- thermo$OBIGT[ispecies[i],]
+     } else tghs <- thermo$OBIGT[ispecies[i],]
      iphases <- c(iphases,as.numeric(rownames(tghs))) 
      phasespecies <- c(phasespecies,rep(ispecies[i],nrow(tghs)))
      coeff.new <- c(coeff.new,rep(coeff[i],nrow(tghs)))
   }
 
   # where we keep info about the species involved
-  reaction <- data.frame(coeff = coeff.new, name = thermo$obigt$name[iphases],
-    formula = thermo$obigt$formula[iphases], state = thermo$obigt$state[iphases],
+  reaction <- data.frame(coeff = coeff.new, name = thermo$OBIGT$name[iphases],
+    formula = thermo$OBIGT$formula[iphases], state = thermo$OBIGT$state[iphases],
     ispecies = iphases, stringsAsFactors = FALSE)
   # make the rownames readable ... but they have to be unique
   if(length(unique(iphases))==length(iphases)) rownames(reaction) <- as.character(iphases)
@@ -199,8 +199,10 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
     # include units here 20190530
     uT <- outvert(T, "K")
     if(identical(grid,'IS')) uT <- unique(uT)
-    if(length(uT)==1) T.text <- paste(uT, T.units()) else {
-      T.text <- paste0(length(uT), " values of T (", T.units(), ")")
+    Tunits <- T.units()
+    if(Tunits=="C") Tunits <- "\u00BAC"
+    if(length(uT)==1) T.text <- paste(uT, Tunits) else {
+      T.text <- paste0(length(uT), " values of T (", Tunits, ")")
     }
     uP <- outvert(P, "bar")
     if(length(P)==1) {
@@ -215,12 +217,12 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
 
   # inform about unbalanced reaction
   if(do.reaction) {
-    # the mass balance ... is zero for a balanced reaction
+    # the mass balance; should be zero for a balanced reaction
     mss <- makeup(ispecies, coeff, sum=TRUE)
     # take out very small numbers
     mss[abs(mss) < 1e-7] <- 0
     # report and try to fix any non-zero mass balance
-    if(any(mss!=0) & !is.null(action.unbalanced)) {
+    if(any(mss!=0)) {
       # the missing composition: the negative of the mass balance
       miss <- -mss
       # drop elements that are zero
@@ -230,7 +232,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
       message(paste(capture.output(print(miss)), collapse="\n"))
       # look for basis species that have our compositoin
       tb <- thermo$basis
-      if(!is.null(tb)) {
+      if(!is.null(tb) & autobalance) {
         if(all(names(miss) %in% colnames(tb)[1:nrow(tb)])) {
           # the missing composition as formula
           ft <- as.chemical.formula(miss)
@@ -254,7 +256,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
           }
           # warn user and do it!
           ispecies.new <- tb$ispecies[match(colnames(bc),rownames(tb))]
-          b.species <- thermo$obigt$formula[ispecies.new]
+          b.species <- thermo$OBIGT$formula[ispecies.new]
           if(identical(species,b.species) & identical(state,b.state))
             message("subcrt: balanced reaction, but it is a non-reaction; restarting...")
           else message('subcrt: adding missing composition from basis definition and restarting...')
@@ -263,12 +265,8 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
           newstate <- c(state, b.state)
           return(subcrt(species=newspecies, coeff=newcoeff, state=newstate,
             property=property, T=outvert(T, "K"), P=P, grid=grid, convert=convert, logact=logact, exceed.Ttr=FALSE))
-        } else if(identical(action.unbalanced,'warn')) 
-            warnings <- c(warnings, paste('reaction was unbalanced, missing', as.chemical.formula(miss)))
-      } else {
-        if(identical(action.unbalanced,'warn')) 
-          warnings <- c(warnings, paste('reaction was unbalanced, missing', as.chemical.formula(miss)))
-      }
+        } else warnings <- c(warnings, paste('reaction among', paste(species, collapse = ","), 'was unbalanced, missing', as.chemical.formula(miss)))
+      } else warnings <- c(warnings, paste('reaction among', paste(species, collapse = ","), 'was unbalanced, missing', as.chemical.formula(miss)))
     }
   }
 
@@ -286,8 +284,8 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   outprops <- list()
   # aqueous species and H2O properties
   if(TRUE %in% isaq) {
-    # 20110808 get species parameters using obigt2eos() (faster than using info())
-    param <- obigt2eos(thermo$obigt[iphases[isaq],], "aq", fixGHS = TRUE, tocal = TRUE)
+    # 20110808 get species parameters using OBIGT2eos() (faster than using info())
+    param <- OBIGT2eos(thermo$OBIGT[iphases[isaq],], "aq", fixGHS = TRUE, tocal = TRUE)
     # aqueous species with NA for Z use the AkDi model
     isAkDi <- is.na(param$Z)
     # always get density
@@ -315,7 +313,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
     # calculate properties using Akinfiev-Diamond model 20190219
     if(any(isAkDi)) {
       # get the parameters with the right names
-      param <- obigt2eos(param[isAkDi, ], "aq", tocal = TRUE)
+      param <- OBIGT2eos(param[isAkDi, ], "aq", tocal = TRUE)
       p.aq[isAkDi] <- AkDi(eosprop, parameters = param, T = T, P = P, isPsat = isPsat)
     }
     # calculate activity coefficients if ionic strength is not zero
@@ -334,7 +332,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   iscgl <- reaction$state %in% cglstates & reaction$name != "water"
 
   if(TRUE %in% iscgl) {
-    param <- obigt2eos(thermo$obigt[iphases[iscgl],], "cgl", fixGHS = TRUE, tocal = TRUE)
+    param <- OBIGT2eos(thermo$OBIGT[iphases[iscgl],], "cgl", fixGHS = TRUE, tocal = TRUE)
     p.cgl <- cgl(eosprop, parameters = param, T = T, P = P)
     # replace Gibbs energies with NA where the
     # phases are beyond their temperature range
@@ -353,7 +351,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
         # if we are considering multiple phases, and if this phase is cr2 or higher, check if we're below the transition temperature
         if(length(iphases) > length(ispecies) & i > 1) {
           if(!(reaction$state[i] %in% c('liq','cr','gas')) & reaction$name[i-1] == reaction$name[i]) {
-            # after add.obigt("SUPCRT92"), quartz cr and cr2 are not next to each other in thermo$obigt,
+            # after add.OBIGT("SUPCRT92"), quartz cr and cr2 are not next to each other in thermo()$OBIGT,
             # so use iphases[i-1] here, not iphases[i]-1  20181107
             Ttr <- Ttr(iphases[i-1], iphases[i], P=P, dPdT = dPdTtr(iphases[i-1], iphases[i]))
             if(all(is.na(Ttr))) next
@@ -371,7 +369,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
         # check if we're above the temperature limit or transition temperature
         # T limit (or Ttr) from the database
         warn.above <- TRUE
-        Ttr <- thermo$obigt$z.T[iphases[i]]
+        Ttr <- thermo$OBIGT$z.T[iphases[i]]
         # calculate Ttr at higher P if a phase transition is present
         if(i < nrow(reaction)) {
           # if the next one is cr2, cr3, etc we have a transition
@@ -444,7 +442,7 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
       arephases <- arephases[1:nphases]
     }
     if(length(arephases)>1) {
-      message(paste('subcrt:',length(arephases),'phases for',thermo$obigt$name[ispecies[i]],'... '), appendLF=FALSE)
+      message(paste('subcrt:',length(arephases),'phases for',thermo$OBIGT$name[ispecies[i]],'... '), appendLF=FALSE)
       # assemble the Gibbs energies for each species
       for(j in 1:length(arephases)) {
         G.this <- outprops[[arephases[j]]]$G

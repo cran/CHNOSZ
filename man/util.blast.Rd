@@ -63,7 +63,7 @@ This function is used to reduce the size of the example BLAST files that are pac
 \examples{
 ## using def2gi
 def <- "gi|218295810|ref|ZP_03496590.1|"
-stopifnot(all.equal(def2gi(def), "218295810"))
+def2gi(def)  # "218295810"
 
 ## process some of the BLAST output for proteins
 ## from Bison Pool metagenome (JGI, 2007)
@@ -71,7 +71,7 @@ stopifnot(all.equal(def2gi(def), "218295810"))
 tfile <- system.file("extdata/bison/gi.taxid.txt.xz", package="CHNOSZ")
 gi.taxid <- scan(tfile, what=as.list(character(2)), flush=TRUE)
 # read the file that connects names with the taxids
-nfile <- system.file("extdata/refseq/taxid_names.csv.xz", package="CHNOSZ")
+nfile <- system.file("extdata/bison/taxid_names.csv.xz", package="CHNOSZ")
 taxid.names <- read.csv(nfile)
 # the BLAST files
 sites <- c("N","S","R","Q","P")

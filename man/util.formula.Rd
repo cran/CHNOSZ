@@ -25,7 +25,7 @@ Calculate the standard molal entropy of elements in a compound; calculate the st
 \arguments{
   \item{makeup}{numeric, object returned by \code{makeup}}
   \item{drop.zero}{logical, drop elements with a coefficient of zero?}
-  \item{formula}{character, chemical formulas, or numeric, rownumbers in \code{thermo()$obigt}}
+  \item{formula}{character, chemical formulas, or numeric, rownumbers in \code{thermo()$OBIGT}}
   \item{G}{numeric, standard molal Gibbs energy of formation from the elements}
   \item{H}{numeric, standard molal enthalpy of formation from the elements}
   \item{S}{numeric, standard molal molal entropy}
@@ -72,7 +72,6 @@ The result is \code{NaN} for any formula that does not contain carbon. Elements 
 
 \seealso{
 \code{\link{makeup}}, used by \code{mass} and \code{entropy}, and \code{ZC} and \code{i2A} for counting the elements in a formula (the latter two make use of the \code{count.zero} argument).
-\code{\link{run.wjd}} uses the stoichiometric matrices created by \code{i2A}.
 \code{\link{protein.formula}} has an example of computing ZC for proteins compiled from the RefSeq database.
 }
 
@@ -94,13 +93,12 @@ GHS("H2O", H=water("H"), S=water("S"))[1, ]
 # that not quite equal to the value from water("G");
 # probably using different entropies of the elements
 
-## average oxidation states of carbon
-stopifnot(ZC("CO2") == 4)
-stopifnot(ZC("CH4") == -4)
-stopifnot(ZC("CHNOSZ") == 7)
-si <- info(info("LYSC_CHICK"))
-stopifnot(si$formula == "C613H959N193O185S10")
-stopifnot(all.equal(ZC(si$formula), 0.0163132137031))
+## Average oxidation states of carbon
+ZC(c("CO2", "CH4", "CHNOSZ"))  # 4, -4, 7
+si <- info("LYSC_CHICK")
+# Can use species index or formula
+ZC(si)
+ZC(info(si)$formula)
 
 ## calculate the chemical formulas, then
 ## ZC of all of the proteins in CHNOSZ' database

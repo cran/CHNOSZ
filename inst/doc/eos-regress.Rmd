@@ -1,12 +1,11 @@
 ---
 title: "Regressing thermodynamic data"
-subtitle: "EOSregress in [CHNOSZ](http://www.chnosz.net)"
-author: "[Jeffrey M. Dick](http://chnosz.net/jeff)"
+subtitle: "EOSregress in CHNOSZ"
+author: "Jeffrey M. Dick"
 date: "`r Sys.Date()`"
 output:
   tufte::tufte_html:
     tufte_features: ["background"]
-    css: "vig.css"
     toc: true
     mathjax: null
     highlight: null
@@ -24,6 +23,23 @@ bibliography: vig.bib
 link-citations: yes
 csl: elementa.csl
 ---
+
+<style>
+html { 
+  font-size: 14px;
+}
+body {
+  font-family: ‘Times New Roman’, Times, serif;
+}
+li {
+  padding: 0.25rem 0;
+}
+/* zero margin around pre blocks (looks more like R console output) */
+pre {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+</style>
 
 ```{r width80, include=FALSE}
 options(width = 80)
@@ -334,7 +350,7 @@ Some mineral stability diagrams use the activity of `r h4sio4` as a variable.
 However, the primary species for dissolved silica in CHNOSZ is `r sio2`(aq).
 As recommended by @WJ17, let us use data for `r sio2`(aq) from @AS04, which gives a higher solubility of quartz compared to values from @SHS89 that are loaded by default in the package:
 ```{r AS04, message=FALSE}
-add.obigt("AS04")
+add.OBIGT("AS04")
 ```
 
 The pseudo-reaction with zero properties, `r h4sio4` = `r sio2`  + 2 `r h2o`, defines the properties of the pseudospecies `r h4sio4`.
@@ -353,8 +369,8 @@ s_P1000 <- subcrt(c("SiO2", "H2O"), c(1, 2), T = seq(0, 1000, 100), P = 1000)$ou
 
 Now we can start making the new species, with thermodynamic properties calculated at 25 &deg;C:
 ```{r new_H4SiO4}
-mod.obigt("calc-H4SiO4", formula = "H4SiO4", ref1 = "this_vignette",
-          date = today(), G = s_25C$G, H = s_25C$H, S = s_25C$S,
+mod.OBIGT("calc-H4SiO4", formula = "H4SiO4", ref1 = "this_vignette",
+          date = as.character(Sys.Date()), G = s_25C$G, H = s_25C$H, S = s_25C$S,
           Cp = s_25C$Cp, V = s_25C$V, z = 0)
 ```
 
@@ -371,7 +387,7 @@ Cpdat <- substuff[, c("T", "P", "Cp")]
 var <- c("invTTheta2", "TXBorn")
 Cplm <- EOSregress(Cpdat, var) 
 Cpcoeffs <- Cplm$coefficients
-mod.obigt("calc-H4SiO4", c1 = Cpcoeffs[1],
+mod.OBIGT("calc-H4SiO4", c1 = Cpcoeffs[1],
   c2 = Cpcoeffs[2]/10000, omega = Cpcoeffs[3]/100000)
 ```
 
@@ -392,12 +408,12 @@ We specify the variables for the `r a1`, `r a2`, `r a3`, and `r a4` terms in the
 var <- c("invPPsi", "invTTheta", "invPPsiTTheta")
 Vlm <- EOSregress(Vdat, var)
 Vcoeffs <- convert(Vlm$coefficients, "calories")
-mod.obigt("calc-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
+mod.OBIGT("calc-H4SiO4", a1 = Vcoeffs[1]*10, a2 = Vcoeffs[2]/100,
   a3 = Vcoeffs[3], a4 = Vcoeffs[4]/10000)
 ```
 
 We just calculated the properties of the `r h4sio4` pseudospecies.
-For comparison, the database in CHNOSZ contains `H4SiO4` with parameters from @Ste01:
+For comparison, the OBIGT database in CHNOSZ contains `H4SiO4` with parameters from @Ste01:
 ```{r width180, include=FALSE}
 options(width = 180)
 ```
@@ -429,7 +445,7 @@ While they are not quite negligible, these deviations are comparatively small.
 For example, the almost 200 cal/mol offset in &Delta;<i>G</i>&deg; at 350 &deg;C corresponds to a difference in log<i>K</i> of only -0.07.
 
 The following example uses the `H4SiO4` from Stef&aacute;nsson (2001) to make an activity diagram for the K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O system.
-This is similar to diagrams found, for example, on p. 361 of [Garrels and Christ, 1965](http://www.worldcat.org/oclc/517586) and Figure 3 of [Steinmann et al., 1994](http://ccm.geoscienceworld.org/content/42/2/197), but is quantitatively a closer match to the diagram in the [User's Guide to PHREEQC](https://wwwbrr.cr.usgs.gov/projects/GWC_coupled/phreeqc/html/final-75.html).
+This is similar to diagrams found, for example, on p. 361 of [Garrels and Christ, 1965](https://www.worldcat.org/oclc/517586) and Figure 3 of [Steinmann et al., 1994](http://ccm.geoscienceworld.org/content/42/2/197), but is quantitatively a closer match to the diagram in the [User's Guide to PHREEQC](https://wwwbrr.cr.usgs.gov/projects/GWC_coupled/phreeqc/html/final-75.html).
 
 ```{r activity_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, echo=TRUE, results="hide", message=FALSE, dpi=dpi, out.width="100%", cache=TRUE, fig.cap="Activity diagram for K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O.", pngquant=pngquant}
 basis(c("Al+3", "H4SiO4", "K+", "H2O", "H+", "O2"))

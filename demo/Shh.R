@@ -1,8 +1,9 @@
 # Compare affinities of Sonic hedgehog and transcription factors involved in dorsal-ventral patterning
 # (Dick, 2015. Chemical integration of proteins in signaling and development. https://doi.org/10.1101/015826)
+library(CHNOSZ)
 
 # to reproduce the calculations in the paper, use superseded data for [Gly] and [UPBB] 20190206
-add.obigt("OldAA", c("[Gly]", "[UPBB]"))
+add.OBIGT("OldAA", c("[Gly]", "[UPBB]"))
 
 # UniProt names of the proteins
 pname <- c("SHH", "OLIG2", "NKX22", "FOXA2", "IRX3", "PAX6", "NKX62", "DBX1",
@@ -49,6 +50,7 @@ ylab <- expression(bold(A)/2.303*italic(RT)*" vs Shh")
 xlab <- expression(log*italic(a)[H[2]][O])
 # set up normal plot, or plot with interpretive drawings
 opar <- par(no.readonly = TRUE)
+par(mar = c(5.1, 4.1, 4.1, 2.1))
 if(interp) {
   if(pdf) pdf("tfactor_interp.pdf", width=6, height=6)
   plot.new()

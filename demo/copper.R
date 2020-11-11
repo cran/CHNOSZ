@@ -2,14 +2,15 @@
 ## After Fig. 2 of Aksu and Doyle, 2001
 ## (Aksu, S. and Doyle, F. M., 2001. Electrochemistry of copper in aqueous glycine 
 ## solutions. J. Electrochem. Soc., 148, B51-B57. doi:10.1149/1.1344532)
+library(CHNOSZ)
 
 # we need superseded data for Cu-Gly complexes 20190206
-add.obigt("OldAA")
-# add some new species to thermo$obigt
+add.OBIGT("OldAA")
+# add some new species to thermo()$OBIGT
 m1 <- makeup(info(c("Cu+", "glycinate", "glycinate")), sum=TRUE)
-mod.obigt(name="Cu(Gly)2-", formula=as.chemical.formula(m1))
+mod.OBIGT(name="Cu(Gly)2-", formula=as.chemical.formula(m1))
 m2 <- makeup(info(c("Cu+2", "glycinate", "H+")), sum=TRUE)
-mod.obigt(name="HCu(Gly)+2", formula=as.chemical.formula(m2))
+mod.OBIGT(name="HCu(Gly)+2", formula=as.chemical.formula(m2))
 # Gibbs energies from A&D's Table 1 and Table II
 Cu_s <- c("copper", "cuprite", "tenorite")
 Gly <- c("glycinium", "glycine", "glycinate")
@@ -28,19 +29,19 @@ for(i in 1:length(G)) {
   if(i==12) myG <- myG + getG("Cu+2") + 2*getG("glycinate")
   if(i==13) myG <- myG + getG("Cu+") + 2*getG("glycinate")
   if(i==14) myG <- myG + getG("Cu(Gly)+")
-  mod.obigt(names[i], G=myG)
+  mod.OBIGT(names[i], G=myG)
 }  
 
 # in Fig. 2b, total log activities of Cu (Cu_T) and glycine (L_T) are -4 and -1
 basis(c("Cu+2", "H2O", "H+", "e-", "glycinium", "CO2"), c(999, 0, 999, 999, -1, 999))
 # add solids and aqueous species
 species(Cu_s)
-species(c(Cu_aq, CuGly), -4)
+species(c(Cu_aq, CuGly), -4, add = TRUE)
 names <- c(Cu_s, Cu_aq, CuGly)
 # mosaic diagram with speciate glycine as a function of pH
 m <- mosaic(bases=Gly, pH=c(0, 16, 500), Eh=c(-0.6, 1.0, 500))
 fill <- c(rep("lightgrey", 3), rep("white", 4), rep("lightblue", 4))
-d <- diagram(m$A.species, fill=fill, names=FALSE, xaxs="i", yaxs="i", fill.NA="pink2")
+d <- diagram(m$A.species, fill=fill, names=FALSE, xaxs="i", yaxs="i", fill.NA="pink2", limit.water = TRUE)
 # to make the labels look nicer
 names <- names[sort(unique(as.numeric(d$predominant)))]
 for(i in 1:length(names)) {
@@ -56,13 +57,13 @@ for(i in 1:length(names)) {
 }
 
 # add glycine ionization lines
-d <- diagram(m$A.bases, add=TRUE, col="darkblue", lty=3, names=FALSE, limit.water=FALSE)
+d <- diagram(m$A.bases, add=TRUE, col="darkblue", lty=3, names=FALSE)
 text(d$namesx, -0.5, Gly, col="darkblue")
 
 # add water lines and title
 water.lines(d)
 mtitle(expression("Copper-water-glycine at 25"~degree*"C and 1 bar",
-  "After Aksu and Doyle, 2001 (Fig. 2b)"), line=0.5)
+  "After Aksu and Doyle, 2001 (Fig. 2b)"))
 
 # done!
 reset()

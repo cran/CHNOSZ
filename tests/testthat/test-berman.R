@@ -1,6 +1,9 @@
 # test-berman.R 20171001
 context("berman")
 
+# this is a long test ... skip it if we're on R CMD check --as-cran
+if(!any(grepl("R_CHECK_TIMINGS", names(Sys.getenv())))) {
+
 # get parameters for all available minerals
 dat <- berman()
 mineral <- unique(dat$name)
@@ -8,7 +11,7 @@ prop_Berman <- NULL
 
 test_that("properties of all minerals are computed without warnings", {
   # running this without error means that:
-  # - formulas for the minerals are found in thermo$obigt
+  # - formulas for the minerals are found in thermo()$OBIGT
   # - warning is produced for flourtremolite (GfPrTr(calc) >= 1000 J/cal different from GfPrTr(table))
   expect_warning(properties <- lapply(mineral, berman, check.G=TRUE),
                  "fluortremolite", all=TRUE)
@@ -22,24 +25,24 @@ prop_Berman <- do.call(rbind, prop_Berman)
 icr <- suppressMessages(info(mineral, "cr"))
 # all of these except rutile (Robie et al., 1979) reference Helgeson et al., 1978
 # NOTE: with check.it = TRUE (the default), this calculates Cp from the tabulated Maier-Kelley parameters
-add.obigt("SUPCRT92")
+add.OBIGT("SUPCRT92")
 prop_Helgeson <- suppressMessages(info(icr))
-obigt()
+OBIGT()
 
 # now we can compare Berman and Helgeson G, H, S, Cp, V
 # minerals with missing properties are not matched here
-# (i.e. fluorphlogopite, fluortremolite, glaucophane, and pyrope: no G and H in prop_Helgeson data)
+# (i.e. fluortremolite: no G and H in prop_Helgeson data)
 
 test_that("Berman and Helgeson tabulated properties have large differences for few minerals", {
   # which minerals differ in DGf by more than 4 kcal/mol?
   idiffG <- which(abs(prop_Berman$G - prop_Helgeson$G) > 4000)
   expect_match(mineral[idiffG],
-               "paragonite|anthophyllite|antigorite|Ca-Al-pyroxene|lawsonite|margarite|merwinite")
+               "paragonite|anthophyllite|antigorite|Ca-Al-pyroxene|lawsonite|margarite|merwinite|fluorphlogopite")
 
   # which minerals differ in DHf by more than 4 kcal/mol?
   idiffH <- which(abs(prop_Berman$H - prop_Helgeson$H) > 4000)
   expect_match(mineral[idiffH],
-               "paragonite|anthophyllite|antigorite|Ca-Al-pyroxene|lawsonite|margarite|merwinite|clinozoisite")
+               "paragonite|anthophyllite|antigorite|Ca-Al-pyroxene|lawsonite|margarite|merwinite|clinozoisite|fluorphlogopite")
 
   # which minerals differ in S by more than 4 cal/K/mol?
   idiffS <- which(abs(prop_Berman$S - prop_Helgeson$S) > 4)
@@ -82,7 +85,7 @@ test_that("high-T,P calculated properties are similar to precalculated ones", {
 
 test_that("nonexistent or incomplete user data file is handled properly", {
   thermo("opt$Berman" = "XxXxXx.csv")
-  expect_error(berman("calcite"), "the file named in thermo\\$opt\\$Berman \\(XxXxXx.csv\\) does not exist")
+  expect_error(berman("calcite"), "the file named in thermo\\(\\)\\$opt\\$Berman \\(XxXxXx.csv\\) does not exist")
   thermo("opt$Berman" = system.file("extdata/Berman/testing/BA96_berman.csv", package="CHNOSZ"))
   expect_error(berman("xxx"), "Data for xxx not available. Please add it to")
   thermo("opt$Berman" = NA)
@@ -90,7 +93,7 @@ test_that("nonexistent or incomplete user data file is handled properly", {
 })
 
 test_that("NA values of P are handled", {
-  sresult <- subcrt("H2O", T = seq(0, 500, 100))
+  sresult <- suppressWarnings(subcrt("H2O", T = seq(0, 500, 100)))
   T <- sresult$out$water$T
   P <- sresult$out$water$P
   # this stopped with a error prior to version 1.1.3-37
@@ -104,3 +107,5 @@ test_that("NAs don't creep into calculations below 298.15 K for minerals with di
   # 20191116
   expect_false(any(is.na(subcrt("K-feldspar", P = 1, T = seq(273.15, 303.15, 5), convert = FALSE)$out[[1]]$G)))
 })
+
+}

@@ -71,7 +71,7 @@ basis <- function(species=NULL, state=NULL, logact=NULL, delete=FALSE) {
   # if species argument is numeric, it's species indices
   if(is.numeric(species[1])) {
     ispecies <- species
-    ina <- ispecies > nrow(thermo$obigt)
+    ina <- ispecies > nrow(thermo$OBIGT)
   } else {
     # get species indices using states from the argument, or default states
     if(!is.null(state)) ispecies <- suppressMessages(info(species, state, check.it=FALSE))
@@ -89,10 +89,10 @@ basis <- function(species=NULL, state=NULL, logact=NULL, delete=FALSE) {
 
 ### unexported functions ###
 
-# to add the basis to thermo$obigt
+# to add the basis to thermo()$OBIGT
 put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
   thermo <- get("thermo", CHNOSZ)
-  state <- thermo$obigt$state[ispecies]
+  state <- thermo$OBIGT$state[ispecies]
   # make the basis matrix, revised 20120114
   # get the elemental makeup of each species,
   # counting zero for any element that only appears in other species in the set
@@ -103,7 +103,7 @@ put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
   comp <- t(comp)
   # note, makeup(count.zero=TRUE) above gave elements (colnames) sorted alphabetically
   # rownames identify the species
-  rownames(comp) <- as.character(thermo$obigt$formula[ispecies])
+  rownames(comp) <- as.character(thermo$OBIGT$formula[ispecies])
   # FIXME: the electron doesn't look like a chemical formula
   # this is needed for affinity() to understand a 'pe' or 'Eh' variable
   if("(Z-1)" %in% rownames(comp)) rownames(comp)[rownames(comp)=="(Z-1)"] <- "e-"
@@ -120,7 +120,7 @@ put.basis <- function(ispecies, logact = rep(NA, length(ispecies))) {
   # the second test: matrix is invertible
   if(inherits(tryCatch(solve(comp), error = identity), "error")) 
     stop("singular stoichiometric matrix")
-  # store the basis definition in thermo$basis, including
+  # store the basis definition in thermo()$basis, including
   # both numeric and character data, so we need to use a data frame
   comp <- cbind(as.data.frame(comp), ispecies, logact, state, stringsAsFactors=FALSE)
   # ready to assign to the global thermo object
@@ -151,28 +151,28 @@ mod.basis <- function(species, state=NULL, logact=NULL) {
     if(!is.null(state)) {
       if(state[i] %in% thermo$buffer$name) {
         # this is the name of a buffer
-        ibuff <- which(as.character(thermo$buffers$name)==state[i])
+        ibuff <- which(as.character(thermo$buffer$name)==state[i])
         # check that each species in the buffer is compositionally
         # compatible with the basis definition
         for(k in 1:length(ibuff)) {
-          ispecies <- suppressMessages(info(as.character(thermo$buffers$species)[ibuff[k]],
-            as.character(thermo$buffers$state)[ibuff[k]], check.it=FALSE))
+          ispecies <- suppressMessages(info(as.character(thermo$buffer$species)[ibuff[k]],
+            as.character(thermo$buffer$state)[ibuff[k]], check.it=FALSE))
           bufmakeup <- makeup(ispecies)
           inbasis <- names(bufmakeup) %in% colnames(basis()) 
           if(FALSE %in% inbasis) {
             stop(paste("the elements '",c2s(names(bufmakeup)[!inbasis]),
-              "' of species '",thermo$buffers$species[ibuff[k]],"' in buffer '",state[i],
+              "' of species '",thermo$buffer$species[ibuff[k]],"' in buffer '",state[i],
               "' are not in the basis\n",sep=""))
           }
         }
         thermo$basis$logact[ib] <- state[i]
       } else {
         # first, look for a species with the same _name_ in the requested state
-        myname <- thermo$obigt$name[thermo$basis$ispecies[ib]]
+        myname <- thermo$OBIGT$name[thermo$basis$ispecies[ib]]
         ispecies <- suppressMessages(info(myname, state[i], check.it=FALSE))
         if(is.na(ispecies) | is.list(ispecies)) {
           # if that failed, look for a species with the same _formula_ in the requested state
-          myformula <- thermo$obigt$formula[thermo$basis$ispecies[ib]]
+          myformula <- thermo$OBIGT$formula[thermo$basis$ispecies[ib]]
           ispecies <- suppressMessages(info(myformula, state[i], check.it=FALSE))
           if(is.na(ispecies) | is.list(ispecies)) {
             # if that failed, we're out of luck
@@ -199,7 +199,7 @@ mod.basis <- function(species, state=NULL, logact=NULL) {
 # to load a preset basis definition by keyword
 preset.basis <- function(key=NULL) {
   # the available keywords
-  basis.key <- c("CHNOS", "CHNOS+", "CHNOSe", "CHNOPS+", "CHNOPSe", "MgCHNOPS+", "MgCHNOPSe", "FeCHNOS", "FeCHNOS+", "QEC4", "QEC", "QEC+")
+  basis.key <- c("CHNOS", "CHNOS+", "CHNOSe", "CHNOPS+", "CHNOPSe", "MgCHNOPS+", "MgCHNOPSe", "FeCHNOS", "FeCHNOS+", "QEC4", "QEC", "QEC+", "QCa", "QCa+")
   # just list the keywords if none is specified
   if(is.null(key)) return(basis.key)
   # delete any previous basis definition
@@ -218,6 +218,8 @@ preset.basis <- function(key=NULL) {
   else if(ibase==9) species <- c("Fe2O3", "CO2", "H2O", "NH3", "H2S", "oxygen", "H+")
   else if(ibase %in% c(10, 11)) species <- c("glutamine", "glutamic acid", "cysteine", "H2O", "oxygen")
   else if(ibase==12) species <- c("glutamine", "glutamic acid", "cysteine", "H2O", "oxygen", "H+")
+  else if(ibase==13) species <- c("glutamine", "cysteine", "acetic acid", "H2O", "oxygen")
+  else if(ibase==14) species <- c("glutamine", "cysteine", "acetic acid", "H2O", "oxygen", "H+")
   # get the preset logact
   logact <- preset.logact(species)
   # for QEC4, we use logact = -4 for the amino acids

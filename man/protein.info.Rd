@@ -4,7 +4,7 @@
 \alias{pinfo}
 \alias{protein.length}
 \alias{protein.formula}
-\alias{protein.obigt}
+\alias{protein.OBIGT}
 \alias{protein.basis}
 \alias{protein.equil}
 \title{Summaries of Thermodynamic Properties of Proteins}
@@ -17,7 +17,7 @@
   pinfo(protein, organism=NULL, residue=FALSE, regexp=FALSE)
   protein.length(protein, organism = NULL)
   protein.formula(protein, organism = NULL, residue = FALSE)
-  protein.obigt(protein, organism = NULL, state=thermo()$opt$state)
+  protein.OBIGT(protein, organism = NULL, state=thermo()$opt$state)
   protein.basis(protein, T = 25, normalize = FALSE)
   protein.equil(protein, T=25, loga.protein = 0, digits = 4)
 }
@@ -54,8 +54,8 @@ The following functions accept any specification of protein(s) described above f
 \code{protein.formula} returns a stoichiometrix matrix representing the chemical formulas of the proteins that can be pased to e.g. \code{\link{mass}} or \code{\link{ZC}}.
 The amino acid compositions are multiplied by the output of \code{\link{group.formulas}} to generate the result. 
 
-\code{protein.obigt} calculates the thermodynamic properties and equations-of-state parameters for the completely nonionized proteins using group additivity with parameters taken from Dick et al., 2006 (aqueous proteins) and LaRowe and Dick, 2012 (crystalline proteins and revised aqueous methionine sidechain group).
-The return value is a data frame in the same format as \code{thermo()$obigt}.
+\code{protein.OBIGT} calculates the thermodynamic properties and equations-of-state parameters for the completely nonionized proteins using group additivity with parameters taken from Dick et al., 2006 (aqueous proteins) and LaRowe and Dick, 2012 (crystalline proteins and revised aqueous methionine sidechain group).
+The return value is a data frame in the same format as \code{thermo()$OBIGT}.
 \code{state} indicates the physical state for the parameters used in the calculation (\samp{aq} or \samp{cr}).
 
 The following functions also depend on an existing definition of the basis species:
@@ -70,20 +70,18 @@ If \code{normalize} is TRUE, the coefficients on the basis species are divided b
 
 \examples{\dontshow{reset()}
 # search by name in thermo()$protein
+# these are the same: ip1 == ip2
 ip1 <- pinfo("LYSC_CHICK")
 ip2 <- pinfo("LYSC", "CHICK")
-# these are the same
-stopifnot(all.equal(ip1, ip2))
 # two organisms with the same protein name
 ip3 <- pinfo("MYG", c("HORSE", "PHYCA"))
 # their amino acid compositions
 pinfo(ip3)
 # their thermodynamic properties by group additivity
-protein.obigt(ip3)
+protein.OBIGT(ip3)
 
-# an example of an unrecognized protein name
+# an unknown protein name gives NA
 ip4 <- pinfo("MYGPHYCA")
-stopifnot(is.na(ip4))
 
 ## example for chicken lysozyme C
 # index in thermo()$protein
@@ -95,17 +93,11 @@ protein.length(ip)
 protein.formula(ip)
 # group additivity for thermodynamic properties and HKF equation-of-state
 # parameters of non-ionized protein
-protein.obigt(ip)
+protein.OBIGT(ip)
 # calculation of standard thermodynamic properties
 # (subcrt uses the species name, not ip)
 subcrt("LYSC_CHICK")
-# affinity calculation, protein identified by ip
-basis("CHNOS+")
-affinity(iprotein=ip)
-# affinity calculation, protein loaded as a species
-species("LYSC_CHICK")
-affinity()
-# NB: subcrt() only shows the properties of the non-ionized
+# NOTE: subcrt() only shows the properties of the non-ionized
 # protein, but affinity() uses the properties of the ionized
 # protein if the basis species have H+
 
@@ -113,49 +105,12 @@ affinity()
 protein.formula("P53_PIG")
 protein.formula(pinfo("P53_PIG"))
 protein.formula(pinfo(pinfo("P53_PIG")))
-
-\dontshow{opar <- par(no.readonly=TRUE)}
-# using pinfo() with regexp=TRUE:
-# plot ZC and nH2O/residue of HOX proteins
-# basis species: glutamine-glutamic acid-cysteine-O2-H2O
-basis("QEC")
-# device setup
-par(mfrow=c(2, 2))
-# a red-blue scale from 1-13
-col <- ZC.col(1:13)
-# axis labels
-ZClab <- axis.label("ZC")
-nH2Olab <- expression(bar(italic(n))[H[2]*O])
-# loop over HOX gene clusters
-for(cluster in c("A", "B", "C", "D")) {
-  # get protein indices
-  pattern <- paste0("^HX", cluster)
-  ip <- pinfo(pattern, "HUMAN", regexp=TRUE)
-  # calculate ZC and nH2O/residue
-  thisZC <- ZC(protein.formula(ip))
-  thisH2O <- protein.basis(ip)[, "H2O"] / protein.length(ip)
-  # plot lines
-  plot(thisZC, thisH2O, type="l", xlab=ZClab, ylab=nH2Olab)
-  # the number of the HOX gene
-  pname <- pinfo(ip)$protein
-  nHOX <- as.numeric(gsub("[A-Za-z]*", "", pname))
-  # plot colored points
-  points(thisZC, thisH2O, pch=19, col=col[nHOX], cex=3.5)
-  points(thisZC, thisH2O, pch=19, col="white", cex=2.5)
-  # plot the number of the HOX gene
-  text(thisZC, thisH2O, nHOX)
-  # add title
-  title(main=paste0("HOX", cluster))
-}
-\dontshow{par(opar)}
 }
 
 \references{
   Dick, J. M., LaRowe, D. E. and Helgeson, H. C. (2006) Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. \emph{Biogeosciences} \bold{3}, 311--336. \url{https://doi.org/10.5194/bg-3-311-2006}
 
   LaRowe, D. E. and Dick, J. M. (2012) Calculation of the standard molal thermodynamic properties of crystalline peptides. \emph{Geochim. Cosmochim. Acta} \bold{80}, 70--91. \url{https://doi.org/10.1016/j.gca.2011.11.041}
-
-  Dick, J. M. (2014) Average oxidation state of carbon in proteins. \emph{J. R. Soc. Interface} \bold{11}, 20131095. \url{https://doi.org/10.1098/rsif.2013.1095}
 }
 
 \concept{Protein properties}
