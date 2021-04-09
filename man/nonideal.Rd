@@ -37,7 +37,7 @@ Those functions then call \code{nonideal} with all the arguments needed to perfo
 
 \section{Charged Species}{
 The default is to not apply calculations for the proton (\Hplus) and electron (\eminus); this makes sense if you are setting the pH, i.e. activity of \Hplus, to some value.
-To apply the calculations to H+ and/or e-, change \code{\link{thermo}$opt$ideal.H} or \code{ideal.e} to FALSE (see examples).
+To apply the calculations to H+ and/or e-, change \code{\link{thermo}()$opt$ideal.H} or \code{ideal.e} to FALSE (see examples).
 
 For the \samp{Alberty} method, the values of \code{IS} are combined with Alberty's (2003) equation 3.6-1 (extended Debye-Hückel equation with an empirical term valid up to 0.25 M ionic strength) and its derivatives (Alberty, 2001), to calculate adjusted molal properties at the specified ionic strength(s) and temperature(s).
 The calculations use the equation for the Debye-Hückel constant given by Clarke and Glew, 1980, which is valid between 0 and 150 °C at saturated water vapor pressure (\Psat).
@@ -56,7 +56,7 @@ Alternatively, set the extended term parameter to zero with \samp{bgamma0}.
 
 \section{Neutral Species}{
 For neutral species, the Setch{\eacute}now equation is used, as described in Shvarov and Bastrakov, 1999.
-If \code{\link{thermo}$opt$Setchenow} is \samp{bgamma0} (the default), the extended term parameter is set to zero and the only non-zero term is the mole fraction to molality conversion factor (using the value of \code{m_star}).
+If \code{\link{thermo}()$opt$Setchenow} is \samp{bgamma0} (the default), the extended term parameter is set to zero and the only non-zero term is the mole fraction to molality conversion factor (using the value of \code{m_star}).
 If \code{thermo()$opt$Setchenow} is \samp{bgamma}, the extended term paramter is taken from the setting for the charged species (which can be either \samp{Bdot} or \samp{bgamma}).
 Set \code{thermo()$opt$Setchenow} to any other value to disable the calculations for neutral species.
 }
@@ -222,23 +222,23 @@ nonideal("Bdot")  # or reset()
 }
 
 \references{
-Alberty, R. A. (2001) Effect of temperature on standard transformed Gibbs energies of formation of reactants at specified pH and ionic strength and apparent equilibrium constants of biochemical reactions. \emph{J. Phys. Chem. B} \bold{105}, 7865--7870. \url{https://doi.org/10.1021/jp011308v}
+Alberty, R. A. (2001) Effect of temperature on standard transformed Gibbs energies of formation of reactants at specified pH and ionic strength and apparent equilibrium constants of biochemical reactions. \emph{J. Phys. Chem. B} \bold{105}, 7865--7870. \doi{10.1021/jp011308v}
 
 Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{https://www.worldcat.org/oclc/51242181}
 
-Clarke, E. C. W. and Glew, D. N. (1980) Evaluation of Debye-Hückel limiting slopes for water between 0 and 150 °C. \emph{J. Chem. Soc. Faraday Trans.} \bold{76}, 1911--1916. \url{https://doi.org/10.1039/f19807601911}
+Clarke, E. C. W. and Glew, D. N. (1980) Evaluation of Debye-Hückel limiting slopes for water between 0 and 150 °C. \emph{J. Chem. Soc. Faraday Trans.} \bold{76}, 1911--1916. \doi{10.1039/f19807601911}
 
 Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{https://www.worldcat.org/oclc/517586}
 
-Helgeson, H. C. (1969) Thermodynamics of hydrothermal systems at elevated temperatures and pressures. \emph{Am. J. Sci.} \bold{267}, 729--804. \url{https://doi.org/10.2475/ajs.267.7.729}
+Helgeson, H. C. (1969) Thermodynamics of hydrothermal systems at elevated temperatures and pressures. \emph{Am. J. Sci.} \bold{267}, 729--804. \doi{10.2475/ajs.267.7.729}
 
-Helgeson, H. C., Kirkham, D. H. and Flowers, G. C. (1981) Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. IV. Calculation of activity coefficients, osmotic coefficients, and apparent molal and standard and relative partial molal properties to 600\degC and 5 Kb. \emph{Am. J. Sci.} \bold{281}, 1249--1516. \url{https://doi.org/10.2475/ajs.281.10.1249}
+Helgeson, H. C., Kirkham, D. H. and Flowers, G. C. (1981) Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. IV. Calculation of activity coefficients, osmotic coefficients, and apparent molal and standard and relative partial molal properties to 600\degC and 5 Kb. \emph{Am. J. Sci.} \bold{281}, 1249--1516. \doi{10.2475/ajs.281.10.1249}
 
-Hörbrand, T., Baumann, T. and Moog, H. C. (2018) Validation of hydrogeochemical databases for problems in deep geothermal energy. \emph{Geotherm. Energy} \bold{6}, 20. \url{https://doi.org/10.1186/s40517-018-0106-3}
+Hörbrand, T., Baumann, T. and Moog, H. C. (2018) Validation of hydrogeochemical databases for problems in deep geothermal energy. \emph{Geotherm. Energy} \bold{6}, 20. \doi{10.1186/s40517-018-0106-3}
 
-Manning, C. E. (2013) Thermodynamic modeling of fluid-rock interaction at mid-crustal to upper-mantle conditions. \emph{Rev. Mineral. Geochem.} \bold{76}, 135--164. \url{https://doi.org/10.2138/rmg.2013.76.5}
+Manning, C. E. (2013) Thermodynamic modeling of fluid-rock interaction at mid-crustal to upper-mantle conditions. \emph{Rev. Mineral. Geochem.} \bold{76}, 135--164. \doi{10.2138/rmg.2013.76.5}
 
-Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \url{https://doi.org/10.2138/rmg.2013.75.5}
+Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \doi{10.2138/rmg.2013.75.5}
 
 Shvarov, Y. and Bastrakov, E. (1999) HCh: A software package for geochemical equilibrium modelling. User's Guide. \emph{Australian Geological Survey Organisation} \bold{1999/25}. \url{http://pid.geoscience.gov.au/dataset/ga/25473}
 }

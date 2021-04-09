@@ -25,12 +25,13 @@ The main data files provided with CHNOSZ, as \code{*.csv} files in the \code{ext
 
 \usage{
   reset()
-  OBIGT()
+  OBIGT(no.organics = FALSE)
   thermo(...)
 }
 
 \arguments{
-  \item{...}{list, one or more arguments whose names correspond to the component() to modify}
+  \item{no.organics}{logical, exclude data files for organic and biotic species?}
+  \item{...}{list, one or more arguments whose names correspond to the setting to modify}
 }
 
 \format{
@@ -60,7 +61,8 @@ The main data files provided with CHNOSZ, as \code{*.csv} files in the \code{ext
       \code{nonideal} \tab character \tab Option for charged species in \code{\link{nonideal}} [\code{Bdot}] \cr
       \code{Setchenow} \tab character \tab Option for neutral species in \code{\link{nonideal}} [\code{bgamma0}] \cr
       \code{Berman} \tab character \tab User data file for mineral parameters in the Berman equations [\code{NA}] \cr
-      \code{maxcores} \tab numeric \tab Maximum number of cores for parallel calculations with \code{\link{palply}} [\code{2}]
+      \code{maxcores} \tab numeric \tab Maximum number of cores for parallel calculations with \code{\link{palply}} [\code{2}] \cr
+      \code{ionize.aa} \tab numeric \tab Calculate properties of ionized proteins when \Hplus is in basis species (see \code{\link{affinity}}) [\code{TRUE}]
 }
 
     \item \code{thermo()$element}
@@ -247,40 +249,40 @@ Other data files, including those supporting the examples and vignettes, are doc
 }
 
 \examples{
-## where are the data files in CHNOSZ?
+## Where are the data files in CHNOSZ?
 system.file("extdata", package="CHNOSZ")
 # What files make up OBIGT?
 # Note: file names with _aq, _cr, _gas, or _liq
 # are used in the default database
 dir(system.file("extdata/OBIGT", package = "CHNOSZ"))
 
-## exploring thermo()$OBIGT
-# what physical states there are
+## Exploring thermo()$OBIGT
+# What physical states are present
 unique(thermo()$OBIGT$state)
-# formulas of ten random species
+# Formulas of ten random species
 n <- nrow(thermo()$OBIGT)
 thermo()$OBIGT$formula[runif(10)*n]
 
-## adding an element
+## Adding an element
 old <- thermo()$element
-# element symbol, state, source (can be anything),
+# Element symbol, state, source (can be anything),
 # mass, entropy, and number in compound
 Xprops <- data.frame(element = "X", state = "cr",
   source = "user", mass = 100, s = 100, n = 1)
 new <- rbind(old, Xprops)
 thermo(element = new)
-# now "X" is recognized as an element in other functions
+# Now "X" is recognized as an element in other functions
 mass("X10")
-# restore default settings to remove X
+# Restore default settings to remove X
 reset()
 }
 
 \references{
 Cox, J. D., Wagman, D. D. and Medvedev, V. A., eds. (1989) \emph{CODATA Key Values for Thermodynamics}. Hemisphere Publishing Corporation, New York, 271 p. \url{https://www.worldcat.org/oclc/18559968}
 
-Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
+Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \doi{10.1016/0098-3004(92)90029-Q}
 
-Shock, E. L. et al. {1998} \emph{SLOP98.dat} (computer data file). \url{https://doi.org/10.5281/zenodo.2630820}
+Shock, E. L. et al. {1998} \emph{SLOP98.dat} (computer data file). \doi{10.5281/zenodo.2630820}
 
 Thoenen, T., Hummel, W., Berner, U. and Curti, E. (2014) \emph{The PSI/Nagra Chemical Thermodynamic Database 12/07}. Paul Scherrer Institut. \url{https://www.psi.ch/en/les/database}
 

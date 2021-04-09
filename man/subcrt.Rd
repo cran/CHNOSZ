@@ -25,7 +25,7 @@
   \item{exceed.Ttr}{logical, calculate Gibbs energies of mineral phases and other species beyond their transition temperatures?}
   \item{exceed.rhomin}{logical, return properties of species in the HKF model below 0.35 g cm\S{-3}?}
   \item{logact}{numeric, logarithms of activities of species in reaction}
-  \item{convert}{logical, are input and output units of T and P those of the user (\code{TRUE}) (see \code{\link{T.units}}), or are they Kelvin and bar (\code{FALSE})?}
+  \item{convert}{logical, are units of T, P, and energy settable by the user (default) (see \code{\link{T.units}})?}
   \item{autobalance}{logical, attempt to automatically balance reaction with basis species?}
   \item{IS}{numeric, ionic strength(s) at which to calculate adjusted molal properties, mol kg\eqn{^{-1}}{^-1}}
 }
@@ -51,12 +51,12 @@ The \code{property}s to be calculated can be one or more of those shown below:
          \code{kT}      \tab Isothermal compressibility            \tab cm\eqn{^3} bar\eqn{^{-1}}{^-1} \cr
  }
 
-Note that \code{E} and \code{kT} can only be calculated for aqueous species and only if the option (\code{\link{thermo}$opt$water}) for calculations of properties using \code{water} is set to \code{IAPWS}.
+Note that \code{E} and \code{kT} can only be calculated for aqueous species and only if the option (\code{\link{thermo}()$opt$water}) for calculations of properties using \code{water} is set to \code{IAPWS}.
 On the other hand, if the \code{water} option is \samp{SUPCRT} (the default), \code{E} and \code{kT} can be calculated for water but not for aqueous species.
 (This is not an inherent limitation in either formulation, but it is just a matter of implementation.)
 
-Depending on the units currently defined (\code{\link{E.units}}) the values of \code{G}, \code{H}, \code{S} and \code{Cp} are returned using calories or Joules as the unit of energy, but only if \code{convert} is \code{TRUE}.
-Likewise, the input values of \code{T} and \code{P} are interpreted to have the units specified through \code{\link{T.units}} and \code{\link{P.units}}, but setting \code{convert} to \code{FALSE} forces \code{subcrt} to treat them as Kelvin and bar, respectively.
+If \code{convert} is \code{TRUE} (the default), the input values of \code{T} and \code{P} are interpreted to have the units given by \code{\link{T.units}} and \code{\link{P.units}} (default: \degC and bar), and the output values of \code{G}, \code{H}, \code{S} and \code{Cp} are based on the units given in \code{\link{E.units}} (default: calories).
+If \code{convert} is \code{FALSE}, the user units (\code{\link{T.units}}, \code{\link{P.units}}, and \code{\link{E.units}}) are ignored, and \code{T} and \code{P} are taken to be in Kelvin and bar, and the returned values of \code{G}, \code{H}, \code{S} and \code{Cp} are in calories.
 
 A chemical reaction is defined if \code{coeff} is given.
 In this mode the standard molal properties of species are summed according to the stoichiometric \code{coeff}icients, where negative values denote reactants.
@@ -227,13 +227,13 @@ thermo("opt$varP" = FALSE)
 \references{
   Anderson, G. M. and Crerar, D. A. (1993) \emph{Thermodynamics in Geochemistry: The Equilibrium Model}, Oxford University Press. \url{https://www.worldcat.org/oclc/803272549}
 
-  Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
+  Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \doi{10.1016/0098-3004(92)90029-Q}
 
-  Helgeson, H. C., Owens, C. E., Knox, A. M. and Richard, L. (1998) Calculation of the standard molal thermodynamic properties of crystalline, liquid, and gas organic molecules at high temperatures and pressures. \emph{Geochim. Cosmochim. Acta} \bold{62}, 985--1081. \url{https://doi.org/10.1016/S0016-7037(97)00219-6}
+  Helgeson, H. C., Owens, C. E., Knox, A. M. and Richard, L. (1998) Calculation of the standard molal thermodynamic properties of crystalline, liquid, and gas organic molecules at high temperatures and pressures. \emph{Geochim. Cosmochim. Acta} \bold{62}, 985--1081. \doi{10.1016/S0016-7037(97)00219-6}
 
-  LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \url{https://doi.org/10.1111/j.1472-4669.2007.00099.x}
+  LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \doi{10.1111/j.1472-4669.2007.00099.x}
 
-  Shock, E. L., Oelkers, E. H., Johnson, J. W., Sverjensky, D. A. and Helgeson, H. C. (1992) Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 \degC and 5 kbar. \emph{J. Chem. Soc. Faraday Trans.} \bold{88}, 803--826. \url{https://doi.org/10.1039/FT9928800803}
+  Shock, E. L., Oelkers, E. H., Johnson, J. W., Sverjensky, D. A. and Helgeson, H. C. (1992) Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 \degC and 5 kbar. \emph{J. Chem. Soc. Faraday Trans.} \bold{88}, 803--826. \doi{10.1039/FT9928800803}
 }
 
 \concept{Main workflow}

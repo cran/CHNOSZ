@@ -11,8 +11,9 @@ Calculate equilibrium chemical activities of species from the affinities of form
 
 \usage{
   equilibrate(aout, balance = NULL, loga.balance = NULL,
-    ispecies = !grepl("cr", aout$species$state), normalize = FALSE, as.residue = FALSE,
-    method = c("boltzmann", "reaction"), tol = .Machine$double.eps^0.25)
+    ispecies = !grepl("cr", aout$species$state), normalize = FALSE,
+    as.residue = FALSE, method = c("boltzmann", "reaction"),
+    tol = .Machine$double.eps^0.25)
   equil.boltzmann(Astar, n.balance, loga.balance)
   equil.reaction(Astar, n.balance, loga.balance, tol = .Machine$double.eps^0.25)
   moles(eout)
@@ -140,7 +141,7 @@ stopifnot(all.equal(pKa.equil, -logK, tolerance=1e-2))
 }
 
 \references{
-  Dick, J. M. (2008) Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.} \bold{9}:10. \url{https://doi.org/10.1186/1467-4866-9-10}
+  Dick, J. M. (2008) Calculation of the relative metastabilities of proteins using the CHNOSZ software package. \emph{Geochem. Trans.} \bold{9}:10. \doi{10.1186/1467-4866-9-10}
 }
 
 \concept{Main workflow}

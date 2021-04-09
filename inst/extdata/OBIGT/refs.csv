@@ -5,6 +5,7 @@ Kel60.3,"K. K. Kelley",1960,"U. S. Bureau of Mines Bull. 584","gypsum Cp",https:
 Pan70,"L. B. Pankratz",1970,"U. S. Bureau of Mines Report of Investigations 7430",chlorargyrite,https://www.worldcat.org/oclc/14154245
 PK70,"L. B. Pankratz and E. G. King",1970,"U. S. Bureau of Mines Report of Investigations 7435","bornite and chalcopyrite",https://www.worldcat.org/oclc/14154292
 BK73,"I. Barin and O. Knacke",1973,"Thermochemical Properties of Inorganic Substances","scheelite Cp",https://www.worldcat.org/oclc/695258
+BKK77,"I. Barin, O. Knacke and O. Kubaschewski",1977,"Thermochemical Properties of Inorganic Substances: Supplement","willemite Cp",https://www.worldcat.org/oclc/695258
 HDNB78,"H. C. Helgeson, J. M. Delany et al.",1978,"Am. J. Sci. 278A, 1-229","data for minerals and phase transitions",https://www.worldcat.org/oclc/13594862
 HDNB78.1,"H. C. Helgeson, J. M. Delany et al.",1978,"Am. J. Sci. 278A, 1-229","litharge S, V, and Cp parameters",https://www.worldcat.org/oclc/13594862
 HDNB78.2,"H. C. Helgeson, J. M. Delany et al.",1978,"Am. J. Sci. 278A, 1-229","celestite V and Cp parameters",https://www.worldcat.org/oclc/13594862
@@ -58,14 +59,13 @@ HDM+94,"A. W. Hakin et al.",1994,"J. Chem. Soc., Faraday Trans. 90, 2027-2035","
 HSS95,"J. R. Haas, E. L. Shock and D. C. Sassani",1995,"Geochim. Cosmochim. Acta 59, 4329-4350","complexes of rare earth elements",https://doi.org/10.1016/0016-7037(95)00314-P
 PH95,"V. A. Pokrovskii and H. C. Helgeson",1995,"Am. J. Sci. 295, 1255-1342","aluminum species",https://doi.org/10.2475/ajs.295.10.1255
 PK95,"V. B. Parker and I. L. Khodakovskii",1995,"J. Phys. Chem. Ref. Data 24, 1699-1745",melanterite,https://doi.org/10.1063/1.555964
-RH95,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","manganese, manganosite, pyrolusite, bixbyite, hausmannite, heubnerite, cattierite, cobalt, and wustite",https://doi.org/10.3133/b2131
+RH95,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","gypsum, manganese, manganosite, pyrolusite, bixbyite, hausmannite, heubnerite, cattierite, cobalt, wustite, and willemite",https://doi.org/10.3133/b2131
 RH95.1,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","hydrogen fluoride and hydrogen chloride",https://doi.org/10.3133/b2131
 RH95.2,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","dawsonite: Cp coefficients corrected in @TKSS14; Cp value at 25 &deg;C from @BPAH07, citing @FSR76",https://doi.org/10.3133/b2131
 RH95.3,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","almandine, dickite, glaucophane, grunerite, halloysite, pyrope: GHS and Cp at 25 &deg;C",https://doi.org/10.3133/b2131
 RH95.4,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","fluorphlogopite (Al/Si disordered) (G and H not in SUPCRT92)",https://doi.org/10.3133/b2131
 RH95.5,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","larnite (G and H not in SUPCRT92); Cp from @Kel60",https://doi.org/10.3133/b2131
 RH95.6,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","bromellite (G and H not in SUPCRT92)",https://doi.org/10.3133/b2131
-RH95.7,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","gypsum GHS",https://doi.org/10.3133/b2131
 RH95.8,"R. A. Robie and B. S. Hemingway",1995,"U. S. Geological Survey Bull. 2131","linnaeite V",https://doi.org/10.3133/b2131
 SK95,"E. L. Shock and C. M. Koretsky",1995,"Geochim. Cosmochim. Acta 59, 1497-1532","metal-organic acid complexes",https://doi.org/10.1016/0016-7037(95)00058-8
 SK95.1,"E. L. Shock and C. M. Koretsky",1995,"Geochim. Cosmochim. Acta 59, 1497-1532","alanate, glycinate and their complexes with metals. Values are taken from slop98.dat, which notes corrected values for some species.",https://doi.org/10.1016/0016-7037(95)00058-8
@@ -202,6 +202,7 @@ SHA14.2,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","
 SHA14.3,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","Fitted to @HP97 data with a<sub>1</sub> pred. from the sum of the ions and used to predict the volume",https://doi.org/10.1016/j.gca.2013.12.019
 SHA14.4,"D. A. Sverjensky et al.",2014,"Geochim. Cosmochim. Acta 129, 125-145","BO<sub>2</sub><sup>-</sup>: revised a<sub>1</sub>-a<sub>4</sub> using delkappan for BO<sub>2</sub><sup>-</sup> instead of B(OH)<sub>4</sub><sup>-</sup> used by @SH88; @SSWS97",https://doi.org/10.1016/j.gca.2013.12.019
 PD15,"G. S. Pokrovski and J. Dubessy",2015,"Earth Planet. Sci. Lett. 411, 298-309","trisulfur radical ion",https://doi.org/10.1016/j.epsl.2014.11.035
+LA16,"D. E. LaRowe and J. P. Amend",2016,"ISME J. 10, 1285-1295","fatty acids, saccharides, and other species",https://doi.org/10.1038/ismej.2015.227
 SLOP16.1,"E. L. Shock et al.",2016,"slop16.dat computer data file","&quot;Enthalpy changed to be compatible with the equation &Delta;H=&Delta;G+T&Delta;S for the formation reaction from elements.&quot;",https://doi.org/10.5281/zenodo.2630820
 SLOP16.2,"E. L. Shock et al.",2016,"slop16.dat computer data file","Zn(Ac)<sub>3</sub><sup>-</sup>: &quot;Enthalpy changed to be compatible with the equation &Delta;H=&Delta;G+T&Delta;S for the formation reaction from elements. See footnote h in table 2 of @SSH97.&quot;",https://doi.org/10.5281/zenodo.2630820
 SLOP16.3,"E. L. Shock et al.",2016,"slop16.dat computer data file","formaldehyde: &quot;Entropy corrected to be compatible with the equation &Delta;H=&Delta;G+T&Delta;S for the formation reaction from elements. See footnote i in table 2 of @SS93.&quot;",https://doi.org/10.5281/zenodo.2630820
@@ -224,6 +225,7 @@ OBIGT.5,"J. M. Dick",2017,"OBIGT database in CHNOSZ","Incorrect values of HKF a<
 OBIGT.6,"J. M. Dick",2019,"OBIGT database in CHNOSZ","recalculated values of Cp (those in @AKAE19 appear to be calculated using wrong sign on &omega;) and enthalpy (using &Delta;G=&Delta;H-T&Delta;S and the entropies of the elements)",http://chnosz.net
 OBIGT.7,"J. M. Dick",2019,"OBIGT database in CHNOSZ","Tl(Gly) and Tl(Gly)<sub>2</sub><sup>-</sup>: change Ti to Tl",http://chnosz.net
 OBIGT.8,"J. M. Dick",2019,"OBIGT database in CHNOSZ","GHS recalculated by adding difference from SiO<sub>2</sub> [@SSH97] to updated values for SiO<sub>2</sub> [@AS04]",http://chnosz.net
+OBIGT.9,"J. M. Dick",2021,"OBIGT database in CHNOSZ","diaminopimelic acid, putrescine and spermidine: parameters recalculated to account for a missing [-CH2NH2] group in the group additivity equations",http://chnosz.net
 LCT17,"A. R. Lowe, J. S. Cox and P. R. Tremaine",2017,"J. Chem. Thermodynamics 112, 129-145","adenine HKF parameters",https://doi.org/10.1016/j.jct.2017.04.005
 DEW17.01,"D. A. Sverjensky et al.",2017,"Deep Earth Water (DEW) spreadsheet","(acetic acid, glycine, methanol, propanoic acid, propanol: parameters in DEW spreadsheet are the same as in @PS01)",http://www.dewcommunity.org
 DEW17.02,"D. A. Sverjensky et al.",2017,"Deep Earth Water (DEW) spreadsheet","(ethanol: parameters in DEW spreadsheet are different from @PS01; no comment provided)",http://www.dewcommunity.org
@@ -277,5 +279,6 @@ DEW19.6,"D. A. Sverjensky et al.",2019,"Deep Earth Water (DEW) spreadsheet","(Fe
 HS19,"F. Huang and D. A. Sverjensky",2019,"Geochim. Cosmochim. Acta 254, 192-230","ions and metal complexes",https://doi.org/10.1016/j.gca.2019.03.027
 LA19,"D. E. LaRowe and J. P. Amend",2019,"Geomicrobiol. J. 36, 492-505","dimethylamine, trimethylamine, resorcinol, phloroglucinol, cyclohexane carboxylate, and cyclohexane carboxylic acid",https://doi.org/10.1080/01490451.2019.1573278
 SPD+19,"B. St Clair et al.",2019,"ACS Earth Space Chem 3, 905-921","metal carbonate and bicarbonate complexes and FeSO<sub>4</sub>",https://doi.org/10.1021/acsearthspacechem.9b00016
+AKK+20,"N. N. Akinfiev et al.",2020,"Geochim. Cosmochim. Acta 280, 102-115","Nb and Ta species",https://doi.org/10.1016/j.gca.2020.04.009
 LX20,"Liu and Xiao",2020,"Ore Geol. Rev. 117, 103289","huebnerite Cp",https://doi.org/10.1016/j.oregeorev.2019.103289
 MP20,"Materials Project",2020,"mp-1513: Co9S8","Co-pentlandite V calculated from density of Co<sub>9</sub>S<sub>8</sub> from Materials Project",https://doi.org/10.17188/1191033

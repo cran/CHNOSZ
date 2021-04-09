@@ -4,8 +4,8 @@ test_that("info.character() produces expected results and messages", {
   expect_equal(info.character("acetate", "cr"), NA)
   expect_message(info.character("acetate", "cr"), "only 'aq' is available")
   expect_message(info.character("methane", "cr"), "only 'gas' 'liq' are available")
-  expect_message(info.character("methane"), "other available state is liq")
-  expect_message(info.character("SiO2", "cr"), "other available phases are")
+  expect_message(info.character("methane"), "also available in liq")
+  expect_message(info.character("SiO2", "cr"), "also available in.*quartz")
   expect_message(info.character("chalcocite"), "found chalcocite\\(cr\\) with 2 phase transitions")
   # H2O is a special case
   expect_equal(info.character("H2O", "aq"), info.character("H2O", "liq"))
@@ -35,8 +35,8 @@ test_that("info() can be used for cr and aq descriptions of the same species and
 })
 
 test_that("info() gives correct column names for species using the AkDi model", {
-  # add an aqueous species conforming to the AkDi model: it has NA for Z
-  iCO2 <- mod.OBIGT("CO2", a = -8.8321, b = 11.2684, c = -0.0850, z = NA)
+  # add an aqueous species conforming to the AkDi model
+  iCO2 <- mod.OBIGT("CO2", abbrv = "AkDi", a = -8.8321, b = 11.2684, c = -0.0850)
   params <- info(iCO2)
   expect_equal(params$a, -8.8321)
   expect_equal(params$b, 11.2684)

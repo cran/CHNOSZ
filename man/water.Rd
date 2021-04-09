@@ -26,7 +26,7 @@ Calculate thermodynamic and electrostatic properties of water.
 \details{
 
 These functions compute the thermodynamic (Gibbs energy and it derivatives) and electrostatic (dielectric constant and its derivatives) properties of liquid or supercritical \H2O as a function of temperature and pressure using equations of state taken from the literature.
-The high-level function \code{water} performs different computations, depending on the setting of \code{\link{thermo}$opt$water}:
+The high-level function \code{water} performs different computations, depending on the setting of \code{\link{thermo}()$opt$water}:
 
 \describe{
 
@@ -106,7 +106,7 @@ A primary check is still enforced (Tbtm), giving a minimum valid temperature of 
 \code{water.IAPWS95} provides for calculations at specific temperature and pressure; density, needed for \code{IAPWS95}, is inverted from pressure using \code{rho.IAPWS95}.
 The function also contains routines for calculating the Born functions as numerical derivatives of the static dielectric constant (from \code{water.AW90}).
 For compatibility with geochemical modeling conventions, the values of Gibbs energy, enthalpy and entropy output by \code{IAPWS95} are converted by \code{water.IAPWS95} to the triple point reference state adopted in \code{SUPCRT92} (Johnson and Norton, 1991; Helgeson and Kirkham, 1974).
-\code{water.IAPWS95} also accepts setting \code{P} to \samp{Psat}, with the saturation pressure calculated from \code{\link{WP02.auxiliary}}; by default the returned properties are for the liquid, but this can be changed to the vapor in \code{\link{thermo}$opt$IAPWS.sat}.
+\code{water.IAPWS95} also accepts setting \code{P} to \samp{Psat}, with the saturation pressure calculated from \code{\link{WP02.auxiliary}}; by default the returned properties are for the liquid, but this can be changed to the vapor in \code{\link{thermo}()$opt$IAPWS.sat}.
 
 \code{A_DH} and \code{B_DH} are solvent parameters in the \dQuote{B-dot} (extended Debye-Huckel) equation (Helgeson, 1969; Manning, 2013).
 }
@@ -157,25 +157,25 @@ print(w)
 }
 
 \references{
-Archer, D. G. and Wang, P. M. (1990) The dielectric constant of water and Debye-Hückel limiting law slopes. \emph{J. Phys. Chem. Ref. Data} \bold{19}, 371--411. \url{https://doi.org/10.1063/1.555853}
+Archer, D. G. and Wang, P. M. (1990) The dielectric constant of water and Debye-Hückel limiting law slopes. \emph{J. Phys. Chem. Ref. Data} \bold{19}, 371--411. \doi{10.1063/1.555853}
 
 Haar, L., Gallagher, J. S. and Kell, G. S. (1984) \emph{NBS/NRC Steam Tables}. Hemisphere, Washington, D. C., 320 p. \url{https://www.worldcat.org/oclc/301304139}
 
-Helgeson, H. C. and Kirkham, D. H. (1974) Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. I. Summary of the thermodynamic/electrostatic properties of the solvent. \emph{Am. J. Sci.} \bold{274}, 1089--1098. \url{https://doi.org/10.2475/ajs.274.10.1089}
+Helgeson, H. C. and Kirkham, D. H. (1974) Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures. I. Summary of the thermodynamic/electrostatic properties of the solvent. \emph{Am. J. Sci.} \bold{274}, 1089--1098. \doi{10.2475/ajs.274.10.1089}
 
-Helgeson, H. C. (1969) Thermodynamics of hydrothermal systems at elevated temperatures and pressures. \emph{Am. J. Sci.} \bold{267}, 729--804. \url{https://doi.org/10.2475/ajs.267.7.729}
+Helgeson, H. C. (1969) Thermodynamics of hydrothermal systems at elevated temperatures and pressures. \emph{Am. J. Sci.} \bold{267}, 729--804. \doi{10.2475/ajs.267.7.729}
 
-Johnson, J. W. and Norton, D. (1991) Critical phenomena in hydrothermal systems: state, thermodynamic, electrostatic, and transport properties of H\eqn{_2}{2}O in the critical region. \emph{Am. J. Sci.} \bold{291}, 541--648. \url{https://doi.org/10.2475/ajs.291.6.541}
+Johnson, J. W. and Norton, D. (1991) Critical phenomena in hydrothermal systems: state, thermodynamic, electrostatic, and transport properties of H\eqn{_2}{2}O in the critical region. \emph{Am. J. Sci.} \bold{291}, 541--648. \doi{10.2475/ajs.291.6.541}
 
-Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \url{https://doi.org/10.1016/0098-3004(92)90029-Q}
+Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \doi{10.1016/0098-3004(92)90029-Q}
 
-Levelt-Sengers, J. M. H., Kamgarparsi, B., Balfour, F. W. and Sengers, J. V. (1983) Thermodynamic properties of steam in the critical region. \emph{J. Phys. Chem. Ref. Data} \bold{12}, 1--28. \url{https://doi.org/10.1063/1.555676}
+Levelt-Sengers, J. M. H., Kamgarparsi, B., Balfour, F. W. and Sengers, J. V. (1983) Thermodynamic properties of steam in the critical region. \emph{J. Phys. Chem. Ref. Data} \bold{12}, 1--28. \doi{10.1063/1.555676}
 
-Manning, C. E. (2013) Thermodynamic modeling of fluid-rock interaction at mid-crustal to upper-mantle conditions. \emph{Rev. Mineral. Geochem.} \bold{76}, 135--164. \url{https://doi.org/10.2138/rmg.2013.76.5}
+Manning, C. E. (2013) Thermodynamic modeling of fluid-rock interaction at mid-crustal to upper-mantle conditions. \emph{Rev. Mineral. Geochem.} \bold{76}, 135--164. \doi{10.2138/rmg.2013.76.5}
 
-Sverjensky, D. A., Harrison, B. and Azzolini, D. (2014) Water in the deep Earth: The dielectric constant and the solubilities of quartz and corundum to 60 kb and 1,200 \degC. \emph{Geochim. Cosmochim. Acta} \bold{129}, 125--145. \url{https://doi.org/10.1016/j.gca.2013.12.019}
+Sverjensky, D. A., Harrison, B. and Azzolini, D. (2014) Water in the deep Earth: The dielectric constant and the solubilities of quartz and corundum to 60 kb and 1,200 \degC. \emph{Geochim. Cosmochim. Acta} \bold{129}, 125--145. \doi{10.1016/j.gca.2013.12.019}
 
-Wagner, W. and Pruss, A. (2002) The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. \emph{J. Phys. Chem. Ref. Data} \bold{31}, 387--535. \url{https://doi.org/10.1063/1.1461829}
+Wagner, W. and Pruss, A. (2002) The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. \emph{J. Phys. Chem. Ref. Data} \bold{31}, 387--535. \doi{10.1063/1.1461829}
 }
 
 \concept{Water properties}

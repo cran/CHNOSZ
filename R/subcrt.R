@@ -234,10 +234,8 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
       tb <- thermo$basis
       if(!is.null(tb) & autobalance) {
         if(all(names(miss) %in% colnames(tb)[1:nrow(tb)])) {
-          # the missing composition as formula
-          ft <- as.chemical.formula(miss)
-          # the basis species needed to supply it
-          bc <- species.basis(ft)
+          # the missing composition in terms of the basis species
+          bc <- species.basis(species = NULL, mkp = as.matrix(miss))
           # drop zeroes
           bc.new <- bc[,(bc[1,]!=0),drop=FALSE]
           # and get the states
@@ -286,8 +284,10 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
   if(TRUE %in% isaq) {
     # 20110808 get species parameters using OBIGT2eos() (faster than using info())
     param <- OBIGT2eos(thermo$OBIGT[iphases[isaq],], "aq", fixGHS = TRUE, tocal = TRUE)
-    # aqueous species with NA for Z use the AkDi model
-    isAkDi <- is.na(param$Z)
+    # Aqueous species with abbrv = "AkDi" use the AkDi model 20210407
+    abbrv <- thermo$OBIGT$abbrv[iphases[isaq]]
+    abbrv[is.na(abbrv)] <- ""
+    isAkDi <- abbrv == "AkDi"
     # always get density
     H2O.props <- "rho"
     # calculate A_DH and B_DH if we're using the B-dot (Helgeson) equation

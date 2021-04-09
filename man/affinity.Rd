@@ -72,7 +72,7 @@ However, if one or more of \code{pe}, \code{Eh} or \code{pH} is among the variab
 }
 
 \seealso{
-\code{\link{ionize.aa}}, activated if proteins are among the species of interest and \samp{H+} is in the basis.
+\code{\link{ionize.aa}}, activated if proteins are among the species of interest, \samp{H+} is in the basis and \code{thermo()$opt$ionize.aa} is TRUE.
 \code{\link{equilibrate}} for using the results of \code{affinity} to calculate equilibrium activities of species, and \code{\link{diagram}} to plot the results.
 \code{\link{demo}("saturation")} for an example using the argument recall feature.
 }
@@ -102,7 +102,7 @@ affinity(T=c(25, 110, 115, 215), P=c(11, 335, 500, 1450))
 }
 
 \references{
-Helgeson, H. C., Richard, L, McKenzie, W. F., Norton, D. L. and Schmitt, A. (2009) A chemical and thermodynamic model of oil generation in hydrocarbon source rocks. \emph{Geochim. Cosmochim. Acta} \bold{73}, 594--695. \url{https://doi.org/10.1016/j.gca.2008.03.004}
+Helgeson, H. C., Richard, L, McKenzie, W. F., Norton, D. L. and Schmitt, A. (2009) A chemical and thermodynamic model of oil generation in hydrocarbon source rocks. \emph{Geochim. Cosmochim. Acta} \bold{73}, 594--695. \doi{10.1016/j.gca.2008.03.004}
 }
 
 \concept{Main workflow}

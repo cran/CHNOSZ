@@ -1,4 +1,4 @@
-[to 20201110]
+[ - 20201110]
 
 - make a site for community uploaded data
 
@@ -14,10 +14,6 @@
 
 - add check to mosaic() that 'stable' values have the right dimensions.
 
-- anintro.Rmd, help files: make it clear that species with
-different units (cal, J) in OBIGT can be used in subcrt, diagrams, etc.
-in CHNOSZ.
-
 - move H2O92D.f and R wrapper to a separate package (so people
 don't have to compile anything to install CHNOSZ updates).
 
@@ -25,3 +21,14 @@ don't have to compile anything to install CHNOSZ updates).
 
 - replace CoCl2-4 example in anintro.Rmd with different species
 (CoCl2-4 has been added to OBIGT).
+
+[20201113 - ]
+
+- add a demo to show user-added data with Berman equations
+
+- make swap.basis() work when DEW model is active
+
+[20210303]
+
+- Add demo for effective equilibrium constant for diglycine on T-pH plot at
+  high pressure (DEW model; Robinson et al., 2021)

@@ -38,14 +38,15 @@ When adding (not replacing) species, there is no attempt made to keep the order 
 As a result, retrieving the properties of an added aqueous species using \code{\link{info}} requires an explicit \code{state="aq"} argument to that function if a species with the same name is present in one of the cr, liq or gas states.
 
 \code{mod.OBIGT} changes one or more of the properties of species or adds species to the thermodynamic database.
-These changes are lost if you reload the database by calling \code{\link{data}(thermo)} or if you quit the \R session without saving it.
+These changes are lost if you reload the database by calling \code{\link{reset}} or \code{\link{OBIGT}} or if you quit the \R session without saving it.
 The name of the species to add or change must be supplied as the first argument of \code{...} or as a named argument (named \samp{name}).
 When adding new species, a chemical formula should be included along with the values of any of the thermodynamic properties.
 The formula is taken from the \samp{formula} argument, or if that is missing, is taken to be the same as the \samp{name} of the species.
-An error results if the formula is not valid (i.e. can not be parsed by\code{\link{makeup}}).
-Additional arguments refer to the name of the property(s) to be updated and are matched to any part of compound column names in \code{\link{thermo}$OBIGT}, such as \samp{z} or \samp{T} in \samp{z.T}.
-Unless \samp{state} is specified as one of the properties, its value is taken from \code{thermo()$opt$state}.
-When adding species, properties that are not specified become NA, except for \samp{state}, which takes a default value from \code{thermo()$opt$state}, and \samp{z.T}, which for aqueous species is set to the charge calculated from the chemical formula (otherwise, NA charge for newly added species would trigger the \code{\link{AkDi}} model).
+An error results if the formula is not valid (i.e. can not be parsed by \code{\link{makeup}}).
+
+Additional arguments to \code{mod.OBIGT} refer to the name of the property(s) to be updated and are matched to any part of compound column names in \code{\link{thermo}()$OBIGT}.
+For instance, either \samp{z} or \samp{T} matches the \samp{z.T} column.
+When adding species, properties that are not specified become NA, except for \samp{state}, which takes a default value from \code{thermo()$opt$state}.
 The values provided should have energy units correponding to the current setting (\code{\link{E.units}}), but this can be overridden by giving a value for \samp{E_units} in the new data.
 The values provided should also include any order-of-magnitude scaling factors (see \code{\link{thermo}}).
 }
@@ -144,15 +145,15 @@ reset()
 \references{
 Apps, J. and Spycher, N. (2004) \emph{Data qualification for thermodynamic data used to support THC calculations}. DOC.20041118.0004 ANL-NBS-HS-000043 REV 00. Bechtel SAIC Company, LLC.
 
-Bazarkina, E. F., Zotov, A. V., and Akinfiev, N. N. (2010)  Pressure-dependent stability of cadmium chloride complexes: Potentiometric measurements at 1-1000 bar and 25°C. \emph{Geology of Ore Deposits} \bold{52}, 167--178. \url{https://doi.org/10.1134/S1075701510020054}
+Bazarkina, E. F., Zotov, A. V., and Akinfiev, N. N. (2010)  Pressure-dependent stability of cadmium chloride complexes: Potentiometric measurements at 1-1000 bar and 25°C. \emph{Geology of Ore Deposits} \bold{52}, 167--178. \doi{10.1134/S1075701510020054}
 
-Kitadai, N. (2014)  Thermodynamic prediction of glycine polymerization as a function of temperature and pH consistent with experimentally obtained results. \emph{J. Mol. Evol.} \bold{78}, 171--187. \url{https://doi.org/10.1007/s00239-014-9616-1}
+Kitadai, N. (2014)  Thermodynamic prediction of glycine polymerization as a function of temperature and pH consistent with experimentally obtained results. \emph{J. Mol. Evol.} \bold{78}, 171--187. \doi{10.1007/s00239-014-9616-1}
 
-Shock, E. L., Helgeson, H. C. and Sverjensky, D. A. (1989) Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Standard partial molal properties of inorganic neutral species. \emph{Geochim. Cosmochim. Acta} \bold{53}, 2157--2183. \url{https://doi.org/10.1016/0016-7037(89)90341-4}
+Shock, E. L., Helgeson, H. C. and Sverjensky, D. A. (1989) Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Standard partial molal properties of inorganic neutral species. \emph{Geochim. Cosmochim. Acta} \bold{53}, 2157--2183. \doi{10.1016/0016-7037(89)90341-4}
 
-Stef{\aacute}nsson, A. (2001) Dissolution of primary minerals of basalt in natural waters. I. Calculation of mineral solubilities from 0\degC to 350\degC. \emph{Chem. Geol.} \bold{172}, 225--250. \url{https://doi.org/10.1016/S0009-2541(00)00263-1}
+Stef{\aacute}nsson, A. (2001) Dissolution of primary minerals of basalt in natural waters. I. Calculation of mineral solubilities from 0\degC to 350\degC. \emph{Chem. Geol.} \bold{172}, 225--250. \doi{10.1016/S0009-2541(00)00263-1}
 
-Sverjensky, D. A., Shock, E. L., and Helgeson, H. C. (1997) Prediction of the thermodynamic properties of aqueous metal complexes to 1000 °C and 5 kbar. \emph{Geochim. Cosmochim. Acta} \bold{61}, 1359--1412. \url{https://doi.org/10.1016/S0016-7037(97)00009-4}
+Sverjensky, D. A., Shock, E. L., and Helgeson, H. C. (1997) Prediction of the thermodynamic properties of aqueous metal complexes to 1000 °C and 5 kbar. \emph{Geochim. Cosmochim. Acta} \bold{61}, 1359--1412. \doi{10.1016/S0016-7037(97)00009-4}
 }
 
 \concept{Thermodynamic data}

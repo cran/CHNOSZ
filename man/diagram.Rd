@@ -21,7 +21,7 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
     # character sizes
     cex = par("cex"), cex.names = 1, cex.axis = par("cex"),
     # line styles
-    lty = NULL, lwd = par("lwd"), dotted = NULL,
+    lty = NULL, lty.cr = NULL, lty.aq = NULL, lwd = par("lwd"), dotted = NULL,
     spline.method = NULL, contour.method = "edge", levels = NULL,
     # colors
     col = par("col"), col.names = par("col"), fill = NULL,
@@ -58,6 +58,8 @@ Plot equilibrium chemical activity (1-D speciation) or equal-activity (2-D predo
   \item{cex.names}{numeric, character expansion factor to be used for names of species on plots}
   \item{cex.axis}{numeric, character expansion factor for names of axes}
   \item{lty}{numeric, line types to be used in plots}
+  \item{lty.cr}{numeric, line types for cr-cr boundaries (between two minerals)}
+  \item{lty.aq}{numeric, line types for aq-aq boundaries (between two aqueous species)}
   \item{lwd}{numeric, line width}
   \item{dotted}{numeric, how often to skip plotting points on predominance field boundaries (to gain the effect of dotted or dashed boundary lines)}
   \item{spline.method}{character, method used in \code{\link{splinefun}}}
@@ -124,9 +126,11 @@ If \code{type} is the name of a basis species, then the equilibrium activity of 
 In the case of 2-D diagrams, both of these options use \code{\link{contour}} to draw the lines, with the method specified in \code{contour.method}.
 
 This paragraph describes the effect of the \code{type} argument when the output from \code{solubility} is being used.
-For \code{type} set to \samp{auto}, the equilibrium activities (i.e. computed solubilities) of each species are plotted.
+For one mineral or gas, if \code{type} set to \samp{auto}, the equilibrium activities of each aqueous species are plotted.
 If \code{type} is \samp{loga.balance}, the activity of the balancing basis species (i.e. total solubility) is plotted; this is represented by contours on a 2-D diagram.
-For examples that use these features, see \code{\link{solubility}} and various \code{\link{demos}}: \samp{DEW}, \samp{contour}, \samp{gold}, \samp{solubility}, \samp{sphalerite}, \samp{zinc}.
+For two or more minerals or gases, if \code{type} set to \samp{auto}, the values of \samp{loga.balance} (overall minimum solubility) are plotted.
+If \code{type} is \samp{loga.equil}, the solubilities of the individual minerals and gases are plotted.
+For examples that use these features, see \code{\link{solubility}} and various \code{\link{demos}}: \samp{DEW}, \samp{contour}, \samp{gold}, \samp{solubility}, \samp{sphalerite}.
 }
 
 \section{1-D diagrams}{
@@ -160,12 +164,14 @@ Change \code{limit.water} to FALSE to not show the water stability regions at al
 
 The default line-drawing algorithm uses \code{\link{contourLines}} to obtain smooth-looking diagonal and curved lines, at the expense of not coinciding exactly with the rectangular grid that is used for drawing colors.
 \code{lty}, \code{col}, and \code{lwd} can be specified, but limiting the lines via \code{xrange} is not currently supported.
+Set \code{lty.cr} or \code{lty.aq} to 0 to suppress boundary lines between minerals or aqueous species.
+
 To go back to the old behavior for drawing lines, set \code{dotted} to \samp{0}.
 The old behavior does not respect \code{lty}; instead, the style of the boundary lines on 2-D diagrams can be altered by supplying one or more non-zero integers in \code{dotted}, which indicates the fraction of line segments to omit; a value of \samp{1} or NULL for \code{dotted} has the effect of not drawing the boundary lines.
 
 \code{normalize} and \code{as.residue} apply only to the 2-D diagrams, and only when \code{eout} is the output from \code{affinity}.
-With \code{normalize}, the activity boundaries are calculated as between the residues of the species (the species divided by the balance coefficients), then the activities are rescaled to the whole species formulas.
-With \code{as.residue}, the activity boundaries are calculated as between the residues of the species, and no rescaling is performed.
+With \code{normalize}, the activity boundaries are calculated between the residues of the species (the species divided by the balance coefficients), then the activities are rescaled to the whole species formulas.
+With \code{as.residue}, the activity boundaries are calculated between the residues of the species, and no rescaling is performed.
 }
 
 \section{Activity Coefficients}{
@@ -186,9 +192,8 @@ It can be used with the output from \code{diagram} for calculations in 2 dimensi
   To this are added the names of the plotted variable in \code{plotvar}, the labels used for species (which may be \code{\link{plotmath}} expressions if \code{format.names} is TRUE) in \code{names}, and the values used for plotting in a list named \code{plotvals}.
   For 1-D diagrams, \code{plotvals} usually corresponds to the chemical activities of the species (i.e. \code{eout$loga.equil}), or, if \code{alpha} is \code{TRUE}, their mole fractions (degrees of formation).
   For 2-D diagrams, \code{plotvals} corresponds to the values of affinity (from \code{eout$values}) divided by the respective balancing coefficients for each species.
-  For 2-D diagrams, the output also contains the matrices \code{predominant}, which identifies the predominant species in \code{eout$species} at each grid point, and \code{predominant.values}, which has the affinities of the predominant species.
+  For 2-D diagrams, the output also contains the matrices \code{predominant}, which identifies the predominant species in \code{eout$species} at each grid point, and \code{predominant.values}, which has the affinities of the predominant species divided by the balancing coefficients (if \code{eout} is the output of \code{affinity}) or the activities of the predominant species (if \code{eout} is the output of \code{equilibrate}).
   The rows and columns of these matrices correspond to the \emph{x} and \emph{y} variables, respectively.
-  Finally, the output for 2-D diagrams contains a \code{lines} component, giving the \emph{x} and \emph{y} coordinates of the field boundaries computed using \code{\link{contourLines}}; the values are padded to equal length with NAs to faciliate exporting the results using \code{\link{write.csv}}.
 }
 
 \seealso{ 
@@ -297,17 +302,17 @@ points(Ttp, Ptp, pch=10, cex=5)
 
 Aksu, S. and Doyle, F. M. (2001) Electrochemistry of copper in aqueous glycine solutions. \emph{J. Electrochem. Soc.} \bold{148}, B51--B57.
 
-Dick, J. M. (2019) CHNOSZ: Thermodynamic calculations and diagrams for geochemistry. \emph{Front. Earth Sci.} \bold{7}:180. \url{https://doi.org/10.3389/feart.2019.00180}
+Dick, J. M. (2019) CHNOSZ: Thermodynamic calculations and diagrams for geochemistry. \emph{Front. Earth Sci.} \bold{7}:180. \doi{10.3389/feart.2019.00180}
 
 Helgeson, H. C. (1970) A chemical and thermodynamic model of ore deposition in hydrothermal systems. \emph{Mineral. Soc. Amer. Spec. Pap.} \bold{3}, 155--186. \url{https://www.worldcat.org/oclc/583263}
 
 Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{https://www.worldcat.org/oclc/13594862}
 
-LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \url{https://doi.org/10.1111/j.1472-4669.2007.00099.x}
+LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \doi{10.1111/j.1472-4669.2007.00099.x}
 
-Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N. (2006) Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe\s{2}(SO\s{4})\s{3}(H\s{2}O)\s{5}. \emph{Eur. J. Mineral.} \bold{18}, 175--186. \url{https://doi.org/10.1127/0935-1221/2006/0018-0175}
+Majzlan, J., Navrotsky, A., McClesky, R. B. and Alpers, C. N. (2006) Thermodynamic properties and crystal structure refinement of ferricopiapite, coquimbite, rhomboclase, and Fe\s{2}(SO\s{4})\s{3}(H\s{2}O)\s{5}. \emph{Eur. J. Mineral.} \bold{18}, 175--186. \doi{10.1127/0935-1221/2006/0018-0175}
 
-Tagirov, B. and Schott, J. (2001) Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta} \bold{65}, 3965--3992. \url{https://doi.org/10.1016/S0016-7037(01)00705-0}
+Tagirov, B. and Schott, J. (2001) Aluminum speciation in crustal fluids revisited. \emph{Geochim. Cosmochim. Acta} \bold{65}, 3965--3992. \doi{10.1016/S0016-7037(01)00705-0}
 
 }
 

@@ -309,7 +309,7 @@ water.lines(a, col = 6, lwd = 2)
 retrieve("Mn", c("O", "H"), "aq")
 retrieve("Mn", c("O", "H"), "cr")
 
-## ----retrieve_diagram, fig.margin=TRUE, fig.width=5, fig.height=5, dpi=dpi, out.width="100%", message=FALSE, results = "hide", cache=TRUE, fig.cap="Pourbaix diagram for the Mn-O-H system.", pngquant=pngquant, timeit=timeit----
+## ----retrieve_diagram, fig.margin=TRUE, fig.width=5, fig.height=5, dpi=dpi, out.width="100%", message=FALSE, results = "hide", cache=TRUE, fig.cap="Eh-pH diagram for the Mn-O-H system.", pngquant=pngquant, timeit=timeit----
 # Set decimal logarithm of activity of aqueous species,
 # temperature and plot resolution
 logact <- -4
@@ -357,7 +357,7 @@ res <- 200
 bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
 m1 <- mosaic(bases, pH = c(0, 12, res), Eh=c(-1.2, 0.75, res), T=T)
 diagram(m1$A.species, lwd = 2)
-diagram(m1$A.bases, add = TRUE, col = "red1", col.names = "red1", lty = 3,
+diagram(m1$A.bases, add = TRUE, col = 4, col.names = 4, lty = 3,
         italic = TRUE)
 water.lines(m1$A.species, col = "blue1")
 
@@ -478,10 +478,10 @@ diagram(e150, alpha = TRUE, add = TRUE, names = FALSE, col = "red")
 
 ## ----corundum, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", results="hide", message=FALSE, cache=TRUE, fig.cap="Solubility of corundum (green line) and equilibrium concentrations of aqueous species (black lines).", pngquant=pngquant, timeit=timeit----
 add.OBIGT("SLOP98")
-basis(c("corundum", "H2O", "H+", "O2"))
-species(c("Al+3", "AlO2-", "AlOH+2", "AlO+", "HAlO2"))
-a <- affinity(pH = c(0, 10), IS = 0)
-s <- solubility(a, in.terms.of = "Al+3")
+basis(c("Al+3", "H2O", "H+", "O2"))
+species("corundum")
+iaq <- c("Al+3", "AlO2-", "AlOH+2", "AlO+", "HAlO2")
+s <- solubility(iaq, pH = c(0, 10), IS = 0, in.terms.of = "Al+3")
 diagram(s, type = "loga.balance", ylim = c(-10, 0), lwd = 4, col = "green3")
 diagram(s, add = TRUE, adj = c(0, 1, 2.1, -0.2, -1.5), dy = c(0, 0, 4, -0.3, 0.1))
 legend("topright", c("25 °C", "1 bar"), text.font = 2, bty = "n")

@@ -24,7 +24,7 @@ diagram <- function(
   # sizes
   cex=par("cex"), cex.names=1, cex.axis=par("cex"),
   # line styles
-  lty=NULL, lwd=par("lwd"), dotted=NULL,
+  lty=NULL, lty.cr=NULL, lty.aq=NULL, lwd=par("lwd"), dotted=NULL,
   spline.method=NULL, contour.method="edge", levels=NULL,
   # colors
   col=par("col"), col.names=par("col"), fill=NULL,
@@ -41,17 +41,20 @@ diagram <- function(
 
   ### argument handling ###
 
-  ## check that eout is a valid object
+  ## Check that eout is a valid object
   efun <- eout$fun
   if(length(efun)==0) efun <- ""
-  if(!(efun %in% c("affinity", "equilibrate") | grepl("solubility", efun))) stop("'eout' is not the output from affinity(), equilibrate(), or solubility()")
+  if(!(efun %in% c("affinity", "equilibrate") | grepl("solubilit", efun)))
+    stop("'eout' is not the output from affinity(), equilibrate(), solubility(), or solubilities()")
+  # For solubilities(), default type is loga.balance 20210303
+  if(grepl("solubilities", efun) & missing(type)) type <- "loga.balance"
 
   ## 'type' can be:
   #    'auto'                - property from affinity() (1D) or maximum affinity (affinity 2D) (aout) or loga.equil (eout)
   #    'loga.equil'          - equilibrium activities of species of interest (eout)
   #    name of basis species - equilibrium activity of a basis species (aout)
   #    'saturation'          - affinity=0 line for each species (2D)
-  #    'loga.balance'        - activity of balanced basis species (eout from solubility())
+  #    'loga.balance'        - activity of balanced basis species (eout from solubility() or solubilities())
   eout.is.aout <- FALSE
   plot.loga.basis <- FALSE
   if(type %in% c("auto", "saturation")) {
@@ -194,13 +197,22 @@ diagram <- function(
     # some additional steps for affinity values, but not for equilibrated activities
     if(eout.is.aout) {
       for(i in 1:length(pv)) {
-        # TODO: see vignette for an explanation for how this is normalizing
-        # the formulas in a predominance calculation
+        # TODO: The equilibrium.Rmd vignette shows predominance diagrams using
+        # 'normalize' and 'as.residue' settings that are consistent with equilibrate(),
+        # but what is the derivation of these equations?
         if(normalize) pv[[i]] <- (pv[[i]] + eout$species$logact[i] / n.balance[i]) - log10(n.balance[i])
         else if(as.residue) pv[[i]] <- pv[[i]] + eout$species$logact[i] / n.balance[i]
       }
     }
-    predominant <- which.pmax(pv)
+    if(grepl("solubilities", efun)) {
+      # For solubilites of multiple minerals, find the minimum value (most stable mineral) 20210321
+      mypv <- Map("-", pv)
+      predominant <- which.pmax(mypv)
+    } else {
+      # For all other diagrams, we want the maximum value (i.e. maximum affinity method)
+      predominant <- which.pmax(pv)
+    }
+
     # show water stability region
     if((is.null(limit.water) | isTRUE(limit.water)) & nd==2) {
       wl <- water.lines(eout, plot.it=FALSE)
@@ -532,27 +544,66 @@ diagram <- function(
         }
 	# the categories (species/groups/etc) on the plot
 	zvals <- na.omit(unique(as.vector(predominant)))
-	# loop over species
-	for(i in 1:(length(zvals)-1)) {
-          # get the "z" values
-          z <- predominant
-          # assign values to get one contour line between this species and all others
-          i0 <- z==zvals[i]
-          i1 <- z!=zvals[i]
-          z[i0] <- 0
-          z[i1] <- 1
-          # use contourLines() instead of contour() in order to get line coordinates 20181029
-          cLines <- contourLines(xs, ys, z, levels=0.5)
-          if(length(cLines) > 0) {
-            # loop in case contourLines returns multiple lines
-            for(k in 1:length(cLines)) {
-              # draw the lines
-              lines(cLines[[k]][2:3], lty=lty[i], col=col[i], lwd=lwd[i])
+
+        if(is.null(lty.aq) & is.null(lty.cr)) {
+
+          # DEFAULT method: loop over species
+          for(i in 1:(length(zvals)-1)) {
+            # get the "z" values
+            z <- predominant
+            # assign values to get one contour line between this species and all others
+            i0 <- z==zvals[i]
+            i1 <- z!=zvals[i]
+            z[i0] <- 0
+            z[i1] <- 1
+            # use contourLines() instead of contour() in order to get line coordinates 20181029
+            cLines <- contourLines(xs, ys, z, levels = 0.5)
+            if(length(cLines) > 0) {
+              # loop in case contourLines returns multiple lines
+              for(k in 1:length(cLines)) {
+                # draw the lines
+                lines(cLines[[k]][2:3], lty = lty[i], col = col[i], lwd = lwd[i])
+              }
+            }
+            # mask species to prevent double-plotting contour lines
+            predominant[i0] <- NA
+          }
+
+        } else {
+
+          # ALTERNATE (slower) method to handle lty.aq and lty.cr: take each possible pair of species
+          # Reinstated on 20210301
+          for(i in 1:(length(zvals)-1)) {
+            for(j in (i+1):length(zvals)) {
+              z <- predominant
+              # draw contours only for this pair
+              z[!z %in% c(zvals[i], zvals[j])] <- NA
+              # give them neighboring values (so we get one contour line)
+              z[z==zvals[i]] <- 0
+              z[z==zvals[j]] <- 1
+              # use contourLines() instead of contour() in order to get line coordinates 20181029
+              cLines <- contourLines(xs, ys, z, levels=0.5)
+              if(length(cLines) > 0) {
+                # loop in case contourLines returns multiple lines
+                for(k in 1:length(cLines)) {
+                  # draw the lines
+                  mylty <- lty[i]
+                  if(!is.null(lty.cr)) {
+                    # use lty.cr for cr-cr boundaries 20190530
+                    if(all(grepl("cr", eout$species$state[c(zvals[i], zvals[j])]))) mylty <- lty.cr
+                  }
+                  if(!is.null(lty.aq)) {
+                    # use lty.aq for aq-aq boundaries 20190531
+                    if(all(grepl("aq", eout$species$state[c(zvals[i], zvals[j])]))) mylty <- lty.aq
+                  }
+                  lines(cLines[[k]][2:3], lty = mylty, col = col[i], lwd = lwd[i])
+                }
+              }
             }
           }
-          # mask species to prevent double-plotting contour lines
-          predominant[i0] <- NA
-	}
+
+        }
+
       }
       ## label plot function
       plot.names <- function(out, xs, ys, xlim, ylim, names, srt, min.area) {
@@ -679,19 +730,20 @@ diagram <- function(
         }
         pn <- list(namesx=NULL, namesy=NULL)
       } else {
-        # with a predominance matrix, color fields and make field boundaries
-        if(!is.null(H2O.predominant)) {
-          # isTRUE(limit.water): clip diagram to H2O stability region
-          if(isTRUE(limit.water)) predominant <- H2O.predominant
-          else {
-            # is.null(limit.water): overlay diagram on H2O stability region
-            zs <- t(H2O.predominant[, ncol(H2O.predominant):1])
-            if(!is.null(fill)) fill.color(xs, ys, zs, fill, ngroups)
-          }
-        }
-        # put predominance matrix in the right order for image() etc
+
+        # Put predominance matrix in the right order for image()
         zs <- t(predominant[, ncol(predominant):1])
+        if(!is.null(H2O.predominant)) {
+          zsH2O <- t(H2O.predominant[, ncol(H2O.predominant):1])
+          # This colors in fields and greyed-out H2O non-stability regions
+          if(!is.null(fill)) fill.color(xs, ys, zsH2O, fill, ngroups)
+          # Clip entire diagram to H2O stability region?
+          if(isTRUE(limit.water)) zs <- zsH2O
+        }
+        # This colors in fields (possibly a second time, to overlay on H2O regions)
         if(!is.null(fill)) fill.color(xs, ys, zs, fill, ngroups)
+
+        # Plot field labels
         pn <- plot.names(zs, xs, ys, xlim, ylim, names, srt, min.area)
         # only draw the lines if there is more than one field  20180923
         # (to avoid warnings from contour, which seem to be associated with weird
@@ -716,16 +768,18 @@ diagram <- function(
 
   # even if plot=FALSE, return the diagram clipped to the water stability region (for testing) 20200719
   if(isTRUE(limit.water) & !is.null(H2O.predominant)) predominant <- H2O.predominant
-  # make a matrix with the affinities of predominant species 20200724
+
+  # Make a matrix with the affinities or activities of predominant species 20200724
   # (for calculating affinities of metastable species - multi-metal.Rmd example)
   predominant.values <- NA
   if(!identical(predominant, NA)) {
-    predominant.values <- eout$values[[1]]
+    predominant.values <- plotvals[[1]]
     predominant.values[] <- NA
     for(ip in na.omit(unique(as.vector(predominant)))) {
       ipp <- predominant == ip
       ipp[is.na(ipp)] <- FALSE
-      predominant.values[ipp] <- eout$values[[ip]][ipp]
+      # 20201219 Change eout$values to plotvals (return normalized affinities or equilibrium activities)
+      predominant.values[ipp] <- plotvals[[ip]][ipp]
     }
   }
 
