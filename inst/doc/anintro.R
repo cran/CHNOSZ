@@ -1172,12 +1172,6 @@ ina <- is.na(abundance)
 ## ----add_protein_yeast, message=FALSE-----------------------------------------
 ip <- match(protein[!ina], thermo()$protein$protein)
 
-## ----JMDplots, eval = FALSE---------------------------------------------------
-#  y <- JMDplots::yeastgfp("ER.to.Golgi")
-#  ina <- is.na(y$abundance)
-#  aa <- JMDplots::yeast.aa(y$protein[!ina])
-#  ip <- add.protein(aa)
-
 ## ----unitize------------------------------------------------------------------
 pl <- protein.length(ip)
 logact <- unitize(numeric(5), pl)
@@ -1186,7 +1180,6 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, eval=FALSE, echo=1:6------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
-#  #add.OBIGT("OldAA")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 #  e <- equilibrate(a)
 #  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1198,7 +1191,6 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, eval=FALSE, echo=7:9------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
-#  #add.OBIGT("OldAA")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 #  e <- equilibrate(a)
 #  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1210,7 +1202,6 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, eval=FALSE, echo=10-------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
-#  #add.OBIGT("OldAA")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 #  e <- equilibrate(a)
 #  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1222,7 +1213,6 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 ## ----yeastplot, fig.fullwidth=TRUE, fig.width=7.5, fig.height=2.5, dpi=ifelse(dpi==50, 50, 100), out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="ER-to-Golgi proteins: calculations without and with length normalization, and free energy difference between experimental and calculated abundances in metastable equilibrium with normalization.", pngquant=pngquant, timeit=timeit----
 par(mfrow = c(1, 3))
 basis("CHNOS+")
-#add.OBIGT("OldAA")
 a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 e <- equilibrate(a)
 diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1395,9 +1385,12 @@ file <- system.file("extdata/adds/OBIGT_check.csv", package = "CHNOSZ")
 dat <- read.csv(file, as.is = TRUE)
 nrow(dat)
 
-## ----citation_CHNOSZ, results="asis"------------------------------------------
+## ----citation_CHNOSZ, results="asis", echo = FALSE----------------------------
 cref <- citation("CHNOSZ")
-print(cref, style = "html")
+print(cref[1], style = "html")
+
+## ----citation_multimetal, results="asis", echo = FALSE------------------------
+print(cref[2], style = "html")
 
 ## ----maintainer_CHNOSZ--------------------------------------------------------
 maintainer("CHNOSZ")

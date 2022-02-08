@@ -6,10 +6,10 @@ examples <- function(save.png=FALSE) {
   # run all the examples in CHNOSZ documentation
   .ptime <- proc.time()
   topics <- c("thermo", "examples",
-    "util.array", "util.blast", "util.data", "util.expression", "util.legend", "util.plot",
+    "util.array", "util.data", "util.expression", "util.legend", "util.plot",
     "util.fasta", "util.formula", "util.misc", "util.seq", "util.units",
     "util.water", "taxonomy", "info", "retrieve", "add.OBIGT", "protein.info",
-    "hkf", "water", "IAPWS95", "subcrt", "berman",
+    "hkf", "water", "IAPWS95", "subcrt", "Berman",
     "makeup", "basis", "swap.basis", "species", "affinity",
     "solubility", "equilibrate", 
     "diagram", "mosaic", "mix",
@@ -34,7 +34,7 @@ demos <- function(which=c("sources", "protein.equil", "affinity", "NaCl", "densi
   "ORP", "findit", "ionize", "buffer", "protbuff", "glycinate",
   "mosaic", "copper", "arsenic", "solubility", "gold", "contour", "sphalerite", "zinc",
   "Shh", "saturation", "adenine", "DEW", "lambda", "potassium", "TCA", "aluminum",
-  "AkDi", "comproportionation", "Pourbaix", "E_coli"), save.png=FALSE) {
+  "AD", "comproportionation", "Pourbaix", "E_coli"), save.png=FALSE) {
   # run one or more demos from CHNOSZ with ask=FALSE, and return the value of the last one
   for(i in 1:length(which)) {
     # say something so the user sees where we are

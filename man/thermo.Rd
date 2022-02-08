@@ -87,17 +87,16 @@ The main data files provided with CHNOSZ, as \code{*.csv} files in the \code{ext
   This dataframe is a thermodynamic database of standard molal thermodynamic properties and equations of state parameters of species.
   Note the following database conventions:
   \itemize{
-     \item The combination of \code{name} and \code{state} defines a species in \code{thermo()$OBIGT}. A species can not be duplicated (this is checked when running \code{reset()}).
+     \item The combination of \code{name} and \code{state} defines a species in \code{thermo()$OBIGT}. A species cannot be duplicated (this is checked when running \code{reset()}).
      \item English names of inorganic gases are used only for the gas state. The dissolved species is named with the chemical formula. Therefore, \code{info("oxygen")} refers to the gas, and \code{info("O2")} refers to the aqueous species.
      \item Properties of most aqueous species (\code{state} = \samp{aq}) are calculated using the revised Helgeson-Kirkham-Flowers (HKF) model (see \code{\link{hkf}}).
-     \item Properties of aqueous species with an NA value of \code{Z} (the final column of thermo()$OBIGT) are calculated using the Akinfiev-Diamond model (see \code{\link{AkDi}}).
+     \item Properties of aqueous species with \code{abbrv} = \samp{AD} are calculated using the Akinfiev-Diamond model (see \code{\link{AD}}).
      \item Properties of most non-aqueous species (liquids, gases, and minerals) are calculated using a heat capacity polynomial expression with up to six terms (see \code{\link{cgl}}).
-     \item Properties of minerals with NA values of all heat capacity parameters are calculated using the Berman model (see \code{\link{berman}}).
+     \item Properties of minerals with NA values of all heat capacity parameters are calculated using the Berman model (see \code{\link{Berman}}).
   } 
 
   \samp{OrganoBioGeoTherm} is the name of a GUI program to use SUPCRT in Windows, produced in Harold C. Helgeson's Laboratory of Theoretical Geochemistry and Biogeochemistry at the University of California, Berkeley.
   The \acronym{OBIGT} database was originally developed for that program, and was the original basis for the database in CHNOSZ.
-  There may be an additional meaning for the acronym: \dQuote{One BIG Table} of thermodynamic data.
 
   Each entry is referenced to one or two literature sources listed in \code{thermo()$refs}.
   Use \code{\link{thermo.refs}} to look up the citation information for the references.
@@ -233,12 +232,14 @@ Columns 14-21 for aqueous species using the Akinfiev-Diamond model. Note that th
     }
 
     \item \code{thermo()$stoich}
-    A precalculated stoichiometric matrix for the default database. This is a matrix, not a data frame, and as such can accept duplicated row names, corresponding to chemical formulas of the species. See \code{\link{retrieve}}, and the first test in \code{testthat/test-retrieve.R} for how to update this.
+    A precalculated stoichiometric matrix for the default database. This is a matrix, not a data frame, and as such can accept duplicated row names, corresponding to chemical formulas of the species. See \code{\link{retrieve}}, and the first test in \code{inst/tinytest/test-retrieve.R} for how to update this.
     \tabular{lll}{
        \code{rownames} \tab character \tab Chemical formulas from \code{thermo()$OBIGT}\cr
        \code{...} \tab numeric \tab Stoichiometry, one column for each element present in any species
     }
 
+    \item \code{thermo()$Berman}
+    A data frame with thermodynamic parameters for minerals in the Berman equations, assembled from files in \samp{extdata/Berman} and used in \code{\link{Berman}}.
 
   }  % end of itemize with long descriptions
 

@@ -10,6 +10,109 @@
 \newcommand{\s}{\ifelse{latex}{\eqn{_{#1}}}{\ifelse{html}{\out{<sub>#1</sub>}}{#1}}}
 \newcommand{\S}{\ifelse{latex}{\eqn{^{#1}}}{\ifelse{html}{\out{<sup>#1</sup>}}{^#1}}}
 
+\section{Changes in CHNOSZ version 1.4.2 (2022-02-08)}{
+
+  \subsection{PLANNED API CHANGE}{
+    \itemize{
+
+      \item In the next major release of CHNOSZ (to be version 2.0.0), units of
+      Joules instead of calories will be used by default for the thermodynamic
+      properties output by \code{subcrt()}. That is, \code{E.units("J")} will
+      be the default setting. User scripts that implicitly depend on the
+      current default setting of \code{E.units("cal")} will need to be modified
+      to produce expected results after this change is made.
+
+    }
+  }
+
+  \subsection{THERMODYNAMIC CALCULATIONS}{
+    \itemize{
+
+      \item The \code{AD()} function, which provides an implementation of the
+      \href{https://doi.org/10.1016/S0016-7037(02)01141-9}{Akinfiev and Diamond
+        (2003)} equation of state for aqueous nonelectrolytes, now calculates
+      entropy, heat capacity, and volume in addition to the previously
+      available Gibbs energy.
+      
+      \item For minerals with thermodynamic parameters in the equations of
+      \href{https://doi.org/10.1093/petrology/29.2.445}{Berman (1988)},
+      \code{info()} with a numeric argument now lists values of \code{G},
+      \code{H}, \code{S}, \code{Cp}, and \code{V} at 25 \degC and 1 bar (these
+      were previously shown as \code{NA}). Thanks to Evgeniy Bastrakov for
+      suggesting both of these changes.
+
+    }
+  }
+
+  \subsection{OBIGT DATABASE}{
+    \itemize{
+
+      \item Add H\s{2}WO\s{4}(aq) and Cp coefficients of scheelite (CaWO\s{4})
+      from \href{https://doi.org/10.1016/j.chemgeo.2021.120488}{Liu et al.
+        (2021)}.
+
+      \item Add aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl from
+      \href{https://doi.org/10.1016/j.gca.2016.04.026}{Miron et al. (2016)} and
+      \href{https://doi.org/10.2475/07.2017.01}{Miron et al. (2017)} to
+      \file{GEMSFIT.csv}.
+      
+      \item Add pyrobitumen (C\s{54}H\s{42}) from
+      \href{https://doi.org/10.1016/j.gca.2008.03.004}{Helgeson et al.  (2009)}
+      to \file{organic_cr.csv}.
+      
+      \item Move Ar, Xe, CH\s{4}, and CO\s{2} from \file{organic_aq.csv} to
+      \file{inorganic_aq.csv}.
+
+      \item Fix formula of CaCl\s{2} in \file{DEW.csv}. Thanks to Grayson Boyer.
+
+      \item Remove \file{OldAA.csv} (superseded thermodynamic parameters for
+      amino acids). This file is now available in the
+      \href{https://github.com/jedick/JMDplots}{JMDplots} package.
+
+    }
+  }
+
+  \subsection{OTHER CHANGES}{
+    \itemize{
+
+      \item Tests are now run using the \CRANpkg{tinytest} package.
+
+      \item Add an \strong{add} argument to \code{basis()} to allow adding a
+      species to an existing set of basis species.
+
+      \item The \code{AkDi()} function has been renamed to \code{AD()}, and all
+      variables and data files likewise use the acronym \acronym{AD}. In
+      particular, the Akinfiev-Diamond model is activated for an aqueous
+      species by using \code{abbrv = "AD"} in \code{thermo()$OBIGT}.
+
+      \item Names of functions, variables, and data files now use capitalized
+      \samp{Berman}, not \samp{berman}.
+
+      \item In \file{vignettes/multi-metal.Rmd} (\dQuote{Diagrams with multiple
+        metals}), add a link to the associated paper
+      (\href{https://doi.org/10.1016/j.acags.2021.100059}{Dick, 2021}).
+
+    }
+  }
+
+  \subsection{REMOVED FUNCTIONS}{
+    \itemize{
+
+      \item Remove \code{maxdiff()} and \code{expect_maxdiff()}, previously
+      used in tests.
+
+      \item Remove \code{read.blast()}, \code{id.blast()},
+      \code{write.blast()}, \code{def2gi()}, and example files in
+      \file{extdata/bison}.
+
+      \item Remove \code{eqdata()}, a script for extracting data from EQ3/6
+      output files.
+      
+    }
+  }
+
+}
+
 \section{Changes in CHNOSZ version 1.4.1 (2021-04-08)}{
 
   \subsection{NEW FEATURES}{

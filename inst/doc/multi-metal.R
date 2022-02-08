@@ -476,6 +476,11 @@ title("Cu-Fe-S-O-H (minerals only)", font.main = 1)
 #  NaClexpr <- as.expression(bquote(NaCl == .(m_NaCl)*m))
 #  aqexpr <- as.expression(bquote("("*aq*")"[italic(i)] == 10^.(logm_aq)*m))
 #  
+#  
+#  
+#  
+#  
+#  
 #  # Setup basis species
 #  basis(c("Cu+", "pyrite", "H2S", "oxygen", "H2O", "H+", "Cl-"))
 #  basis("H2S", logmS)
@@ -493,6 +498,12 @@ title("Cu-Fe-S-O-H (minerals only)", font.main = 1)
 #  species(c(FeCu.cr, Cu.cr))
 #  # Add aqueous species 20210220
 #  species(iCu.aq, logm_aq, add = TRUE)
+#  
+#  
+#  
+#  
+#  
+#  
 #  # TODO: limitation in mosaic() when using both solid and aqueous basis species (i.e. c(Fe.cr, Fe.aq)):
 #  #   Only the activity of the first-defined basis species is used for all basis species.
 #  #   The first-defined basis species is pyrite (logact = 0), but logact < 0 for the aq Fe species.
@@ -588,6 +599,11 @@ Sexpr <- as.expression(bquote(sum(S) == .(10^logmS)*m))
 NaClexpr <- as.expression(bquote(NaCl == .(m_NaCl)*m))
 aqexpr <- as.expression(bquote("("*aq*")"[italic(i)] == 10^.(logm_aq)*m))
 
+
+
+
+
+
 # Setup basis species
 basis(c("Cu+", "pyrite", "H2S", "oxygen", "H2O", "H+", "Cl-"))
 basis("H2S", logmS)
@@ -605,6 +621,12 @@ dFe <- diagram(mFe$A.species, lwd = 0, names = FALSE)
 species(c(FeCu.cr, Cu.cr))
 # Add aqueous species 20210220
 species(iCu.aq, logm_aq, add = TRUE)
+
+
+
+
+
+
 # TODO: limitation in mosaic() when using both solid and aqueous basis species (i.e. c(Fe.cr, Fe.aq)):
 #   Only the activity of the first-defined basis species is used for all basis species.
 #   The first-defined basis species is pyrite (logact = 0), but logact < 0 for the aq Fe species.

@@ -15,33 +15,24 @@
   \itemize{
     \item \code{Ber88_1988.csv} contains thermodynamic data for minerals taken from Berman (1988).
     \item Other files with names like \code{xxx_yyyy.csv} contain thermodynamic data from other sources; xxx in the filename corresponds to the reference in \code{\link{thermo}$OBIGT} and yyyy gives the year of publication.
-    \code{\link{berman}} uses these data for the calculation of thermodynamic properties at specified \P and \T, which are then available for use in \code{\link{subcrt}}.
+    \code{\link{Berman}} uses these data for the calculation of thermodynamic properties at specified \P and \T, which are then available for use in \code{\link{subcrt}}.
     If there are any duplicated mineral names in the files, only the most recent data are used, as determined by the year in the file name.
     Following conventions used in other data files, the names of sanidine and microcline were changed to K-feldspar,high and K-feldspar,low.
     \item \code{sympy.R} is an R script that uses \CRANpkg{rSymPy} to symbolically integrate Bermans's equations for heat capacity and volume to write experessions for enthalpy, entropy and Gibbs energy.
-    \item The \code{testing} directory contains data files based on Berman and Aranovich (1996). These are used to demonstrate the addition of data from a user-supplied file (see \code{\link{berman}}).
+    \item The \code{testing} directory contains data files based on Berman and Aranovich (1996). These are used to demonstrate the addition of data from a user-supplied file (see \code{\link{Berman}}).
   }
-
-  Files in \code{bison} contain BLAST results and taxonomic information for an environmental metagenome from the Bison Pool hot spring in Yellowstone National Park:
-  \itemize{
-    \item \code{bisonN_vs_refseq57.blast.xz}, \code{bisonS...}, \code{bisonR...}, \code{bisonQ...}, \code{bisonP...} are partial tabular BLAST results for proteins in the Bison Pool Environmental Genome. Protein sequences predicted in the metagenome were downloaded from the Joint Genome Institute's IMG/M system on 2009-05-13. The target database for the searches was constructed from microbial protein sequences in National Center for Biotechnology Information (NCBI) RefSeq database version 57, representing 7415 microbial genomes. The \sQuote{blastall} command was used with the default setting for E value cuttoff (10.0) and options to make a tabular output file consisting of the top 20 hits for each query sequence. The function \code{\link{read.blast}} was used to extract only those hits with E values less than or equal to 1e-5 and with sequence similarity (percent identity) at least 30 percent, and to keep only the first hit for each query sequence. The function \code{\link{write.blast}} was used to save partial BLAST files (only selected columns). The files provided with CHNOSZ contain the first 1000 hits for each sampling site at Bison Pool, representing between about 1.5 to 3 percent of the first BLAST hits after similarity and E value filtering.
-    \item \code{gi.taxid.txt.xz} is a table that lists the sequence identifiers (gi numbers) that appear in the example BLAST files (see above), together with the corresponding taxon ids used in the NCBI databases.
-    \item \code{taxid_names.csv.xz} A table of scientific names for the taxids in \code{gi.taxid.txt.xz}.
-    See \code{\link{id.blast}} for examples that use these files.
-  }
-
 
   Files in \code{cpetc} contain experimental and calculated thermodynamic and environmental data:
   \itemize{
     \item \code{PM90.csv} Heat capacities of four unfolded aqueous proteins taken from Privalov and Makhatadze, 1990. Temperature in \degC is in the first column, and heat capacities of the proteins in J mol\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} in the remaining columns. See \code{\link{ionize.aa}} and the vignette \viglink{anintro} for examples that use this file.
     \item \code{RH95.csv} Heat capacity data for iron taken from Robie and Hemingway, 1995. Temperature in Kelvin is in the first column, heat capacity in J K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} in the second. See \code{\link{subcrt}} for an example that uses this file.
     \item \code{SOJSH.csv} Experimental equilibrium constants for the reaction NaCl(aq) = Na+ + Cl- as a function of temperature and pressure taken from Fig. 1 of Shock et al., 1992. See \code{demo("NaCl")} for an example that uses this file.
-    \item \code{Cp.CH4.HW97.csv}, \code{V.CH4.HWM96.csv} Apparent molar heat capacities and volumes of CH4 in dilute aqueous solutions reported by Hnědkovský and Wood, 1997 and Hnědkovský et al., 1996. See \code{\link{EOSregress}} and the vignette \viglink{eos-regress} for examples that use these files.
-    \item \code{SC10_Rainbow.csv} Values of temperature (\degC, pH and logarithms of activity of \CO2, \H2, \NH4plus, \H2S and \CH4 for mixing of seawater and hydrothermal fluid at Rainbow field (Mid-Atlantic Ridge), taken from Shock and Canovas, 2010. See the vignette \viglink{anintro} for an example that uses this file.
+    \item \code{HWM96_V.csv}, \code{HW97_Cp.csv} Apparent molar volumes and heat capacities of \CH4, \CO2, \H2S, and \NH3 in dilute aqueous solutions reported by Hnědkovský et al., 1996 and Hnědkovský and Wood, 1997. Units are Kelvin, MPa, J/K/mol, and cm3/mol. See \code{\link{EOSregress}} and the vignette \viglink{eos-regress} for examples that use these files.
+    \item \code{SC10_Rainbow.csv} Values of temperature (\degC), pH and logarithms of activity of \CO2, \H2, \NH4plus, \H2S and \CH4 for mixing of seawater and hydrothermal fluid at Rainbow field (Mid-Atlantic Ridge), taken from Shock and Canovas, 2010. See the vignette \viglink{anintro} for an example that uses this file.
     \item \code{SS98_Fig5a.csv}, \code{SS98_Fig5b.csv} Values of logarithm of fugacity of \O2 and pH as a function of temperature for mixing of seawater and hydrothermal fluid, digitized from Figs. 5a and b of Shock and Schulte, 1998. See the vignette \viglink{anintro} for an example that uses this file.
     \item \code{rubisco.csv} UniProt IDs for Rubisco, ranges of optimal growth temperature of organisms, domain and name of organisms, and URL of reference for growth temperature, from Dick, 2014. See the vignette \viglink{anintro} for an example that uses this file.
     \item \code{bluered.txt} Blue - light grey - red color palette, computed using \CRANpkg{colorspace}\code{::diverge_hcl(1000,} \code{c = 100, l = c(50, 90), power = 1)}. This is used by \code{\link{ZC.col}}.
-    \item \code{AD03_Fig1?.csv} Experimental data points digitized from Figure 1 of Akinfiev and Diamond, 2003, used in \code{demo("AkDi")}.
+    \item \code{AD03_Fig1?.csv} Experimental data points digitized from Figure 1 of Akinfiev and Diamond, 2003, used in \code{demo("AD")}.
     \item \code{TKSS14_Fig2.csv} Experimental data points digitized from Figure 2 of Tutolo et al., 2014, used in \code{demo("aluminum")}.
     \item \code{Mer75_Table4.csv} Values of log(aK+/aH+) and log(aNa+/aH+) from Table 4 of Merino, 1975, used in \code{demo("aluminum")}.
   }
@@ -57,7 +48,7 @@
 
   Files in \code{taxonomy} contain taxonomic data files:
   \itemize{
-    \item \code{names.dmp} and \code{nodes.dmp} are excerpts of the taxonomy files available on the NCBI ftp site (\url{ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15). These files contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes (genus, family, etc.) in the respective lineages. See \code{\link{taxonomy}} for examples that use these files.
+    \item \code{names.dmp} and \code{nodes.dmp} are excerpts of NCBI taxonomy files (\url{https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15). These files contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes (genus, family, etc.) in the respective lineages. See \code{\link{taxonomy}} for examples that use these files.
   }
 
   Files in \code{adds} contain additional thermodynamic data and group additivity definitions:
@@ -65,7 +56,7 @@
     \item \code{BZA10.csv} contains supplementary thermodynamic data taken from Bazarkina et al. (2010). The data can be added to the database in the current session using \code{\link{add.OBIGT}}. See \code{\link{add.OBIGT}} for an example that uses this file.
     \item \code{OBIGT_check.csv} contains the results of running \code{\link{check.OBIGT}} to check the internal consistency of entries in the default and optional datafiles.
     \item \code{RH98_Table15.csv} Group stoichiometries for high molecular weight crystalline and liquid organic compounds taken from Table 15 of Richard and Helgeson, 1998. The first three columns have the \code{compound} name, \code{formula} and physical \code{state} (\samp{cr} or \samp{liq}). The remaining columns have the numbers of each group in the compound; the names of the groups (columns) correspond to species in \code{\link{thermo}$OBIGT}. The compound named \samp{5a(H),14a(H)-cholestane} in the paper has been changed to \samp{5a(H),14b(H)-cholestane} here to match the group stoichiometry given in the table. See \code{\link{RH2OBIGT}} for a function that uses this file.
-    \item \code{SK95.csv} contains thermodynamic data for alanate, glycinate, and their complexes with metals, taken from Shock and Koretsky (1995) as corrected in slop98.dat. The data are used in the package tests (\code{test-recalculate.R}) to check the recalculated values of G, H, and S in \code{thermo()$OBIGT} using properties for alanate and glycinate from Amend and Helgeson (1997).
+    \item \code{SK95.csv} contains thermodynamic data for alanate, glycinate, and their complexes with metals, taken from Amend and Helgeson (1997) and Shock and Koretsky (1995) as corrected in slop98.dat. These data are used in \code{demo("copper")} and \code{demo("glycinate")}.
     \item \code{LA19_test.csv} contains thermodynamic data for dimethylamine and trimethylamine from LaRowe and Amend (2019) in energy units of both J and cal. This file is used in \code{test-util.data.R}) to check the messages produced by \code{\link{checkGHS}} and \code{\link{checkEOS}}.
   }
 

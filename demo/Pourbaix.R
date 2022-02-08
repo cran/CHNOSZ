@@ -4,14 +4,16 @@
 # 20210301 jmd first version
 
 library(CHNOSZ)
+# Load OBIGT database without organic species
+# (speeds up and reduces memory needed for C diagram)
+OBIGT(no.organics = TRUE)
 
 ### PARAMETERS (to be changed by the user) ###
 
 # Choose an element
-# Some mostly working ones: Fe, Cu, Au, Rh, Mn
+# Some mostly working ones: Fe, Cu, Au, Rh, Mn, C
 # Incomplete: Al (no native metal), Ni, ...
-# Not working: C, Cr, ...
-#  (C gives lots of organic species, probably getting an NA affinity somewhere)
+# Not working: Cr, ...
 #  (Cr has no solids in OBIGT)
 element <- "Fe"
 
@@ -62,8 +64,8 @@ if(is.na(suppressMessages(info(elem_basis)))) {
 basis(c(elem_basis, "H2O", "H+", "e-"))
 
 # Find species
-icr <- retrieve(element, c("O", "H"), "cr")
-iaq <- retrieve(element, c("O", "H"), "aq")
+icr <- retrieve(element, c("O", "H"), "cr", T = T, P = P)
+iaq <- retrieve(element, c("O", "H"), "aq", T = T, P = P)
 
 # Add solids with unit activity
 species(icr, 0)
@@ -133,7 +135,7 @@ water.lines(d_all_0, lty = 5, lwd = 1.3)
 # but we use positions calculated with the first equisolubility line
 # so that names are within the shrunken parts of the mineral fields)
 # Create labels using chemical formulas instead of name of minerals
-formulas <- info(a_all$species$ispecies)$formula
+formulas <- info(a_all$species$ispecies, check.it = FALSE)$formula
 formulas[a_all$species$state == "aq"] <- ""
 diagram(a_all, fill = NA, names = formulas, bold = TRUE, cex.names = 1.2, lty = 0, add = TRUE)
 
@@ -143,3 +145,5 @@ Pexpr <- lP(P)
 main <- bquote(.(element)*"-O-H at "*.(Texpr)*" and "*.(Pexpr))
 title(main = main)
 
+# Reset OBIGT database to run other demos
+reset()

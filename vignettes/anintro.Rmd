@@ -969,7 +969,7 @@ There are a few things to remember when using activity coefficients:
     + values of `loga.equil` returned by <span style="color:green">`equilibrate()`</span>.
 
 In other words, the activation of activity coefficients effects a transformation from activity to molality in the main workflow.
-A simple but comprehensive series of calculations demonstrating these tranformations is in `tests/testthat/test-logmolality.R`.
+A simple but comprehensive series of calculations demonstrating these tranformations is in `inst/tinytest/test-logmolality.R`.
 
 Because it is not possible to dynamically change the names of arguments in the functions, the user should be aware of the transformations mentioned above.
 However, the labels on diagrams *can* be automatically adjusted; accordingly, activities of aqueous species are relabeled as molalities by <span style="color:green">`diagram()`</span> when `IS` is used in the calculation of <span style="color:green">`affinity()`</span>.
@@ -1352,6 +1352,19 @@ To take an example, let's look at the metastable equilibrium distribution of sel
 This example brings some other functions we haven't seen yet: <span style="color:green">`unitize()`</span> and <span style="color:green">`revisit()`</span>.
 Here, we list the names and relative abundances of proteins taken from the YeastGFP study of @GHB_03.
 There are six proteins identified in the ER-to-Golgi location; one has NA abundance, so it is excluded from the comparisons:
+
+```{marginfigure}
+This can be done programmatically using data from the YeastGFP study that are in the [JMDplots](https://github.com/jedick/JMDplots) package:
+<br>
+`y <- JMDplots::yeastgfp("ER.to.Golgi")`
+<br>
+`ina <- is.na(y[["abundance"]])`
+<br>
+`aa <- JMDplots::yeast.aa(y$protein[!ina])`
+<br>
+`ip <- add.protein(aa)`
+```
+
 ```{r yeastgfp}
 protein <- c("YDL195W", "YHR098C", "YIL109C", "YLR208W", "YNL049C", "YPL085W")
 abundance <- c(1840, 12200, NA, 21400, 1720, 358)
@@ -1361,14 +1374,6 @@ ina <- is.na(abundance)
 Next, we find the rownumbers of the proteins in `thermo()$protein`:
 ```{r add_protein_yeast, message=FALSE}
 ip <- match(protein[!ina], thermo()$protein$protein)
-```
-
-NOTE: It is more convenient to do this with functions and data that have been moved to the [JMDplots](https://github.com/jedick/JMDplots) package:
-```{r JMDplots, eval = FALSE}
-y <- JMDplots::yeastgfp("ER.to.Golgi")
-ina <- is.na(y$abundance)
-aa <- JMDplots::yeast.aa(y$protein[!ina])
-ip <- add.protein(aa)
 ```
 
 The YeastGFP study reported absolute abundances of molecules, but the thermodynamic calculations give relative chemical activities of the proteins.
@@ -1389,7 +1394,6 @@ The default database contains newer group additivity parameters for the sidechai
 ```{r yeastplot, eval=FALSE, echo=1:6}
 par(mfrow = c(1, 3))
 basis("CHNOS+")
-#add.OBIGT("OldAA")
 a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
 e <- equilibrate(a)
 diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
@@ -1562,25 +1566,29 @@ ref <- thermo.refs(iFo)
 browseURL(ref$URL)  ## opens a link to worldcat.org
 ```
 
-## Optional data
+## Default database
 
 Thermodynamic properties of minerals in the default database are mostly taken from @Ber88 (including silicates, aluminosilicates, calcite, dolomite, hematite, and magnetite) and @HDNB78 (native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate any in the Berman dataset).
 Minerals are identified by the state `cr`, and (for the Helgeson dataset) `cr2`, `cr3`, etc. for higher-temperature polymorphs.
 
-Some optional datasets can be activated by using <span style="color:red">`add.OBIGT()`</span>. The first three of these contain data that have been replaced by or are incompatible with later updates; the superseded data are kept here to reproduce published calculations and for comparison with the newer data:
+Compared to SUPCRT92/SLOP98 (see below), the default database include updates for aqueous Al species [@TS01], Au species [@PAB_14] (see [<span style="color:blue">`demo(gold)`</span>](../demo)), and arsenic-bearing aqueous species and minerals, as compiled in the SUPCRTBL package [@ZZL_16].
+This list of updates is incomplete; see the vignette [<span style="color:blue">*OBIGT thermodynamic database*</span>](OBIGT.html) for a detailed list of data sources.
+
+## Optional data files
+
+Some optional datasets can be activated by using <span style="color:red">`add.OBIGT()`</span>. The first couple of these contain data that have been replaced by or are incompatible with later updates; the superseded data are kept here to reproduce published calculations and for comparison with the newer data:
 
 <span style="color:red">`add.OBIGT("SUPCRT92")`</span> -- This file contains data for minerals from SUPCRT92 (mostly Helgeson et al., 1978) that have been replaced by the Berman data set.
 
-<span style="color:red">`add.OBIGT("SLOP98")`</span> -- This file contains data from `slop98.dat` or later slop files, from Everett Shock's GEOPIG group at Arizona State University, that were previously used in CHNOSZ but have been replaced by newer data.
-This includes updates for aqueous Al species [@TS01], Au species [@PAB_14], and arsenic-bearing aqueous species and minerals, as compiled in the SUPCRTBL package [@ZZL_16].
+<span style="color:red">`add.OBIGT("SLOP98")`</span> -- This file contains data from `slop98.dat` or later slop files, from Everett Shock's GEOPIG group at Arizona State University, that were previously used in CHNOSZ but have been replaced by more recent data updates.
 Some calculations using the older data are shown in [this vignette](#complete-equilibrium-solubility).
-See [<span style="color:blue">`demo(gold)`</span>](../demo) for calculations that depend on the data for Au species that are now loaded by default in CHNOSZ.
 
-<span style="color:red">`add.OBIGT("OldAA")`</span> -- This file contains superseded data for amino acids (methionine and glycine) and related species, particularly the [Met], [Gly], and protein backbone groups, as well as metal-glycinate complexes.
 The updates for these data have been taken from various publications ([LaRowe and Dick, 2012](https://doi.org/10.1016/j.gca.2011.11.041); [Kitadai, 2014](https://doi.org/10.1007/s00239-014-9616-1); [Azadi et al., 2019](https://doi.org/10.1016/j.fluid.2018.10.002))
 A comparison of log*K* of metal-glycinate complexes using the updated data is in [<span style="color:blue">`demo(glycinate)`</span>](../demo).
 
 The next three optional datasets are provided to support newer data or models:
+
+<span style="color:red">`add.OBIGT("AD")`</span> -- These data are used in the Akinfiev-Diamond model for aqeuous nonelectrolytes [@AD03].
 
 <span style="color:red">`add.OBIGT("AS04")`</span> -- This file has data for aqueous `r sio2` from @AS04 and modified HSiO<sub>3</sub><sup>-</sup>.
 These data are included to help transition to the "higher solubility of quartz paradigm" [@WJ17], but are not included in the default database in order to maintain compatibility with existing data for minerals that are linked to the older aqueous `r sio2` data.
@@ -1590,9 +1598,7 @@ See [<span style="color:blue">`demo(aluminum)`</span>](../demo) for an example.
 You should also run <span style="color:red">`water("DEW")`</span> to activate the equations in the model; then, they will be used by <span style="color:green">`subcrt()`</span> and <span style="color:green">`affinity()`</span>.
 Examples are in [<span style="color:blue">`demo(DEW)`</span>](../demo).
 
-<span style="color:red">`add.OBIGT("AkDi")`</span> -- These data are used in the Akinfiev-Diamond model for aqeuous nonelectrolytes [@AD03].
-
-Detailed references for these optional datasets are in the vignette [<span style="color:blue">*OBIGT thermodynamic database*</span>](OBIGT.html) (look under **Optional Data**).
+<span style="color:red">`add.OBIGT("GEMSFIT")`</span> -- Thermodynamic data for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl obtained from global optimization of Gibbs energies with the GEMSFIT package [@MWKL17].
 
 ## Adding data
 
@@ -1761,17 +1767,21 @@ Some functions in CHNOSZ lie outside the main workflow described above.
 
 * <span style="color:green">`EOSregress()`</span> and related functions can be used to regress "equation of state" parameters (e.g. coefficients in the HKF equations) from heat capacity and volumetric data. See <span style="color:blue">`?EOSregress`</span> and the vignette [<span style="color:blue">*Regressing thermodynamic data*</span>](eos-regress.html).
 
-* <span style="color:green">`eqdata()`</span> reads data, including concentrations of aqueous species, numbers of moles of solid phases, and mineral saturation states (affinities), from an EQ6 output file [@Wol92].
-
-* Some functions are available (see <span style="color:blue">`?taxonomy`</span>) to read data from [NCBI taxonomy files](ftp://ftp.ncbi.nih.gov/pub/taxonomy/), traverse taxonomic ranks, and get scientific names of taxonomic nodes.
+* Some functions are available (see <span style="color:blue">`?taxonomy`</span>) to read data from [NCBI taxonomy files](https://www.ncbi.nlm.nih.gov/taxonomy), traverse taxonomic ranks, and get scientific names of taxonomic nodes.
 
 # Citation and contact information
 
-If you use CHNOSZ for publications, please consider citing the following paper:
+To cite CHNOSZ, use this reference:
 
-```{r citation_CHNOSZ, results="asis"}
+```{r citation_CHNOSZ, results="asis", echo = FALSE}
 cref <- citation("CHNOSZ")
-print(cref, style = "html")
+print(cref[1], style = "html")
+```
+
+For the features described in the [<span style="color:blue">multi-metal vignette</span>](multi-metal.html), use this reference:
+
+```{r citation_multimetal, results="asis", echo = FALSE}
+print(cref[2], style = "html")
 ```
 
 If you found a bug or have questions that aren't answered in the documentation please contact the maintainer:

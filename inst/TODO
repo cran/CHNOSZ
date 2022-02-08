@@ -1,34 +1,47 @@
-[ - 20201110]
+[to 20201110]
 
-- make a site for community uploaded data
+- Make a site for community uploaded data
 
-- make separate directories for default and optional data files
+- Use separate directories for default and optional data files
 
-- diagram(): make error or warning for NA values of affinity
+- diagram(): produce error or warning for NA values of affinity
 
-- move protein.equil() example (previously in equilibrium.Rnw) to JMDplots.
+- Move protein.equil() example (previously in equilibrium.Rnw) to JMDplots.
 
-- move extdata/bison to JMDplots package.
+- Add elements from Robie and Hemingway (1995).
 
-- add elements from RH95.
+- Add check to mosaic() that 'stable' values have the right dimensions.
 
-- add check to mosaic() that 'stable' values have the right dimensions.
-
-- move H2O92D.f and R wrapper to a separate package (so people
+- Move H2O92D.f and R wrapper to a separate package (so people
 don't have to compile anything to install CHNOSZ updates).
 
-- add empty diagram -> exceed.Ttr hint to anintro.Rmd.
+- Add hint to anintro.Rmd to try exceed.Ttr = TRUE if there is a blank diagram.
 
-- replace CoCl2-4 example in anintro.Rmd with different species
-(CoCl2-4 has been added to OBIGT).
+- Replace CoCl4-2 example in anintro.Rmd with different species
+(CoCl4-2 has been added to OBIGT).
 
 [20201113 - ]
 
-- add a demo to show user-added data with Berman equations
+- Add a demo to show user-added data with Berman equations
 
-- make swap.basis() work when DEW model is active
+- Make swap.basis() work when DEW model is active
 
 [20210303]
 
 - Add demo for effective equilibrium constant for diglycine on T-pH plot at
   high pressure (DEW model; Robinson et al., 2021)
+
+[20210426]
+
+- anintro.Rmd: Make bold Fe-bearing mineral names in first mosaic stacking diagram
+
+[20210711]
+
+- Merge SK95.csv into SLOP98.csv
+
+[20220203]
+
+- Allow numeric values for bases in mosaic() (test-mix.R)
+
+- Add a 'model' column to thermo()$OBIGT to indicate the thermodynamic data
+  model (e.g. H2O, HKF, CGL, Berman, AD, or DEW)

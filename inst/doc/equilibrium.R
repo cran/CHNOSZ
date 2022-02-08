@@ -216,7 +216,8 @@ prA <- function() {
 prB <- function() {
   a <- affinity(O2 = c(-90, -70))
   e <- equilibrate(a, balance = "length")
-  diagram(e, names = organisms, ylim = c(-5, -1))
+  ylab <- quote(log~italic(a)~protein)
+  diagram(e, names = organisms, ylim = c(-5, -1), ylab = ylab)
 }
 
 prC <- function() {
@@ -227,7 +228,8 @@ prC <- function() {
 prD <- function() {
   a <- affinity(O2 = c(-90, -70))
   e <- equilibrate(a, normalize = TRUE)
-  diagram(e, names = organisms, ylim = c(-5, -1))
+  ylab <- quote(log~italic(a)~protein)
+  diagram(e, names = organisms, ylim = c(-5, -1), ylab = ylab)
 }
 
 prE <- function() {
@@ -238,7 +240,8 @@ prE <- function() {
 prF <- function() {
   a <- affinity(O2 = c(-90, -70))
   e <- equilibrate(a, as.residue = TRUE, loga.balance = 0)
-  diagram(e, names = organisms, ylim = c(-3, 1))
+  ylab <- quote(log~italic(a)~residue)
+  diagram(e, names = organisms, ylim = c(-3, 1), ylab = ylab)
 }
 
 ## ----PRplot, eval = FALSE-----------------------------------------------------
@@ -342,7 +345,6 @@ showtime(st)
 label.figure("F", yfrac=0.9, xfrac=0.1, font = 2)
 
 ## ----ProteinSpeciation, results = "hide", message = FALSE, fig.width = 8, fig.height = 5.5, out.width = "100%", pngquant = pngquant----
-#add.OBIGT("OldAA")
 organisms <- c("METSC", "METJA", "METFE",  "METVO", "METBU",
                "HALJP", "ACEKI", "GEOSE", "BACLI", "AERSA")
 proteins <- c(rep("CSG", 6), rep("SLAP", 4))

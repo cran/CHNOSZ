@@ -140,7 +140,7 @@ thermo.refs <- function(key=NULL, keep.duplicates=FALSE) {
     return(x[ix, ])
   } else if(is.numeric(key)) {
     # get the source keys for the indicated species
-    sinfo <- suppressMessages(info(key))
+    sinfo <- suppressMessages(info(key, check.it = FALSE))
     if(keep.duplicates) {
       # output a single reference for each species 20180927
       # (including duplicated references, and not including ref2)
@@ -160,19 +160,17 @@ thermo.refs <- function(key=NULL, keep.duplicates=FALSE) {
 }
 
 checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
-  # compare calculated properties from equation-of-state
-  # parameters with reference (tabulated) values
-  # print message and return the calculated value
-  # if tolerance is exceeded
-  # or NA if the difference is within the tolerance
+  # Compare calculated properties from equation-of-state parameters with reference (tabulated) values.
+  # Print message and return the calculated value if tolerance is exceeded
+  # or NA if the difference is within the tolerance.
   # 20110808 jmd
   thermo <- get("thermo", CHNOSZ)
   # get calculated value based on EOS
   Theta <- 228  # K
   if(identical(state, "aq")) {
     if(prop=="Cp") {
-      # value of X consistent with IAPWS95
-      X <- -2.773788E-7
+      ## value of X consistent with IAPWS95
+      #X <- -2.773788E-7
       # we use the value of X consistent with SUPCRT
       X <- -3.055586E-7
       refval <- eos$Cp
@@ -180,8 +178,8 @@ checkEOS <- function(eos, state, prop, ret.diff=FALSE) {
       tol <- thermo$opt$Cp.tol
       units <- paste(eos$E_units, "K-1 mol-1")
     } else if(prop=="V") {
-      # value of Q consistent with IAPWS95
-      Q <- 0.00002483137
+      ## value of Q consistent with IAPWS95
+      #Q <- 0.00002483137
       # value of Q consistent with SUPCRT92
       Q <- 0.00002775729
       refval <- eos$V
@@ -269,9 +267,9 @@ check.OBIGT <- function() {
     else if(what=="DEW") tdata <- read.csv(system.file("extdata/OBIGT/DEW.csv", package="CHNOSZ"), as.is=TRUE)
     else if(what=="SLOP98") tdata <- read.csv(system.file("extdata/OBIGT/SLOP98.csv", package="CHNOSZ"), as.is=TRUE)
     else if(what=="SUPCRT92") tdata <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package="CHNOSZ"), as.is=TRUE)
-    else if(what=="OldAA") tdata <- read.csv(system.file("extdata/OBIGT/OldAA.csv", package="CHNOSZ"), as.is=TRUE)
     else if(what=="AS04") tdata <- read.csv(system.file("extdata/OBIGT/AS04.csv", package="CHNOSZ"), as.is=TRUE)
-    else if(what=="AkDi") tdata <- read.csv(system.file("extdata/OBIGT/AkDi.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="AD") tdata <- read.csv(system.file("extdata/OBIGT/AD.csv", package="CHNOSZ"), as.is=TRUE)
+    else if(what=="GEMSFIT") tdata <- read.csv(system.file("extdata/OBIGT/GEMSFIT.csv", package="CHNOSZ"), as.is=TRUE)
     ntot <- nrow(tdata)
     # where to keep the results
     DCp <- DV <- DG <- rep(NA,ntot)
@@ -307,7 +305,8 @@ check.OBIGT <- function() {
   out <- rbind(out, checkfun("DEW"))
   out <- rbind(out, checkfun("SLOP98"))
   out <- rbind(out, checkfun("SUPCRT92"))
-  out <- rbind(out, checkfun("OldAA"))
+  out <- rbind(out, checkfun("AS04"))
+  out <- rbind(out, checkfun("GEMSFIT"))
   # set differences within a tolerance to NA
   out$DCp[abs(out$DCp) < 1] <- NA
   out$DV[abs(out$DV) < 1] <- NA
@@ -405,18 +404,18 @@ OBIGT2eos <- function(OBIGT, state, fixGHS = FALSE, tocal = FALSE) {
   # remove scaling factors from EOS parameters
   # and apply column names depending on the EOS
   if(identical(state, "aq")) {
-    # Aqueous species with abbrv = "AkDi" use the AkDi model 20210407
+    # Aqueous species with abbrv = "AD" use the AD model 20210407
     abbrv <- OBIGT$abbrv
     abbrv[is.na(abbrv)] <- ""
-    isAkDi <- abbrv == "AkDi"
-    # remove scaling factors for the HKF species, but not for the AkDi species
+    isAD <- abbrv == "AD"
+    # remove scaling factors for the HKF species, but not for the AD species
     # protect this by an if statement to workaround error in subassignment to empty subset of data frame in R < 3.6.0
     # (https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17483) 20190302
-    if(any(!isAkDi)) OBIGT[!isAkDi, 14:21] <- t(t(OBIGT[!isAkDi, 14:21]) * 10^c(-1,2,0,4,0,4,5,0))
-    # for AkDi species, set NA values in remaining columns (for display only)
-    if(any(isAkDi)) OBIGT[isAkDi, 17:20] <- NA
-    # if all of the species are AkDi, change the variable names
-    if(all(isAkDi)) colnames(OBIGT)[14:21] <- c('a','b','xi','XX1','XX2','XX3','XX4','Z') 
+    if(any(!isAD)) OBIGT[!isAD, 14:21] <- t(t(OBIGT[!isAD, 14:21]) * 10^c(-1,2,0,4,0,4,5,0))
+    # for AD species, set NA values in remaining columns (for display only)
+    if(any(isAD)) OBIGT[isAD, 17:20] <- NA
+    # if all of the species are AD, change the variable names
+    if(all(isAD)) colnames(OBIGT)[14:21] <- c('a','b','xi','XX1','XX2','XX3','XX4','Z') 
     else colnames(OBIGT)[14:21] <- c('a1','a2','a3','a4','c1','c2','omega','Z') 
   } else {
     OBIGT[,14:21] <- t(t(OBIGT[,14:21]) * 10^c(0,-3,5,0,-5,0,0,0))

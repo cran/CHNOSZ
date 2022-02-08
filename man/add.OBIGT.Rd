@@ -58,24 +58,28 @@ The values returned (\code{\link{invisible}}-y) are the indices of the added and
 \seealso{ \code{\link{thermo}}, \code{\link{util.data}}, \code{\link{mod.buffer}} }
 
 \examples{\dontshow{reset()}
-## modify an existing species (example only)
-ialanine <- mod.OBIGT("alanine", state="cr", G=0, H=0, S=0)
-# we have made the values of G, H, and S inconsistent
+## Modify an existing species (not real properties)
+ialanine <- mod.OBIGT("alanine", state = "cr", G = 0, H = 0, S = 0)
+# We have made the values of G, H, and S inconsistent
 # with the elemental composition of alanine, so the following 
 # now produces a message about that
 info(ialanine)
-## add a species
-iCl2O <- mod.OBIGT("Cl2O", G=20970)
+
+## Add an aqueous species (default) with Gibbs energy given in J/mol and today's date
+date <- as.character(Sys.Date())
+iCl2O <- mod.OBIGT("Cl2O", date = date, E_units = "J", G = 87738)
 info(iCl2O)
-# add a species with a name that is different from the formula
-mod.OBIGT("buckminsterfullerene", formula="C60", state="cr", date=as.character(Sys.Date()))
-# retrieve the species data (thermodynamic properties in this toy example are NA)
-info(info("C60"))
+
+## Add a solid species with a name that is different from the formula
+mod.OBIGT("lorem-ipsum", formula = "C123", state = "cr", G = -12345678)
+# Retrieve the data for this species using either name or formula
+info(info("lorem-ipsum"))
+info(info("C123"))
 # reset database
 OBIGT()
 
-# using add.OBIGT():
-# compare stepwise stability constants of cadmium chloride complexes
+## Using add.OBIGT():
+# Compare stepwise stability constants of cadmium chloride complexes
 # using data from Sverjensky et al., 1997 and Bazarkina et al., 2010
 Cdspecies <- c("Cd+2", "CdCl+", "CdCl2", "CdCl3-", "CdCl4-2")
 P <- c(1, seq(25, 1000, 25))
@@ -89,27 +93,27 @@ BZA10 <- lapply(1:4, function(i) {
   subcrt(c(Cdspecies[i], "Cl-", Cdspecies[i+1]),
     c(-1, -1, 1), T=25, P=P)$out$logK
 })
-# reset default database
-OBIGT()
 matplot(P, do.call(cbind, SSH97), type="l")
 matplot(P, do.call(cbind, BZA10), type="l", add=TRUE, lwd=2)
 legend("topleft", legend=c("", "", "Sverjensky et al., 1997",
   "Bazarkina et al., 2010"), lwd=c(0, 0, 1, 2), bty="n")
-# make reaction labels
+# Make reaction labels
 y <- c(1.8, 0.2, -0.5, -1)
 invisible(lapply(1:4, function(i) {
   text(800, y[i], describe.reaction(subcrt(c(Cdspecies[i], "Cl-",
     Cdspecies[i+1]), c(-1, -1, 1), T=25, P=1)$reaction))
 }))
+# Reset default database
+OBIGT()
 
-# another use of add.OBIGT()
-# compare Delta G of AABB = UPBB + H2O
+# Another use of add.OBIGT()
+# Compare Delta G of AABB = UPBB + H2O
 # (Figure 9 of Kitadai, 2014)
 E.units("J")
-# default database has values from Kitadai, 2014
+# Default database has values from Kitadai, 2014
 Kit14 <- subcrt(c("[AABB]", "[UPBB]", "H2O"), c(-1, 1, 1), T = seq(0, 300, 10))
-# optional file OldAA has superseded values of [UPBB] from Dick et al., 2006
-add.OBIGT("OldAA")
+# Load superseded parameters for [UPBB] from Dick et al., 2006
+mod.OBIGT("[UPBB]", G = -21436, H = -45220, S = 1.62)
 DLH06 <- subcrt(c("[AABB]", "[UPBB]", "H2O"), c(-1, 1, 1), T = seq(0, 300, 10))
 xlab <- axis.label("T"); ylab <- axis.label("DG", prefix="k")
 plot(Kit14$out$T, Kit14$out$G/1000, type = "l", ylim = c(10, 35),
@@ -117,7 +121,7 @@ plot(Kit14$out$T, Kit14$out$G/1000, type = "l", ylim = c(10, 35),
 lines(DLH06$out$T, DLH06$out$G/1000, lty = 2)
 legend("topleft", c("Dick et al., 2006", "Kitadai, 2014"), lty = c(2, 1))
 title(main = "AABB = UPBB + H2O; after Figure 9 of Kitadai, 2014")
-# reset database *and* settings (units)
+# Reset database *and* settings (units)
 reset()
 
 # Another use of add.OBIGT(): calculate Delta G of

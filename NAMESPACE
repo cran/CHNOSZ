@@ -15,7 +15,6 @@ export(
 # examples
   "examples", "demos", "mtitle",
   "list2array", "slice", "dimSums", "slice.affinity",
-  "def2gi", "read.blast", "id.blast",
   "add.OBIGT", "RH2OBIGT",
   "expr.property", "expr.units",
   "mass", "entropy", "GHS", "water",
@@ -41,21 +40,21 @@ export(
   "count.elements",
 # (no other functions are used in the tests)
 # other exported functions that are not used above
-  "write.blast", "checkEOS", "checkGHS", "check.OBIGT",
+  "checkEOS", "checkGHS", "check.OBIGT",
   "V_s_var", "Cp_s_var",
   "DGinf", "SD", "pearson", "shannon", "CV", "logact",
   "EOSlab", "EOScalc",
   "basis.elements", "element.mu", "ibasis",
-  "water.SUPCRT92", "eqdata", "plot_findit",
+  "water.SUPCRT92", "plot_findit",
   "nonideal", "uniprot.aa",
 # added 20170301 or later
   "GHS_Tr", "calculateDensity", "calculateGibbsOfWater",
-  "calculateEpsilon", "calculateQ", "water.DEW", "berman",
-  "maxdiff", "expect_maxdiff", "bgamma",
+  "calculateEpsilon", "calculateQ", "water.DEW", "Berman",
+  "bgamma",
 # added 20171121 or later
   "dumpdata", "thermo.axis", "solubility", "NaCl",
 # added 20190213 or later
-  "CHNOSZ", "thermo", "reset", "OBIGT", "retrieve", "AkDi", "moles",
+  "CHNOSZ", "thermo", "reset", "OBIGT", "retrieve", "AD", "moles",
   "lNaCl", "lS", "lT", "lP", "lTP", "lex",
 # added 20200716 or later
   "mash", "mix", "rebalance"
@@ -74,7 +73,7 @@ importFrom("graphics", "abline", "axTicks", "axis", "barplot", "box",
   "plot.new", "plot.window", "points", "rect", "text", "title")
 importFrom("stats", "D", "as.formula", "cor", "lm", "loess.smooth",
   "na.omit", "predict.lm", "qqline", "qqnorm", "sd", "splinefun",
-  "uniroot", "median")
+  "uniroot", "median", "predict", "smooth.spline")
 importFrom("utils", "browseURL", "capture.output", "combn", "demo",
   "example", "head", "installed.packages", "read.csv", "tail",
   "write.csv", "write.table", "read.table", "packageDescription")

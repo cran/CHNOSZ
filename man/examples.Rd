@@ -17,7 +17,7 @@
     "density", "ORP", "findit", "ionize", "buffer", "protbuff",
     "glycinate", "mosaic", "copper", "arsenic", "solubility", "gold",
     "contour", "sphalerite", "zinc", "Shh", "saturation",
-    "adenine", "DEW", "lambda", "potassium", "TCA", "aluminum", "AkDi",
+    "adenine", "DEW", "lambda", "potassium", "TCA", "aluminum", "AD",
     "comproportionation", "Pourbaix", "E_coli"),
     save.png=FALSE)
 }
@@ -60,7 +60,7 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \item{TCA}{Standard Gibbs energies of the tricarboxylic (citric) acid cycle (Canovas and Shock, 2016)}
     \item{aluminum}{Reactions involving Al-bearing minerals (Zimmer et al., 2016; Tutolo et al., 2014)}
     \item{carboxylase}{Rank abundance distribution for RuBisCO and acetyl-CoA carboxylase}
-    \item{AkDi}{Henry's constant of dissolved gases (Akinfiev and Diamond, 2003)}
+    \item{AD}{Dissolved gases: Henry's constant, volume, and heat capacity (Akinfiev and Diamond, 2003)}
     \item{comproportionation}{Gibbs energy of sulfur comproportionation (Amend et al., 2020)}
     \item{Pourbaix}{Eh-pH diagram for Fe-O-H with equisolubility lines (Pourbaix, 1974)}
     \item{E_coli}{Gibbs energy of biomass synthesis in \emph{E. coli} (LaRowe and Amend, 2016)}
@@ -109,7 +109,7 @@ Bowers, T. S., Jackson, K. J. and Helgeson, H. C. (1984) \emph{Equilibrium Activ
 
 Canovas, P. A., III and Shock, E. L. (2016) Geobiochemistry of metabolism: Standard state thermodynamic properties of the citric acid cycle. \emph{Geochim. Cosmochim. Acta} \bold{195}, 293--322. \doi{10.1016/j.gca.2016.08.028}
 
-Dick, J. M. and Shock, E. L. (2011) Calculation of the relative chemical stabilities of proteins as a function of temperature and redox chemistry in a hot spring. \emph{PLoS ONE} \bold{6}, e22782. \doi{10.1371/journal.pone.0022782}
+Dick, J. M. and Shock, E. L. (2011) Calculation of the relative chemical stabilities of proteins as a function of temperature and redox chemistry in a hot spring. \emph{PLOS One} \bold{6}, e22782. \doi{10.1371/journal.pone.0022782}
 
 Dick, J. M. (2015) Chemical integration of proteins in signaling and development. \emph{bioRxiv}. \doi{10.1101/015826}
 

@@ -53,8 +53,11 @@ library(CHNOSZ)
 reset()
 
 ## ----Cpdat--------------------------------------------------------------------
-file <- system.file("extdata/cpetc/Cp.CH4.HW97.csv", package = "CHNOSZ")
+file <- system.file("extdata/cpetc/HW97_Cp.csv", package = "CHNOSZ")
 Cpdat <- read.csv(file)
+# Use data for CH4
+Cpdat <- Cpdat[Cpdat$species == "CH4", ]
+Cpdat <- Cpdat[, -1]
 Cpdat$Cp <- convert(Cpdat$Cp, "cal")
 Cpdat$P <- convert(Cpdat$P, "bar")
 
@@ -80,8 +83,12 @@ EOSplot(Cpdat, coefficients = PS01_data, add = TRUE, lty=2, col="blue")
 EOScoeffs("CH4", "Cp")
 
 ## ----Vdat---------------------------------------------------------------------
-file <- system.file("extdata/cpetc/V.CH4.HWM96.csv", package = "CHNOSZ")
+file <- system.file("extdata/cpetc/HWM96_V.csv", package = "CHNOSZ")
 Vdat <- read.csv(file)
+# Use data for CH4 near 280 bar
+Vdat <- Vdat[Vdat$species == "CH4", ]
+Vdat <- Vdat[abs(Vdat$P - 28) < 0.1, ]
+Vdat <- Vdat[, -1]
 Vdat$P <- convert(Vdat$P, "bar")
 
 ## ----Vdat_non-----------------------------------------------------------------
