@@ -10,6 +10,19 @@
 \newcommand{\s}{\ifelse{latex}{\eqn{_{#1}}}{\ifelse{html}{\out{<sub>#1</sub>}}{#1}}}
 \newcommand{\S}{\ifelse{latex}{\eqn{^{#1}}}{\ifelse{html}{\out{<sup>#1</sup>}}{^#1}}}
 
+\section{Changes in CHNOSZ version 1.4.3 (2022-02-20)}{
+
+  \subsection{UNIT TESTING}{
+    \itemize{
+
+      \item Skip tests on CRAN that fail for M1mac and ATLAS (heat capacity and
+      the second derivative of \H2O density in \file{tinytest/test-AD.R}).
+
+    }
+  }
+
+}
+
 \section{Changes in CHNOSZ version 1.4.2 (2022-02-08)}{
 
   \subsection{PLANNED API CHANGE}{
