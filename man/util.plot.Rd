@@ -9,6 +9,7 @@
 \alias{water.lines}
 \alias{mtitle}
 \alias{ZC.col}
+\alias{add.alpha}
 \title{Functions to Create and Modify Plots}
 
 \description{
@@ -30,9 +31,10 @@
   label.figure(x, xfrac = 0.05, yfrac = 0.95, paren = FALSE,
     italic = FALSE, ...)
   water.lines(eout, which = c("oxidation","reduction"),
-    lty = 2, lwd=1, col = par("fg"), plot.it = TRUE)
-  mtitle(main, line=0, spacing=1, ...)
+    lty = 2, lwd = 1, col = par("fg"), plot.it = TRUE)
+  mtitle(main, line = 0, spacing = 1, ...)
   ZC.col(z)
+  add.alpha(col, alpha)
 }
 
 \arguments{
@@ -46,7 +48,7 @@
   \item{side}{numeric, which sides of plot to draw axes}
   \item{mgp}{numeric, sizes of margins of plot}
   \item{cex.axis}{numeric, character expansion factor for names of axes}
-  \item{col}{character, line color}
+  \item{col}{character, color}
   \item{yline}{numeric, margin line on which to plot \eqn{y}{y}-axis name}
   \item{axs}{character, setting for axis limit calculation}
   \item{plot.box}{logical, draw a box around the plot?}
@@ -70,6 +72,7 @@
   \item{main}{character, text for plot title}
   \item{spacing}{numeric, spacing between multiple lines}
   \item{z}{numeric, set of values}
+  \item{alpha}{character, hexadecimal value of color transparency (alpha)}
 }
 
 \details{
@@ -99,12 +102,13 @@ It is a supporting function for \code{label.figure} but is also useful for other
 \code{mtitle} can be used to add a multi-line title to a plot.
 It loops over each element of \code{main} and places it on a separate margin line using \code{\link{mtext}}.
 The spacing of the last (bottom) line from the edge of the plot is specified by \code{line}.
-This function exists to facilitate using \code{\link{expression}}s in multiline titles (see \code{\link{revisit}} for an example.) 
+This function exists to facilitate using \code{\link{expression}}s in multiline titles.
 
 \code{ZC.col} uses \CRANpkg{colorspace}) to generate colors from a diverging palette (red - light grey - blue) corresponding to the values in \code{z}.
 Red is associated with lower values of \code{z}.
 This function is intended to generate colors for distinguishing average oxidation state of carbon \code{\link{ZC}}, but any numeric values can be supplied.
 
+\code{add.alpha} adds transparency to a color by appending the value of \code{alpha} to the hexadecimal representation of the color given in \code{col}.
 }
 
 \seealso{
@@ -115,18 +119,8 @@ This function is intended to generate colors for distinguishing average oxidatio
 basis(c("H2S", "H2O", "H+", "e-"))
 species(c("HS-", "H2S", "HSO4-", "SO4-2"))
 a <- affinity(pH = c(0, 12), Eh = c(-1, 1), T = 200)
-opar <- par(mfrow=c(2, 2))
 diagram(a, grid = "both")
 title(main = 'diagram(a, grid = "both")')
-diagram(a, grid = "major")
-title(main = 'diagram(a, grid = "major")')
-diagram(a, grid = "minor")
-title(main = 'diagram(a, grid = "minor")')
-diagram(a, fill = "terrain")
-thermo.axis(grid = "major", col.grid = "slategray")
-title(main = 'thermo.axis(grid = "major")')
-par(thermo()$opar)
-par(opar)
 }
 
 \concept{Utility functions}

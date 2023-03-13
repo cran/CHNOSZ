@@ -23,11 +23,9 @@ T <- a$vals[[1]]
 pH <- a$vals[[2]]
 # The affinity as a function of T (rows) and pH (columns)
 A <- a$values[[1]]
-# Convert dimensionless affinity (A/2.303RT) to delta G (cal)
+# Convert dimensionless affinity (A/2.303RT) to delta G (kJ / mol)
 TK <- convert(T, "K")
-G.cal <- convert(A, "G", T = TK)
-# Convert cal to kJ
-G.J <- convert(G.cal, "J")
+G.J <- convert(A, "G", T = TK)
 G.kJ <- G.J / 1000
 # Multiply by 4
 # (formation reaction in CHNOSZ is for 1 S; reaction in paper has 4 S)
@@ -37,8 +35,7 @@ G.kJ.4 <- G.kJ * 4
 rxn <- subcrt("S", 1)$reaction
 rxn$coeff <- rxn$coeff * 4
 rxntext <- describe.reaction(rxn)
-# Set units to get label for Delta G (kJ / mol)
-E.units("J")
+# Get label for Delta G (kJ / mol)
 DGlab <- axis.label("DGr", prefix = "k")
 
 # Calculate pK of H2S and HSO4-
@@ -53,7 +50,7 @@ filled.contour(T, pH, G.kJ.4, xlab = axis.label("T"), ylab = axis.label("pH"),
   plot.axes = {
     contour(T, pH, G.kJ.4, levels = c(-10, -30, -50), add = TRUE, col = "white", lwd = 2, labcex = 0.8)
     legend("topleft", legend = rxntext, bty = "n", inset = c(0, 0.03))
-    legend("topleft", describe.basis(ibasis = 1:2), bty = "n", inset = c(0, 0.08))
+    legend("topleft", describe.basis(1:2), bty = "n", inset = c(0, 0.08))
     lines(T, pK_H2S, lty = 2)
     text(85, 6.7, expr.species("HS-"))
     text(85, 6.3, expr.species("H2S"))

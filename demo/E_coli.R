@@ -49,7 +49,6 @@ mod.OBIGT("[UPBB]", G = -21436, H = -45220, S = 1.62)
 # Calculate polymerization contribution
 # Standard Gibbs energy (J / mol) for AABB -> PBB + H2O
 # (Figure 4 of Amend et al., 2013)
-E.units("J")
 G0.AABB_to_PBB_plus_H2O <- subcrt(c("[AABB]", "[UPBB]", "H2O"), c(-1, 1, 1), T = T)$out$G
 # Standard Gibbs energy for 278 AA -> P[278] + 277H2O
 G0.P278 <- 277 * G0.AABB_to_PBB_plus_H2O
@@ -95,8 +94,7 @@ plot_G <- function(C, N, S) {
     # Calculate dimensionless affinity (A/2.303RT) from 0 to 125 degC at 1 bar
     a <- affinity(T = T, `e-` = -pe[[ipe]])
     # Convert affinity to Gibbs energy (kJ/mol)
-    G.cal <- lapply(a$values, convert, "G", T = T.K)
-    G.J <- lapply(G.cal, convert, "J")
+    G.J <- lapply(a$values, convert, "G", T = T.K)
     G.kJ <- lapply(G.J, "*", 1e-3)
     # Calculate Gibbs energy (kJ (g cell)-1) for each biomolecule
     G.kJ.g_cell <- Map("*", G.kJ, concentrations)
@@ -136,7 +134,7 @@ plot_G("CH3COO-", "NH4+", "HS-")
 plot_G("CH4", "NO3-", "SO4-2")
 plot_G("CH4", "NH4+", "HS-")
 
-# Reset CHNOSZ settings (units and OBIGT database)
-reset()
+# Restore OBIGT database
+OBIGT()
 # Reset plot settings
 par(opar)

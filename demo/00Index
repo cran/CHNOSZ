@@ -4,7 +4,6 @@ affinity        Affinities of metabolic reactions and amino acid synthesis
 NaCl            Equilibrium constant for aqueous NaCl dissociation
 density         Density of H2O, inverted from IAPWS-95 equations
 ORP             Temperature dependence of oxidation-reduction potential for redox standards
-findit          Minimize the standard deviation of logarithms of activities of sulfur species
 ionize          ionize.aa(): contour plots of net charge and ionization properties of LYSC_CHICK
 buffer          Minerals and aqueous species as buffers of hydrogen fugacity
 protbuff        Chemical activities buffered by thiol peroxidases or sigma factors
@@ -16,11 +15,10 @@ solubility      Solubility of calcite and CO2(gas) as a function of pH
 gold            Solubility of gold
 contour         Gold solubility contours on a log fO2 - pH diagram
 sphalerite      Solubility of sphalerite
-zinc            Solubilities of multiple minerals (zincite and sphalerite)
+minsol          Solubilities of multiple minerals
 dehydration     log K of dehydration reactions; SVG file contains tooltips and links
 Shh             Affinities of transcription factors relative to Sonic hedgehog
 saturation      Equilibrium activity diagram showing activity ratios and mineral saturation limits
-adenine         HKF parameters regressed from heat capacity and volume of aqueous adenine
 DEW             Deep Earth Water (DEW) model for high pressures
 lambda          Thermodynamic properties of lambda transition in quartz
 potassium       Comparison of thermodynamic datasets for predicting mineral stabilities
@@ -31,3 +29,5 @@ AD              Dissolved gases: Henry's constant, volume, and heat capacity
 comproportionation  Gibbs energy of sulfur comproportionation
 Pourbaix        Eh-pH diagram for Fe-O-H with equisolubility lines
 E_coli          Gibbs energy of biomass synthesis in E. coli
+rank.affinity   Affinity ranking for proteins in yeast nutrient limitation
+yttrium         logB.to.OBIGT fits at 800 and 1000 bar and Y speciation in NaCl solution at varying pH

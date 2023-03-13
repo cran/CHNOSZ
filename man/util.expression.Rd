@@ -20,7 +20,7 @@
   expr.units(property, prefix = "", per = "mol")
   axis.label(label, units = NULL, basis = thermo()$basis, prefix = "",
     molality = FALSE)
-  describe.basis(basis = thermo()$basis, ibasis = 1:nrow(basis),
+  describe.basis(ibasis = 1:nrow(basis), basis = thermo()$basis,
     digits = 1, oneline = FALSE, molality = FALSE, use.pH = TRUE)
   describe.property(property, value, digits = 0, oneline = FALSE,
     ret.val = FALSE)
@@ -43,8 +43,8 @@
   \item{per}{character, denominator in units}
   \item{label}{character, description of species, condition or property}
   \item{units}{character, description of units}
-  \item{basis}{data frame, definition of basis species}
   \item{ibasis}{numeric, which basis species to include}
+  \item{basis}{data frame, definition of basis species}
   \item{digits}{numeric, number of digits to show after decimal point}
   \item{oneline}{logical, make descriptions occupy a single line?}
   \item{ret.val}{logical, return only the value with the units?}
@@ -109,9 +109,9 @@ Otherwise, the expression is built by combining the output of \code{expr.propert
 This function is used extensively in \code{\link{diagram}} and also appears in many of the examples.
 Note that \code{\link{diagram}} sets \code{molality} to TRUE if \code{IS} was supplied as an argument to \code{\link{affinity}}.
 
-  \code{describe.basis} makes an expression summarizing the basis species definition (logarithms of activity or fugacity of the basis species) provided in \code{basis}; only the basis species identified by \code{ibasis} are included. 
+\code{describe.basis} makes an expression summarizing the basis species definition (logarithms of activity or fugacity of the basis species) provided in \code{basis}; only the basis species identified by \code{ibasis} are included. 
 
-  \code{describe.property} makes an expression summarizing the properties supplied in \code{property}, along with their \code{value}s. The expressions returned by both functions consist of a property, an equals sign, and a value (with units where appropriate); the expressions have a length equal to the number of property/value pairs. If \code{oneline} is TRUE, the property/value pairs are combined into a single line, separated by commas. The number of digits shown after the decimal point in the values is controlled by \code{digits}. If \code{ret.val} is TRUE, only the values and their units are returned; this is useful for labeling plots with values of temperature.
+\code{describe.property} makes an expression summarizing the properties supplied in \code{property}, along with their \code{value}s. The expressions returned by both functions consist of a property, an equals sign, and a value (with units where appropriate); the expressions have a length equal to the number of property/value pairs. If \code{oneline} is TRUE, the property/value pairs are combined into a single line, separated by commas. The number of digits shown after the decimal point in the values is controlled by \code{digits}. If \code{ret.val} is TRUE, only the values and their units are returned; this is useful for labeling plots with values of temperature.
 
 \code{describe.reaction} makes an expression summarizing a chemical reaction.
 The \code{reaction} data frame can be generated using \code{\link{subcrt}}.
@@ -133,25 +133,25 @@ The default is a ratio with \Hplus, i.e. (activity of the ion) / [(activity of H
 }
 
 \examples{\dontshow{reset()}
-## show descriptions of species and properties on a plot
-plot(0, 0, xlim=c(1,5), ylim=c(1,5), xlab="function", ylab="example")
-text0 <- function(...) text(..., adj=0)
-# species
+## Show descriptions of species and properties on a plot
+plot(0, 0, xlim = c(1,5), ylim = c(1,5), xlab = "function", ylab = "example")
+text0 <- function(...) text(..., adj = 0)
+# Species
 text0(1, 1, expr.species("CO2"))
-text0(1, 2, expr.species("CO2", use.state=TRUE))
-text0(1, 3, expr.species("CO2", log=TRUE, use.state=TRUE))
-text0(1, 4, expr.species("CO2", log=TRUE))
-text0(1, 5, expr.species("CO2", log=TRUE, value=-3))
-# properties
+text0(1, 2, expr.species("CO2", use.state = TRUE))
+text0(1, 3, expr.species("CO2", log = TRUE, use.state = TRUE))
+text0(1, 4, expr.species("CO2", log = TRUE))
+text0(1, 5, expr.species("CO2", log = TRUE, value = -3))
+# Properties
 text0(2, 1, expr.property("A"))
 text0(2, 2, expr.property("DV"))
 text0(2, 3, expr.property("DG0f"))
 text0(2, 4, expr.property("DCp0,r"))
 text0(2, 5, expr.property("T"))
-# units
-text0(3, 1, expr.units("A", prefix="k"))
+# Units
+text0(3, 1, expr.units("A", prefix = "k"))
 text0(3, 2, expr.units("DV"))
-text0(3, 3, expr.units("DG0f", prefix="k"))
+text0(3, 3, expr.units("DG0f", prefix = "k"))
 text0(3, 4, expr.units("DCp0,r"))
 text0(3, 5, expr.units("T"))
 # axis.label
@@ -162,22 +162,22 @@ text0(4, 4, axis.label("Eh"))
 text0(4, 5, axis.label("IS"))
 # describe.basis
 basis("CHNOS+")
-dbasis <- describe.basis(oneline=TRUE, digits=0)
+dbasis <- describe.basis(oneline = TRUE, digits = 0)
 property <- c("P", "T", "Eh", "pH", "IS")
 value <- c(1, 42.42, -1, 7, 0.1)
-dprop <- describe.property(property, value, oneline=TRUE)
+dprop <- describe.property(property, value, oneline = TRUE)
 text(3, 1.5, dbasis)
 text(3, 2.5, dprop)
-dbasis <- describe.basis(ibasis=c(1, 5))
+dbasis <- describe.basis(c(1, 5))
 dprop <- describe.property(property[1:2], value[1:2])
-legend(2.4, 3.9, legend=c(dbasis, dprop), bty="n")
+legend(2.4, 3.9, legend=c(dbasis, dprop), bty = "n")
 # describe.reaction
-# reaction is automatically balanced since basis species are defined
+# Reaction is automatically balanced because basis species are defined
 reaction <- subcrt("glucose", -1)$reaction
 text(3, 4.25, describe.reaction(reaction))
-text(3, 4.5, describe.reaction(reaction, states="all"))
-text(3, 4.75, describe.reaction(reaction, iname=1:4))
-title(main="Plot labels for chemical species and thermodynamic properties")
+text(3, 4.5, describe.reaction(reaction, states = "all"))
+text(3, 4.75, describe.reaction(reaction, iname = 1:4))
+title(main = "Plot labels for chemical species and thermodynamic properties")
 }
 
 \concept{Utility functions}

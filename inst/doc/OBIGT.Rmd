@@ -60,7 +60,6 @@ function OpenAllDivs() {
   OpenDiv("aqueous-H2O");
   OpenDiv("aqueous-inorganic");
   OpenDiv("aqueous-organic");
-  OpenDiv("aqueous-biotic");
   OpenDiv("solid-inorganic");
   OpenDiv("solid-organic");
   OpenDiv("solid-Berman");
@@ -81,7 +80,6 @@ function CloseAllDivs() {
   CloseDiv("aqueous-H2O");
   CloseDiv("aqueous-inorganic");
   CloseDiv("aqueous-organic");
-  CloseDiv("aqueous-biotic");
   CloseDiv("solid-inorganic");
   CloseDiv("solid-organic");
   CloseDiv("solid-Berman");
@@ -202,7 +200,7 @@ Abbreviations: T (temperature), P (pressure), GHS (standard Gibbs energy, enthal
 
 <!-- All buttons at top -->
 
-### Aqueous Species <button id="B-aqueous-H2O" onclick='ToggleDiv("aqueous-H2O")'>H2O</button> <button id="B-aqueous-inorganic" onclick='ToggleDiv("aqueous-inorganic")'>Inorganic</button> <button id="B-aqueous-organic" onclick='ToggleDiv("aqueous-organic")'>Organic</button> <button id="B-aqueous-biotic" onclick='ToggleDiv("aqueous-biotic")'>Biotic</button>
+### Aqueous Species <button id="B-aqueous-H2O" onclick='ToggleDiv("aqueous-H2O")'>H2O</button> <button id="B-aqueous-inorganic" onclick='ToggleDiv("aqueous-inorganic")'>Inorganic</button> <button id="B-aqueous-organic" onclick='ToggleDiv("aqueous-organic")'>Organic</button>
 ### Solids <button id="B-solid-inorganic" onclick='ToggleDiv("solid-inorganic")'>Inorganic</button> <button id="B-solid-organic" onclick='ToggleDiv("solid-organic")'>Organic</button> <button id="B-solid-Berman" onclick='ToggleDiv("solid-Berman")'>Berman</button>
 ### Gases <button id="B-gas-inorganic" onclick='ToggleDiv("gas-inorganic")'>Inorganic</button> <button id="B-gas-organic" onclick='ToggleDiv("gas-organic")'>Organic</button> &nbsp;&nbsp;&nbsp;Liquids <button id="B-liquid-organic" onclick='ToggleDiv("liquid-organic")'>Organic</button>
 ### Optional Data <button id="B-optional-SUPCRT92" onclick='ToggleDiv("optional-SUPCRT92")'>SUPCRT92</button> <button id="B-optional-SLOP98" onclick='ToggleDiv("optional-SLOP98")'>SLOP98</button> <button id="B-optional-AD" onclick='ToggleDiv("optional-AD")'>AD</button> <button id="B-optional-AS04" onclick='ToggleDiv("optional-AS04")'>AS04</button> <button id="B-optional-DEW" onclick='ToggleDiv("optional-DEW")'>DEW</button> <button id="B-optional-GEMSFIT" onclick='ToggleDiv("optional-GEMSFIT")'>GEMSFIT</button>
@@ -228,7 +226,7 @@ used <- c(used, filerefs(csvfile))
 ```
 
 This file contains H<sub>2</sub>O, *e*<sup>-</sup>, and H<sup>+</sup>.
-The properties of H<sub>2</sub>O are listed as NA; CHNOSZ calculates its properties using a Fortran subroutine taken from SUPRCT92 ([Johnson et al., 1992](https://doi.org/10.1016/0098-3004(92)90029-Q)) (default) or using the IAPWS-95 equations ([Wagner and Pruß, 2002](https://doi.org/10.1063/1.1461829)) or the [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model ([Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019)).
+The properties of H<sub>2</sub>O are listed as NA; CHNOSZ calculates its properties using a Fortran subroutine taken from SUPRCT92 ([Johnson et al., 1992](https://doi.org/10.1016/0098-3004(92)90029-Q)) (default) or using the IAPWS-95 equations ([Wagner and Pruß, 2002](https://doi.org/10.1063/1.1461829)) or the Deep Earth Water (DEW) model ([Sverjensky et al., 2014](https://doi.org/10.1016/j.gca.2013.12.019)).
 
 By convention, the standard Gibbs energy of formation, entropy, and heat capacity of the aqueous proton (H<sup>+</sup>) are 0 at all *T* and *P* ([e.g. Cox et al., 1989](https://www.worldcat.org/oclc/18559968)).
 The formation reaction of the proton can be expressed as &frac12;H<sub>2,(*g*)</sub> + Z = H<sup>+</sup>, where Z is the "element" of positive charge.
@@ -253,13 +251,6 @@ All other calculations in CHNOSZ obtain the elemental makeup, including the corr
 
 <div id="D-aqueous-organic" style="display: none">
 ## <a id="aqueous-organic" class="anchor"></a> `r setfile("organic_aq.csv")`
-
-```{r reflist, results="asis", echo=FALSE}
-```
-</div>
-
-<div id="D-aqueous-biotic" style="display: none">
-## <a id="aqueous-biotic" class="anchor"></a> `r setfile("biotic_aq.csv")`
 Charged amino acid sidechain groups have a Z parameter that is tabulated as zero; their chemical formulas indicate the correct charge.
 Non-zero values of Z would yield derivatives of the omega parameter (&omega;) in the revised HKF equations of state for the cations and anions *that are not opposites of each other*.
 This would be incompatible with group additivity of cations and anions to give a neutral species, for which the derivatives of &omega; are taken to be zero (cf. [Dick et al., 2006](https://doi.org/10.5194/bg-3-311-2006)).
@@ -360,7 +351,7 @@ Use `add.OBIGT("AD")` to load the data; see `demo(AD)` for an example.
 ## <a id="optional-AS04" class="anchor"></a> `r setfile("AS04.csv")`
 This file has data for aqueous SiO<sub>2</sub> from @AS04 and a HSiO<sub>3</sub><sup>-</sup> modified to be consistent with the SiO<sub>2</sub> here.
 This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication [@Ste01] that is roughly consistent with the SiO<sub>2</sub> here.
-Use `add.OBIGT("AS04")` to load the data; see the vignette [*Regressing thermodynamic data*](eos-regress.html) for an example.
+Use `add.OBIGT("AS04")` to load the data; see `demo(aluminum)` for an example.
 
 ```{r optreflist, results="asis", echo=FALSE}
 ```
@@ -368,9 +359,9 @@ Use `add.OBIGT("AS04")` to load the data; see the vignette [*Regressing thermody
 
 <div id="D-optional-DEW" style="display: none">
 ## <a id="optional-DEW" class="anchor"></a> `r setfile("DEW.csv")`
-The [Deep Earth Water](http://www.dewcommunity.org/) (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar.
+The Deep Earth Water (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar.
 Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by [Sverjensky et al. (2014)](https://doi.org/10.1016/j.gca.2013.12.019).
-The data here were taken from the May 2017 and January 2019 versions of the [DEW spreadsheet](http://www.dewcommunity.org/resources.html).
+The data here were taken from the May 2017 and January 2019 versions of the at http://www.dewcommunity.org/resources.html.
 The following species are present in the spreadsheet, but are not used here because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn, SO<sub>4</sub><sup>-2</sup>.
 
 Besides using `add.OBIGT("DEW")` to load these data, you should also run `water("DEW")` to activate the DEW equations in CHNOSZ.
@@ -386,6 +377,7 @@ optused <- c(optused, filerefs(csvfile))
 <div id="D-optional-GEMSFIT" style="display: none">
 ## <a id="optional-GEMSFIT" class="anchor"></a> `r setfile("GEMSFIT.csv")`
 [Miron et al. (2016)](https://doi.org/10.1016/j.gca.2016.04.026) and [Miron et al. (2017)](https://doi.org/10.2475/07.2017.01) described an internally consistent thermodynamic dataset for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl that was obtained by using the [GEMSFIT](https://doi.org/10.1016/j.apgeochem.2014.10.013) package.
+Use `add.OBIGT("GEMSFIT")` to load the data.
 
 ```{r optreflist, results="asis", echo=FALSE}
 ```

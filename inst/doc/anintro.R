@@ -141,23 +141,25 @@ subcrt("water")
 subcrt("water", T = c(400, 500, 600), P = c(200, 400, 600), grid = "P")$out$water
 
 ## ----subcrt_water_plot, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, fig.cap="Isothermal contours of density (g cm<sup>-3</sup>) and pressure (bar) of water.", cache=TRUE, pngquant=pngquant, timeit=timeit----
-substuff <- subcrt("water", T=seq(0,1000,100), P=c(NA, seq(1,500,1)), grid="T")
-water <- substuff$out$water
+sres <- subcrt("water", T=seq(0,1000,100), P=c(NA, seq(1,500,1)), grid="T")
+water <- sres$out$water
 plot(water$P, water$rho, type = "l")
 
 ## ----subcrt_water_plot, eval=FALSE--------------------------------------------
-#  substuff <- subcrt("water", T=seq(0,1000,100), P=c(NA, seq(1,500,1)), grid="T")
-#  water <- substuff$out$water
+#  sres <- subcrt("water", T=seq(0,1000,100), P=c(NA, seq(1,500,1)), grid="T")
+#  water <- sres$out$water
 #  plot(water$P, water$rho, type = "l")
 
-## ----units_CH4, message=FALSE-------------------------------------------------
+## ----units_CH4----------------------------------------------------------------
 T.units("K")
 P.units("MPa")
-E.units("J")
+subcrt("CH4", T = 298.15, P = 0.1)$out$CH4$G
+E.units("cal")
 subcrt("CH4", T = 298.15, P = 0.1)$out$CH4$G
 
 ## ----convert_G, message=FALSE-------------------------------------------------
-convert(info(info("CH4"))$G, "J")
+(CH4dat <- info(info("CH4")))
+convert(CH4dat$G, "J")
 
 ## ----reset--------------------------------------------------------------------
 reset()
@@ -223,7 +225,6 @@ text(0, 4, "hydrogenotrophic methanogenesis", adj = 0)
 text(5, 5, describe.reaction(hydrogenotrophic$reaction), adj = 1)
 
 ## ----basis_mayumi, message=FALSE, results="hide"------------------------------
-E.units("J")
 basis(c("CO2", "H2", "H2O", "H+"))
 basis(c("CO2", "H2"), "gas")
 basis(c("H2", "pH"), c(-3.92, 7.3))
@@ -376,15 +377,16 @@ a <- affinity(T = rb$T, CO2 = rb$CO2, H2 = rb$H2,
               `NH4+` = rb$`NH4+`, H2S = rb$H2S, pH = rb$pH)
 T <- convert(a$vals[[1]], "K")
 a$values <- lapply(a$values, convert, "G", T)
+a$values <- lapply(a$values, convert, "cal")
 a$values <- lapply(a$values, `*`, -0.001)
 
 ## ----rainbow_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, dpi=dpi, out.width="100%", echo=FALSE, message=FALSE, cache=TRUE, fig.cap="Affinities of organic synthesis in a hydrothermal system, after Shock and Canovas (2010).", pngquant=pngquant, timeit=timeit----
-diagram(a, balance = 1, ylim = c(-100, 100), ylab = axis.label("A", prefix="k"),
+diagram(a, balance = 1, ylim = c(-100, 100), ylab = quote(italic(A)*", kcal/mol"),
         col = rainbow(8), lwd = 2, bg = "slategray3")
 abline(h = 0, lty = 2, lwd = 2)
 
 ## ----rainbow_diagram, eval=FALSE----------------------------------------------
-#  diagram(a, balance = 1, ylim = c(-100, 100), ylab = axis.label("A", prefix="k"),
+#  diagram(a, balance = 1, ylim = c(-100, 100), ylab = quote(italic(A)*", kcal/mol"),
 #          col = rainbow(8), lwd = 2, bg = "slategray3")
 #  abline(h = 0, lty = 2, lwd = 2)
 
@@ -980,8 +982,8 @@ subcrt("LYSC_CHICK")$out[[1]][1:6, ]
 PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
 plength <- protein.length(colnames(PM90)[2:5])
 Cp_expt <- t(t(PM90[, 2:5]) / plength)
-matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
-        xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
+matplot(PM90[, 1], Cp_expt, type = "p", pch = 19,
+        xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(110, 280))
 for(i in 1:4) {
   pname <- colnames(Cp_expt)[i]
   aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
@@ -998,8 +1000,8 @@ legend("bottomright", legend = c("experimental", "calculated (aq)",
 #  PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
 #  plength <- protein.length(colnames(PM90)[2:5])
 #  Cp_expt <- t(t(PM90[, 2:5]) / plength)
-#  matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
-#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
+#  matplot(PM90[, 1], Cp_expt, type = "p", pch = 19,
+#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(110, 280))
 #  for(i in 1:4) {
 #    pname <- colnames(Cp_expt)[i]
 #    aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
@@ -1016,8 +1018,8 @@ legend("bottomright", legend = c("experimental", "calculated (aq)",
 #  PM90 <- read.csv(system.file("extdata/cpetc/PM90.csv", package = "CHNOSZ"))
 #  plength <- protein.length(colnames(PM90)[2:5])
 #  Cp_expt <- t(t(PM90[, 2:5]) / plength)
-#  matplot(PM90[, 1], convert(Cp_expt, "cal"), type = "p", pch = 19,
-#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(28, 65))
+#  matplot(PM90[, 1], Cp_expt, type = "p", pch = 19,
+#          xlab = axis.label("T"), ylab = axis.label("Cp0"), ylim = c(110, 280))
 #  for(i in 1:4) {
 #    pname <- colnames(Cp_expt)[i]
 #    aq <- subcrt(pname, "aq", T = seq(0, 150))$out[[1]]
@@ -1036,7 +1038,7 @@ basis("CHNOS+")
 a_ion <- affinity(pH = c(0, 14), iprotein = ip)
 basis("CHNOS")
 a_nonion <- affinity(iprotein = ip)
-plot(c(0, 14), c(50, 300), xlab = "pH", ylab = axis.label("A"), type = "n")
+plot(c(0, 14), c(50, 300), xlab = "pH", ylab = quote(italic(A/2.303*RT)), type="n")
 for(i in 1:4) {
   A_ion <- as.numeric(a_ion$values[[i]])
   A_nonion <- as.numeric(a_nonion$values[[i]])
@@ -1051,7 +1053,7 @@ legend("topright", legend = a_ion$species$name,
 #  a_ion <- affinity(pH = c(0, 14), iprotein = ip)
 #  basis("CHNOS")
 #  a_nonion <- affinity(iprotein = ip)
-#  plot(c(0, 14), c(50, 300), xlab = "pH", ylab = axis.label("A"), type = "n")
+#  plot(c(0, 14), c(50, 300), xlab = "pH", ylab = quote(italic(A/2.303*RT)), type="n")
 #  for(i in 1:4) {
 #    A_ion <- as.numeric(a_ion$values[[i]])
 #    A_nonion <- as.numeric(a_nonion$values[[i]])
@@ -1130,7 +1132,7 @@ abline(v = c(36, 63), lty = 2, col = "grey")
 legend("topright", legend = c("Archaea", "Bacteria", "Eukaryota"),
        pch = c(2, 1, 0), col = 2:4, pt.cex = 2)
 
-## ----rubisco_O2, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Compositions of proteins projected into different sets of basis species.", cache=TRUE, pngquant=pngquant, timeit=timeit----
+## ----rubisco_O2, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, dpi=dpi, out.width="100%", echo=FALSE, results="hide", message=FALSE, fig.cap="Elemental compositions of proteins projected into different sets of basis species.", cache=TRUE, pngquant=pngquant, timeit=timeit----
 layout(matrix(1:4, nrow = 2))
 par(mgp = c(1.8, 0.5, 0))
 pl <- protein.length(aa)
@@ -1177,7 +1179,7 @@ pl <- protein.length(ip)
 logact <- unitize(numeric(5), pl)
 logabundance <- unitize(log10(abundance[!ina]), pl)
 
-## ----yeastplot, eval=FALSE, echo=1:6------------------------------------------
+## ----yeastplot, eval=FALSE, echo=1:5------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
@@ -1186,9 +1188,8 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 #  e <- equilibrate(a, normalize = TRUE)
 #  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
 #  abline(h = logabundance, lty = 1:5, col = 1:5)
-#  revisit(e, "DGinf", logabundance)
 
-## ----yeastplot, eval=FALSE, echo=7:9------------------------------------------
+## ----yeastplot, eval=FALSE, echo=6:8------------------------------------------
 #  par(mfrow = c(1, 3))
 #  basis("CHNOS+")
 #  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
@@ -1197,20 +1198,8 @@ logabundance <- unitize(log10(abundance[!ina]), pl)
 #  e <- equilibrate(a, normalize = TRUE)
 #  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
 #  abline(h = logabundance, lty = 1:5, col = 1:5)
-#  revisit(e, "DGinf", logabundance)
 
-## ----yeastplot, eval=FALSE, echo=10-------------------------------------------
-#  par(mfrow = c(1, 3))
-#  basis("CHNOS+")
-#  a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
-#  e <- equilibrate(a)
-#  diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
-#  e <- equilibrate(a, normalize = TRUE)
-#  diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
-#  abline(h = logabundance, lty = 1:5, col = 1:5)
-#  revisit(e, "DGinf", logabundance)
-
-## ----yeastplot, fig.fullwidth=TRUE, fig.width=7.5, fig.height=2.5, dpi=ifelse(dpi==50, 50, 100), out.width="85%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="ER-to-Golgi proteins: calculations without and with length normalization, and free energy difference between experimental and calculated abundances in metastable equilibrium with normalization.", pngquant=pngquant, timeit=timeit----
+## ----yeastplot, fig.width=6, fig.height=2.5, dpi=ifelse(dpi==50, 50, 100), out.width="100%", echo=FALSE, message=FALSE, results="hide", cache=TRUE, fig.cap="ER-to-Golgi proteins: calculations without and with length normalization.", pngquant=pngquant, timeit=timeit----
 par(mfrow = c(1, 3))
 basis("CHNOS+")
 a <- affinity(O2 = c(-80, -73), iprotein = ip, loga.protein = logact)
@@ -1219,7 +1208,6 @@ diagram(e, ylim = c(-5, -2), col = 1:5, lwd = 2)
 e <- equilibrate(a, normalize = TRUE)
 diagram(e, ylim = c(-5, -2.5), col = 1:5, lwd = 2)
 abline(h = logabundance, lty = 1:5, col = 1:5)
-revisit(e, "DGinf", logabundance)
 
 ## ----read_csv-----------------------------------------------------------------
 file <- system.file("extdata/protein/POLG.csv", package = "CHNOSZ")
@@ -1230,70 +1218,16 @@ file <- system.file("extdata/protein/EF-Tu.aln", package = "CHNOSZ")
 aa_Ef <- read.fasta(file, iseq = 1:2)
 
 ## ----seq2aa-------------------------------------------------------------------
-aa_PRIO <- seq2aa("PRIO_HUMAN", "
+aa_PRIO <- seq2aa("
 MANLGCWMLVLFVATWSDLGLCKKRPKPGGWNTGGSRYPGQGSPGGNRYPPQGGGGWGQP
 HGGGWGQPHGGGWGQPHGGGWGQPHGGGWGQGGGTHSQWNKPSKPKTNMKHMAGAAAAGA
 VVGGLGGYMLGSAMSRPIIHFGSDYEDRYYRENMHRYPNQVYYRPMDEYSNQNNFVHDCV
 NITIKQHTVTTTTKGENFTETDVKMMERVVEQMCITQYERESQAYYQRGSSMVLFSSPPV
 ILLISFLIFLIVG
-")
-
-## ----uniprot_aa, eval=FALSE---------------------------------------------------
-#  IDs <- c("ALAT1_HUMAN", "P02452")
-#  aa <- lapply(IDs, uniprot.aa)
-#  ## uniprot.aa: trying http://www.uniprot.org/uniprot/ALAT1_HUMAN ... accession P24298 ...
-#  ## >sp|P24298|ALAT1_HUMAN Alanine aminotransferase 1 OS=Homo sapiens GN=GPT PE=1 SV=3 (length 496)
-#  ## uniprot.aa: trying http://www.uniprot.org/uniprot/P02452 ... accession P02452 ...
-#  ## >sp|P02452|CO1A1_HUMAN Collagen alpha-1(I) chain OS=Homo sapiens GN=COL1A1 PE=1 SV=5 (length 1464)
-#  aa_UniProt <- do.call(rbind, aa)
-
-## ----uniprot_aa_offline, echo=FALSE-------------------------------------------
-aa_ALAT1 <- seq2aa("ALAT1_HUMAN", "
-MASSTGDRSQAVRHGLRAKVLTLDGMNPRVRRVEYAVRGPIVQRALELEQELRQGVKKPF
-TEVIRANIGDAQAMGQRPITFLRQVLALCVNPDLLSSPNFPDDAKKRAERILQACGGHSL
-GAYSVSSGIQLIREDVARYIERRDGGIPADPNNVFLSTGASDAIVTVLKLLVAGEGHTRT
-GVLIPIPQYPLYSATLAELGAVQVDYYLDEERAWALDVAELHRALGQARDHCRPRALCVI
-NPGNPTGQVQTRECIEAVIRFAFEERLFLLADEVYQDNVYAAGSQFHSFKKVLMEMGPPY
-AGQQELASFHSTSKGYMGECGFRGGYVEVVNMDAAVQQQMLKLMSVRLCPPVPGQALLDL
-VVSPPAPTDPSFAQFQAEKQAVLAELAAKAKLTEQVFNEAPGISCNPVQGAMYSFPRVQL
-PPRAVERAQELGLAPDMFFCLRLLEETGICVVPGSGFGQREGTYHFRMTILPPLEKLRLL
-LEKLSRFHAKFTLEYS
-")
-aa_CO1A1 <- seq2aa("CO1A1_HUMAN", "
-MFSFVDLRLLLLLAATALLTHGQEEGQVEGQDEDIPPITCVQNGLRYHDRDVWKPEPCRI
-CVCDNGKVLCDDVICDETKNCPGAEVPEGECCPVCPDGSESPTDQETTGVEGPKGDTGPR
-GPRGPAGPPGRDGIPGQPGLPGPPGPPGPPGPPGLGGNFAPQLSYGYDEKSTGGISVPGP
-MGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGR
-PGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQ
-MGPRGLPGERGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGP
-RGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGP
-QGPGGPPGPKGNSGEPGAPGSKGDTGAKGEPGPVGVQGPPGPAGEEGKRGARGEPGPTGL
-PGPPGERGGPGSRGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGLPGAKGL
-TGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGV
-PGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGLPGPAGPPGEAGKPGE
-QGVPGDLGAPGPSGARGERGFPGERGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGS
-QGAPGLQGMPGERGAAGLPGPKGDRGDAGPKGADGSPGKDGVRGLTGPIGPPGPAGAPGD
-KGESGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGEPGDAGAKGDAGP
-PGPAGPAGPPGPIGNVGAPGAKGARGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGP
-AGKEGGKGPRGETGPAGRPGEVGPPGPPGPAGEKGSPGADGPAGAPGTPGPQGIAGQRGV
-VGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGESGREGAPGA
-EGSPGRDGSPGAKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPTGPVGP
-VGARGPAGPQGPRGDKGETGEQGDRGIKGHRGFSGLQGPPGPPGSPGEQGPSGASGPAGP
-RGPPGSAGAPGKDGLNGLPGPIGPPGPRGRTGDAGPVGPPGPPGPPGPPGPPSAGFDFSF
-LPQPPQEKAHDGGRYYRADDANVVRDRDLEVDTTLKSLSQQIENIRSPEGSRKNPARTCR
-DLKMCHSDWKSGEYWIDPNQGCNLDAIKVFCNMETGETCVYPTQPSVAQKNWYISKNPKD
-KRHVWFGESMTDGFQFEYGGQGSDPADVAIQLTFLRLMSTEASQNITYHCKNSVAYMDQQ
-TGNLKKALLLQGSNEIEIRAEGNSRFTYSVTVDGCTSHTGAWGKTVIEYKTTKTSRLPII
-DVAPLDVGAPDQEFGFDVGPVCFL
-")
-aa_UniProt <- rbind(aa_ALAT1, aa_CO1A1)
-aa_UniProt$abbrv <- c("ALAT1", "CO1A1")
-
-## ----aa_UniProt, cache=TRUE---------------------------------------------------
-aa_UniProt
+", "PRIO_HUMAN")
 
 ## ----protein_length-----------------------------------------------------------
-myaa <- rbind(aa_Ef, aa_PRIO, aa_ALAT1)
+myaa <- rbind(aa_Ef, aa_PRIO)
 protein.length(myaa)
 
 ## ----thermo_refs_table, eval=FALSE--------------------------------------------
@@ -1311,8 +1245,8 @@ thermo.refs(c(iATP, iMgATP))
 thermo.refs(c("HDNB78", "MGN03"))
 
 ## ----thermo_refs_subcrt, message=FALSE--------------------------------------------------------------------------------------------------------------------------------------------
-substuff <- subcrt(c("C2H5OH", "O2", "CO2", "H2O"), c(-1, -3, 2, 3))
-thermo.refs(substuff)
+sres <- subcrt(c("C2H5OH", "O2", "CO2", "H2O"), c(-1, -3, 2, 3))
+thermo.refs(sres)
 
 ## ----width80, include=FALSE---------------------------------------------------
 options(width = 80)
@@ -1321,61 +1255,6 @@ options(width = 80)
 #  iFo <- info("forsterite")
 #  ref <- thermo.refs(iFo)
 #  browseURL(ref$URL)  ## opens a link to worldcat.org
-
-## ----BZA10--------------------------------------------------------------------
-file <- system.file("extdata/adds/BZA10.csv", package = "CHNOSZ")
-read.csv(file, as.is = TRUE)
-
-## ----BZA10_Cd-----------------------------------------------------------------
-iCd <- add.OBIGT(file)
-subcrt(c("CdCl+", "Cl-", "CdCl2"), c(-1, -1, 1), T = 25, P = c(1, 2000))
-
-## ----SSH97_subcrt-------------------------------------------------------------
-reset()
-thermo.refs(iCd)[, 1:3]
-subcrt(c("CdCl+", "Cl-", "CdCl2"), c(-1, -1, 1), T = 25, P = c(1, 2000))
-
-## ----mod_OBIGT_CoCl4_ghs------------------------------------------------------
-mod.OBIGT("CoCl4-2", formula = "CoCl4-2", state = "aq", ref1 = "LBT+11",
-  date = as.character(Sys.Date()), G = -134150, H = -171558, S = 19.55, Cp = 72.09, V = 27.74)
-
-## ----mod_OBIGT_CoCl4_eos------------------------------------------------------
-mod.OBIGT("CoCl4-2", a1 = 6.5467, a2 = 8.2069, a3 = 2.0130, a4 = -3.1183,
-  c1 = 76.3357, c2 = 11.6389, omega = 2.9159, z = -2)
-
-## ----CoCl4_reaction, message = FALSE, echo = 1:3------------------------------
-T <- c(25, seq(50, 350, 50))
-sres <- subcrt(c("Co+2", "Cl-", "CoCl4-2"), c(-1, -4, 1), T = T)
-round(sres$out$logK, 2)
-stopifnot(identical(round(sres$out$logK, 2), c(-3.2, -2.96, -2.02, -0.74, 0.77, 2.5, 4.57, 7.29)))
-
-## ----mod_OBIGT_magnesiochromite_ghs-------------------------------------------
-H <- -1762000
-S <- 119.6
-V <- 43.56
-mod.OBIGT("magnesiochromite", formula = "MgCr2O4", state = "cr", ref1 = "KOSG00",
-          date = as.character(Sys.Date()), E_units = "J", H = H, S = S, V = V)
-
-## ----mod_OBIGT_magnesiochromite_eos-------------------------------------------
-a <- 221.4
-b <- -0.00102030 * 1e3
-c <- -1757210 * 1e-5
-d <- -1247.9
-mod.OBIGT("magnesiochromite", E_units = "J", a = a, b = b, c = c, d = d,
-          e = 0, f = 0, lambda = 0, T = 1500)
-
-## ----subcrt_magnesiochromite--------------------------------------------------
-T.units("K")
-E.units("J")
-subcrt("magnesiochromite", property = "Cp", T = c(250, 300, 340), P = 1)
-
-## ----restore_units_magnesiochromite-------------------------------------------
-T.units("C")
-E.units("cal")
-
-## ----info_CoCl4, results = "hide"---------------------------------------------
-inew <- info("CoCl4-2")
-info(inew)
 
 ## ----info_S3, results="hide"--------------------------------------------------
 info(info("S3-"))

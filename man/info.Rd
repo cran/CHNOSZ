@@ -17,7 +17,7 @@
 }
 
 \details{
-\code{info} is the primary function used for querying the thermodynamic database (\code{\link{thermo}$OBIGT}).
+\code{info} is the primary function used for querying the thermodynamic database (\code{\link{thermo}()$OBIGT}).
 It is often called recursively; first with a character value (or values) for \code{species} indicating the name(s) or formula(s) of the species of interest.
 The result of this call is a numeric value, which can be provided as an argument in a second call to \code{info} in order to retrieve a data frame of the thermodynamic properties of the species.
 
@@ -35,7 +35,7 @@ Included in the return value, as for other species, is the index of the protein 
 If no exact matches are found, \code{info} searches the database for similar names or formulas using \code{\link{agrep}}.
 If any of these are found, the results are summarized on the screen, but the function always returns NA in this case.
 
-With a numeric argument, the rows of \code{thermo()$OBIGT} indicated by \code{ispecies} are returned, after removing any order-of-magnitude scaling factors.
+With a numeric argument, the rows of \code{thermo()$OBIGT} indicated by \code{ispecies} are returned, after removing any order-of-magnitude scaling factors (see \code{\link{thermo}}).
 If these species are all aqueous or are all not aqueous, the compounded column names used in \code{thermo()$OBIGT} are replaced with names appropriate for the corresponding equations of state.
 A missing value of one of the standard molal Gibbs energy (\code{G}) or enthalpy (\code{H}) of formation from the elements or entropy (\code{S}) is calculated from the other two, if available.
 If \code{check.it} is TRUE, several checks of self consistency among the thermodynamic properties and parameters are performed using \code{\link{checkGHS}} and \code{\link{checkEOS}}.
@@ -46,38 +46,38 @@ If \code{check.it} is TRUE, several checks of self consistency among the thermod
 
 \examples{
 \dontshow{reset()}
-## summary of available data
+## Summary of available data
 info()
 
-## species information
-# search for something named (or whose formula is) "Fe"
+## Species information
+# Search for something named (or whose formula is) "Fe"
 si <- info("Fe")
-# use the number to get the full entry
+# Use the number to get the full entry
 info(si)
-# show data for the higher-temperature phases
+# Show data for the higher-temperature phases
 info(si:(si+3))
 
-## dealing with states
-# standard order of precedence for names:
+## Dealing with states
+# Order of precedence for names:
 # aq > cr > gas > liq
 info(c("ethanol", "adenosine"))  # aq, aq
-# state argument overrides the default
+# State argument overrides the default
 info(c("ethanol", "adenosine"), state = c("gas", "cr"))
-# exceptions: gases have precedence for names of methane and inorganic gases
+# Exceptions: gases have precedence for names of methane and inorganic gases
 info(c("methane", "oxygen")) # gas, gas
 
-# formulas default to aqueous species, if available
+# Formulas default to aqueous species, if available
 i1 <- info(c("CH4", "CO2", "CS2", "MgO"))
 info(i1)$state  # aq, aq, gas, cr
-# state argument overrides the default
+# State argument overrides the default
 i2 <- info(c("CH4", "CO2", "MgO"), "gas") 
 info(i2)$state  # gas, gas, NA
 
-## partial name or formula searches
+## Partial name or formula searches
 info("ATP")
 info("thiol")
 info("MgC")
-# add an extra character to refine a search
+# Add an extra character to refine a search
 # or to search using terms that have exact matches
 info("MgC ")
 info("acetate ")

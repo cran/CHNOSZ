@@ -55,6 +55,9 @@ Rg <- CHNOSZ:::gfun(w$rho/1000, temperature, pressure, w$alpha, w$daldT, w$beta)
 DEWg <- CHNOSZ:::calculateG(pressure, temperature, w$rho/1000)
 expect_equal(Rg, DEWg, info = info)
 
+## The following tests use reference values in calories
+E.units("cal")
+
 info <- "Gibbs energies of species are calculated correctly"
 P <- c(5000, 5000, 10000, 10000, 20000, 20000, 50000, 50000)
 T <- c(100, 1000, 100, 1000, 100, 1000, 100, 1000)
@@ -107,7 +110,7 @@ DEW_DV <- c(-45.26925983499276, -14.640599169742725,
 # (at P=5000 bar this depends on calculating drhodP -> beta -> dgdP -> dwdP -> V correctly, which is not tested above)
 expect_equal(c(R1$V, R2$V, R3$V), DEW_DV[1:6], tolerance = 1e-15, info = info)
 # TODO: why does DEW spreadsheet use V (O2,g) == 24.465?
-#expect_equal(c(R4$V, R5$V), DEW_DV[7:10])
+#expect_equal(c(R4$V, R5$V), DEW_DV[7:10], info = info)
 
 info <- "Calculated logK values are consistent with Extended Deep Earth Water paper"
 # Reference logK values are from Appendix D of Huang and Sverjensky, 2019 (doi:10.1016/j.gca.2019.03.027)

@@ -1,7 +1,5 @@
 # Load default settings for CHNOSZ
 reset()
-# Set subcrt() to output values in Joules
-E.units("J")
 
 # 20220206
 info <- "Database is set up correctly"
@@ -10,7 +8,7 @@ iAD <- add.OBIGT("AD")
 # Get the indices of the modified aqueous species
 iaq <- iAD[info(iAD)$state == "aq"]
 # Each aqueous species should be associated with the AD model
-expect_equal(unique(info(iaq)$abbrv), "AD", info = info)
+expect_equal(unique(info(iaq)$model), "AD", info = info)
 # Each aqueous species should have a gaseous counterpart
 igas <- info(info(iAD)$name, "gas")
 expect_true(!any(is.na(igas)), info = info)
@@ -49,8 +47,8 @@ expect_equal(sout2$V, V_ref2, tolerance = 0.4, scale = 1, info = info)
 
 info <- "AD gives consistent values of G, H, and S"
 T_in_Kelvin <- convert(T, "K")
-S_of_elements_in_Joules <- convert(entropy("CO2"), "J")
-expect_equal(sout2$H - T_in_Kelvin * sout2$S + 298.15 * S_of_elements_in_Joules, sout2$G)
+S_of_elements_in_Joules <- entropy("CO2")
+expect_equal(sout2$H - T_in_Kelvin * sout2$S + 298.15 * S_of_elements_in_Joules, sout2$G, info = info)
 
 # 20220206
 info <- "Fugacity, density, and density derivatives of H2O are close to values in Akinfiev and Diamond (2003)"
@@ -82,6 +80,9 @@ GOBIGT <- do.call(rbind, sOBIGT$out)$G
 expect_equal(GAD, GOBIGT, tolerance = 280, scale = 1, info = info)
 # The largest differences are for HCl, ethane, and B(OH)3
 expect_equal(sort(info(iaq[abs(GAD - GOBIGT) > 900])$name), sort(c("HCl", "ethane", "B(OH)3")))
+
+# This line should be commented for a released package
+exit_file("Skipping tests so development builds on R-Forge work")
 
 ## The following tests work on JMD's Linux machine "at home" but not on some CRAN machines 20220210
 if(!at_home()) exit_file("Skipping tests on CRAN")

@@ -110,9 +110,6 @@ used <- c(used, filerefs(csvfile))
 ## ----reflist, results="asis", echo=FALSE--------------------------------------
 used <- c(used, filerefs(csvfile))
 
-## ----reflist, results="asis", echo=FALSE--------------------------------------
-used <- c(used, filerefs(csvfile))
-
 ## ----optreflist, results="asis", echo=FALSE-----------------------------------
 optused <- c(optused, filerefs(csvfile))
 

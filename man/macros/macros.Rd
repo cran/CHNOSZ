@@ -51,6 +51,7 @@
 \newcommand{\gamma}{\ifelse{latex}{\eqn{\gamma}}{\ifelse{html}{\out{&gamma;}}{γ}}}
 \newcommand{\alpha}{\ifelse{latex}{\eqn{\alpha}}{\ifelse{html}{\out{&alpha;}}{α}}}
 \newcommand{\lambda}{\ifelse{latex}{\eqn{\lambda}}{\ifelse{html}{\out{&lambda;}}{λ}}}
+\newcommand{\AA}{\ifelse{latex}{\out{\AA}}{\ifelse{html}{\out{&Aring;}}{Å}}}
 
 % links to vignettes 20200716
 \newcommand{\viglink}{\ifelse{html}{\out{<a href="../doc/#1.html"><strong>#1</strong></a>}}{\bold{#1.html}}}
@@ -63,3 +64,6 @@
 \newcommand{\c1}{\ifelse{latex}{\eqn{c_1}}{\ifelse{html}{\out{<I>c</I><sub>1</sub>}}{c1}}}
 \newcommand{\c2}{\ifelse{latex}{\eqn{c_2}}{\ifelse{html}{\out{<I>c</I><sub>2</sub>}}{c2}}}
 \newcommand{\omega}{\ifelse{latex}{\eqn{\omega}}{\ifelse{html}{\out{&omega;}}{ω}}}
+
+% For logB.to.OBIGT.Rd
+\newcommand{\logB}{\ifelse{latex}{\eqn{\log \beta}}{\ifelse{html}{\out{log&thinsp;&beta;}}{log β}}}

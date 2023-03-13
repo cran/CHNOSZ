@@ -17,7 +17,7 @@ Calculate the standard molal entropy of elements in a compound; calculate the st
   as.chemical.formula(makeup, drop.zero = TRUE)
   mass(formula)
   entropy(formula)
-  GHS(formula, G = NA, H = NA, S = NA, T = 298.15, E_units = "cal")
+  GHS(formula, G = NA, H = NA, S = NA, T = 298.15, E_units = "J")
   ZC(formula)
   i2A(formula)
 }
@@ -30,7 +30,7 @@ Calculate the standard molal entropy of elements in a compound; calculate the st
   \item{H}{numeric, standard molal enthalpy of formation from the elements}
   \item{S}{numeric, standard molal molal entropy}
   \item{T}{numeric, temperature in Kelvin}
-  \item{E_units}{character, energy units (cal or J)}
+  \item{E_units}{character, energy units (J or cal)}
 }
 
 \details{
@@ -47,13 +47,13 @@ If the formula is uncharged, and the last element has a negative coefficient, +0
 The remaining functions documented here accept vectors of chemical formulas, species indices, or a mixture of both, or stoichiometric matrices with elements on the columns.
 
 \code{mass} and \code{entropy} return the sums of masses or entropies of elements in each of the \code{formula}s.
-The masses are calculated using the masses of the elements in their natural isotopic distribution, and the entropies, in cal K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1}, are calculated using the entropies of the compounds of the pure elements in their stable states at 25 \degC and 1 bar.
+The masses are calculated using the masses of the elements in their natural isotopic distribution, and the entropies, in J K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1}, are calculated using the entropies of the compounds of the pure elements in their stable states at 25 \degC and 1 bar.
 The properties of the elements used by this function are taken from \code{\link{thermo}$element}.
 
 \code{GHS} computes one of the standard molal Gibbs energy or enthalpy of formation from the elements, or standard molal entropy, from values of the other two.
 The \code{formula}, \code{G}, \code{H} and \code{S} arguments must all have the same length.
-The entropies of the elements (\code{Se}) in each \code{formula} are calculated using \code{\link{entropy}}, which gives values in calories.
-If \code{E_units} is \samp{J}, the values are converted to Joules.
+The entropies of the elements (\code{Se}) in each \code{formula} are calculated using \code{\link{entropy}}, which gives values in Joules.
+If \code{E_units} is \samp{cal}, the values are converted to calories.
 The equation in effect can be written as \eqn{{\Delta}G^{\circ}={\Delta}H^{\circ}-T{\Delta}S^{\circ}}{delta_G = delta_H - T * delta_S}, where \eqn{{\Delta}S^{\circ}=S-S_e}{delta_S = S - Se} and \eqn{T}{T} is the temperature given in \code{T} (defaults to 298.15 K) (note that \code{G} and \code{H} in the arguments correspond respectively to \eqn{{\Delta}G^{\circ}}{delta_G} and \eqn{{\Delta}H^{\circ}}{delta_H} in the equation).
 For each formula, if one of \code{G}, \code{H}, or \code{S} is NA, its value is calculated from the other two.
 Otherwise, the values are returned unchanged.
@@ -72,26 +72,25 @@ The result is \code{NaN} for any formula that does not contain carbon. Elements 
 
 \seealso{
 \code{\link{makeup}}, used by \code{mass} and \code{entropy}, and \code{ZC} and \code{i2A} for counting the elements in a formula (the latter two make use of the \code{count.zero} argument).
-\code{\link{protein.formula}} has an example of computing ZC for proteins compiled from the RefSeq database.
 }
 
 \examples{\dontshow{reset()}
-## mass and entropy from chemical formulas
+## Mass and entropy from chemical formulas
 mass("H2O")
 entropy("H2O")
 mass("-1")  # electron
 entropy("-1")
 
-## different ways to get the formula of alanine
+## Different ways to get the formula of alanine
 iA <- info("alanine")
 info(iA)$formula
 as.chemical.formula(makeup(iA))
 
-## converting among Gibbs energy, enthalpy, entropy
-# calculate the value of G from H and S
-GHS("H2O", H=water("H"), S=water("S"))[1, ]
-# that not quite equal to the value from water("G");
-# probably using different entropies of the elements
+## Converting among Gibbs energy, enthalpy, entropy
+# Calculate the value of G from H and S
+GHS("H2O", H = water("H")$H, S = water("S")$S)
+# The result is not exactly equal to the value from water("G"),
+# probably because of different entropies of the elements
 
 ## Average oxidation states of carbon
 ZC(c("CO2", "CH4", "CHNOSZ"))  # 4, -4, 7
@@ -100,12 +99,12 @@ si <- info("LYSC_CHICK")
 ZC(si)
 ZC(info(si)$formula)
 
-## calculate the chemical formulas, then
-## ZC of all of the proteins in CHNOSZ' database
+## Calculate the chemical formulas, then
+## ZC of all of the proteins in CHNOSZ's database
 pf <- protein.formula(thermo()$protein)
 range(mass(pf))
-# use na.rm=TRUE because we have a "protein" with a formula of H2O
-range(ZC(pf), na.rm=TRUE)
+# Use na.rm = TRUE because we have a "protein" with a formula of H2O
+range(ZC(pf), na.rm = TRUE)
 }
 
 \references{

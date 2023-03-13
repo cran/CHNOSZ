@@ -14,12 +14,12 @@
 \usage{
   examples(save.png = FALSE)
   demos(which = c("sources", "protein.equil", "affinity", "NaCl",
-    "density", "ORP", "findit", "ionize", "buffer", "protbuff",
+    "density", "ORP", "ionize", "buffer", "protbuff",
     "glycinate", "mosaic", "copper", "arsenic", "solubility", "gold",
-    "contour", "sphalerite", "zinc", "Shh", "saturation",
-    "adenine", "DEW", "lambda", "potassium", "TCA", "aluminum", "AD",
-    "comproportionation", "Pourbaix", "E_coli"),
-    save.png=FALSE)
+    "contour", "sphalerite", "minsol", "Shh", "saturation",
+    "DEW", "lambda", "potassium", "TCA", "aluminum", "AD",
+    "comproportionation", "Pourbaix", "E_coli", "yttrium", "rank.affinity"),
+    save.png = FALSE)
 }
 
 \details{
@@ -37,7 +37,6 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \item{NaCl}{Equilibrium constant for aqueous NaCl dissociation (Shock et al., 1992)}
     \item{density}{Density of \H2O, inverted from IAPWS-95 equations (\code{\link{rho.IAPWS95}})}
     \item{ORP}{Temperature dependence of oxidation-reduction potential for redox standards}
-    \item{findit}{Minimize the standard deviation of logarithms of activities of sulfur species}
     \item{ionize}{ionize.aa(): contour plots of net charge and ionization properties of LYSC_CHICK}
     \item{buffer}{Minerals and aqueous species as buffers of hydrogen fugacity (Schulte and Shock, 1995)}
     \item{protbuff}{Chemical activities buffered by thiol peroxidases or sigma factors}
@@ -49,11 +48,10 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \item{gold}{Solubility of gold (Akinfiev and Zotov; 2001; Stef{\aacute}nsson and Seward, 2004; Williams-Jones et al., 2009)}
     \item{contour}{Gold solubility contours on a log fO2 - pH diagram (Williams-Jones et al., 2009)}
     \item{sphalerite}{Solubility of sphalerite (Akinfiev and Tagirov, 2014)}
-    \item{zinc}{Solubilities of multiple minerals (zincite and sphalerite)}
+    \item{minsol}{Solubilities of multiple minerals}
     \item{dehydration}{\logK of dehydration reactions; SVG file contains tooltips and links}
     \item{Shh}{Affinities of transcription factors relative to Sonic hedgehog (Dick, 2015)}
     \item{saturation}{Equilibrium activity diagram showing activity ratios and mineral saturation limits (Bowers et al., 1984)}
-    \item{adenine}{HKF regression of heat capacity and volume of aqueous adenine (Lowe et al., 2017)}
     \item{DEW}{Deep Earth Water (DEW) model for high pressures (Sverjensky et al., 2014a and 2014b)}
     \item{lambda}{Effects of lambda transition on thermodynamic properties of quartz (Berman, 1988)}
     \item{potassium}{Comparison of thermodynamic datasets for predicting mineral stabilities (Sverjensky et al., 1991)}
@@ -64,6 +62,7 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \item{comproportionation}{Gibbs energy of sulfur comproportionation (Amend et al., 2020)}
     \item{Pourbaix}{Eh-pH diagram for Fe-O-H with equisolubility lines (Pourbaix, 1974)}
     \item{E_coli}{Gibbs energy of biomass synthesis in \emph{E. coli} (LaRowe and Amend, 2016)}
+    \item{yttrium}{\code{\link{logB.to.OBIGT}} fits at 800 and 1000 bar and Y speciation in \code{\link{NaCl}} solution at varying pH (Guan et al., 2020)}
   }
 
 For either function, if \code{save.png} is TRUE, the plots are saved in \code{\link{png}} files whose names begin with the names of the help topics or demos.
@@ -115,11 +114,11 @@ Dick, J. M. (2015) Chemical integration of proteins in signaling and development
 
 Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{https://www.worldcat.org/oclc/517586}
 
+Guan, Q., Mei, Y., Etschmann, B., Testemale, D., Louvel, M. and Brugger, J. (2020) Yttrium complexation and hydration in chloride-rich hydrothermal fluids: A combined \emph{ab initio} molecular dynamics and \emph{in situ} X-ray absorption spectroscopy study. \emph{Geochim. Cosmochim. Acta} \bold{281}, 168--189. \doi{10.1016/j.gca.2020.04.015}
+
 Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \doi{10.1016/0098-3004(92)90029-Q}
 
 LaRowe, D. E. and Amend, J. P. (2016) The energetics of anabolism in natural settings. \emph{ISME J.} \bold{10}, 1285--1295. \doi{10.1038/ismej.2015.227}
-
-Lowe, A. R., Cox, J. S. and Tremaine, P. R. (2017) Thermodynamics of aqueous adenine: Standard partial molar volumes and heat capacities of adenine, adeninium chloride, and sodium adeninate from \emph{T} = 278.15 K to 393.15 K. \emph{J. Chem. Thermodyn.} \bold{112}, 129--145. \doi{10.1016/j.jct.2017.04.005}
 
 Lu, P. and Zhu, C. (2011) Arsenic Eh--pH diagrams at 25\degC and 1 bar. \emph{Environ. Earth Sci.} \bold{62}, 1673--1683. \doi{10.1007/s12665-010-0652-x}
   
@@ -153,7 +152,7 @@ Zimmer, K., Zhang, Y., Lu, P., Chen, Y., Zhang, G., Dalkilic, M. and Zhu, C. (20
 
 \examples{
 \dontshow{reset()}
-\dontshow{opar <- par(no.readonly=TRUE)}
+\dontshow{opar <- par(no.readonly = TRUE)}
 demos(c("ORP", "NaCl"))
 \dontshow{par(opar)}
 }

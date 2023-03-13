@@ -1,14 +1,12 @@
 ****************************
 Release checklist for CHNOSZ
-    (updated 2022-02-08)
+    (updated 2023-03-10)
 ****************************
 
 - Run examples() and demos() and inspect their output (especially plots)
 
 - Run the package tests with:
   suppressMessages(tinytest::test_package("CHNOSZ", at_home = TRUE))
-
-- Check that uniprot.aa() works with current UniProt web pages
 
 - Check reverse dependencies on CRAN: canprot, accucor, ecipex, iemisc, LipidMS as of 2019-08-02
 
@@ -21,7 +19,7 @@ Updating data in OBIGT
 - Add BibTeX references to vignettes/OBIGT.bib
   (used in the OBIGT.Rmd vignette).
 
-- Add references *and notes* to extdata/OBIGT/refs.csv
+- Add references and notes to extdata/OBIGT/refs.csv
   (also used in the OBIGT.Rmd vignette and thermo.refs()).
 
 - Check output of demo/sources.R to make sure all references
@@ -40,16 +38,6 @@ Updating data in OBIGT
   co <- check.OBIGT()
   write.csv(co, "OBIGT_check.csv", row.names = FALSE, na = "")
 
-******************
-Updating vignettes
-******************
-
-- Customize rmarkdown installation (in R local library)
-
-  - To enable page offset from anchor position in OBIGT.Rmd:
-    remove padding-top: 10px; from h2 in
-    rmarkdown/templates/html_vignette/resources/vignette.css
-
 ***************
 R compatibility
 ***************
@@ -61,7 +49,7 @@ R compatibility
   LC_CTYPE=en_US R CMD check CHNOSZ_x.x.x.tar.gz
 
 - Backwards compatibility: build and check the package with the
-  *minimum* R version (from the DESCRIPTION file)
+  minimum R version (from the DESCRIPTION file)
 
 *************
 Documentation 
@@ -74,14 +62,20 @@ Documentation
 - Run R_PAPERSIZE=letter R CMD Rd2pdf CHNOSZ/
   and fix any lines truncated by page margins
 
-*********************
-Vignettes for website
-*********************
+**********************************************
+Run tests that are skipped for routine testing
+**********************************************
+
+- Comment this line in test-AD.R:
+exit_file("Skipping tests so development builds on R-Forge work")
+
+*************************************************
+Making vignettes for website (https://chnosz.net)
+*************************************************
 
 - Use dpi <- 72 in anintro.Rmd
 
 - Use hires <- TRUE in multi-metal.Rmd
 
-- Run doc/mklinks.sh in installed directory (adds links to HTML renditions of
-  Rd files)
-
+- After making vignettes, run doc/mklinks.sh in installed directory
+  (this adds links to the HTML renditions of Rd files)

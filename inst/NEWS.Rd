@@ -9,6 +9,237 @@
 % subscript and superscript
 \newcommand{\s}{\ifelse{latex}{\eqn{_{#1}}}{\ifelse{html}{\out{<sub>#1</sub>}}{#1}}}
 \newcommand{\S}{\ifelse{latex}{\eqn{^{#1}}}{\ifelse{html}{\out{<sup>#1</sup>}}{^#1}}}
+% links to vignettes 20220723
+\newcommand{\viglink}{\ifelse{html}{\out{<a href="../CHNOSZ/doc/#1.html"><strong>#1.Rmd</strong></a>}}{\bold{#1.Rmd}}}
+
+\section{Changes in CHNOSZ version 2.0.0 (2023-03-13)}{
+
+  \subsection{MAJOR USER-VISIBLE CHANGES}{
+    \itemize{
+
+      \item Units of Joules instead of calories are now used by default for the
+      thermodynamic properties output by \code{subcrt()}. That is,
+      \code{E.units("J")} is the default setting. Scripts that implicitly
+      depend on the previous default setting of \code{E.units("cal")} may need
+      to be modified to produce expected output.
+
+      \item A \code{model} column has been added to the OBIGT thermodynamic
+      database. This specifies the model for calculating standard thermodynamic
+      properties. Currently available models are \samp{H2O} (water), \samp{HKF}
+      (revised Helgeson-Kirkham-Flowers model for aqueous species), \samp{CGL}
+      (heat capacity equation for crystalline, gas, and liquid species),
+      \samp{Berman} (Berman model for minerals), \samp{AD} (Akinfiev-Diamond
+      model for aqueous species), and \samp{DEW} (Deep Earth Water model, a
+      variation of HKF). All OBIGT data files that can be read using
+      \code{add.OBIGT()} must have this column; there is no back-compatibility
+      support for data files in the old format.
+
+      \item Backward compatibility for OBIGT data files without an
+      \code{E_units} column has been removed.
+
+      \item Order-of-magnitude (OOM) scaling of heat capacity coefficients for
+      the CGL model in OBIGT data files has been removed. OOM scaling of HKF
+      and DEW model parameters is still in place.
+
+      \item Change license from GPL (>= 2) to GPL-3.
+
+    }
+  }
+
+  \subsection{OBIGT DATABASE}{
+    \itemize{
+
+      \item Move aqueous CH\s{4} back to \file{organic_aq.csv} and move gaseous
+      CH\s{4} from \file{inorganic_gas.csv} to \file{organic_gas.csv}.
+      
+      \item Modify \code{OBIGT(no.organics = TRUE)} to prune the database of
+      organic compounds \emph{except} CH\s{4}. The ability to remove hundreds
+      of more complex organic compounds while keeping CH\s{4} is useful for
+      some calculations for abiotic reactions in hydrothermal systems.
+
+      \item Merge \file{biotic_aq.csv} into \file{organic_aq.csv}.
+
+      \item \samp{OBIGT/inorganic_cr.csv}: Add cobalt monoxide (CoO), guite
+      (Co\s{3}O\s{4}), and zinc from \href{https://doi.org/10.3133/b2131}{Robie
+        and Hemingway (1995)}.
+
+      \item \samp{OBIGT/inorganic_cr.csv}: Modify linnaeite (Co\s{3}S\s{4}) to
+      use 25 \degC parameters from \href{https://doi.org/10.3133/b2131}{Robie
+        and Hemingway (1995)} and heat capacity coefficients from
+      \href{https://www.worldcat.org/oclc/16131757}{Pankratz et al. (1987)}.
+
+      \item \samp{OBIGT/inorganic_cr.csv}: Modify Co-pentlandite
+      (Co\s{9}S\s{8}) to use parameters from
+      \href{https://www.worldcat.org/oclc/16131757}{Pankratz et al. (1987)} as
+      listed by \href{https://doi.org/10.5382/econgeo.4895}{Williams-Jones and
+        Vasyukova (2022)}.
+
+      \item \samp{OBIGT/organic_aq.csv}: Correct formulas of Na(Mal)-, K(Mal)-,
+      and Dy(Mal)+. Thanks to Grayson Boyer.
+
+    }
+  }
+
+  \subsection{NEW FEATURES: THERMODYNAMIC DATA}{
+    \itemize{
+
+      \item Add \code{logB.to.OBIGT()} to fit selected thermodynamic parameters
+      (\samp{G} and \samp{S} at 25 \degC and \samp{c1}, \samp{c2}, and
+      \samp{omega} HKF coefficients) to formation constants of aqueous species
+      as a function of temperature.
+
+      \item Add vignette \viglink{custom_data} with description of database
+      format, data-entry conventions, and examples of customizing the
+      thermodynamic database using \code{add.OBIGT()}, \code{mod.OBIGT()}, and
+      \code{logB.to.OBIGT()}.
+
+    }
+  }
+
+  \subsection{NEW FEATURES: DIAGRAMS}{
+    \itemize{
+
+      \item Add \code{stack_mosaic()} to create stacked mosaic diagrams, where
+      the species formed in the first layer become the basis species for the
+      species formed in the second layer. This function implements the
+      procedure for making mosaic diagrams for bimetallic systems described in
+      \viglink{multi-metal}.
+
+      \item Add \code{loga_aq} argument to \code{mosiac()} (also present in new
+      function \code{stack_mosaic()}) to control the activity of mosaiced
+      aqueous basis species. This obviates a workaround that was previously
+      used in the Mosaic Stacking 2 section of \strong{multi-metal.Rmd}.
+
+      \item Add \code{add.alpha()} to add alpha value to a color specified in
+      any notation accepted by \code{col2rgb()}.
+
+    }
+  }
+
+  \subsection{NEW FEATURES: PROTEINS}{
+    \itemize{
+
+      \item Add function \code{rank.affinity()} to calculate means of affinity
+      rankings for specified groups of proteins, intended for evolutionary
+      comparisons. The output of the new function can be used by
+      \code{diagram()}.
+
+      \item Add an \strong{as.residue} argument to \code{add.protein()} to
+      normalize amino acid compositions by protein length.
+
+      \item Add a check to \code{add.protein()} that all new protein IDs
+      (protein name + organism name) are unique.
+
+      \item In \code{affinity()}, print a message to indicate whether
+      ionization calculations for proteins are being done.
+
+      \item \code{seq2aa()} allows an empty sequence (zero counts of amino
+      acids), useful for intializing a data frame of amino acid composition.
+
+    }
+  }
+
+  \subsection{NEW FEATURES: OTHER}{
+    \itemize{
+
+      \item \code{NaCl()} has been rewritten to include pH dependence (i.e.
+      formation of HCl as well as NaCl) by using \code{affinity()} and
+      \code{equilibrate()} instead of algebraic equations.
+
+      \item Ion size parameters used in the \samp{Bdot} equation have been
+      moved from the code for \code{nonideal()} to
+      \file{extdata/thermo/Bdot_acirc.csv}, which is read into
+      \code{thermo()$Bdot_acirc} and can be changed by the user.
+
+      \item The two preceding features are used in a new demo \code{yttrium.R}
+      to show speciation of Y-Cl complexes as a function of NaCl concentration,
+      pH, \emph{T}, and \emph{P}, after
+      \href{https://doi.org/10.1016/j.gca.2020.04.015}{Guan et al. (2020)}.
+
+    }
+  }
+
+
+  \subsection{REMOVED FEATURES}{
+    \itemize{
+
+      \item \code{cgl()}, \code{hkf()}, and \code{AD()} are no longer exported.
+      \code{subcrt()} should be used for all calculations of thermodynamic
+      properties.
+
+      \item Remove \code{EOSregress()} and the associated demo and vignette.
+
+      \item Remove parallel calculations in \code{read.fasta()} and \code{count.aa()}.
+
+      \item Remove \code{revisit()}, \code{findit()}, \code{uniprot.aa()},
+      \code{nucleic.formula()}, and \code{nucleic.complement()}.
+
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+
+      \item Add \code{stringsAsFactors = FALSE} to a \code{cbind()} call in
+      \code{mix()}, needed for \R < 4.0.0. Thanks to Xiaojia Jiang for the bug
+      report.
+
+      \item In \strong{multi-metal.Rmd}, work around absence of
+      \code{hcl.colors()} in \R < 3.6.0.
+
+      \item \code{diagram()}: Improve handling of length > 1 \code{col},
+      \code{lty} and \code{lwd} arguments for predominance diagrams. Because
+      field boundaries are drawn for the first species, then that species is
+      removed before drawing boundaries for the second species, and so on,
+      species for which different-colored or -styled lines are desired should
+      be placed at the top of the species list. This change makes possible one
+      less call to \code{diagram()} in Mosaic Stacking 1 and 2 in
+      \strong{multi-metal.Rmd}, and now the entire chalcopyrite field in Mosaic
+      Stacking 2 is bounded by a thick orange line, instead of just the border
+      with bornite.
+
+      \item Improve handling of non-integer coefficients in
+      \code{expr.species()}. For example, the result for FeS1.33 was previously
+      incorrectly formatted as FeS\s{.33} but is now correctly formatted as
+      FeS\s{1.33}.
+
+    }
+  }
+
+  \subsection{OTHER CHANGES}{
+    \itemize{
+
+      \item The \code{\var{reaction}} component of the output of
+      \code{subcrt()} contains the \code{model} for each species.
+
+      \item \code{subcrt()} produces an error if an aqueous species with the
+      \samp{DEW} \code{model} is requested but the DEW water model isn't
+      activated.
+
+      \item Add a \strong{zap} argument to \code{mod.OBIGT()} to clear
+      parameters of preexisting species (used by \code{logB.to.OBIGT()}).
+
+      \item In \code{affinity()}, make \code{loga.protein = 0} the default
+      (changed from -3).
+
+      \item Add tests \file{stack_mosaic.R} and \file{stack_solubility.R}
+      (these create PDF files for visual inspection of results).
+
+      \item \code{axis.label()} produces labels with units delimited by
+      parentheses instead of a comma.
+
+      \item \code{seq2aa()} now has the \strong{sequence} argument first and a
+      default of NA for \strong{protein} (the protein name).
+
+      \item Remove unused \samp{cutoff} value in \code{thermo()$opt}.
+
+      \item Move \strong{ibasis} argument to first position in
+      \code{describe.basis()}.
+
+    }
+  }
+
+}
 
 \section{Changes in CHNOSZ version 1.4.3 (2022-02-20)}{
 
@@ -179,7 +410,6 @@
 
     }
   }
-
 
   \subsection{OTHER CHANGES}{
     \itemize{

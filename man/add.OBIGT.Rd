@@ -9,7 +9,7 @@ Add or modify species in the thermodynamic database.
 
 \usage{
   add.OBIGT(file, species = NULL, force = TRUE)
-  mod.OBIGT(...)
+  mod.OBIGT(..., zap = FALSE)
 }
 
 \arguments{
@@ -17,12 +17,15 @@ Add or modify species in the thermodynamic database.
   \item{species}{character, names of species to load from file}
   \item{force}{logical, force replacement of already existing species?}
   \item{...}{character or numeric, properties of species to modify in the thermodynamic database}
+  \item{zap}{logical, clear preexisting parameters?}
 }
 
 \details{
+Note: change made to OBIGT are lost if you reload the database by calling \code{\link{reset}} or \code{\link{OBIGT}} or if you quit the \R session without saving it.
+
 \code{\link{add.OBIGT}} is used to update the thermodynamic database (\code{\link{thermo}$OBIGT}) in the running session.
 The format (column names) of the specified file must be the same as the \code{extdata/OBIGT/*.csv} files provided with CHNOSZ.
-Howvever, for backwards compatibility, the \code{E_units} column of the input can be missing; then, it is assigned a value of \samp{cal}.
+Note that this includes both the \code{E_units} and \code{model} columns, which were added in versions 1.3.3 and 2.0.0.
 
 \code{file} is first matched against the names of files in the \code{extdata/OBIGT} directory packaged with CHNOSZ.
 In this case, the file suffixes are removed, so \samp{DEW}, \samp{organic_aq}, and \samp{organic_cr} are valid names.
@@ -38,24 +41,29 @@ When adding (not replacing) species, there is no attempt made to keep the order 
 As a result, retrieving the properties of an added aqueous species using \code{\link{info}} requires an explicit \code{state="aq"} argument to that function if a species with the same name is present in one of the cr, liq or gas states.
 
 \code{mod.OBIGT} changes one or more of the properties of species or adds species to the thermodynamic database.
-These changes are lost if you reload the database by calling \code{\link{reset}} or \code{\link{OBIGT}} or if you quit the \R session without saving it.
 The name of the species to add or change must be supplied as the first argument of \code{...} or as a named argument (named \samp{name}).
-When adding new species, a chemical formula should be included along with the values of any of the thermodynamic properties.
-The formula is taken from the \samp{formula} argument, or if that is missing, is taken to be the same as the \samp{name} of the species.
-An error results if the formula is not valid (i.e. can not be parsed by \code{\link{makeup}}).
-
 Additional arguments to \code{mod.OBIGT} refer to the name of the property(s) to be updated and are matched to any part of compound column names in \code{\link{thermo}()$OBIGT}.
 For instance, either \samp{z} or \samp{T} matches the \samp{z.T} column.
-When adding species, properties that are not specified become NA, except for \samp{state}, which takes a default value from \code{thermo()$opt$state}.
-The values provided should have energy units correponding to the current setting (\code{\link{E.units}}), but this can be overridden by giving a value for \samp{E_units} in the new data.
-The values provided should also include any order-of-magnitude scaling factors (see \code{\link{thermo}}).
+The values provided should also include order-of-magnitude scaling of HKF and DEW model parameters (see \code{\link{thermo}}).
+
+When adding new species, a chemical formula should be included along with the values of any of the thermodynamic properties.
+The formula is taken from the \samp{formula} argument, or if that is missing, is taken to be the same as the \samp{name} of the species.
+An error occurs if the formula is not valid (i.e. can not be parsed by \code{\link{makeup}}).
+For new species, properties that are not specified become NA, except for \samp{state} and \samp{E_units}, which take default values from \code{thermo()$opt}.
+These defaults can be overridden by giving a value for \samp{state} or \samp{E_units} in the arguments.
+
+\samp{model}, if missing, is set to \samp{HKF} for \code{state == "aq"} or \samp{CGL} otherwise.
+When modifying some existing minerals in OBIGT, \code{model = "CGL"} should be explicitly given in order to override the Berman model.
+
+When modifying species, the parameters indicated by the named arguments of \code{mod.OBIGT} are updated.
+Use \code{zap = TRUE} to replace all prexisting parameters (except for \code{state} and \code{model}) with NA values.
 }
 
 \value{
 The values returned (\code{\link{invisible}}-y) are the indices of the added and/or modified species.
 }
 
-\seealso{ \code{\link{thermo}}, \code{\link{util.data}}, \code{\link{mod.buffer}} }
+\seealso{ \code{\link{thermo}} (description of OBIGT), \code{\link{mod.buffer}} (modify buffer definitions), \code{\link{logB.to.OBIGT}} (fit thermodynamic parameters to formation constants) }
 
 \examples{\dontshow{reset()}
 ## Modify an existing species (not real properties)
@@ -65,7 +73,8 @@ ialanine <- mod.OBIGT("alanine", state = "cr", G = 0, H = 0, S = 0)
 # now produces a message about that
 info(ialanine)
 
-## Add an aqueous species (default) with Gibbs energy given in J/mol and today's date
+## Add an aqueous species (default) with Gibbs energy given in J/mol 
+## (the same as the default) and today's date
 date <- as.character(Sys.Date())
 iCl2O <- mod.OBIGT("Cl2O", date = date, E_units = "J", G = 87738)
 info(iCl2O)
@@ -103,13 +112,12 @@ invisible(lapply(1:4, function(i) {
   text(800, y[i], describe.reaction(subcrt(c(Cdspecies[i], "Cl-",
     Cdspecies[i+1]), c(-1, -1, 1), T=25, P=1)$reaction))
 }))
-# Reset default database
+# Restore default database
 OBIGT()
 
 # Another use of add.OBIGT()
 # Compare Delta G of AABB = UPBB + H2O
 # (Figure 9 of Kitadai, 2014)
-E.units("J")
 # Default database has values from Kitadai, 2014
 Kit14 <- subcrt(c("[AABB]", "[UPBB]", "H2O"), c(-1, 1, 1), T = seq(0, 300, 10))
 # Load superseded parameters for [UPBB] from Dick et al., 2006
@@ -121,29 +129,33 @@ plot(Kit14$out$T, Kit14$out$G/1000, type = "l", ylim = c(10, 35),
 lines(DLH06$out$T, DLH06$out$G/1000, lty = 2)
 legend("topleft", c("Dick et al., 2006", "Kitadai, 2014"), lty = c(2, 1))
 title(main = "AABB = UPBB + H2O; after Figure 9 of Kitadai, 2014")
-# Reset database *and* settings (units)
-reset()
+# Restore default database
+OBIGT()
 
 # Another use of add.OBIGT(): calculate Delta G of
-# H4SiO4 = SiO2 + 2H2O using different data for SiO2.
-# first, get H4SiO4 from Stefansson, 2001
+# H4SiO4 = SiO2 + 2H2O using various sources of data for SiO2.
+# First, get H4SiO4 from Stefansson, 2001
 add.OBIGT("AS04", "H4SiO4")
 T <- seq(0, 350, 10)
 s1 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2), T = T)
-# now, get SiO2 from Apps and Spycher, 2004
+# Now, get SiO2 from Apps and Spycher, 2004
 add.OBIGT("AS04", "SiO2")
 s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2), T = T)
-# plot logK from the first and second calculations
+# Plot logK from the first and second calculations
 plot(T, s1$out$G, type = "l", xlab = axis.label("T"),
-  ylab = axis.label("DG"), ylim = c(-100, 600))
+  ylab = axis.label("DG"), ylim = c(-500, 2500))
 lines(T, s2$out$G, lty = 2)
-# add title and legend
+# Add title and legend
 title(main = describe.reaction(s1$reaction))
 stxt <- lapply(c("H4SiO4", "SiO2", "SiO2"), expr.species)
-legend("top", legend = as.expression(stxt), bty = "n")
-legend("topright", c("Stef\u00e1nsson, 2001", "Shock et al., 1989",
-  "Apps and Spycher, 2004"), lty = c(0, 1, 2), bty = "n")
-reset()
+legend("top", c("Shock et al., 1989", "Apps and Spycher, 2004"),
+  title = as.expression(expr.species("SiO2")), lty = c(1, 2))
+legend("topright", "Stef\u00e1nsson, 2001",
+  title = as.expression(expr.species("H4SiO4")))
+abline(h = 0, lty = 3, col = 8)
+# Take-home message: SiO2 from Ste01 is compatible with H4SiO4 from Ste01
+# at low T, but SiO2 from Shock et al., 1989 (the default in OBIGT) isn't
+OBIGT()
 }
 
 \references{
