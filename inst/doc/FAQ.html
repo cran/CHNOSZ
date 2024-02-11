@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Jeffrey M. Dick" />
+
+
+<title>CHNOSZ FAQ</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">CHNOSZ FAQ</h1>
+<h4 class="author">Jeffrey M. Dick</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#how-is-chnosz-pronounced">How is ‘CHNOSZ’ pronounced?</a></li>
+<li><a href="#how-should-chnosz-be-cited">How should CHNOSZ be cited?</a></li>
+<li><a href="#what-thermodynamic-models-are-used-in-chnosz">What thermodynamic models are used in CHNOSZ?</a></li>
+<li><a href="#when-and-why-do-equal-activity-boundaries-depend-on-total-activity">When and why do equal-activity boundaries depend on total activity?</a></li>
+<li><a href="#how-can-minerals-with-polymorphic-transitions-be-added-to-the-database">How can minerals with polymorphic transitions be added to the database?</a></li>
+<li><a href="#how-can-i-make-a-diagram-with-the-trisulfur-radical-ion-s3-">How can I make a diagram with the trisulfur radical ion (S<sub>3</sub><sup>-</sup>)?</a><ul>
+<li><a href="#why-does-the-published-diagram-have-a-much-larger-stability-field-for-s3-">Why does the published diagram have a much larger stability field for S<sub>3</sub><sup>-</sup>?</a></li>
+<li><a href="#can-i-make-the-diagram-using-the-deep-earth-water-dew-model">Can I make the diagram using the Deep Earth Water (DEW) model?</a></li>
+</ul></li>
+<li><a href="#in-obigt-what-is-the-meaning-of-t-for-solids-liquids-and-gases">In OBIGT, what is the meaning of <code>T</code> for solids, liquids, and gases?</a></li>
+<li><a href="#how-can-mineral-ph-buffers-be-plotted">How can mineral pH buffers be plotted?</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+
+<style>
+
+/* https://gomakethings.com/how-to-break-an-image-out-of-its-parent-container-with-css/ */
+@media (min-width: 700px) {
+  .full-width {
+    left: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    max-width: 100vw;
+    position: relative;
+    right: 50%;
+    width: 100vw;
+  }
+}
+@media (min-width: 1100px) {
+  .full-width {
+    left: 50vw; /* fallback if needed */
+    left: calc(50vw - 200px);
+    width: 1100px;
+    position: relative;
+  }
+}
+/* zero margin around pre blocks (looks more like R console output) */
+pre {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* CSS snippet from boostrap.css modified by Jeffrey Dick on 2023-11-14 */
+/*!
+ * Bootstrap  v5.3.2 (https://getbootstrap.com/)
+ * Copyright 2011-2023 The Bootstrap Authors
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */
+:root,
+[data-bs-theme=light] {
+  --bs-info-text-emphasis: #055160;
+  --bs-warning-text-emphasis: #664d03;
+  --bs-info-bg-subtle: #cff4fc;
+  --bs-warning-bg-subtle: #fff3cd;
+  --bs-info-border-subtle: #9eeaf9;
+  --bs-warning-border-subtle: #ffe69c;
+  --bs-border-width: 1px;
+  --bs-border-radius: 0.375rem;
+}
+.alert {
+  --bs-alert-bg: transparent;
+  --bs-alert-padding-x: 0.5rem;
+  --bs-alert-padding-y: 0.5rem;
+  --bs-alert-margin-bottom: 1rem;
+  --bs-alert-color: inherit;
+  --bs-alert-border-color: transparent;
+  --bs-alert-border: var(--bs-border-width) solid var(--bs-alert-border-color);
+  --bs-alert-border-radius: var(--bs-border-radius);
+  --bs-alert-link-color: inherit;
+  position: relative;
+  padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);
+  margin-bottom: var(--bs-alert-margin-bottom);
+  color: var(--bs-alert-color);
+  background-color: var(--bs-alert-bg);
+  border: var(--bs-alert-border);
+  border-radius: var(--bs-alert-border-radius);
+}
+.alert-info {
+  --bs-alert-color: var(--bs-info-text-emphasis);
+  --bs-alert-bg: var(--bs-info-bg-subtle);
+  --bs-alert-border-color: var(--bs-info-border-subtle);
+  --bs-alert-link-color: var(--bs-info-text-emphasis);
+}
+.alert-warning {
+  --bs-alert-color: var(--bs-warning-text-emphasis);
+  --bs-alert-bg: var(--bs-warning-bg-subtle);
+  --bs-alert-border-color: var(--bs-warning-border-subtle);
+  --bs-alert-link-color: var(--bs-warning-text-emphasis);
+}
+
+</style>
+<script>
+function ToggleDiv(ID) {
+  var D = document.getElementById("D-" + ID);
+  var B = document.getElementById("B-" + ID);
+  if (D.style.display === "none") {
+    // open the div and change button text
+    D.style.display = "block";
+    B.innerText = "Hide code";
+  } else {
+    // close the div and change button text
+    D.style.display = "none";
+    B.innerText = "Show code";
+  }
+}
+</script>
+<p>This vignette was compiled on 2024-02-11 with CHNOSZ version 2.1.0.</p>
+<div id="how-is-chnosz-pronounced" class="section level2">
+<h2>How is ‘CHNOSZ’ pronounced?</h2>
+<p>As one syllable that starts with an <em>sh</em> sound and <a href="https://en.wiktionary.org/wiki/Rhymes:English/%C9%92z">rhymes with <em>Oz</em></a>. CHNOSZ and <a href="https://en.wiktionary.org/wiki/schnozz">schnoz</a> are homophones.</p>
+<p><em>Added on 2023-05-22.</em></p>
+</div>
+<div id="how-should-chnosz-be-cited" class="section level2">
+<h2>How should CHNOSZ be cited?</h2>
+<ul>
+<li>This paper is the general reference for CHNOSZ: <span class="citation">Dick (<a href="#ref-Dic19" role="doc-biblioref">2019</a>)</span>.</li>
+<li>This paper describes diagrams with multiple metals: <span class="citation">Dick (<a href="#ref-Dic21b" role="doc-biblioref">2021</a>)</span>.</li>
+<li>This paper describes metastable equilibrium calculations for proteins: <span class="citation">Dick (<a href="#ref-Dic08" role="doc-biblioref">2008</a>)</span>.</li>
+<li>The <a href="OBIGT.html"><span style="color:blue"><em>OBIGT thermodynamic database</em></span></a> represents the work of many researchers. <strong>If you publish results that depend on any of these data, please cite the primary sources.</strong> Use <code>info()</code> to show the reference keys for particular species and <code>thermo.refs()</code> to list the bibliographic details. The following example shows the sources of data for aqueous alanine:</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;alanine&quot;</span>))[<span class="kw">c</span>(<span class="st">&quot;ref1&quot;</span>, <span class="st">&quot;ref2&quot;</span>)]</span></code></pre></div>
+<pre><code>##       ref1    ref2
+## 1714 AH97b DLH06.1</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">thermo.refs</span>(<span class="kw">info</span>(<span class="st">&quot;alanine&quot;</span>))</span></code></pre></div>
+<pre><code>##         key                                      author year
+## 70    AH97b              J. P. Amend and H. C. Helgeson 1997
+## 153 DLH06.1 J. M. Dick, D. E. LaRowe and H. C. Helgeson 2006
+##                                        citation                       note
+## 70  J. Chem. Soc., Faraday Trans. 93, 1927-1941            amino acids GHS
+## 153                   Biogeosciences 3, 311-336 amino acids HKF parameters
+##                                       URL
+## 70       https://doi.org/10.1039/A608126F
+## 153 https://doi.org/10.5194/bg-3-311-2006</code></pre>
+<ul>
+<li>Mineral data in OBIGT are based on <span class="citation">Berman (<a href="#ref-Ber88" role="doc-biblioref">1988</a>)</span> together with sulfides and other non-conflicting minerals from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>. For a reaction such as the pyrite-pyrrhotite-magnetite (PPM) oxygen fugacity buffer, all the sources of data can be listed as follows:</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">basis</span>(<span class="kw">c</span>(<span class="st">&quot;pyrite&quot;</span>, <span class="st">&quot;pyrrhotite&quot;</span>, <span class="st">&quot;oxygen&quot;</span>))</span></code></pre></div>
+<pre><code>##      Fe O S ispecies logact state
+## FeS2  1 0 2     2082      0    cr
+## FeS   1 0 1     2083      0    cr
+## O2    0 2 0     2679      0   gas</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>sres &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;magnetite&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">info</span>(sres<span class="op">$</span>reaction<span class="op">$</span>ispecies)[, <span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]</span></code></pre></div>
+<pre><code>##            name abbrv formula state   ref1   ref2
+## 1980  magnetite   Mag   Fe3O4    cr  Ber88   &lt;NA&gt;
+## 2082     pyrite    Py    FeS2    cr HDNB78 RH95.7
+## 2083 pyrrhotite    Po     FeS    cr HDNB78   &lt;NA&gt;
+## 2679     oxygen    O2      O2   gas WEP+82  Kel60</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">thermo.refs</span>(sres)</span></code></pre></div>
+<pre><code>##       key                              author year
+## 23  Ber88                        R. G. Berman 1988
+## 7  HDNB78 H. C. Helgeson, J. M. Delany et al. 1978
+## 14 WEP+82    D. D. Wagman, W. H. Evans et al. 1982
+## 66 RH95.7     R. A. Robie and B. S. Hemingway 1995
+## 1   Kel60                        K. K. Kelley 1960
+##                                        citation                  note
+## 23                       J. Petrol. 29, 445-522              minerals
+## 7                       Am. J. Sci. 278A, 1-229              minerals
+## 14 J. Phys. Chem. Ref. Data 11, Suppl. 2, 1-392             gases GHS
+## 66           U. S. Geological Survey Bull. 2131 phase stability limit
+## 1               U. S. Bureau of Mines Bull. 584              gases Cp
+##                                            URL
+## 23  https://doi.org/10.1093/petrology/29.2.445
+## 7       https://www.worldcat.org/oclc/13594862
+## 14 https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf
+## 66               https://doi.org/10.3133/b2131
+## 1      https://www.worldcat.org/oclc/693388901</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">reset</span>()</span></code></pre></div>
+<ul>
+<li>Additional minerals from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>, that were available in SUPCRT92 but may conflict with the <span class="citation">Berman (<a href="#ref-Ber88" role="doc-biblioref">1988</a>)</span> compilation, can be loaded from an optional database with <code>add.OBIGT(&quot;SUPCRT92&quot;)</code>. When using these data, it is appropriate to cite <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span> rather than SUPCRT92.</li>
+</ul>
+<p><em>Added on 2023-05-27; PPM example added on 2023-11-15.</em></p>
+</div>
+<div id="what-thermodynamic-models-are-used-in-chnosz" class="section level2">
+<h2>What thermodynamic models are used in CHNOSZ?</h2>
+<ul>
+<li>The thermodynamic properties of liquid water are calculated using Fortran code from SUPCRT92 <span class="citation">(Johnson et al., <a href="#ref-JOH92" role="doc-biblioref">1992</a>)</span> or optionally an implementation in R of the IAPWS-95 formulation <span class="citation">(Wagner and Pruß, <a href="#ref-WP02" role="doc-biblioref">2002</a>)</span>.</li>
+<li>Thermodynamic properties of other species are taken from a database for minerals and inorganic and organic aqueous species including biomolecules, or from amino acid group additivity for proteins <span class="citation">(Dick et al., <a href="#ref-DLH06" role="doc-biblioref">2006</a>)</span>.</li>
+<li>The corresponding high-temperature properties are calculated using the <span class="citation">Berman and Brown (<a href="#ref-BB85" role="doc-biblioref">1985</a>)</span> equations for minerals and the revised <span class="citation">(Tanger and Helgeson, <a href="#ref-TH88" role="doc-biblioref">1988</a>; Shock and Helgeson, <a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> Helgeson-Kirkham-Flowers <span class="citation">(Helgeson et al., <a href="#ref-HKF81" role="doc-biblioref">1981</a>)</span> equations for aqueous species.</li>
+<li>The revised HKF equations are augmented with the Deep Earth Water (DEW) model <span class="citation">(Sverjensky et al., <a href="#ref-SHA14" role="doc-biblioref">2014</a>)</span> and estimates of parameters in the extended Debye-Hückel equation <span class="citation">(Manning et al., <a href="#ref-MSS13" role="doc-biblioref">2013</a>)</span> to calculate standard-state properties and activity coefficients for given ionic strength at high pressure (to 6 GPa).</li>
+<li>Activity coefficients are implemented via adjusted standard Gibbs energies at specified ionic strength <span class="citation">(Alberty, <a href="#ref-Alb96" role="doc-biblioref">1996</a>)</span>, which converts all activity variables in the workflow to molalities.</li>
+<li>A related adjustment is available to convert standard Gibbs energies for gases from the 1 bar standard state used in SUPCRT92 to a variable-pressure standard state <span class="citation">(Anderson and Crerar, <a href="#ref-AC93" role="doc-biblioref">1993</a>: Ch.12)</span>.</li>
+</ul>
+<p><em>Added to <a href="https://chnosz.net/" class="uri">https://chnosz.net/</a> website on 2018-11-13; moved to FAQ on 2023-05-27; added references for <strong>revised</strong> HKF on 2023-11-17.</em></p>
+</div>
+<div id="when-and-why-do-equal-activity-boundaries-depend-on-total-activity" class="section level2">
+<h2>When and why do equal-activity boundaries depend on total activity?</h2>
+<p>Short answer: When the species have the same number of the conserved element (let’s take C for example), their activities are raised to the same exponent in reaction quotient, so the activity ratio in the law of mass action becomes unity. But when the species have different numbers of the conserved element (for example, propanoate with 3 C and bicarbonate with 1 C), their activities are raised to different exponents, and the activity ratio does not become unity even when the activities are equal (except for the specific case where the activities themselves are equal to 1). Therefore, in general, the condition of “equal activity” is not sufficient to define boundaries on a relative stability diagram; instead, we need to say “activity of each species equal to <em>x</em>” or alternatively “total activity equal to <em>y</em>”.</p>
+<p>Long answer: First, consider a reaction between formate and bicarbonate: HCO<sub>2</sub><sup>−</sup> + 0.5 O<sub>2</sub> <span class="math inline">⇌</span> HCO<sub>3</sub><sup>−</sup>. The law of mass action (LMA) is <strong>log <i>K</i> <span class="math inline">=</span> log (<i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub> / <i>a</i><sub>HCO<sub>2</sub><sup>−</sup></sub>) <span class="math inline">−</span> 0.5 log <i>f</i><sub>O<sub>2</sub></sub></strong>. The condition of equal activity is <font color="red"><i>a</i><sub>HCO<sub>2</sub><sup>−</sup></sub> <span class="math inline">=</span> <i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub></font>. Then, the LMA simplifies to <strong>log <i>K</i> <span class="math inline">=</span> <span class="math inline">−</span> 0.5 log <i>f</i><sub>O<sub>2</sub></sub></strong>. The total activity of C is given by <font color="blue">C<sub>tot</sub> <span class="math inline">=</span> <i>a</i><sub>HCO<sub>2</sub><sup>−</sup></sub> <span class="math inline">+</span> <i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub></font>. According to the LMA, log <i>f</i><sub>O<sub>2</sub></sub> is a function only of log <i>K</i>, so <font color="green"><em>d</em>log <i>f</i><sub>O<sub>2</sub></sub>/<em>d</em>log C<sub>tot</sub> <span class="math inline">=</span> 0</font>. In other words, the position of the equal-activity boundary is independent of the value of C<sub>tot</sub>.</p>
+<p>Next, consider a reaction between propanoate and bicarbonate: C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup> + <sup>7</sup>⁄<sub>2</sub> O<sub>2</sub> <span class="math inline">⇌</span> 3 HCO<sub>3</sub><sup>−</sup> + 2 H<sup>+</sup>. The LMA is <strong>log <i>K</i> <span class="math inline">=</span> log (<i>a</i><sup>3</sup><sub>HCO<sub>3</sub><sup>−</sup></sub> / <i>a</i><sub>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup></sub>) <span class="math inline">−</span> pH <span class="math inline">−</span> <sup>7</sup>⁄<sub>2</sub> log <i>f</i><sub>O<sub>2</sub></sub></strong>. The condition of equal activity is <font color="red"><i>a</i><sub>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup></sub> <span class="math inline">=</span> <i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub></font>. Then, the LMA simplifies to <strong>log <i>K</i> <span class="math inline">=</span> log <i>a</i><sup>2</sup><sub>HCO<sub>3</sub><sup>−</sup></sub> <span class="math inline">−</span> pH <span class="math inline">−</span> <sup>7</sup>⁄<sub>2</sub> log <i>f</i><sub>O<sub>2</sub></sub></strong>. The total activity of C is given by <font color="blue">C<sub>tot</sub> <span class="math inline">=</span> 3 <i>a</i><sub>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup></sub> <span class="math inline">+</span> <i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub></font>; combined with the condition of equal activity, this gives <font color="blue">C<sub>tot</sub> <span class="math inline">=</span> 4 <i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub></font>. Substituting this into the LMA gives <strong>log <i>K</i> <span class="math inline">=</span> log (C<sub>tot</sub> / 4)<sup>2</sup> <span class="math inline">−</span> pH <span class="math inline">−</span> <sup>7</sup>⁄<sub>2</sub> log <i>f</i><sub>O<sub>2</sub></sub></strong>, which can be rearranged to write log <i>f</i><sub>O<sub>2</sub></sub> <span class="math inline">=</span> <sup>2</sup>⁄<sub>7</sub> (2 log C<sub>tot</sub> <span class="math inline">−</span> log <i>K</i> <span class="math inline">−</span> log 16 <span class="math inline">−</span> pH). It follows that <font color="green"><em>d</em>log <i>f</i><sub>O<sub>2</sub></sub>/<em>d</em>log C<sub>tot</sub> <span class="math inline">=</span> <sup>4</sup>⁄<sub>7</sub></font>, and the position of the equal-activity boundary depends on C<sub>tot</sub>.</p>
+<p>According to this analysis, increasing C<sub>tot</sub> from 0.03 to 3 molal (a 2 log-unit increase) would have no effect on the location of the formate-bicarbonate equal-activity boundary, but would raise the propanoate-bicarbonate equal-activity boundary by <sup>8</sup>⁄<sub>7</sub> units on the log <i>f</i><sub>O<sub>2</sub></sub> scale. Because the reaction between bicarbonate and CO<sub>2</sub> does not involve O<sub>2</sub> (but rather H<sub>2</sub>O and H<sup>+</sup>), the same effect should occur on the propanoate-CO<sub>2</sub> equal-activity boundary. The plots below, which are made using <code>equilibrate()</code> for species in the Deep Earth Water (DEW) model, illustrate this effect.</p>
+<button id="B-DEW_Ctot" onclick="ToggleDiv(&#39;DEW_Ctot&#39;)">
+Show code
+</button>
+<div id="D-DEW_Ctot" style="display: none">
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">### Based on demo/DEW.R in CHNOSZ</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="co"># Set up subplots</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">mar =</span> <span class="kw">c</span>(<span class="fl">3.0</span>, <span class="fl">3.5</span>, <span class="fl">2.5</span>, <span class="fl">1.0</span>), <span class="dt">mgp =</span> <span class="kw">c</span>(<span class="fl">1.7</span>, <span class="fl">0.3</span>, <span class="dv">0</span>), <span class="dt">las =</span> <span class="dv">1</span>, <span class="dt">tcl =</span> <span class="fl">0.3</span>, <span class="dt">xaxs =</span> <span class="st">&quot;i&quot;</span>, <span class="dt">yaxs =</span> <span class="st">&quot;i&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co"># Activate DEW model</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="kw">water</span>(<span class="st">&quot;DEW&quot;</span>)</span>
+<span id="cb12-8"><a href="#cb12-8"></a></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="co">###########</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a><span class="co">## logfO2-pH diagram for aqueous inorganic and organic carbon species at high pressure</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a><span class="co">## After Figure 1b of Sverjensky et al., 2014b [SSH14]</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="co">## (Nature Geoscience, https://doi.org/10.1038/NGEO2291)</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a><span class="co">###########</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a></span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="co"># Define system</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a><span class="kw">basis</span>(<span class="st">&quot;CHNOS+&quot;</span>)</span>
+<span id="cb12-17"><a href="#cb12-17"></a>inorganic &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CO2&quot;</span>, <span class="st">&quot;HCO3-&quot;</span>, <span class="st">&quot;CO3-2&quot;</span>, <span class="st">&quot;CH4&quot;</span>)</span>
+<span id="cb12-18"><a href="#cb12-18"></a>organic &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;formic acid&quot;</span>, <span class="st">&quot;formate&quot;</span>, <span class="st">&quot;acetic acid&quot;</span>, <span class="st">&quot;acetate&quot;</span>, <span class="st">&quot;propanoic acid&quot;</span>, <span class="st">&quot;propanoate&quot;</span>)</span>
+<span id="cb12-19"><a href="#cb12-19"></a><span class="kw">species</span>(<span class="kw">c</span>(inorganic, organic), <span class="dv">0</span>)</span>
+<span id="cb12-20"><a href="#cb12-20"></a>fill &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">rep</span>(<span class="st">&quot;aliceblue&quot;</span>, <span class="kw">length</span>(inorganic)), <span class="kw">rep</span>(<span class="st">&quot;aquamarine&quot;</span>, <span class="kw">length</span>(organic)))</span>
+<span id="cb12-21"><a href="#cb12-21"></a></span>
+<span id="cb12-22"><a href="#cb12-22"></a><span class="co"># A function to make the diagrams</span></span>
+<span id="cb12-23"><a href="#cb12-23"></a>dfun &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">T =</span> <span class="dv">600</span>, <span class="dt">P =</span> <span class="dv">50000</span>, <span class="dt">res =</span> <span class="dv">200</span>, <span class="dt">Ctot =</span> <span class="fl">0.03</span>) {</span>
+<span id="cb12-24"><a href="#cb12-24"></a>  a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>, res), <span class="dt">O2 =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">24</span>, <span class="dv">-12</span>, res), <span class="dt">T =</span> T, <span class="dt">P =</span> P)</span>
+<span id="cb12-25"><a href="#cb12-25"></a>  <span class="co"># Set total C concentration to 0.03 molal</span></span>
+<span id="cb12-26"><a href="#cb12-26"></a>  <span class="co"># (from EQ3NR model for eclogite [Supporting Information of SSH14])</span></span>
+<span id="cb12-27"><a href="#cb12-27"></a>  e &lt;-<span class="st"> </span><span class="kw">equilibrate</span>(a, <span class="dt">loga.balance =</span> <span class="kw">log10</span>(Ctot))</span>
+<span id="cb12-28"><a href="#cb12-28"></a>  <span class="kw">diagram</span>(e, <span class="dt">fill =</span> fill)</span>
+<span id="cb12-29"><a href="#cb12-29"></a>  dp &lt;-<span class="st"> </span><span class="kw">describe.property</span>(<span class="kw">c</span>(<span class="st">&quot;     T&quot;</span>, <span class="st">&quot;     P&quot;</span>), <span class="kw">c</span>(T, P), <span class="dt">digits =</span> <span class="dv">0</span>)</span>
+<span id="cb12-30"><a href="#cb12-30"></a>  <span class="kw">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="dt">legend =</span> dp, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb12-31"><a href="#cb12-31"></a>}</span>
+<span id="cb12-32"><a href="#cb12-32"></a></span>
+<span id="cb12-33"><a href="#cb12-33"></a><span class="kw">water</span>(<span class="st">&quot;DEW&quot;</span>)</span>
+<span id="cb12-34"><a href="#cb12-34"></a><span class="kw">add.OBIGT</span>(<span class="st">&quot;DEW&quot;</span>)</span>
+<span id="cb12-35"><a href="#cb12-35"></a><span class="kw">dfun</span>(<span class="dt">Ctot =</span> <span class="fl">0.03</span>)</span>
+<span id="cb12-36"><a href="#cb12-36"></a><span class="kw">mtitle</span>(<span class="kw">c</span>(<span class="st">&quot;Inorganic and organic species&quot;</span>, <span class="st">&quot;C[total] = 0.03 molal&quot;</span>))</span>
+<span id="cb12-37"><a href="#cb12-37"></a><span class="kw">dfun</span>(<span class="dt">Ctot =</span> <span class="dv">3</span>)</span>
+<span id="cb12-38"><a href="#cb12-38"></a><span class="kw">mtitle</span>(<span class="kw">c</span>(<span class="st">&quot;Inorganic and organic species&quot;</span>, <span class="st">&quot;C[total] = 3 molal&quot;</span>))</span>
+<span id="cb12-39"><a href="#cb12-39"></a></span>
+<span id="cb12-40"><a href="#cb12-40"></a><span class="co"># Restore default settings for the questions below</span></span>
+<span id="cb12-41"><a href="#cb12-41"></a><span class="kw">reset</span>()</span></code></pre></div>
+</div>
+<p><img src="data:image/png;base64,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" width="100%" style="display: block; margin: auto;" /></p>
+<p><em>Added on 2023-05-17.</em></p>
+</div>
+<div id="how-can-minerals-with-polymorphic-transitions-be-added-to-the-database" class="section level2">
+<h2>How can minerals with polymorphic transitions be added to the database?</h2>
+<p>The different crystal forms of a mineral are called polymorphs. Many minerals undergo polymorphic transitions upon heating. Each polymorph for a given mineral should have its own entry in OBIGT, including values of the standard thermodynamic properties (Δ<em>G</em>°<sub><em>f</em></sub>, Δ<em>H</em>°<sub><em>f</em></sub>, and <em>S</em>°) at 25 °C. The 25 °C (or 298.15 K) values for high-temperature polymorphs are often not listed in thermodynamic tables, but they can be calculated. This thermodynamic cycle shows how: we calculate the changes of a thermodyamic property (pictured here as <code>DS1</code> and <code>DS2</code>) between 298.15 K and the transition temperature (<code>Ttr</code>) for two polymorphs, then combine those with the property of the polymorphic transition (<code>DStr</code>) to obtain the difference of the property between the polymorphs at 298.15 K (<code>DS298</code>).</p>
+<pre class="text"><code>               DStr              DStr: entropy of transition between polymorphs 1 and 2
+      Ttr  o----------&gt;o          Ttr: temperature of transition
+           ^           |         
+           |           |         
+       DS1 |           | DS2      DS1: entropy change of polymorph 1 from 298.15 K to Ttr
+           |           |          DS2: entropy change of polymorph 2 from 298.15 K to Ttr
+           |           v
+ 298.15 K  o==========&gt;o    DS298: entropy difference between polymorphs 1 and 2 at 298.15 K
+               DS298        DS298 = DS1 + DStr - DS2
+Polymorph  1           2</code></pre>
+<p>As an example, let’s add pyrrhotite (Fe0.877S) from <span class="citation">Pankratz et al. (<a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span>. The formula and thermodynamic properties of this pyrrhotite differ from those of FeS from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>, which is already in OBIGT. We begin by defining all the input values in the next code block. In addition to <code>G</code>, <code>H</code>, <code>S</code>, and the heat capacity coefficients, non-NA values of volume (<code>V</code>) must be provided for the polymorph transitions to be calculated correctly by <code>subcrt()</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># The formula of the new mineral and literature reference</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>formula &lt;-<span class="st"> &quot;Fe0.877S&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>ref1 &lt;-<span class="st"> &quot;PMW87&quot;</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co"># Because the properties from Pankratz et al. (1987) are listed in calories,</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="co"># we need to change the output of subcrt() to calories (the default is Joules)</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="kw">E.units</span>(<span class="st">&quot;cal&quot;</span>)</span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="co"># Use temperature in Kelvin for the calculations below</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="kw">T.units</span>(<span class="st">&quot;K&quot;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9"></a><span class="co"># Thermodynamic properties of polymorph 1 at 25 °C (298.15 K)</span></span>
+<span id="cb14-10"><a href="#cb14-10"></a>G1 &lt;-<span class="st"> </span><span class="dv">-25543</span></span>
+<span id="cb14-11"><a href="#cb14-11"></a>H1 &lt;-<span class="st"> </span><span class="dv">-25200</span></span>
+<span id="cb14-12"><a href="#cb14-12"></a>S1 &lt;-<span class="st"> </span><span class="fl">14.531</span></span>
+<span id="cb14-13"><a href="#cb14-13"></a>Cp1 &lt;-<span class="st"> </span><span class="fl">11.922</span></span>
+<span id="cb14-14"><a href="#cb14-14"></a><span class="co"># Heat capacity coefficients for polymorph 1</span></span>
+<span id="cb14-15"><a href="#cb14-15"></a>a1 &lt;-<span class="st"> </span><span class="fl">7.510</span></span>
+<span id="cb14-16"><a href="#cb14-16"></a>b1 &lt;-<span class="st"> </span><span class="fl">0.014798</span></span>
+<span id="cb14-17"><a href="#cb14-17"></a><span class="co"># For volume, use the value from Helgeson et al. (1978)</span></span>
+<span id="cb14-18"><a href="#cb14-18"></a>V1 &lt;-<span class="st"> </span>V2 &lt;-<span class="st"> </span><span class="fl">18.2</span></span>
+<span id="cb14-19"><a href="#cb14-19"></a><span class="co"># Transition temperature</span></span>
+<span id="cb14-20"><a href="#cb14-20"></a>Ttr &lt;-<span class="st"> </span><span class="dv">598</span></span>
+<span id="cb14-21"><a href="#cb14-21"></a><span class="co"># Transition enthalpy (cal/mol)</span></span>
+<span id="cb14-22"><a href="#cb14-22"></a>DHtr &lt;-<span class="st"> </span><span class="dv">95</span></span>
+<span id="cb14-23"><a href="#cb14-23"></a><span class="co"># Heat capacity coefficients for polymorph 2</span></span>
+<span id="cb14-24"><a href="#cb14-24"></a>a2 &lt;-<span class="st"> </span><span class="fl">-1.709</span></span>
+<span id="cb14-25"><a href="#cb14-25"></a>b2 &lt;-<span class="st"> </span><span class="fl">0.011746</span></span>
+<span id="cb14-26"><a href="#cb14-26"></a>c2 &lt;-<span class="st"> </span><span class="dv">3073400</span></span>
+<span id="cb14-27"><a href="#cb14-27"></a><span class="co"># Maximum temperature of polymorph 2</span></span>
+<span id="cb14-28"><a href="#cb14-28"></a>T2 &lt;-<span class="st"> </span><span class="dv">1800</span></span></code></pre></div>
+<p>Use the temperature (<code>Ttr</code>) and enthalpy of transition (<code>DHtr</code>) to calculate the entropy of transition (<code>DStr</code>). Note that the Gibbs energy of transition (<code>DGtr</code>) is zero at <code>Ttr</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>DGtr &lt;-<span class="st"> </span><span class="dv">0</span>  <span class="co"># DON&#39;T CHANGE THIS</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>TDStr &lt;-<span class="st"> </span>DHtr <span class="op">-</span><span class="st"> </span>DGtr  <span class="co"># TΔS° = ΔH° - ΔG°</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>DStr &lt;-<span class="st"> </span>TDStr <span class="op">/</span><span class="st"> </span>Ttr</span></code></pre></div>
+<p>Start new database entries that include basic information, volume, and heat capacity coefficients for each polymorph. <span class="citation">Pankratz et al. (<a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span> don’t list <em>C<sub>p</sub></em>° of the high-temperature polymorph extrapolated to 298.15 K, so leave it out. If the properties were in Joules, we would omit <code>E_units = &quot;cal&quot;</code> or change it to <code>E_units = &quot;J&quot;</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">formula =</span> formula, <span class="dt">state =</span> <span class="st">&quot;cr&quot;</span>, <span class="dt">ref1 =</span> ref1,</span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="dt">E_units =</span> <span class="st">&quot;cal&quot;</span>, <span class="dt">G =</span> <span class="dv">0</span>, <span class="dt">H =</span> <span class="dv">0</span>, <span class="dt">S =</span> <span class="dv">0</span>, <span class="dt">V =</span> V1, <span class="dt">Cp =</span> Cp1,</span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="dt">a =</span> a1, <span class="dt">b =</span> b1, <span class="dt">c =</span> <span class="dv">0</span>, <span class="dt">d =</span> <span class="dv">0</span>, <span class="dt">e =</span> <span class="dv">0</span>, <span class="dt">f =</span> <span class="dv">0</span>, <span class="dt">lambda =</span> <span class="dv">0</span>, <span class="dt">T =</span> Ttr)</span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">formula =</span> formula, <span class="dt">state =</span> <span class="st">&quot;cr2&quot;</span>, <span class="dt">ref1 =</span> ref1,</span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="dt">E_units =</span> <span class="st">&quot;cal&quot;</span>, <span class="dt">G =</span> <span class="dv">0</span>, <span class="dt">H =</span> <span class="dv">0</span>, <span class="dt">S =</span> <span class="dv">0</span>, <span class="dt">V =</span> V2,</span>
+<span id="cb16-6"><a href="#cb16-6"></a>  <span class="dt">a =</span> a2, <span class="dt">b =</span> b2, <span class="dt">c =</span> c2, <span class="dt">d =</span> <span class="dv">0</span>, <span class="dt">e =</span> <span class="dv">0</span>, <span class="dt">f =</span> <span class="dv">0</span>, <span class="dt">lambda =</span> <span class="dv">0</span>, <span class="dt">T =</span> T2)</span></code></pre></div>
+<p>For the time being, we set <code>G</code>, <code>H</code>, and <code>S</code> (i.e., the properties at 25 °C) to zero in order to easily calculate the temperature integrals of the properties from 298.15 K to <code>Ttr</code>. Values of zero are placeholders that don’t satisfy Δ<em>G</em>°<sub><em>f</em></sub> = Δ<em>H</em>°<sub><em>f</em></sub> − <em>T</em>Δ<em>S</em>°<sub><em>f</em></sub> for either polymorph (the subscript <em>f</em> represents formation from the elements), as indicated by the following messages. We will check again for consistency of the thermodynamic parameters at the end of the example.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr&quot;</span>))</span></code></pre></div>
+<div class="alert alert-info">
+<p>check.GHS: calculated ΔG°f of pyrrhotite_new(cr) differs by 3989 cal mol-1 from database value</p>
+</div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr2&quot;</span>))</span></code></pre></div>
+<div class="alert alert-info">
+<p>check.GHS: calculated ΔG°f of pyrrhotite_new(cr2) differs by 3989 cal mol-1 from database value</p>
+<p>info.numeric: Cp° of pyrrhotite_new(cr2) is NA; set by EOS parameters to 36.37 cal K-1 mol-1</p>
+</div>
+<p>In order to calculate the temperature integral of Δ<em>G</em>°<sub><em>f</em></sub>, we need not only the heat capacity coefficients but also actual values of <em>S</em>°. Therefore, we start by calculating the entropy changes of each polymorph from 298.15 to 598 K (<code>DS1</code> and <code>DS2</code>) and combining those with the entropy of transition to obtain the difference of entropy between the polymorphs at 298.15 K. For polymorph 1 (with <code>state = &quot;cr&quot;</code>) it’s advisable to include <code>use.polymorphs = FALSE</code> to prevent <code>subcrt()</code> from trying to identify the most stable polymorph at the indicated temperature.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>DS1 &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr&quot;</span>, <span class="dt">P =</span> <span class="dv">1</span>, <span class="dt">T =</span> Ttr, <span class="dt">use.polymorphs =</span> <span class="ot">FALSE</span>)<span class="op">$</span>out[[<span class="dv">1</span>]]<span class="op">$</span>S</span>
+<span id="cb19-2"><a href="#cb19-2"></a>DS2 &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr2&quot;</span>, <span class="dt">P =</span> <span class="dv">1</span>, <span class="dt">T =</span> Ttr)<span class="op">$</span>out[[<span class="dv">1</span>]]<span class="op">$</span>S</span>
+<span id="cb19-3"><a href="#cb19-3"></a>DS298 &lt;-<span class="st"> </span>DS1 <span class="op">+</span><span class="st"> </span>DStr <span class="op">-</span><span class="st"> </span>DS2</span></code></pre></div>
+<p>Put the values of <em>S</em>° at 298.15 into OBIGT, then calculate the changes of all thermodynamic properties of each polymorph between 298.15 K and <code>Ttr</code>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">state =</span> <span class="st">&quot;cr&quot;</span>, <span class="dt">S =</span> S1)</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">state =</span> <span class="st">&quot;cr2&quot;</span>, <span class="dt">S =</span> S1 <span class="op">+</span><span class="st"> </span>DS298)</span>
+<span id="cb20-3"><a href="#cb20-3"></a>D1 &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr&quot;</span>, <span class="dt">P =</span> <span class="dv">1</span>, <span class="dt">T =</span> Ttr, <span class="dt">use.polymorphs =</span> <span class="ot">FALSE</span>)<span class="op">$</span>out[[<span class="dv">1</span>]]</span>
+<span id="cb20-4"><a href="#cb20-4"></a>D2 &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr2&quot;</span>, <span class="dt">P =</span> <span class="dv">1</span>, <span class="dt">T =</span> Ttr)<span class="op">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>It’s a good idea to check that the entropy of transition is calculated correctly.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">stopifnot</span>(<span class="kw">all.equal</span>(D2<span class="op">$</span>S <span class="op">-</span><span class="st"> </span>D1<span class="op">$</span>S, DStr))</span></code></pre></div>
+<p>Now we’re ready to add up the contributions to Δ<em>G</em>°<sub><em>f</em></sub> and Δ<em>H</em>°<sub><em>f</em></sub> from the left, top, and right sides of the cycle. This gives us the differences between the polymorphs at 298.15 K, which we use to make the final changes to the database.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>DG298 &lt;-<span class="st"> </span>D1<span class="op">$</span>G <span class="op">+</span><span class="st"> </span>DGtr <span class="op">-</span><span class="st"> </span>D2<span class="op">$</span>G</span>
+<span id="cb22-2"><a href="#cb22-2"></a>DH298 &lt;-<span class="st"> </span>D1<span class="op">$</span>H <span class="op">+</span><span class="st"> </span>DHtr <span class="op">-</span><span class="st"> </span>D2<span class="op">$</span>H</span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">state =</span> <span class="st">&quot;cr&quot;</span>, <span class="dt">G =</span> G1, <span class="dt">H =</span> H1)</span>
+<span id="cb22-4"><a href="#cb22-4"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">state =</span> <span class="st">&quot;cr2&quot;</span>, <span class="dt">G =</span> G1 <span class="op">+</span><span class="st"> </span>DG298, <span class="dt">H =</span> H1 <span class="op">+</span><span class="st"> </span>DH298)</span></code></pre></div>
+<p>It’s a good idea to check that the values of <code>G</code>, <code>H</code>, and <code>S</code> at 25 °C for a given polymorph are consistent with each other. Here we use <code>check.GHS()</code> to calculate the difference between the value given for <code>G</code> and the value calculated from <code>H</code> and <code>S</code>. The difference of less than 1 cal/mol can probably be attributed to small differences in the entropies of the elements used by <span class="citation">Pankratz et al. (<a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span> and in CHNOSZ. We still get a message that the database value of <em>C<sub>p</sub></em>° at 25 °C for the high-temperature polymorph is NA; this is OK because the (extrapolated) value can be calculated from the heat capacity coefficients.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>cr_parameters &lt;-<span class="st"> </span><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr&quot;</span>))</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="kw">stopifnot</span>(<span class="kw">abs</span>(<span class="kw">check.GHS</span>(cr_parameters)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span>)</span>
+<span id="cb23-3"><a href="#cb23-3"></a>cr2_parameters &lt;-<span class="st"> </span><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="st">&quot;cr2&quot;</span>))</span></code></pre></div>
+<div class="alert alert-info">
+<p>info.numeric: Cp° of pyrrhotite_new(cr2) is NA; set by EOS parameters to 36.37 cal K-1 mol-1</p>
+</div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">stopifnot</span>(<span class="kw">abs</span>(<span class="kw">check.GHS</span>(cr2_parameters)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">1</span>)</span></code></pre></div>
+<p>For the curious, here are the parameter values:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>cr_parameters</span></code></pre></div>
+<pre><code>##                name abbrv  formula state  ref1 ref2 date model E_units      G
+## 3487 pyrrhotite_new  &lt;NA&gt; Fe0.877S    cr PMW87 &lt;NA&gt; &lt;NA&gt;   CGL     cal -25543
+##           H      S     Cp    V    a        b c d e f lambda   T
+## 3487 -25200 14.531 11.922 18.2 7.51 0.014798 0 0 0 0      0 598</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>cr2_parameters</span></code></pre></div>
+<pre><code>##                name abbrv  formula state  ref1 ref2 date model E_units
+## 3488 pyrrhotite_new  &lt;NA&gt; Fe0.877S   cr2 PMW87 &lt;NA&gt; &lt;NA&gt;   CGL     cal
+##              G        H        S       Cp    V      a        b       c d e f
+## 3488 -25802.75 -27099.4 9.031592 36.36706 18.2 -1.709 0.011746 3073400 0 0 0
+##      lambda    T
+## 3488      0 1800</code></pre>
+<p>Finally, let’s look at the thermodynamic properties of the newly added pyrrhotite as a function of temperature around <code>Ttr</code>. Here, we use the feature of <code>subcrt()</code> that identifies the stable polymorph at each temperature. Note that Δ<em>G</em>°<sub><em>f</em></sub> is a continuous function – visual confirmation that the parameters yield zero for <code>DGtr</code> – but Δ<em>H</em>°<sub><em>f</em></sub>, <em>S</em>°, and <em>C<sub>p</sub></em>° are discontinuous at the transition temperature.</p>
+<button id="B-pyrrhotite_T" onclick="ToggleDiv(&#39;pyrrhotite_T&#39;)">
+Show code
+</button>
+<div id="D-pyrrhotite_T" style="display: none">
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>T &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">550</span>, <span class="dv">650</span>, <span class="dv">1</span>)</span>
+<span id="cb29-2"><a href="#cb29-2"></a>sout &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;pyrrhotite_new&quot;</span>, <span class="dt">T =</span> T, <span class="dt">P =</span> <span class="dv">1</span>)<span class="op">$</span>out[[<span class="dv">1</span>]]</span>
+<span id="cb29-3"><a href="#cb29-3"></a><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">4</span>), <span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">4</span>, <span class="fl">4.2</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb29-4"><a href="#cb29-4"></a>labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">G =</span> <span class="st">&quot;DG0f&quot;</span>, <span class="dt">H =</span> <span class="st">&quot;DH0f&quot;</span>, <span class="dt">S =</span> <span class="st">&quot;S0&quot;</span>, <span class="dt">Cp =</span> <span class="st">&quot;Cp0&quot;</span>)</span>
+<span id="cb29-5"><a href="#cb29-5"></a><span class="cf">for</span>(property <span class="cf">in</span> <span class="kw">c</span>(<span class="st">&quot;G&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;S&quot;</span>, <span class="st">&quot;Cp&quot;</span>)) {</span>
+<span id="cb29-6"><a href="#cb29-6"></a>  <span class="kw">plot</span>(sout<span class="op">$</span>T, sout[, property], <span class="dt">col =</span> sout<span class="op">$</span>polymorph,</span>
+<span id="cb29-7"><a href="#cb29-7"></a>    <span class="dt">xlab =</span> <span class="kw">axis.label</span>(<span class="st">&quot;T&quot;</span>), <span class="dt">ylab =</span> <span class="kw">axis.label</span>(labels[property])</span>
+<span id="cb29-8"><a href="#cb29-8"></a>  )</span>
+<span id="cb29-9"><a href="#cb29-9"></a>  <span class="kw">abline</span>(<span class="dt">v =</span> Ttr, <span class="dt">lty =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="dv">8</span>)</span>
+<span id="cb29-10"><a href="#cb29-10"></a>  <span class="cf">if</span>(property <span class="op">==</span><span class="st"> &quot;G&quot;</span>)</span>
+<span id="cb29-11"><a href="#cb29-11"></a>    <span class="kw">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>), <span class="dt">pch =</span> <span class="dv">1</span>, <span class="dt">col =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">title =</span> <span class="st">&quot;Polymorph&quot;</span>)</span>
+<span id="cb29-12"><a href="#cb29-12"></a>}</span>
+<span id="cb29-13"><a href="#cb29-13"></a></span>
+<span id="cb29-14"><a href="#cb29-14"></a><span class="co"># Restore default settings for the questions below</span></span>
+<span id="cb29-15"><a href="#cb29-15"></a><span class="kw">reset</span>()</span></code></pre></div>
+</div>
+<p><img src="data:image/png;base64,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" width="100%" style="display: block; margin: auto;" /></p>
+<p>For additional polymorphs, we could repeat the above procedure using polymorph 2 as the starting point to calculate <code>G</code>, <code>H</code>, and <code>S</code> of polymorph 3, and so on.</p>
+<p><em>Added on 2023-06-23.</em></p>
+</div>
+<div id="how-can-i-make-a-diagram-with-the-trisulfur-radical-ion-s3-" class="section level2">
+<h2>How can I make a diagram with the trisulfur radical ion (S<sub>3</sub><sup>-</sup>)?</h2>
+<p>A log <i>f</i><sub>O<sub>2</sub></sub>–pH plot for aqueous sulfur species including S<sub>3</sub><sup>-</sup> was first presented by <span class="citation">Pokrovski and Dubrovinsky (<a href="#ref-PD11" role="doc-biblioref">2011</a>)</span>. Later, <span class="citation">Pokrovski and Dubessy (<a href="#ref-PD15" role="doc-biblioref">2015</a>)</span> reported parameters in the revised HKF equations of state for S<sub>3</sub><sup>-</sup>, which are available in OBIGT.</p>
+<p>The blocks of code are commented here:</p>
+<ol style="list-style-type: decimal">
+<li>Set temperature, pressure, and resolution.</li>
+<li>Calculate molality of S from given weight percent [this is rather tedious and could be condensed to fewer lines of code].
+<ul>
+<li>Define the given weight percent (10 wt% S).</li>
+<li>Calculate weight permil S.</li>
+<li>Divide by molar mass to calculate moles of S in 1 kg of solution.</li>
+<li>Calculate grams of H<sub>2</sub>O in 1 kg of solution.</li>
+<li>Calculate molality (moles of S per kg of H<sub>2</sub>O, not kg of solution).</li>
+<li>Calculate decimal logarithm of molality.</li>
+</ul></li>
+<li>Define the basis species and formed species, calculate affinity, equilibrate activities, and make the diagram.
+<ul>
+<li>If we didn’t want to plot the buffer lines, we could just use <code>basis(c(&quot;H2S&quot;, &quot;H2O&quot;, &quot;oxygen&quot;, &quot;H+&quot;))</code>.</li>
+<li>Basis species with Fe, Si, and Ni are needed for the HM, QFM, and NNO buffers.</li>
+<li>Note that “oxygen” matches O<sub>2</sub>(gas), not O<sub>2</sub>(aq), so the variable on the diagram is log <i>f</i><sub>O<sub>2</sub></sub>.</li>
+</ul></li>
+<li>Define Ni-NiO (NNO) buffer and plot buffer lines for HM, QFM, and NNO.
+<ul>
+<li>QFM (quartz-fayalite-magnetite) is also known as FMQ.</li>
+</ul></li>
+<li>Calculate and plot pH of neutrality for water.</li>
+<li>Add a legend and title.</li>
+</ol>
+<button id="B-trisulfur-1" onclick="ToggleDiv(&#39;trisulfur-1&#39;)">
+Show code
+</button>
+<div id="D-trisulfur-1" style="display: none">
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="co">## BLOCK 1</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>T &lt;-<span class="st"> </span><span class="dv">350</span></span>
+<span id="cb30-3"><a href="#cb30-3"></a>P &lt;-<span class="st"> </span><span class="dv">5000</span></span>
+<span id="cb30-4"><a href="#cb30-4"></a>res &lt;-<span class="st"> </span><span class="dv">200</span></span>
+<span id="cb30-5"><a href="#cb30-5"></a></span>
+<span id="cb30-6"><a href="#cb30-6"></a><span class="co">## BLOCK 2</span></span>
+<span id="cb30-7"><a href="#cb30-7"></a>wt_percent_S &lt;-<span class="st"> </span><span class="dv">10</span></span>
+<span id="cb30-8"><a href="#cb30-8"></a>wt_permil_S &lt;-<span class="st"> </span>wt_percent_S <span class="op">*</span><span class="st"> </span><span class="dv">10</span></span>
+<span id="cb30-9"><a href="#cb30-9"></a>molar_mass_S &lt;-<span class="st"> </span><span class="kw">mass</span>(<span class="st">&quot;S&quot;</span>) <span class="co"># 32.06</span></span>
+<span id="cb30-10"><a href="#cb30-10"></a>moles_S &lt;-<span class="st"> </span>wt_permil_S <span class="op">/</span><span class="st"> </span>molar_mass_S</span>
+<span id="cb30-11"><a href="#cb30-11"></a>grams_H2O &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="op">-</span><span class="st"> </span>wt_permil_S</span>
+<span id="cb30-12"><a href="#cb30-12"></a>molality_S &lt;-<span class="st"> </span><span class="dv">1000</span> <span class="op">*</span><span class="st"> </span>moles_S <span class="op">/</span><span class="st"> </span>grams_H2O</span>
+<span id="cb30-13"><a href="#cb30-13"></a>logm_S &lt;-<span class="st"> </span><span class="kw">log10</span>(molality_S)</span>
+<span id="cb30-14"><a href="#cb30-14"></a></span>
+<span id="cb30-15"><a href="#cb30-15"></a><span class="co">## BLOCK 3</span></span>
+<span id="cb30-16"><a href="#cb30-16"></a><span class="kw">basis</span>(<span class="kw">c</span>(<span class="st">&quot;Ni&quot;</span>, <span class="st">&quot;SiO2&quot;</span>, <span class="st">&quot;Fe2O3&quot;</span>, <span class="st">&quot;H2S&quot;</span>, <span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;oxygen&quot;</span>, <span class="st">&quot;H+&quot;</span>))</span>
+<span id="cb30-17"><a href="#cb30-17"></a><span class="kw">species</span>(<span class="kw">c</span>(<span class="st">&quot;H2S&quot;</span>, <span class="st">&quot;HS-&quot;</span>, <span class="st">&quot;SO2&quot;</span>, <span class="st">&quot;HSO4-&quot;</span>, <span class="st">&quot;SO4-2&quot;</span>, <span class="st">&quot;S3-&quot;</span>))</span>
+<span id="cb30-18"><a href="#cb30-18"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">10</span>, res), <span class="dt">O2 =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">34</span>, <span class="dv">-22</span>, res), <span class="dt">T =</span> T, <span class="dt">P =</span> P)</span>
+<span id="cb30-19"><a href="#cb30-19"></a>e &lt;-<span class="st"> </span><span class="kw">equilibrate</span>(a, <span class="dt">loga.balance =</span> logm_S)</span>
+<span id="cb30-20"><a href="#cb30-20"></a><span class="kw">diagram</span>(e)</span>
+<span id="cb30-21"><a href="#cb30-21"></a></span>
+<span id="cb30-22"><a href="#cb30-22"></a><span class="co">## BLOCK 4</span></span>
+<span id="cb30-23"><a href="#cb30-23"></a><span class="kw">mod.buffer</span>(<span class="st">&quot;NNO&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;nickel&quot;</span>, <span class="st">&quot;bunsenite&quot;</span>), <span class="dt">state =</span> <span class="st">&quot;cr&quot;</span>, <span class="dt">logact =</span> <span class="dv">0</span>)</span>
+<span id="cb30-24"><a href="#cb30-24"></a><span class="cf">for</span>(buffer <span class="cf">in</span> <span class="kw">c</span>(<span class="st">&quot;HM&quot;</span>, <span class="st">&quot;QFM&quot;</span>, <span class="st">&quot;NNO&quot;</span>)) {</span>
+<span id="cb30-25"><a href="#cb30-25"></a>  <span class="kw">basis</span>(<span class="st">&quot;O2&quot;</span>, buffer)</span>
+<span id="cb30-26"><a href="#cb30-26"></a>  logfO2_ &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">return.buffer =</span> <span class="ot">TRUE</span>, <span class="dt">T =</span> T, <span class="dt">P =</span> P)<span class="op">$</span>O2</span>
+<span id="cb30-27"><a href="#cb30-27"></a>  <span class="kw">abline</span>(<span class="dt">h =</span> logfO2_, <span class="dt">lty =</span> <span class="dv">3</span>, <span class="dt">col =</span> <span class="dv">2</span>)</span>
+<span id="cb30-28"><a href="#cb30-28"></a>  <span class="kw">text</span>(<span class="fl">8.5</span>, logfO2_, buffer, <span class="dt">adj =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>), <span class="dt">col =</span> <span class="dv">2</span>, <span class="dt">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb30-29"><a href="#cb30-29"></a>}</span>
+<span id="cb30-30"><a href="#cb30-30"></a></span>
+<span id="cb30-31"><a href="#cb30-31"></a><span class="co">## BLOCK 5</span></span>
+<span id="cb30-32"><a href="#cb30-32"></a>pH &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="kw">c</span>(<span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;H+&quot;</span>, <span class="st">&quot;OH-&quot;</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>), <span class="dt">T =</span> T, <span class="dt">P =</span> P)<span class="op">$</span>out<span class="op">$</span>logK <span class="op">/</span><span class="st"> </span><span class="dv">-2</span></span>
+<span id="cb30-33"><a href="#cb30-33"></a><span class="kw">abline</span>(<span class="dt">v =</span> pH, <span class="dt">lty =</span> <span class="dv">2</span>, <span class="dt">col =</span> <span class="dv">4</span>)</span>
+<span id="cb30-34"><a href="#cb30-34"></a></span>
+<span id="cb30-35"><a href="#cb30-35"></a><span class="co">## BLOCK 6</span></span>
+<span id="cb30-36"><a href="#cb30-36"></a>lTP &lt;-<span class="st"> </span><span class="kw">describe.property</span>(<span class="kw">c</span>(<span class="st">&quot;T&quot;</span>, <span class="st">&quot;P&quot;</span>), <span class="kw">c</span>(T, P))</span>
+<span id="cb30-37"><a href="#cb30-37"></a>lS &lt;-<span class="st"> </span><span class="kw">paste</span>(wt_percent_S, <span class="st">&quot;wt% S(aq)&quot;</span>)</span>
+<span id="cb30-38"><a href="#cb30-38"></a>ltext &lt;-<span class="st"> </span><span class="kw">c</span>(lTP, lS)</span>
+<span id="cb30-39"><a href="#cb30-39"></a><span class="kw">legend</span>(<span class="st">&quot;topright&quot;</span>, ltext, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">bg =</span> <span class="st">&quot;transparent&quot;</span>)</span>
+<span id="cb30-40"><a href="#cb30-40"></a><span class="kw">title</span>(<span class="kw">quote</span>(<span class="st">&quot;Parameters for&quot;</span><span class="op">~</span>S[<span class="dv">3</span>]<span class="op">^</span><span class="st">&quot;-&quot;</span><span class="op">~</span><span class="st">&quot;from Pokrovski and Dubessy (2015)&quot;</span>), <span class="dt">xpd =</span> <span class="ot">NA</span>)</span></code></pre></div>
+</div>
+<div id="why-does-the-published-diagram-have-a-much-larger-stability-field-for-s3-" class="section level3">
+<h3>Why does the published diagram have a much larger stability field for S<sub>3</sub><sup>-</sup>?</h3>
+<p>Let’s calculate log <i>K</i> for the reaction 2 H<sub>2</sub>S(aq) + SO<sub>4</sub><sup>-2</sup> + H<sup>+</sup> = S<sub>3</sub><sup>-</sup> + 0.75 O<sub>2</sub>(gas) + 2.5 H<sub>2</sub>O.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>species &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H2S&quot;</span>, <span class="st">&quot;SO4-2&quot;</span>, <span class="st">&quot;H+&quot;</span>, <span class="st">&quot;S3-&quot;</span>, <span class="st">&quot;oxygen&quot;</span>, <span class="st">&quot;H2O&quot;</span>)</span>
+<span id="cb31-2"><a href="#cb31-2"></a>coeffs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">-1</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="fl">0.75</span>, <span class="fl">2.5</span>)</span>
+<span id="cb31-3"><a href="#cb31-3"></a>(calclogK &lt;-<span class="st"> </span><span class="kw">subcrt</span>(species, coeffs, <span class="dt">T =</span> <span class="kw">seq</span>(<span class="dv">300</span>, <span class="dv">450</span>, <span class="dv">50</span>), <span class="dt">P =</span> <span class="dv">5000</span>)<span class="op">$</span>out<span class="op">$</span>logK)</span></code></pre></div>
+<pre><code>## [1] -16.669685 -14.013206 -11.686722  -9.622529</code></pre>
+<p>By using the thermodynamic parameters for S<sub>3</sub><sup>-</sup> in OBIGT that are taken from <span class="citation">Pokrovski and Dubessy (<a href="#ref-PD15" role="doc-biblioref">2015</a>)</span>, log <i>K</i> is calculated to be -16.7, -14.0, -11.7, and -9.6 at 300, 350, 400, and 450 °C and 5000 bar. In contrast, ref. 22 of <span class="citation">Pokrovski and Dubrovinsky (<a href="#ref-PD11" role="doc-biblioref">2011</a>)</span> lists -9.6 for log <i>K</i> at 350 °C; this is 4.4 log units higher than the calculated value of -14.0. This corresponds to a difference of Gibbs energy of -2.303 * 1.9872 * (350 + 273.15) * 4.4 = -12586 cal/mol.</p>
+<p>In the code below, we use the difference of Gibbs energy to temporarily update the OBIGT entry for S<sub>3</sub><sup>-</sup>. Then, we make a new diagram that is more similar to that from <span class="citation">Pokrovski and Dubrovinsky (<a href="#ref-PD11" role="doc-biblioref">2011</a>)</span>. Finally, we reset the OBIGT database so that the temporary parameters don’t interfere with later calculations.</p>
+<button id="B-trisulfur-2" onclick="ToggleDiv(&#39;trisulfur-2&#39;)">
+Show code
+</button>
+<div id="D-trisulfur-2" style="display: none">
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>oldG &lt;-<span class="st"> </span><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;S3-&quot;</span>))<span class="op">$</span>G</span>
+<span id="cb33-2"><a href="#cb33-2"></a>newG &lt;-<span class="st"> </span>oldG <span class="op">-</span><span class="st"> </span><span class="dv">12548</span></span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;S3-&quot;</span>, <span class="dt">G =</span> newG)</span>
+<span id="cb33-4"><a href="#cb33-4"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">10</span>, res), <span class="dt">O2 =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">34</span>, <span class="dv">-22</span>, res), <span class="dt">T =</span> T, <span class="dt">P =</span> P)</span>
+<span id="cb33-5"><a href="#cb33-5"></a>e &lt;-<span class="st"> </span><span class="kw">equilibrate</span>(a, <span class="dt">loga.balance =</span> logm_S)</span>
+<span id="cb33-6"><a href="#cb33-6"></a><span class="kw">diagram</span>(e)</span>
+<span id="cb33-7"><a href="#cb33-7"></a><span class="kw">legend</span>(<span class="st">&quot;topright&quot;</span>, ltext, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">bg =</span> <span class="st">&quot;transparent&quot;</span>)</span>
+<span id="cb33-8"><a href="#cb33-8"></a><span class="kw">title</span>(<span class="kw">quote</span>(<span class="st">&quot;Modified&quot;</span><span class="op">~</span>log<span class="op">*</span><span class="kw">italic</span>(K)<span class="op">~</span><span class="st">&quot;after Pokrovski and Dubrovinsky (2011)&quot;</span>), <span class="dt">xpd =</span> <span class="ot">NA</span>)</span>
+<span id="cb33-9"><a href="#cb33-9"></a><span class="kw">OBIGT</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="can-i-make-the-diagram-using-the-deep-earth-water-dew-model" class="section level3">
+<h3>Can I make the diagram using the Deep Earth Water (DEW) model?</h3>
+<p>Yes! Just set a new temperature and pressure and activate the DEW water model and load the DEW aqueous species. You can also use <code>info()</code> to see which species are affected by loading the DEW parameters; it turns out that SO<sub>4</sub><sup>-2</sup> isn’t. Then, use similar commands as above to make the diagram. At the end, reset the water model and OBIGT database.</p>
+<button id="B-trisulfur-DEW" onclick="ToggleDiv(&#39;trisulfur-DEW&#39;)">
+Show code
+</button>
+<div id="D-trisulfur-DEW" style="display: none">
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>T &lt;-<span class="st"> </span><span class="dv">700</span></span>
+<span id="cb34-2"><a href="#cb34-2"></a>P &lt;-<span class="st"> </span><span class="dv">10000</span> <span class="co"># 10000 bar = 1 GPa</span></span>
+<span id="cb34-3"><a href="#cb34-3"></a>oldwat &lt;-<span class="st"> </span><span class="kw">water</span>(<span class="st">&quot;DEW&quot;</span>)</span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="kw">add.OBIGT</span>(<span class="st">&quot;DEW&quot;</span>)</span>
+<span id="cb34-5"><a href="#cb34-5"></a><span class="kw">info</span>(<span class="kw">species</span>()<span class="op">$</span>ispecies)[, <span class="dv">1</span><span class="op">:</span><span class="dv">8</span>]</span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="co">##      name   abbrv formula state   ref1     ref2       date model</span></span>
+<span id="cb34-7"><a href="#cb34-7"></a><span class="co">## 65    H2S  H2S(0)     H2S    aq  SHS89  DEW17.3 2017-09-26   DEW</span></span>
+<span id="cb34-8"><a href="#cb34-8"></a><span class="co">## 22    HS-   HS(-)     HS-    aq SSWS97  DEW17.3 2017-09-26   DEW</span></span>
+<span id="cb34-9"><a href="#cb34-9"></a><span class="co">## 73    SO2  SO2(0)     SO2    aq  SHS89 DEW17.38 2017-09-26   DEW</span></span>
+<span id="cb34-10"><a href="#cb34-10"></a><span class="co">## 25  HSO4- HSO4(-)   HSO4-    aq SSWS97  DEW17.3 2017-09-26   DEW</span></span>
+<span id="cb34-11"><a href="#cb34-11"></a><span class="co">## 24  SO4-2   SO4-2   SO4-2    aq   SH88     &lt;NA&gt; 1997-11-07   HKF</span></span>
+<span id="cb34-12"><a href="#cb34-12"></a><span class="co">## 838   S3-   S3(-)     S3-    aq   PD15 DEW17.36 2017-09-26   DEW</span></span>
+<span id="cb34-13"><a href="#cb34-13"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">10</span>, res), <span class="dt">O2 =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">18</span>, <span class="dv">-10</span>, res), <span class="dt">T =</span> T, <span class="dt">P =</span> P)</span>
+<span id="cb34-14"><a href="#cb34-14"></a>e &lt;-<span class="st"> </span><span class="kw">equilibrate</span>(a, <span class="dt">loga.balance =</span> logm_S)</span>
+<span id="cb34-15"><a href="#cb34-15"></a><span class="kw">diagram</span>(e)</span>
+<span id="cb34-16"><a href="#cb34-16"></a>lTP &lt;-<span class="st"> </span><span class="kw">describe.property</span>(<span class="kw">c</span>(<span class="st">&quot;T&quot;</span>, <span class="st">&quot;P&quot;</span>), <span class="kw">c</span>(T, P))</span>
+<span id="cb34-17"><a href="#cb34-17"></a>lS &lt;-<span class="st"> </span><span class="kw">paste</span>(wt_percent_S, <span class="st">&quot;wt% S(aq)&quot;</span>)</span>
+<span id="cb34-18"><a href="#cb34-18"></a>ltext &lt;-<span class="st"> </span><span class="kw">c</span>(lTP, lS)</span>
+<span id="cb34-19"><a href="#cb34-19"></a><span class="kw">legend</span>(<span class="st">&quot;topright&quot;</span>, ltext, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">bg =</span> <span class="st">&quot;transparent&quot;</span>)</span>
+<span id="cb34-20"><a href="#cb34-20"></a><span class="kw">title</span>(<span class="kw">quote</span>(<span class="st">&quot;Deep Earth Water (DEW)&quot;</span><span class="op">~</span><span class="st">&quot;model&quot;</span>))</span>
+<span id="cb34-21"><a href="#cb34-21"></a><span class="kw">water</span>(oldwat)</span>
+<span id="cb34-22"><a href="#cb34-22"></a><span class="kw">OBIGT</span>()</span></code></pre></div>
+</div>
+<p>Here are the three plots that we made:</p>
+<p><img src="data:image/png;base64,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" width="100%" class="full-width" /></p>
+<p><em>Added on 2023-09-08.</em></p>
+</div>
+</div>
+<div id="in-obigt-what-is-the-meaning-of-t-for-solids-liquids-and-gases" class="section level2">
+<h2>In OBIGT, what is the meaning of <code>T</code> for solids, liquids, and gases?</h2>
+<p>The value in this column can be one of the following:</p>
+<ol style="list-style-type: decimal">
+<li>The temperature of transition to the next polymorph of a mineral;</li>
+<li>For the highest-temperature (or only) polymorph, if <code>T</code> is positive, it is the phase stability limit (i.e., the temperature of melting or decomposition of a solid or vaporization of a liquid);</li>
+<li>For the highest-temperature polymorph, if <code>T</code> is negative, the opposite (positive) value is the <em>T</em> limit for validity of the <em>C<sub>p</sub></em> equation. (<em>New feature in development version of CHNOSZ</em>)</li>
+</ol>
+<p>These cases are handled by <code>subcrt()</code> as follows. The units of <code>T</code> in OBIGT are Kelvin, but <code>subcrt()</code> by default uses °C:</p>
+<p><strong>1. For polymorphic transitions, the properties of specific polymorphs are returned:</strong></p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">subcrt</span>(<span class="st">&quot;pyrrhotite&quot;</span>, <span class="dt">T =</span> <span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">150</span>, <span class="dv">350</span>), <span class="dt">property =</span> <span class="st">&quot;G&quot;</span>)<span class="op">$</span>out</span></code></pre></div>
+<div class="alert alert-info">
+<p>info.character: found pyrrhotite(cr) with 2 polymorphic transitions</p>
+<p>subcrt: 1 species at 3 values of T (ºC) and P (bar) [energy units: J]</p>
+<p>subcrt: 3 polymorphs for pyrrhotite … polymorphs 1,2,3 are stable</p>
+</div>
+<pre><code>## $pyrrhotite
+##     T          P         G polymorph
+## 1  25   1.000000 -100767.5         1
+## 2 150   4.757169 -109734.3         2
+## 3 350 165.211289 -129984.5         3</code></pre>
+<p>Note: In both SUPCRT92 and OBIGT, tin, sulfur, and selenium are listed as minerals with one or more polymorphic transitions, but the highest-temperature polymorph actually represents the liquid state. Furthermore, quicksilver is listed as a mineral whose polymorphs actually correspond to the liquid and gaseous states.</p>
+<p><strong>2. For a phase stability limit, Δ<em>G</em>° is set to NA above the temperature limit:</strong></p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">subcrt</span>(<span class="st">&quot;pyrite&quot;</span>, <span class="dt">T =</span> <span class="kw">seq</span>(<span class="dv">200</span>, <span class="dv">1000</span>, <span class="dv">200</span>), <span class="dt">P =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="alert alert-info">
+<p>subcrt: 1 species at 5 values of T (ºC) and P (bar) [energy units: J]</p>
+<p>subcrt: G is set to NA for pyrite(cr) above its stability limit of 1015 K (use exceed.Ttr = TRUE to output G)</p>
+</div>
+<pre><code>## $species
+##        name formula state ispecies model
+## 2082 pyrite    FeS2    cr     2082   CGL
+## 
+## $out
+## $out$pyrite
+##      T P     logK         G          H         S     V       Cp
+## 1  200 1 19.02722 -172355.1 -159662.59  84.11482 23.94 71.72282
+## 2  400 1 14.89151 -191911.2 -144868.84 110.15205 23.94 75.71142
+## 3  600 1 12.92264 -216018.0 -129487.09 130.14642 23.94 77.95838
+## 4  800 1       NA        NA -113722.56 146.39738 23.94 79.62872
+## 5 1000 1       NA        NA  -97651.55 160.12626 23.94 81.05409</code></pre>
+<p>This feature is intended to make it harder to obtain potentially unreliable results at temperatures where a mineral (or an organic solid or liquid) is not stable. If you want the extrapolated Δ<em>G</em>° above the listed phase stability limit, then add <code>exceed.Ttr = TRUE</code> to the function call to <code>subcrt()</code>.</p>
+<p>OBIGT has a non-exhaustive list of temperatures of melting, decomposition, or other phase change, some of which were taken from SUPCRT92 while others were taken from <span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span>. These minerals are listed below:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>file &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata/OBIGT/inorganic_cr.csv&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>)</span>
+<span id="cb39-2"><a href="#cb39-2"></a>dat &lt;-<span class="st"> </span><span class="kw">read.csv</span>(file)</span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="co"># Reverse rows so highest-T polymorph for each mineral is listed first</span></span>
+<span id="cb39-4"><a href="#cb39-4"></a>dat &lt;-<span class="st"> </span>dat[<span class="kw">nrow</span>(dat)<span class="op">:</span><span class="dv">1</span>, ]</span>
+<span id="cb39-5"><a href="#cb39-5"></a><span class="co"># Remove low-T polymorphs</span></span>
+<span id="cb39-6"><a href="#cb39-6"></a>dat &lt;-<span class="st"> </span>dat[<span class="op">!</span><span class="kw">duplicated</span>(dat<span class="op">$</span>name), ]</span>
+<span id="cb39-7"><a href="#cb39-7"></a><span class="co"># Remove minerals with no T limit for phase stability (+ve) or Cp equation (-ve)</span></span>
+<span id="cb39-8"><a href="#cb39-8"></a>dat &lt;-<span class="st"> </span>dat[<span class="op">!</span><span class="kw">is.na</span>(dat<span class="op">$</span>z.T), ]</span>
+<span id="cb39-9"><a href="#cb39-9"></a><span class="co"># Keep minerals with phase stability limit</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a>dat &lt;-<span class="st"> </span>dat[dat<span class="op">$</span>z.T <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>, ]</span>
+<span id="cb39-11"><a href="#cb39-11"></a><span class="co"># Get names of minerals and put into original order</span></span>
+<span id="cb39-12"><a href="#cb39-12"></a><span class="kw">rev</span>(dat<span class="op">$</span>name)</span>
+<span id="cb39-13"><a href="#cb39-13"></a><span class="co">##  [1] &quot;anhydrite&quot;       &quot;bunsenite&quot;       &quot;bromellite&quot;      &quot;chalcocite&quot;     </span></span>
+<span id="cb39-14"><a href="#cb39-14"></a><span class="co">##  [5] &quot;chlorargyrite&quot;   &quot;cinnabar&quot;        &quot;copper&quot;          &quot;covellite&quot;      </span></span>
+<span id="cb39-15"><a href="#cb39-15"></a><span class="co">##  [9] &quot;cuprite&quot;         &quot;galena&quot;          &quot;gold&quot;            &quot;halite&quot;         </span></span>
+<span id="cb39-16"><a href="#cb39-16"></a><span class="co">## [13] &quot;iron&quot;            &quot;nickel&quot;          &quot;pyrite&quot;          &quot;pyrrhotite&quot;     </span></span>
+<span id="cb39-17"><a href="#cb39-17"></a><span class="co">## [17] &quot;silver&quot;          &quot;sodium oxide&quot;    &quot;sphalerite&quot;      &quot;strontianite&quot;   </span></span>
+<span id="cb39-18"><a href="#cb39-18"></a><span class="co">## [21] &quot;sylvite&quot;         &quot;cassiterite&quot;     &quot;uraninite&quot;       &quot;zincite&quot;        </span></span>
+<span id="cb39-19"><a href="#cb39-19"></a><span class="co">## [25] &quot;sulfur&quot;          &quot;selenium&quot;        &quot;manganosite&quot;     &quot;wustite&quot;        </span></span>
+<span id="cb39-20"><a href="#cb39-20"></a><span class="co">## [29] &quot;cobalt monoxide&quot; &quot;zinc&quot;            &quot;carrollite&quot;</span></span></code></pre></div>
+<!-- 
+     Use square brackets to suppress parentheses around citation 20231115
+     https://stackoverflow.com/questions/64209134/r-markdown-suppress-parentheses-in-specific-citations
+-->
+<p>OBIGT now uses the decomposition temperature of covellite <span class="citation">(780.5 K from Robie and Hemingway, <a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> in contrast to the previous Tmax from SUPCRT92 <span class="citation">(1273 K, which is referenced to a equation described as “estimated” on p. 62 of Kelley, <a href="#ref-Kel60" role="doc-biblioref">1960</a>)</span>. Selected organic solids and liquids have melting or vaporization temperatures listed as well. However, no melting temperatures are listed for minerals that use the <code>Berman</code> model.</p>
+<p><strong>3. For a <em>C<sub>p</sub></em> equation limit, extrapolated values of Δ<em>G</em>° are shown and a warning is produced:</strong></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a><span class="kw">add.OBIGT</span>(<span class="st">&quot;SUPCRT92&quot;</span>)</span>
+<span id="cb40-2"><a href="#cb40-2"></a><span class="kw">subcrt</span>(<span class="st">&quot;muscovite&quot;</span>, <span class="dt">T =</span> <span class="dv">850</span>, <span class="dt">P =</span> <span class="dv">4500</span>)</span></code></pre></div>
+<div class="alert alert-warning">
+<p>Warning in subcrt(“muscovite”, T = 850, P = 4500): above T limit of 1000 K for</p>
+<p>the Cp equation for muscovite(cr)</p>
+</div>
+<pre><code>## $species
+##           name             formula state ispecies model
+## 1985 muscovite KAl2(AlSi3)O10(OH)2    cr     1985   CGL
+## 
+## $out
+## $out$muscovite
+##     T    P     logK        G        H        S      V       Cp
+## 1 850 4500 280.7978 -6037836 -5533722 864.6487 140.71 523.7196</code></pre>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="kw">reset</span>()</span></code></pre></div>
+<p>The warning is similar to that produced by SUPCRT92 (“CAUTION: BEYOND T LIMIT OF CP COEFFS FOR A MINERAL OR GAS”) at temperatures above maximum temperature of validity of the Maier-Kelley equation (Tmax). Notably, SUPCRT92 outputs Δ<em>G</em>° and other standard thermodynamic properties at temperatures higher than Tmax despite the warning.</p>
+<p>This is a new feature in CHNOSZ version 2.1.0. In previous versions of CHNOSZ, values of Δ<em>G</em>° above the <em>C<sub>p</sub></em> equation limit were set to NA without a warning, as with the phase stability limit described above.</p>
+<p><strong>4. Finally, if <code>T</code> is NA or 0, then no upper temerature limit is imposed by <code>subcrt()</code>.</strong></p>
+<p><em>Added on 2023-11-15.</em></p>
+</div>
+<div id="how-can-mineral-ph-buffers-be-plotted" class="section level2">
+<h2>How can mineral pH buffers be plotted?</h2>
+<p>Unlike mineral redox buffers, the K-feldspar–muscovite–quartz (KMQ) and muscovite–kaolinite (MC) pH buffers are known as “sliding scale” buffers because they do not determine pH but rather the activity ratio of K<sup>+</sup> to H<sup>+</sup> <span class="citation">(Holm and Andersson, <a href="#ref-HA05" role="doc-biblioref">2005</a>)</span>. To add these buffers to a log <i>f</i><sub>O<sub>2</sub></sub>–pH diagram in CHNOSZ, choose basis species that include Al<sup>+3</sup> (the least mobile element, which the reactions are balanced on), quartz (this is needed for the KMQ buffer), the mobile ions K<sup>+</sup> and H<sup>+</sup>, and the remaining elements in H<sub>2</sub>O and O<sub>2</sub>; <code>oxygen</code> denotes the gas in OBIGT. The formation reactions for these minerals don’t involve O<sub>2</sub>, but it must be present so that the number of basis species equals the number of elements +1 (i.e. elements plus charge).</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">basis</span>(<span class="kw">c</span>(<span class="st">&quot;Al+3&quot;</span>, <span class="st">&quot;quartz&quot;</span>, <span class="st">&quot;K+&quot;</span>, <span class="st">&quot;H+&quot;</span>, <span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;oxygen&quot;</span>))</span></code></pre></div>
+<pre><code>##      Al H K O Si Z ispecies logact state
+## Al+3  1 0 0 0  0 3      718      0    aq
+## SiO2  0 0 0 2  1 0     1995      0    cr
+## K+    0 0 1 0  0 1        6      0    aq
+## H+    0 1 0 0  0 1        3      0    aq
+## H2O   0 2 0 1  0 0        1      0   liq
+## O2    0 0 0 2  0 0     2679      0   gas</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="kw">species</span>(<span class="kw">c</span>(<span class="st">&quot;kaolinite&quot;</span>, <span class="st">&quot;muscovite&quot;</span>, <span class="st">&quot;K-feldspar&quot;</span>))</span></code></pre></div>
+<pre><code>##   Al+3 SiO2 K+  H+ H2O O2 ispecies logact state       name
+## 1    2    2  0  -6   5  0     1975      0    cr  kaolinite
+## 2    3    3  1 -10   6  0     1985      0    cr  muscovite
+## 3    1    3  1  -4   2  0     1989      0    cr K-feldspar</code></pre>
+<p>We could go right ahead and make a log <i>f</i><sub>O<sub>2</sub></sub>–pH diagram, but the implied assumption would be that the K<sup>+</sup> activity is unity, which may not be valid. Instead, we can obtain an independent estimate for K<sup>+</sup> activity based on 1) the activity ratio of Na<sup>+</sup> to K<sup>+</sup> for the reaction between albite and K-feldspar and 2) charge balance among Na<sup>+</sup>, K<sup>+</sup>, and Cl<sup>-</sup> for a given activity of the latter <span class="citation">(Heinrich and Candela, <a href="#ref-HC14" role="doc-biblioref">2014</a>)</span>. Using the variables defined below, those conditions are expressed as <code>K_AK = m_Na / m_K</code> and <code>m_Na + m_K = m_Cl</code>, which combine to give <code>m_K = m_Cl / (K_AK + 1)</code>. The reason for writing the equations with molality instead of activity is that ionic strength (<code>IS</code>) is provided in the arguments to <code>subcrt()</code>, so the function returns a value of log <i>K</i> adjusted for ionic strength. Furthermore, it is assumed that this is a chloride-dominated solution, so ionic strength is taken to be equal to the molality of Cl<sup>-</sup>.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="co"># Define temperature, pressure, and molality of Cl- (==IS)</span></span>
+<span id="cb47-2"><a href="#cb47-2"></a>T &lt;-<span class="st"> </span><span class="dv">150</span></span>
+<span id="cb47-3"><a href="#cb47-3"></a>P &lt;-<span class="st"> </span><span class="dv">500</span></span>
+<span id="cb47-4"><a href="#cb47-4"></a>IS &lt;-<span class="st"> </span>m_Cl &lt;-<span class="st"> </span><span class="dv">1</span></span>
+<span id="cb47-5"><a href="#cb47-5"></a><span class="co"># Calculate equilibrium constant for Ab-Kfs reaction, corrected for ionic strength</span></span>
+<span id="cb47-6"><a href="#cb47-6"></a>logK_AK &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="kw">c</span>(<span class="st">&quot;albite&quot;</span>, <span class="st">&quot;K+&quot;</span>, <span class="st">&quot;K-feldspar&quot;</span>, <span class="st">&quot;Na+&quot;</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb47-7"><a href="#cb47-7"></a>  <span class="dt">T =</span> T, <span class="dt">P =</span> P, <span class="dt">IS =</span> IS)<span class="op">$</span>out<span class="op">$</span>logK</span>
+<span id="cb47-8"><a href="#cb47-8"></a>K_AK &lt;-<span class="st"> </span><span class="dv">10</span> <span class="op">^</span><span class="st"> </span>logK_AK</span>
+<span id="cb47-9"><a href="#cb47-9"></a><span class="co"># Calculate molality of K+</span></span>
+<span id="cb47-10"><a href="#cb47-10"></a>(m_K &lt;-<span class="st"> </span>m_Cl <span class="op">/</span><span class="st"> </span>(K_AK <span class="op">+</span><span class="st"> </span><span class="dv">1</span>))</span></code></pre></div>
+<pre><code>## [1] 0.07194125</code></pre>
+<p>This calculation gives a molality of K<sup>+</sup> that is lower than unity and accordingly makes the buffers less acidic <span class="citation">(Heinrich and Candela, <a href="#ref-HC14" role="doc-biblioref">2014</a>)</span>. Now we can apply the calculated molality of K<sup>+</sup> to the basis species and add the buffer lines to the diagram. The <code>IS</code> argument is also used for <code>affinity()</code> so that activities are replaced by molalities (that is, affinity is calculated with standard Gibbs energies adjusted for ionic strength; this has the same effect as calculating activity coefficients).</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">basis</span>(<span class="st">&quot;K+&quot;</span>, <span class="kw">log10</span>(m_K))</span>
+<span id="cb49-2"><a href="#cb49-2"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">10</span>), <span class="dt">O2 =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">55</span>, <span class="dv">-38</span>), <span class="dt">T =</span> T, <span class="dt">P =</span> P, <span class="dt">IS =</span> IS)</span>
+<span id="cb49-3"><a href="#cb49-3"></a><span class="kw">diagram</span>(a, <span class="dt">srt =</span> <span class="dv">90</span>)</span>
+<span id="cb49-4"><a href="#cb49-4"></a>lTP &lt;-<span class="st"> </span><span class="kw">as.expression</span>(<span class="kw">c</span>(<span class="kw">lT</span>(T), <span class="kw">lP</span>(P)))</span>
+<span id="cb49-5"><a href="#cb49-5"></a><span class="kw">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="dt">legend =</span> lTP, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">inset =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">0.05</span>, <span class="dv">0</span>), <span class="dt">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb49-6"><a href="#cb49-6"></a>ltxt &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">quote</span>(<span class="st">&quot;Unit molality of Cl&quot;</span><span class="op">^</span><span class="st">&quot;-&quot;</span>), <span class="st">&quot;Quartz saturation&quot;</span>)</span>
+<span id="cb49-7"><a href="#cb49-7"></a><span class="kw">legend</span>(<span class="st">&quot;topright&quot;</span>, <span class="dt">legend =</span> ltxt, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">cex =</span> <span class="fl">0.9</span>)</span>
+<span id="cb49-8"><a href="#cb49-8"></a><span class="kw">title</span>(<span class="st">&quot;Mineral data from Berman (1988)</span><span class="ch">\n</span><span class="st">and Sverjensky et al. (1991) (OBIGT default)&quot;</span>,</span>
+<span id="cb49-9"><a href="#cb49-9"></a>  <span class="dt">font.main =</span> <span class="dv">1</span>, <span class="dt">cex.main =</span> <span class="fl">0.9</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="100%" /></p>
+<p>The gray area, which is automatically drawn by <code>diagram()</code>, is below the reducing stability limit of water; that is, this area is where the equilibrium fugacity of H<sub>2</sub> exceeds unity. NOTE: Although the muscovite–kaolinite (MC) buffer was mentioned by <span class="citation">Heinrich and Candela (<a href="#ref-HC14" role="doc-biblioref">2014</a>)</span> in the context of “clay-rich but feldspar-free sediments”, this example uses the feldspathic Ab–Kfs reaction for calculating K<sup>+</sup> molality for both the KMQ and MC buffers. A more appropriate reaction to constrain the Na/K ratio with the MC buffer may be that between paragonite and muscovite <span class="citation">(e.g., Yardley, <a href="#ref-Yar05" role="doc-biblioref">2005</a>)</span>.</p>
+<p>The diagram in Fig. 4 of <span class="citation">Heinrich and Candela (<a href="#ref-HC14" role="doc-biblioref">2014</a>)</span> shows the buffer lines at somewhat higher pH values of ca. 5 and 6. Removing <code>IS</code> from the code moves the lines to lower rather than higher pH (<em>not shown – try it yourself!</em>), so the calculation of activity coefficients does not explain the differences. One possible reason for these differences is the use of different thermodynamic data for the minerals. The parameters for these minerals in the default OBIGT database come from <span class="citation">Berman (<a href="#ref-Ber88" role="doc-biblioref">1988</a>)</span> and <span class="citation">Sverjensky et al. (<a href="#ref-SHD91" role="doc-biblioref">1991</a>)</span>.</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="kw">thermo.refs</span>(<span class="kw">species</span>()<span class="op">$</span>ispecies)</span></code></pre></div>
+<pre><code>##      key                                            author year
+## 23 Ber88                                      R. G. Berman 1988
+## 39 SHD91 D. A. Sverjensky, J. J. Hemley and W. M. D&#39;Angelo 1991
+##                                 citation
+## 23                J. Petrol. 29, 445-522
+## 39 Geochim. Cosmochim. Acta 55, 989-1004
+##                                                 note
+## 23                                          minerals
+## 39 G and H revisions for K- and Al-bearing silicates
+##                                             URL
+## 23   https://doi.org/10.1093/petrology/29.2.445
+## 39 https://doi.org/10.1016/0016-7037(89)90341-4</code></pre>
+<p>CHNOSZ doesn’t implement the thermodynamic model for minerals from <span class="citation">Holland and Powell (<a href="#ref-HP98" role="doc-biblioref">1998</a>)</span>, which is one of the sources cited by <span class="citation">Heinrich and Candela (<a href="#ref-HC14" role="doc-biblioref">2014</a>)</span>. If we use the thermodynamic parameters for minerals from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>; these do not include the revisions for aluminosilicates described by Sverjensky et al., <a href="#ref-SHD91" role="doc-biblioref">1991</a>)</span>, we get the lines shown in the second plot above, representing a larger stability field for muscovite. This moves the KMQ buffer closer to the value shown by <span class="citation">Heinrich and Candela (<a href="#ref-HC14" role="doc-biblioref">2014</a>)</span>, but the MC buffer further away, so this still doesn’t explain why we get a different result.</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw">add.OBIGT</span>(<span class="st">&quot;SUPCRT92&quot;</span>)</span>
+<span id="cb52-2"><a href="#cb52-2"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">10</span>), <span class="dt">O2 =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">55</span>, <span class="dv">-38</span>), <span class="dt">T =</span> T, <span class="dt">P =</span> P, <span class="dt">IS =</span> IS)</span>
+<span id="cb52-3"><a href="#cb52-3"></a><span class="kw">diagram</span>(a, <span class="dt">srt =</span> <span class="dv">90</span>)</span>
+<span id="cb52-4"><a href="#cb52-4"></a><span class="kw">title</span>(<span class="st">&quot;Mineral data from Helgeson et al. (1978)</span><span class="ch">\n</span><span class="st">(as used in SUPCRT92)&quot;</span>,</span>
+<span id="cb52-5"><a href="#cb52-5"></a>  <span class="dt">font.main =</span> <span class="dv">1</span>, <span class="dt">cex.main =</span> <span class="fl">0.9</span>)</span></code></pre></div>
+<p><em>Added on 2023-11-28.</em></p>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2>References</h2>
+<div id="refs" class="references">
+<div id="ref-Alb96">
+<p>Alberty RA. 1996. Recommendations for nomenclature and tables in biochemical thermodynamics. <em>European Journal of Biochemistry</em> <strong>240</strong>(1): 1–14. doi: <a href="https://doi.org/10.1111/j.1432-1033.1996.0001h.x">10.1111/j.1432-1033.1996.0001h.x</a></p>
+</div>
+<div id="ref-AC93">
+<p>Anderson GM, Crerar DA. 1993. <em>Thermodynamics in Geochemistry: The Equilibrium Model</em>. New York: Oxford University Press. doi: <a href="https://doi.org/10.1093/oso/9780195064643.001.0001">10.1093/oso/9780195064643.001.0001</a></p>
+</div>
+<div id="ref-Ber88">
+<p>Berman RG. 1988. Internally-consistent thermodynamic data for minerals in the system Na<span class="math inline"><em></em><sub>2</sub></span>O–K<span class="math inline"><em></em><sub>2</sub></span>O–CaO–MgO–FeO–Fe<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–Al<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–SiO<span class="math inline"><em></em><sub>2</sub></span>–TiO<span class="math inline"><em></em><sub>2</sub></span>–H<span class="math inline"><em></em><sub>2</sub></span>O–CO<span class="math inline"><em></em><sub>2</sub></span>. <em>Journal of Petrology</em> <strong>29</strong>(2): 445–522. doi: <a href="https://doi.org/10.1093/petrology/29.2.445">10.1093/petrology/29.2.445</a></p>
+</div>
+<div id="ref-BB85">
+<p>Berman RG, Brown TH. 1985. Heat capacity of minerals in the system Na<sub>2</sub>O–K<sub>2</sub>O–CaO–MgO–FeO–Fe<sub>2</sub>O<sub>3</sub>–Al<sub>2</sub>O<sub>3</sub>–SiO<sub>2</sub>–TiO<sub>2</sub>–H<sub>2</sub>O–CO<sub>2</sub>: Representation, estimation, and high temperature extrapolation. <em>Contributions to Mineralogy and Petrology</em> <strong>89</strong>(2): 168–183. doi: <a href="https://doi.org/10.1007/BF00379451">10.1007/BF00379451</a></p>
+</div>
+<div id="ref-Dic08">
+<p>Dick JM. 2008. Calculation of the relative metastabilities of proteins using the CHNOSZ software package. <em>Geochemical Transactions</em> <strong>9</strong>: 10. doi: <a href="https://doi.org/10.1186/1467-4866-9-10">10.1186/1467-4866-9-10</a></p>
+</div>
+<div id="ref-Dic19">
+<p>Dick JM. 2019. CHNOSZ: Thermodynamic calculations and diagrams for geochemistry. <em>Frontiers in Earth Science</em> <strong>7</strong>: 180. doi: <a href="https://doi.org/10.3389/feart.2019.00180">10.3389/feart.2019.00180</a></p>
+</div>
+<div id="ref-Dic21b">
+<p>Dick JM. 2021. Diagrams with multiple metals in CHNOSZ. <em>Applied Computing and Geosciences</em> <strong>10</strong>: 100059. doi: <a href="https://doi.org/10.1016/j.acags.2021.100059">10.1016/j.acags.2021.100059</a></p>
+</div>
+<div id="ref-DLH06">
+<p>Dick JM, LaRowe DE, Helgeson HC. 2006. Temperature, pressure, and electrochemical constraints on protein speciation: Group additivity calculation of the standard molal thermodynamic properties of ionized unfolded proteins. <em>Biogeosciences</em> <strong>3</strong>(3): 311–336. doi: <a href="https://doi.org/10.5194/bg-3-311-2006">10.5194/bg-3-311-2006</a></p>
+</div>
+<div id="ref-HC14">
+<p>Heinrich CA, Candela PA. 2014. Fluids and ore formation in the Earth’s crust. In: Holland HD; Turekian KK, editors. <em>Treatise on Geochemistry (Vol. 13)</em> 2nd ed. Oxford: Elsevier. pp. 1–28. doi: <a href="https://doi.org/10.1016/B978-0-08-095975-7.01101-3">10.1016/B978-0-08-095975-7.01101-3</a></p>
+</div>
+<div id="ref-HDNB78">
+<p>Helgeson HC, Delany JM, Nesbitt HW, Bird DK. 1978. Summary and critique of the thermodynamic properties of rock-forming minerals. <em>American Journal of Science</em> <strong>278A</strong>: 1–229. Available at <a href="https://www.worldcat.org/oclc/13594862">https://www.worldcat.org/oclc/13594862</a>. </p>
+</div>
+<div id="ref-HKF81">
+<p>Helgeson HC, Kirkham DH, Flowers GC. 1981. Theoretical prediction of the thermodynamic behavior of aqueous electrolytes at high pressures and temperatures: IV. Calculation of activity coefficients, osmotic coefficients, and apparent molal and standard and relative partial molal properties to 600°C and 5 Kb. <em>American Journal of Science</em> <strong>281</strong>(10): 1249–1516. doi: <a href="https://doi.org/10.2475/ajs.281.10.1249">10.2475/ajs.281.10.1249</a></p>
+</div>
+<div id="ref-HP98">
+<p>Holland TJB, Powell R. 1998. An internally consistent thermodynamic data set for phases of petrological interest. <em>Journal of Metamorphic Geology</em> <strong>16</strong>(3): 309–343. doi: <a href="https://doi.org/10.1111/j.1525-1314.1998.00140.x">10.1111/j.1525-1314.1998.00140.x</a></p>
+</div>
+<div id="ref-HA05">
+<p>Holm NG, Andersson E. 2005. Hydrothermal simulation experiments as a tool for studies of the origin of life on Earth and other terrestrial planets: A review. <em>Astrobiology</em> <strong>5</strong>(4): 444–460. doi: <a href="https://doi.org/10.1089/ast.2005.5.444">10.1089/ast.2005.5.444</a></p>
+</div>
+<div id="ref-JOH92">
+<p>Johnson JW, Oelkers EH, Helgeson HC. 1992. SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000°C. <em>Computers &amp; Geosciences</em> <strong>18</strong>(7): 899–947. doi: <a href="https://doi.org/10.1016/0098-3004(92)90029-Q">10.1016/0098-3004(92)90029-Q</a></p>
+</div>
+<div id="ref-Kel60">
+<p>Kelley KK. 1960. <em>Contributions to the Data in Theoretical Metallurgy XIII: High Temperature Heat Content, Heat Capacities and Entropy Data for the Elements and Inorganic Compounds</em>. U. S. Bureau of Mines. (Bulletin 584). Available at <a href="https://www.worldcat.org/oclc/693388901">https://www.worldcat.org/oclc/693388901</a>. </p>
+</div>
+<div id="ref-MSS13">
+<p>Manning CE, Shock EL, Sverjensky DA. 2013. The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. <em>Reviews in Mineralogy and Geochemistry</em> <strong>75</strong>(1): 109–148. doi: <a href="https://doi.org/10.2138/rmg.2013.75.5">10.2138/rmg.2013.75.5</a></p>
+</div>
+<div id="ref-PMW87">
+<p>Pankratz LB, Mah AD, Watson SW. 1987. <em>Thermodynamic Properties of Sulfides</em>. United States Department of the Interior, Bureau of Mines. (Bulletin; Vol. 689). Available at <a href="https://www.worldcat.org/oclc/16131757">https://www.worldcat.org/oclc/16131757</a>. </p>
+</div>
+<div id="ref-PD15">
+<p>Pokrovski GS, Dubessy J. 2015. Stability and abundance of the trisulfur radical ion in hydrothermal fluids. <em>Earth and Planetary Science Letters</em> <strong>411</strong>: 298–309. doi: <a href="https://doi.org/10.1016/j.epsl.2014.11.035">10.1016/j.epsl.2014.11.035</a></p>
+</div>
+<div id="ref-PD11">
+<p>Pokrovski GS, Dubrovinsky LS. 2011. The S<sub>3</sub><sup>-</sup> ion is stable in geological fluids at elevated temperatures and pressures. <em>Science</em> <strong>331</strong>(6020): 1052–1054. doi: <a href="https://doi.org/10.1126/science.1199911">10.1126/science.1199911</a></p>
+</div>
+<div id="ref-RH95">
+<p>Robie RA, Hemingway BS. 1995. <em>Thermodynamic Properties of Minerals and Related Substances at 298.15 K and 1 Bar (10<sup>5</sup> Pascals) Pressure and at Higher Temperatures</em>. Washington, D.C.: U.S. Geological Survey. (Bulletin 2131). doi: <a href="https://doi.org/10.3133/b2131">10.3133/b2131</a></p>
+</div>
+<div id="ref-SH88">
+<p>Shock EL, Helgeson HC. 1988. Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Correlation algorithms for ionic species and equation of state predictions to 5 kb and 1000°C. <em>Geochimica et Cosmochimica Acta</em> <strong>52</strong>(8): 2009–2036. doi: <a href="https://doi.org/10.1016/0016-7037(88)90181-0">10.1016/0016-7037(88)90181-0</a></p>
+</div>
+<div id="ref-SHA14">
+<p>Sverjensky DA, Harrison B, Azzolini D. 2014. Water in the deep Earth: The dielectric constant and the solubilities of quartz and corundum to 60 kb and 1,200 °C. <em>Geochimica et Cosmochimica Acta</em> <strong>129</strong>: 125–145. doi: <a href="https://doi.org/10.1016/j.gca.2013.12.019">10.1016/j.gca.2013.12.019</a></p>
+</div>
+<div id="ref-SHD91">
+<p>Sverjensky DA, Hemley JJ, D’Angelo WM. 1991. Thermodynamic assessment of hydrothermal alkali feldspar-mica-aluminosilicate equilibria. <em>Geochimica et Cosmochimica Acta</em> <strong>55</strong>(4): 989–1004. doi: <a href="https://doi.org/10.1016/0016-7037(91)90157-Z">10.1016/0016-7037(91)90157-Z</a></p>
+</div>
+<div id="ref-TH88">
+<p>Tanger JC IV, Helgeson HC. 1988. Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Revised equations of state for the standard partial molal properties of ions and electrolytes. <em>American Journal of Science</em> <strong>288</strong>(1): 19–98. doi: <a href="https://doi.org/10.2475/ajs.288.1.19">10.2475/ajs.288.1.19</a></p>
+</div>
+<div id="ref-WP02">
+<p>Wagner W, Pruß A. 2002. The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance for general and scientific use. <em>Journal of Physical and Chemical Reference Data</em> <strong>31</strong>(2): 387–535. doi: <a href="https://doi.org/10.1063/1.1461829">10.1063/1.1461829</a></p>
+</div>
+<div id="ref-Yar05">
+<p>Yardley BWD. 2005. 100th Anniversary Special Paper: Metal concentrations in crustal fluids and their relationship to ore formation. <em>Economic Geology</em> <strong>100</strong>(4): 613–632. doi: <a href="https://doi.org/10.2113/gsecongeo.100.4.613">10.2113/gsecongeo.100.4.613</a></p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+
+</body>
+</html>

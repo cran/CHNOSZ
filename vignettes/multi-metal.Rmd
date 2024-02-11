@@ -10,6 +10,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 bibliography: [vig.bib, OBIGT.bib]
 csl: elementa.csl
+link-citations: true
 ---
 <style>
 /* https://gomakethings.com/how-to-break-an-image-out-of-its-parent-container-with-css/ */
@@ -34,7 +35,7 @@ csl: elementa.csl
     padding:10px;
   }
 }
-/* zero margin around pre blocks (looks more like R console output) */
+/* Zero margin around pre blocks (looks more like R console output) */
 pre {
   margin-top: 0;
   margin-bottom: 0;
@@ -58,24 +59,30 @@ function ToggleDiv(ID) {
 
 ```{r setup, include=FALSE}
 options(width = 80)
-## use pngquant to optimize PNG images
+## Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
 pngquant <- "--speed=1 --quality=0-25"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
-## logK with a thin space 20200627
-logK <- "log&thinsp;<i>K</i>"
 
 ## Resolution settings
 # Change this to TRUE to make high-resolution plots
 # (default is FALSE to save time in CRAN checks)
-hires <- FALSE
+hires <- nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))
 res1.lo <- 150
 res1.hi <- 256
-res1 <- ifelse(hires, res1.hi, res1.lo)
+res1 <- if(hires) res1.hi else res1.lo
 res2.lo <- 200
 res2.hi <- 400
-res2 <- ifelse(hires, res2.hi, res2.lo)
+res2 <- if(hires) res2.hi else res2.lo
+
+## logK with a thin space 20200627
+logK <- "log&thinsp;<i>K</i>"
+
+## Set dpi 20231129
+knitr::opts_chunk$set(
+  dpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 72
+)
 ```
 
 ```{r CHNOSZ_reset, include=FALSE}
@@ -88,18 +95,20 @@ This vignette was compiled on `r Sys.Date()` with CHNOSZ version `r sessionInfo(
 This vignette is associated with a paper that has been published in *Applied Computing and Geosciences* ([Dick, 2021](https://doi.org/10.1016/j.acags.2021.100059 "Diagrams with multiple metals in CHNOSZ")).
 Please consider citing that paper if you use the functions or diagrams described here.
 
-The plots in this vignette were made using the following resolution settings, which can be changed if desired (low resolutions are used to save time in CRAN checks):
+The plots in this vignette were made using the following resolution settings.
+Low resolutions are used for submitting the package to CRAN.
+High resolutions are used if the `CHNOSZ_BUILD_LARGE_VIGNETTES` environment variable is set.
 
 ```{r res, results = "asis", echo = FALSE}
 cat("```")
 cat("\n")
-cat(paste0(ifelse(hires, "# ", ""), "res1 <- ", res1.lo))
+cat(paste0(if(hires) "# " else "", "res1 <- ", res1.lo))
 cat("\n")
-cat(paste0(ifelse(hires, "", "# "), "res1 <- ", res1.hi))
+cat(paste0(if(hires) "" else "# ", "res1 <- ", res1.hi))
 cat("\n")
-cat(paste0(ifelse(hires, "# ", ""), "res2 <- ", res2.lo))
+cat(paste0(if(hires) "# " else "", "res2 <- ", res2.lo))
 cat("\n")
-cat(paste0(ifelse(hires, "", "# "), "res2 <- ", res2.hi))
+cat(paste0(if(hires) "" else "# ", "res2 <- ", res2.hi))
 cat("\n")
 cat("```")
 ```
@@ -318,11 +327,11 @@ Regarding the legend, it should be noted that although the DFT calculations for 
 In these diagrams, changing the Fe:V ratio affects the fully reduced metallic species.
 In the 1:1 mixture, the FeV~3~ + Fe~3~V assemblage is predicted to be stable instead of FeV.
 This result is unlike Figure 1 of @SZS_17 but is consistent with the [MP page for FeV](https://doi.org/10.17188/1189535) where it is shown to decompose to this assemblage.
-On the other hand, [FeV~3~ is stable](https://materialsproject.org/materials/mp-1079399/) in the 1:3 mixture.
+On the other hand, [FeV~3~ is stable](https://next-gen.materialsproject.org/materials/mp-1079399/) in the 1:3 mixture.
 For an even higher proportion of V, the V + FeV~3~ assemblage is stable, which can be seen for instance in the Pourbaix diagram linked from the [MP page for FeV~5~O~12~](https://doi.org/10.17188/1305091).
 
 Let's make another diagram for the 1:1 Fe:V composition over a broader range of Eh and pH.
-The diagram shows a stable assemblage of Fe~2~O~3~ with an oxidized bimetallic material, [Fe~2~V~4~O~13~](https://materialsproject.org/materials/mp-1200054/).
+The diagram shows a stable assemblage of Fe~2~O~3~ with an oxidized bimetallic material, [Fe~2~V~4~O~13~](https://next-gen.materialsproject.org/materials/mp-1200054/).
 ```{r FeVO4, eval = FALSE, echo = 1:29}
 layout(t(matrix(1:3)), widths = c(1, 1, 0.2))
 par(cex = 1)
@@ -400,7 +409,7 @@ Given the diagram for the stable Fe-, V- and bimetallic materials *mixed with th
 This is plotted as a color map in the second diagram.
 (See the source of this vignette for the code used to make the scale bar.)
 
-```{r FeVO4, echo = 31:44, message = FALSE, results = "hide", fig.width = 11, fig.height = 5, out.width = "100%", pngquant = FALSE}
+```{r FeVO4, echo = 31:44, message = FALSE, results = "hide", fig.width = 11, fig.height = 5, out.width = "100%", pngquant = pngquant}
 ```
 
 Now we locate the pH and Eh that maximize the affinity (that is, minimize Δ*G*~pbx~) of FeVO~4~ compared to the stable species.
@@ -436,7 +445,7 @@ round(eV_atom, 3)
 stopifnot(round(eV_atom, 3) == 0.415)
 ```
 
-This is equal to the value for the energy above the hull / atom for [triclinic FeVO~4~ on the MP website](https://materialsproject.org/materials/mp-504509/) (0.415 eV, accessed on 2020-11-09 and 2021-02-19).
+This is equal to the value for the energy above the hull / atom for [triclinic FeVO~4~ on the MP website](https://next-gen.materialsproject.org/materials/mp-504509/) (0.415 eV, accessed on 2020-11-09 and 2021-02-19).
 This shows that we successfully made a round trip starting with the input formation energies (eV/atom) from the Materials API, to standard Gibbs energy (J/mol) in the OBIGT database, and back out to energy above the hull (eV/atom).
 
 The concept of using the stable minerals and aqueous species to calculate reaction energetics is formalized in the `mosaic()` function, which is described next.
@@ -656,7 +665,8 @@ The next code chunk prepends `@` to the reference keys and uses the chunk option
 ```{r stack2.cite, results = "asis"}
 allyears <- lapply(iall, function(x) thermo.refs(x)$year)
 o <- order(unlist(allyears))
-cat(paste(paste0("@", unique(unlist(allkeys)[o])), collapse = "; "))
+keys <- gsub("\\..*", "", unique(unlist(allkeys)[o]))
+cat(paste(paste0("@", keys), collapse = "; "))
 ```
 
 ## Mixing 2

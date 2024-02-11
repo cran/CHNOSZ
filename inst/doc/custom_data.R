@@ -1,11 +1,16 @@
 ## ----setup, include = FALSE---------------------------------------------------
 library(CHNOSZ)
 options(width = 80)
-## use pngquant to optimize PNG images
+## Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
 pngquant <- "--speed=1 --quality=0-25"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
+
+# Set dpi 20231129
+knitr::opts_chunk$set(
+  dpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 72
+)
 
 ## ----HTML, include = FALSE----------------------------------------------------
 NOTE <- '<span style="background-color: yellow;">NOTE</span>'
@@ -32,8 +37,7 @@ H_ <- '<tt style="color: blue;">H</tt>'
 S_ <- '<tt style="color: blue;">S</tt>'
 Cp_ <- '<tt style="color: blue;">Cp</tt>'
 V_ <- '<tt style="color: blue;">V</tt>'
-Cp_0 <- "<i>C<sub>p</sub></i>&deg;"
-DG_0 <- "&Delta;<i>G</i>&deg;"
+T_ <- '<tt style="color: blue;">T</tt>'
 # CHNOSZ functions
 reset_ <- '<code style="color: red;">reset()</code>'
 OBIGT_ <- '<code style="color: red;">OBIGT()</code>'
@@ -48,8 +52,8 @@ subcrt_ <- '<code style="color: green;">subcrt()</code>'
 affinity_ <- '<code style="color: green;">affinity()</code>'
 thermo.refs_ <- '<code style="color: green;">thermo.refs()</code>'
 thermo_ <- '<code style="color: green;">thermo()</code>'
-checkGHS_ <- '<code style="color: green;">checkGHS()</code>'
-checkEOS_ <- '<code style="color: green;">checkEOS()</code>'
+check.GHS_ <- '<code style="color: green;">check.GHS()</code>'
+check.EOS_ <- '<code style="color: green;">check.EOS()</code>'
 # Math stuff
 logK <- "log&thinsp;<i>K</i>"
 logB <- "log&thinsp;&beta;"
@@ -58,6 +62,9 @@ Hplus <- "H<sup>+</sup>"
 HWO4_ <- "HWO<sub>4</sub><sup>-</sup>"
 H2WO4 <- "H<sub>2</sub>WO<sub>4</sub>"
 H3WO4F2_ <- "H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup>"
+# Thermodynamic properties
+Cp_0 <- "<i>C<sub>p</sub></i>&deg;"
+DG_0 <- "&Delta;<i>G</i>&deg;"
 
 ## ----system.file--------------------------------------------------------------
 system.file("extdata/OBIGT", package = "CHNOSZ")

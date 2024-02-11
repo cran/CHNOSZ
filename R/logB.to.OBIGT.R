@@ -120,7 +120,7 @@ logB.to.OBIGT <- function(logB, species, coeffs, T, P, npar = 3, optimize.omega 
   if(is.na(c1)) c1 <- 0
   if(is.na(c2)) c2 <- 0
   if(is.na(omega)) omega <- 0
-  # Calculate Cp at 25 °C (not used in HKF - just for info() and checkEOS())
+  # Calculate Cp at 25 °C (not used in HKF - just for info() and check.EOS())
   PAR$c1 <- c1
   PAR$c2 <- c2
   PAR$omega <- omega
@@ -133,7 +133,7 @@ logB.to.OBIGT <- function(logB, species, coeffs, T, P, npar = 3, optimize.omega 
   logK <- suppressMessages(subcrt(species, coeffs, T = T, P = P)$out$logK)
   # Calculate the mean absolute difference
   mad <- mean(abs(logK - logB))
-  message(paste("logB.to.OBIGT: mean absolute difference between logB (experimental) and logK (calculated) is", round(mad, 4)))
+  message(paste("logB.to.OBIGT: mean difference between logB (experimental) and logK (calculated) is", round(mad, 4)))
   # Check that calculated values are close to input values
   stopifnot(all.equal(logK, logB, tolerance = tolerance, scale = 1))
   # Return the species index in OBIGT

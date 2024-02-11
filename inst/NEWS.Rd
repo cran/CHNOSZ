@@ -2,15 +2,114 @@
 \title{News for Package 'CHNOSZ'}
 \encoding{UTF-8}
 
-% macros
+% Macros
 \newcommand{\degC}{\ifelse{latex}{\eqn{^{\circ}}C}{\ifelse{html}{\out{&deg;}C}{°C}}}
 \newcommand{\H2O}{\ifelse{latex}{\eqn{\mathrm{H_{2}O}}}{\ifelse{html}{\out{H<sub>2</sub>O}}{H2O}}}
 \newcommand{\Hplus}{\ifelse{latex}{\eqn{\mathrm{H^{+}}}}{\ifelse{html}{\out{H<sup>+</sup>}}{H+}}}
-% subscript and superscript
+% Subscript and superscript
 \newcommand{\s}{\ifelse{latex}{\eqn{_{#1}}}{\ifelse{html}{\out{<sub>#1</sub>}}{#1}}}
 \newcommand{\S}{\ifelse{latex}{\eqn{^{#1}}}{\ifelse{html}{\out{<sup>#1</sup>}}{^#1}}}
-% links to vignettes 20220723
+% Links to vignettes 20220723
 \newcommand{\viglink}{\ifelse{html}{\out{<a href="../CHNOSZ/doc/#1.html"><strong>#1.Rmd</strong></a>}}{\bold{#1.Rmd}}}
+% Heat capacity and standard Gibbs energy 20231115
+\newcommand{\Cp}{\ifelse{latex}{\eqn{C_P}}{\ifelse{html}{\out{<I>C<sub>P</sub></I>}}{Cp}}}
+\newcommand{\DG0}{\ifelse{latex}{\eqn{{\Delta}G^{\circ}}}{\ifelse{html}{\out{&Delta;<I>G</I>&deg;}}{ΔG°}}}
+
+\section{Changes in CHNOSZ version 2.1.0 (2024-02-11)}{
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+
+      \item Add \viglink{FAQ} vignette with the following questions: How is
+      \sQuote{CHNOSZ} pronounced?, How should CHNOSZ be cited?, What
+      thermodynamic models are used in CHNOSZ?, When and why do equal-activity
+      boundaries depend on total activity?, How can minerals with polymorphic
+      transitions be added to the database?, How can I make a diagram with the
+      trisulfur radical ion (S\s{3}\S{-})?, In OBIGT, what is the meaning of
+      \code{T} for solids, liquids, and gases?, and How can mineral pH buffers
+      be plotted?
+
+      \item Add \strong{use.polymorphs} argument to \code{subcrt()} to allow
+      turning off automatic identification of stable polymorphs. This is used
+      in the FAQ (How can minerals with polymorphic transitions be added to the
+      database?).
+
+      \item Restore \file{EOSregress.R} and its reverse dependencies
+      \viglink{eos-regress} and \file{demo/adenine.R}. Thanks to Kris Fecteau
+      and Kirt Robinson for the suggestion.
+
+      \item \code{mosaic()} now handles the situation where the alternate basis
+      species include one of the axis variables on a diagram (by changing the
+      argument names in its internal calls to \code{affinity()}) and adjusts
+      the labels for the diagram accordingly (e.g. \dQuote{total C},
+      \dQuote{total S}, etc.). Thanks to Evgeniy Bastrakov for the suggestion.
+
+      \item The environment variable CHNOSZ_BUILD_LARGE_VIGNETTES is used to
+      control \strong{dpi} in \pkg{knitr} chunk options. Setting this variable
+      results in larger vignettes that are used for the CHNOSZ website; if this
+      variable is unset (as in CRAN checks), a smaller package is built.
+
+      \item \code{rank.affinity()} now returns average group rankings as
+      percentage values.
+
+    }
+  }
+
+
+  \subsection{OBIGT DATABASE}{
+    \itemize{
+
+      \item \code{subcrt()} now outputs \DG0 and issues a warning above the
+      temperature limit for \Cp equations for minerals and other \samp{CGL}
+      species. The temperature limit for \Cp equations is stored as the
+      opposite (negative) value in OBIGT. The previous behavior of outputting
+      NA for \DG0 and issuing a message is now reserved for phase stability
+      limits (i.e., melting, vaporization, or decomposition). See \viglink{FAQ}
+      for details.
+
+      \item Add carrollite (Cu\s{0.92}Co\s{2.07}S\s{4}) from
+      \href{https://doi.org/10.3749/2300028}{von der Heyden et al. (2024)}.
+
+      \item Modify cattierite (CoS\s{2}) and linnaeite (Co\s{3}S\s{4}) to use
+      parameters from \href{https://www.worldcat.org/oclc/16131757}{Pankratz et
+        al. (1987)} as listed by
+      \href{https://doi.org/10.5382/econgeo.4895}{Williams-Jones and Vasyukova
+        (2022)}.
+      
+      \item Add 36 charged amino acids from
+      \href{https://doi.org/10.1007/s11084-015-9428-3}{Kitadai (2015)} and
+      update several others (Arg\S{+}, Arg\S{-}, Asp\S{-}, Glu\S{-}, His\S{+},
+      Lys\S{+}, Lys\S{-}, and Tyr\S{-}). Thanks to Grayson Boyer.
+
+      \item In \code{OBIGT()}, load \file{Berman_cr.csv} before
+      \file{inorganic_cr.csv} so that \code{info("Fe2O3")} matches hematite
+      rather than maghemite.
+
+      \item Rename \code{checkGHS()} and \code{checkEOS()} to
+      \code{check.GHS()} and \code{check.EOS()} and change the default for
+      \strong{return.difference} to TRUE.
+
+    }
+  }
+
+
+  \subsection{BUG FIXES}{
+    \itemize{
+
+      \item Fix bugs in \code{subcrt()} where \strong{exceed.Ttr} and
+      \strong{IS} arguments were not applied to automatically balanced
+      reactions.
+
+      \item Fix bug in \code{dPdTtr()} where OBIGT database parameters were not
+      converted to Joules. This allows re-activating the tests for quartz
+      (which depend on the computed transition temperature) in
+      \file{test-subcrt.R}.
+
+    }
+  }
+
+}
+
 
 \section{Changes in CHNOSZ version 2.0.0 (2023-03-13)}{
 

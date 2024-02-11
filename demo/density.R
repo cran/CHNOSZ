@@ -1,3 +1,4 @@
+# CHNOSZ/demo/density.R
 # Make T-P diagram for H2O, colored according to density
 library(CHNOSZ)
 
@@ -9,8 +10,10 @@ TPrange <- "low"
 blue <- "blue"
 if(TPrange == "low") {
   T <- seq(300, 800, 10)
-  #P <- seq(1, 600, 11.98)
   P <- seq(0, 600, 12)
+  ## Uncomment these lines to make high-resolution plot (used on https://chnosz.net/demos/)
+  #T <- seq(300, 800, 2)
+  #P <- seq(0, 600, 2)
   bias <- 1.68
 } else {
   # Upper T,P limit for SUPCRT92: 2250 degC, 30000 bar

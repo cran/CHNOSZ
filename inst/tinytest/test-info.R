@@ -7,16 +7,16 @@ expect_message(CHNOSZ:::info.character("acetate", "cr"), "only 'aq' is available
 expect_message(CHNOSZ:::info.character("methane", "cr"), "only 'gas' 'liq' are available", info = info)
 expect_message(CHNOSZ:::info.character("methane"), "also available in liq", info = info)
 expect_message(CHNOSZ:::info.character("SiO2", "cr"), "also available in.*quartz", info = info)
-expect_message(CHNOSZ:::info.character("chalcocite"), "found chalcocite\\(cr\\) with 2 phase transitions", info = info)
+expect_message(CHNOSZ:::info.character("chalcocite"), "found chalcocite\\(cr\\) with 2 polymorphic transitions", info = info)
 # H2O is a special case
 expect_equal(CHNOSZ:::info.character("H2O", "aq"), CHNOSZ:::info.character("H2O", "liq"), info = info)
 
 info <- "info.numeric() produces expected errors and messages"
 expect_error(CHNOSZ:::info.numeric(9999), "species index 9999 not found in thermo\\(\\)\\$OBIGT", info = info)
 iargon <- info("argon", "gas")
-expect_message(CHNOSZ:::info.numeric(iargon), "Cp of argon\\(gas\\) is NA; set by EOS parameters to 4.97", info = info)
+expect_message(CHNOSZ:::info.numeric(iargon), "Cp° of argon\\(gas\\) is NA; set by EOS parameters to 4.97", info = info)
 iMgSO4 <- info("MgSO4")
-expect_message(CHNOSZ:::info.numeric(iMgSO4), "V of MgSO4\\(aq\\) is NA; set by EOS parameters to 1.34", info = info)
+expect_message(CHNOSZ:::info.numeric(iMgSO4), "V° of MgSO4\\(aq\\) is NA; set by EOS parameters to 1.34", info = info)
 
 info <- "info.approx() produces expected messages"
 expect_message(CHNOSZ:::info.approx("lactic"), "is similar to lactic acid", info = info)

@@ -11,16 +11,22 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 bibliography: vig.bib
 csl: elementa.csl
+link-citations: true
 ---
 
 ```{r setup, include = FALSE}
 library(CHNOSZ)
 options(width = 80)
-## use pngquant to optimize PNG images
+## Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
 pngquant <- "--speed=1 --quality=0-25"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
+
+# Set dpi 20231129
+knitr::opts_chunk$set(
+  dpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 72
+)
 ```
 
 ```{r HTML, include = FALSE}
@@ -48,8 +54,7 @@ H_ <- '<tt style="color: blue;">H</tt>'
 S_ <- '<tt style="color: blue;">S</tt>'
 Cp_ <- '<tt style="color: blue;">Cp</tt>'
 V_ <- '<tt style="color: blue;">V</tt>'
-Cp_0 <- "<i>C<sub>p</sub></i>&deg;"
-DG_0 <- "&Delta;<i>G</i>&deg;"
+T_ <- '<tt style="color: blue;">T</tt>'
 # CHNOSZ functions
 reset_ <- '<code style="color: red;">reset()</code>'
 OBIGT_ <- '<code style="color: red;">OBIGT()</code>'
@@ -64,8 +69,8 @@ subcrt_ <- '<code style="color: green;">subcrt()</code>'
 affinity_ <- '<code style="color: green;">affinity()</code>'
 thermo.refs_ <- '<code style="color: green;">thermo.refs()</code>'
 thermo_ <- '<code style="color: green;">thermo()</code>'
-checkGHS_ <- '<code style="color: green;">checkGHS()</code>'
-checkEOS_ <- '<code style="color: green;">checkEOS()</code>'
+check.GHS_ <- '<code style="color: green;">check.GHS()</code>'
+check.EOS_ <- '<code style="color: green;">check.EOS()</code>'
 # Math stuff
 logK <- "log&thinsp;<i>K</i>"
 logB <- "log&thinsp;&beta;"
@@ -74,6 +79,9 @@ Hplus <- "H<sup>+</sup>"
 HWO4_ <- "HWO<sub>4</sub><sup>-</sup>"
 H2WO4 <- "H<sub>2</sub>WO<sub>4</sub>"
 H3WO4F2_ <- "H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup>"
+# Thermodynamic properties
+Cp_0 <- "<i>C<sub>p</sub></i>&deg;"
+DG_0 <- "&Delta;<i>G</i>&deg;"
 ```
 
 This vignette was compiled on `r Sys.Date()` with CHNOSZ version `r sessionInfo()$otherPkgs$CHNOSZ$Version`.
@@ -170,8 +178,8 @@ There are two ways in which these limits are enforced in CHNOSZ:
   Note that the Deep Earth Water (DEW) model is available to extend the applicable range to pressures of up to 60 kbar (6 GPa) [@SHA14].
 - `r subcrt_` generates NA values beyond the density limit; the `exceed.rhomin` argument can be used to enable calculations at lower density in the supercritical region.
 
-The upper temperature limit for applicability of the CGL heat-capacity equation corresponds to the temperature of phase transition or to a temperature beyond which extrapolations from experimental data becomes highly uncertain.
-A maximum temperature can be stored in the final column of OBIGT, and is used by `r subcrt_` to replace computed values with NA above the maximum.
+The upper temperature limit for validity of the CGL heat-capacity equation is a species-dependent parameter.
+This value is stored as a negative value in the `r T_` column of OBIGT and is used by `r subcrt_` to issue a warning at temperatures beyond this limit.
 
 ### Required and optional data
 
@@ -233,9 +241,9 @@ This is a summary of its main features:
 - Remove OOM scaling. This is used primarily by other functions in CHNOSZ to get a set of unscaled `r model` parameters for calculating thermodynamic properties as a function of T and P.
 - Extract the HKF or CGL parts of column names (only if all matching species have the same `r model`).
 - Calculate a missing one of `r G_`, `r H_`, or `r S_` if two of them are present.
-- Cross-check `r G_`, `r H_`, and `r S_` if all of them are present, and print a message if the difference is above a threshold (see `r checkGHS_`).
+- Cross-check `r G_`, `r H_`, and `r S_` if all of them are present, and print a message if the difference is above a threshold (see `r check.GHS_`).
 - Calculate a missing `r Cp_` or `r V_` from the `r model` parameters, if possible.
-- Cross-check `r Cp_` or `r V_` (if present) against the `r model` parameters, if possible, and print a message if the difference is above a threshold (see `r checkEOS_`).
+- Cross-check `r Cp_` or `r V_` (if present) against the `r model` parameters, if possible, and print a message if the difference is above a threshold (see `r check.EOS_`).
 
 `r NOTE`: `r info_` does **NOT** change the units of energy; the values it displays (including possibly calculated ones) correspond to the `r E_units` for that species in OBIGT.
 On the other hand, `r subcrt_` outputs values in the units previously selected with the function `r E.units_`.

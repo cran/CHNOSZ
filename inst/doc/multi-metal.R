@@ -1,23 +1,29 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 options(width = 80)
-## use pngquant to optimize PNG images
+## Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
 pngquant <- "--speed=1 --quality=0-25"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
-## logK with a thin space 20200627
-logK <- "log&thinsp;<i>K</i>"
 
 ## Resolution settings
 # Change this to TRUE to make high-resolution plots
 # (default is FALSE to save time in CRAN checks)
-hires <- FALSE
+hires <- nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))
 res1.lo <- 150
 res1.hi <- 256
-res1 <- ifelse(hires, res1.hi, res1.lo)
+res1 <- if(hires) res1.hi else res1.lo
 res2.lo <- 200
 res2.hi <- 400
-res2 <- ifelse(hires, res2.hi, res2.lo)
+res2 <- if(hires) res2.hi else res2.lo
+
+## logK with a thin space 20200627
+logK <- "log&thinsp;<i>K</i>"
+
+## Set dpi 20231129
+knitr::opts_chunk$set(
+  dpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 72
+)
 
 ## ----CHNOSZ_reset, include=FALSE----------------------------------------------
 library(CHNOSZ)
@@ -26,13 +32,13 @@ reset()
 ## ----res, results = "asis", echo = FALSE--------------------------------------
 cat("```")
 cat("\n")
-cat(paste0(ifelse(hires, "# ", ""), "res1 <- ", res1.lo))
+cat(paste0(if(hires) "# " else "", "res1 <- ", res1.lo))
 cat("\n")
-cat(paste0(ifelse(hires, "", "# "), "res1 <- ", res1.hi))
+cat(paste0(if(hires) "" else "# ", "res1 <- ", res1.hi))
 cat("\n")
-cat(paste0(ifelse(hires, "# ", ""), "res2 <- ", res2.lo))
+cat(paste0(if(hires) "# " else "", "res2 <- ", res2.lo))
 cat("\n")
-cat(paste0(ifelse(hires, "", "# "), "res2 <- ", res2.hi))
+cat(paste0(if(hires) "" else "# ", "res2 <- ", res2.hi))
 cat("\n")
 cat("```")
 
@@ -312,7 +318,7 @@ title("Fe:V = 1:5")
 #  axis(4, at = range(levels), labels = ylim)
 #  mtext(quote(Delta*italic(G)[pbx]*", eV/atom"), side = 4, las = 0, line = 1)
 
-## ----FeVO4, echo = 31:44, message = FALSE, results = "hide", fig.width = 11, fig.height = 5, out.width = "100%", pngquant = FALSE----
+## ----FeVO4, echo = 31:44, message = FALSE, results = "hide", fig.width = 11, fig.height = 5, out.width = "100%", pngquant = pngquant----
 layout(t(matrix(1:3)), widths = c(1, 1, 0.2))
 par(cex = 1)
 # Fe-bearing species
@@ -685,7 +691,8 @@ allkeys
 ## ----stack2.cite, results = "asis"--------------------------------------------
 allyears <- lapply(iall, function(x) thermo.refs(x)$year)
 o <- order(unlist(allyears))
-cat(paste(paste0("@", unique(unlist(allkeys)[o])), collapse = "; "))
+keys <- gsub("\\..*", "", unique(unlist(allkeys)[o]))
+cat(paste(paste0("@", keys), collapse = "; "))
 
 ## ----mixing2, eval = FALSE----------------------------------------------------
 #  par(mfrow = c(2, 2))

@@ -31,18 +31,8 @@ AS01.C7 <- c(-1695.30, -1686.90, -1682.80, -1675.30, -1670.00, -1663.10, -1652.0
 s.C7 <- subcrt(c("S2O3-2", "H2O", "O2", "SO4-2", "H+", "S"), c("aq", "liq", "aq", "aq", "aq", "cr"), c(-5, -1, -4, 6, 2, 4), T = T)
 sout.C7 <- s.C7$out
 expect_true(maxdiff(sout.C7$G/1000, AS01.C7) < 0.06, info = info)
-# We can also check that sulfur has expected phase transitions
+# We can also check that sulfur has expected polymorphic transitions
 expect_equal(s.C7$polymorphs$sulfur, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3), info = info)
-
-info <- "Subzero degree C calculations are possible"
-## Start with H2O
-s.H2O <- subcrt("H2O", T = c(-20.1, seq(-20, 0)), P = 1)$out$water
-# We shouldn't get anything at -20.1 deg C
-expect_true(is.na(s.H2O$G[1]), info = info)
-# We should get something at -20 deg C
-expect_equal(s.H2O$G[2], convert(-56001, "J"), tolerance = 1, scale = 1, info = info)
-# Following SUPCRT92, an input temperature of 0 is converted to 0.01
-expect_equal(s.H2O$T[22], 0.01, info = info)
 
 info <- "Calculations using IAPWS-95 are possible"
 oldwat <- water("IAPWS95")
@@ -52,14 +42,13 @@ expect_true(all(sb$`Na+`$G < sb$water$G), info = info)
 # Clean up
 water(oldwat)
 
-info <- "Phase transitions of minerals give expected messages and results"
-iacanthite <- info("acanthite", "cr2")
-expect_message(subcrt(iacanthite), "subcrt: temperature\\(s\\) of 623.15 K and above exceed limit for acanthite cr2 \\(using NA for G\\)", info = info)
-expect_equal(subcrt("acanthite")$out$acanthite$polymorph, c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3), info = info)
+info <- "Phase stability limits give expected results"
+expect_message(subcrt("gold", T = c(1300, 1350), P = 1, convert = FALSE), "subcrt: G is set to NA for gold\\(cr\\)", info = info)
 # The reaction coefficients in the output should be unchanged 20171214
 expect_equal(subcrt(c("bunsenite", "nickel", "oxygen"), c(-1, 1, 0.5))$reaction$coeff, c(-1, 1, 0.5), info = info) 
-# Properties are NA only above (not at) the transition temperature 20191111
-expect_equal(is.na(subcrt("rhodochrosite", T = c(699:701), P = 1, convert = FALSE)$out[[1]]$G), c(FALSE, FALSE, TRUE), info = info)
+# Properties are NA only above (not at) the temperature limit for phase stability 20191111
+sout <- subcrt("covellite", T = seq(780, 781, 0.5), P = 1, convert = FALSE)$out[[1]]
+expect_equal(is.na(sout$G), c(FALSE, FALSE, TRUE), info = info)
 
 # Use calories for comparisons with SUPCRT92
 E.units("cal")
@@ -82,9 +71,7 @@ expect_equal(round(CHNOSZ$V, 1), SUPCRT_V, info = info)
 expect_equal(round(CHNOSZ$Cp, 1), SUPCRT_Cp, info = info)
 OBIGT()
 
-# TODO: fix quartz_coesite() for switch to Joules 20220325
-if(FALSE) {
-
+# Quartz tests re-activated after fixing dPdTtr to use parameters converted to Joules 20240211
 info <- "Calculations for quartz are nearly consistent with SUPCRT92"
 add.OBIGT("SUPCRT92")
 # Using SUPCRT's equations, the alpha-beta transition occurs at
@@ -98,7 +85,7 @@ SUPCRT_S <- c(12.3, 10.6, 31.8, 29.8)
 SUPCRT_V <- c(22.5, 20.3, 23.7, 21.9)
 SUPCRT_Cp <- c(12.3, 12.3, 16.9, 16.9)
 CHNOSZ <- subcrt("quartz", T = T, P = P)$out[[1]]
-# NOTE: Testing has shown that, where alpha-quartz is stable above Ttr(Pr) but below Ttr(P),
+# NOTE: It appears that, where alpha-quartz is stable above Ttr(Pr) but below Ttr(P),
 # SUPCRT92 computes the heat capacity and its integrals using parameters of beta-quartz.
 # (see e.g. the equation for CprdT under the (Cpreg .EQ. 2) case in the Cptrms subroutine of SUPCRT).
 # ... is that incorrect?
@@ -115,7 +102,7 @@ OBIGT()
 info <- "More calculations for quartz are nearly consistent with SUPCRT92"
 add.OBIGT("SUPCRT92")
 # Output from SUPCRT92 for reaction specified as "1 QUARTZ" run at 1 bar
-# (SUPCRT shows phase transition at 574.850 deg C, and does not give Cp values around the transition)
+# (SUPCRT shows polymorphic transition at 574.850 deg C, and does not give Cp values around the transition)
 S92_1bar <- read.table(header = TRUE, text = "
     T       G       H    S       V
   573	-214507	-209517	24.7	23.3
@@ -129,7 +116,7 @@ expect_equal(round(CHNOSZ_1bar$H), S92_1bar$H, info = info)
 expect_equal(round(CHNOSZ_1bar$S, 1), S92_1bar$S, info = info)
 expect_equal(round(CHNOSZ_1bar$V, 1), S92_1bar$V, info = info)
 
-# 5000 bar: SUPCRT shows phase transition at 704.694 deg C
+# 5000 bar: SUPCRT shows polymorphic transition at 704.694 deg C
 S92_5000bar <- read.table(header = TRUE, text = "
     T       G       H    S       V
   703	-215044	-204913	26.7	23.3
@@ -139,16 +126,14 @@ S92_5000bar <- read.table(header = TRUE, text = "
 ")
 CHNOSZ_5000bar <- subcrt("quartz", T = seq(703, 706), P = 5000)$out[[1]]
 # NOTE: calculated values *below* the transition are different
-expect_true(maxdiff(CHNOSZ_5000bar$G, S92_5000bar$G) < 20, info = info)
-expect_true(maxdiff(CHNOSZ_5000bar$H, S92_5000bar$H) < 300, info = info)
-expect_true(maxdiff(CHNOSZ_5000bar$S, S92_5000bar$S) < 0.5, info = info)
-expect_true(maxdiff(CHNOSZ_5000bar$V, S92_5000bar$V) < 0.05, info = info)
+expect_equal(CHNOSZ_5000bar$G, S92_5000bar$G, tolerance = 20, scale = 1, info = info)
+expect_equal(CHNOSZ_5000bar$H, S92_5000bar$H, tolerance = 300, scale = 1, info = info)
+expect_equal(CHNOSZ_5000bar$S, S92_5000bar$S, tolerance = 0.5, scale = 1, info = info)
+expect_equal(CHNOSZ_5000bar$V, S92_5000bar$V, tolerance = 0.05, scale = 1, info = info)
 OBIGT()
 
-} # end if(FALSE)
-
-info <- "Duplicated species yield correct phase transitions"
-# If a mineral with phase transitions is in both the basis and species lists,
+info <- "Duplicated species yield correct polymorphic transitions"
+# If a mineral with polymorphic transitions is in both the basis and species lists,
 # energy()'s call to subcrt() will have duplicated species.
 # This wasn't working (produced NAs at low T) for a long time prior to 20171003.
 s1 <- subcrt("chalcocite", T = c(100, 1000), P = 1000)
@@ -184,7 +169,7 @@ expect_equal(sum(is.na(s1$out$quartz$logK)), 0, info = info)
 s2 <- subcrt(c("Na+", "quartz"), T = 450, P = c(400, 450, 500), exceed.rhomin = TRUE)
 expect_equal(sum(is.na(s2$out$`Na+`$logK)), 0, info = info)
 
-info <- "Combining minerals with phase transitions and aqueous species with IS > 0 does not mangle output"
+info <- "Combining minerals with polymorphic transitions and aqueous species with IS > 0 does not mangle output"
 # s2 was giving quartz an extraneous loggam column and incorrect G and logK 20181107
 add.OBIGT("SUPCRT92")
 s1 <- subcrt(c("quartz", "K+"), T = 25, IS = 1)
@@ -201,6 +186,80 @@ info <- "Argument checking handles some types of invalid input"
 expect_error(subcrt("H2O", -1, "liq", "xxx"), "invalid property name: xxx", info = info)
 # Before version 1.1.3-63, having more than one invalid property gave a mangled error message
 expect_error(subcrt("H2O", -1, "liq", c(1, 2)), "invalid property names: 1 2", info = info)
+
+# Added on 20230620
+info <- "Polymorphs are used by default"
+sres_poly <- subcrt("pyrrhotite")
+expect_equal(unique(sres_poly$out[[1]]$polymorph), c(1, 2, 3), info = info)
+info <- "Polymorphs work for named species or numeric indices"
+iPo <- info("pyrrhotite")
+sres_poly1 <- subcrt(iPo)
+expect_identical(sres_poly, sres_poly1, info = info)
+info <- "Automatic identificatio of polymorphs can be turned off"
+sres_nopoly <- subcrt("pyrrhotite", use.polymorphs = FALSE)
+expect_null(sres_nopoly$out[[1]]$polymorph, info = info)
+info <- "Gibbs energy is NA beyond the transition temperature"
+expect_true(anyNA(sres_nopoly$out[[1]]$G))
+info <- "Gibbs energy can be extrapolated beyond the transition temperature"
+sres_nopoly_extrap <- subcrt("pyrrhotite", use.polymorphs = FALSE, exceed.Ttr = TRUE)
+expect_false(anyNA(sres_nopoly_extrap$out[[1]]$G))
+
+# Added on 20230621
+info <- "Arguments 2 and 3 can't both be character"
+expect_error(subcrt(c("hydrogen", "H2"), c("gas", "aq"), "G"), info = info)
+
+# Added on 20230818
+info <- "exceed.Ttr works for basis species in automatically balanced reactions"
+basis(c("gypsum", "SO4-2", "H2O", "H+", "O2"))
+# Defaults for subcrt() go above the temperature limit for gypsum, so use exceed.Ttr to calculate logK
+automatic_reaction <- subcrt("Ca+2", 1, exceed.Ttr = TRUE)$out
+expect_false(any(is.na(automatic_reaction$logK)), info = info)
+# Check that logK is identical for the reaction entered manually
+manual_reaction <- subcrt(c("gypsum", "Ca+2", "SO4-2", "H2O"), c(-1, 1, 1, 2), exceed.Ttr = TRUE)$out
+expect_equal(automatic_reaction$logK, manual_reaction$logK, info = info)
+
+# Added on 20231115
+info <- "Cp equation limits give expected results"
+expect_warning(sout <- subcrt("acanthite", T = 1000:1001, P = 1, convert = FALSE)$out[[1]], "above T limit of 1000 K", info = info)
+expect_false(any(is.na(sout$G)))
+info <- "exceed.Ttr doesn't interfere with polymorphic transitions"
+# Stable polymorphs of pyrrhotite at default T,P conditions of subcrt()
+polymorph <- c(1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3)
+s1 <- subcrt("pyrrhotite")$out[[1]]
+expect_equal(s1$polymorph, polymorph, info = info)
+s2 <- subcrt("pyrrhotite", exceed.Ttr = TRUE)$out[[1]]
+expect_equal(s2$polymorph, polymorph, info = info)
+
+# Added on 20231204
+info <- "Auto-balanced reactions apply ionic strength correction"
+basis("CHNOS+")
+sres <- subcrt("acetate", 1, IS = 1)
+expect_length(sres$out$loggam, 15)
+
+# Added on 20240206
+info <- "High-temperature polymorph is not shown as stable below the transition temperature"
+# This checks that the below-transition temperature code in subcrt() is working.
+# If not, then cr2 is incorrectly identified as stable at 25 and 103 °C
+# (that is, cr2 has a lower ΔG° than cr at those temperatures,
+#  but should only be shown as stable above the transition temperature of 377 K)
+T <- c(25, 50, 103, 104)
+sout <- subcrt("carrollite", T = T, P = 1)$out[[1]]
+expect_equal(sout$polymorph, c(1, 1, 1, 2), info = info)
+
+info <- "Subzero degree C calculations are possible"
+# Set default units
+E.units("J")
+# Start with H2O
+s.H2O <- subcrt("H2O", T = c(-20.1, seq(-20, 0)), P = 1)$out$water
+# We should get something at -20 deg C
+expect_equal(s.H2O$G[2], convert(-56001, "J"), tolerance = 1, scale = 1, info = info)
+# Following SUPCRT92, an input temperature of 0 is converted to 0.01
+expect_equal(s.H2O$T[22], 0.01, info = info)
+# The following test fails CRAN checks with Intel oneAPI 2023.x compilers
+# (Expected TRUE, got FALSE) 20240211
+if(!at_home()) exit_file("Skipping tests on CRAN")
+# We shouldn't get anything at -20.1 deg C
+expect_true(is.na(s.H2O$G[1]), info = info)
 
 # References
 

@@ -1,9 +1,14 @@
 ## ----setup, include=FALSE-----------------------------------------------------
-## use pngquant to optimize PNG images
+## Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
 pngquant <- "--speed=1 --quality=0-25"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
+
+# Set dpi 20231129
+knitr::opts_chunk$set(
+  dpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 72
+)
 
 ## ----CHNOSZ_reset, include=FALSE----------------------------------------------
 library(CHNOSZ)
@@ -58,7 +63,7 @@ aa
 
 ## ----AAplot, eval = FALSE-----------------------------------------------------
 #  showtime <- function(st) {
-#    # plot time in lower-right of figure region
+#    # Plot time in lower-right of figure region
 #    f <- usrfig()
 #    par(xpd=TRUE)
 #    if(st[3] > 2) col <- "red" else col <- "black"
@@ -68,7 +73,7 @@ aa
 #  
 #  layout(t(matrix(c(1:7, 11, 8:10, 12), nrow=4)), widths=c(1, 4, 4, 4), heights=c(0.7, 4, 4))
 #  
-#  ## row 0 (column titles)
+#  ## Row 0 (column titles)
 #  opar <- par(mar=c(0, 0, 0, 0))
 #  plot.new()
 #  plot.new()
@@ -79,49 +84,49 @@ aa
 #  text(0.58, 0.5, "equilibration", cex=1.4)
 #  par(opar)
 #  
-#  ## row 1 (balance = 1)
+#  ## Row 1 (balance = 1)
 #  opar <- par(mar=c(0, 0, 0, 0))
 #  plot.new()
 #  text(0.5, 0.5, "balance = 1", srt=90, cex=1.4)
 #  par(opar)
-#  # figure A
+#  # Figure A
 #  st <- system.time(dA <- aaA())
 #  showtime(st)
 #  title(main="loga(species) = -3", cex.main=1)
 #  label.figure("A", yfrac=0.92, xfrac=0.1, font = 2)
-#  # figure B
+#  # Figure B
 #  st <- system.time(dB <- aaB())
 #  showtime(st)
 #  title(main=paste("loga(total species) =", round(dB$loga.balance[1], 2)), cex.main=1)
 #  label.figure("C", yfrac=0.92, xfrac=0.1, font = 2)
 #  
-#  ## row 2 (balance = nCO2)
+#  ## Row 2 (balance = nCO2)
 #  opar <- par(mar=c(0, 0, 0, 0))
 #  plot.new()
 #  text(0.5, 0.5, 'balance = "CO2"', srt=90, cex=1.4)
 #  par(opar)
-#  # figure C
+#  # Figure C
 #  st <- system.time(dC <- aaC())
 #  showtime(st)
 #  title(main="loga(species) = -3", cex.main=1)
 #  label.figure("B", yfrac=0.92, xfrac=0.1, font = 2)
-#  # figure D
+#  # Figure D
 #  st <- system.time(dD <- aaD())
 #  showtime(st)
 #  title(main=paste("loga(total CO2) =", round(dD$loga.balance[1], 2)), cex.main=1)
 #  label.figure("D", yfrac=0.92, xfrac=0.1, font = 2)
 #  
-#  ## right (speciation at different total activity of CO2)
+#  ## Right column (speciation at different total activity of CO2)
 #  par(xpd=NA)
 #  lines(c(-66, -64.5), c(4, 9), lty=2)
 #  lines(c(-66, -64.5), c(-8, -8.5), lty=2)
 #  par(xpd=FALSE)
-#  # figure E
+#  # Figure E
 #  st <- system.time(dE <- aaE())
 #  showtime(st)
 #  title(main=paste("loga(total CO2) =", round(dE$loga.balance[1], 2)), cex.main=1)
 #  label.figure("E", yfrac=0.92, xfrac=0.1, font = 2)
-#  # figure F
+#  # Figure F
 #  st <- system.time(dF <- aaF())
 #  showtime(st)
 #  title(main=paste("loga(total CO2) =", round(dF$loga.balance[1], 2)), cex.main=1)
@@ -129,7 +134,7 @@ aa
 
 ## ----AAplot, echo = FALSE, results = "hide", message = FALSE, fig.width = 13/2, fig.height = 8.7/2, out.width = "100%", pngquant = pngquant----
 showtime <- function(st) {
-  # plot time in lower-right of figure region
+  # Plot time in lower-right of figure region
   f <- usrfig()
   par(xpd=TRUE)
   if(st[3] > 2) col <- "red" else col <- "black"
@@ -139,7 +144,7 @@ showtime <- function(st) {
 
 layout(t(matrix(c(1:7, 11, 8:10, 12), nrow=4)), widths=c(1, 4, 4, 4), heights=c(0.7, 4, 4))
 
-## row 0 (column titles)
+## Row 0 (column titles)
 opar <- par(mar=c(0, 0, 0, 0))
 plot.new()
 plot.new()
@@ -150,49 +155,49 @@ plot.new()
 text(0.58, 0.5, "equilibration", cex=1.4)
 par(opar)
 
-## row 1 (balance = 1)
+## Row 1 (balance = 1)
 opar <- par(mar=c(0, 0, 0, 0))
 plot.new()
 text(0.5, 0.5, "balance = 1", srt=90, cex=1.4)
 par(opar)
-# figure A
+# Figure A
 st <- system.time(dA <- aaA())
 showtime(st)
 title(main="loga(species) = -3", cex.main=1)
 label.figure("A", yfrac=0.92, xfrac=0.1, font = 2)
-# figure B
+# Figure B
 st <- system.time(dB <- aaB())
 showtime(st)
 title(main=paste("loga(total species) =", round(dB$loga.balance[1], 2)), cex.main=1)
 label.figure("C", yfrac=0.92, xfrac=0.1, font = 2)
 
-## row 2 (balance = nCO2)
+## Row 2 (balance = nCO2)
 opar <- par(mar=c(0, 0, 0, 0))
 plot.new()
 text(0.5, 0.5, 'balance = "CO2"', srt=90, cex=1.4)
 par(opar)
-# figure C
+# Figure C
 st <- system.time(dC <- aaC())
 showtime(st)
 title(main="loga(species) = -3", cex.main=1)
 label.figure("B", yfrac=0.92, xfrac=0.1, font = 2)
-# figure D
+# Figure D
 st <- system.time(dD <- aaD())
 showtime(st)
 title(main=paste("loga(total CO2) =", round(dD$loga.balance[1], 2)), cex.main=1)
 label.figure("D", yfrac=0.92, xfrac=0.1, font = 2)
 
-## right (speciation at different total activity of CO2)
+## Right column (speciation at different total activity of CO2)
 par(xpd=NA)
 lines(c(-66, -64.5), c(4, 9), lty=2)
 lines(c(-66, -64.5), c(-8, -8.5), lty=2)
 par(xpd=FALSE)
-# figure E
+# Figure E
 st <- system.time(dE <- aaE())
 showtime(st)
 title(main=paste("loga(total CO2) =", round(dE$loga.balance[1], 2)), cex.main=1)
 label.figure("E", yfrac=0.92, xfrac=0.1, font = 2)
-# figure F
+# Figure F
 st <- system.time(dF <- aaF())
 showtime(st)
 title(main=paste("loga(total CO2) =", round(dF$loga.balance[1], 2)), cex.main=1)
@@ -247,7 +252,7 @@ prF <- function() {
 ## ----PRplot, eval = FALSE-----------------------------------------------------
 #  layout(t(matrix(1:12, nrow=4)), widths=c(1, 4, 4, 4), heights=c(0.7, 4, 4))
 #  
-#  ## row 0 (column titles)
+#  ## Row 0 (column titles)
 #  opar <- par(mar=c(0, 0, 0, 0))
 #  plot.new()
 #  plot.new()
@@ -258,38 +263,38 @@ prF <- function() {
 #  text(0.58, 0.5, "as.residue = TRUE\n(balance = 1)", cex=1.4)
 #  par(opar)
 #  
-#  ## row 1 (maximum affinity 2D)
+#  ## Row 1 (maximum affinity 2D)
 #  opar <- par(mar=c(0, 0, 0, 0))
 #  plot.new()
 #  text(0.5, 0.5, "maximum affinity", srt=90, cex=1.4)
 #  par(opar)
-#  # figure A (balance = "length")
+#  # Figure A (balance = "length")
 #  st <- system.time(dA <- prA())
 #  showtime(st)
 #  label.figure("A", yfrac=0.9, xfrac=0.1, font = 2)
-#  # figure C (normalize = TRUE)
+#  # Figure C (normalize = TRUE)
 #  st <- system.time(dC <- prC())
 #  showtime(st)
 #  label.figure("C", yfrac=0.9, xfrac=0.1, font = 2)
-#  # figure E (as.residue = TRUE)
+#  # Figure E (as.residue = TRUE)
 #  st <- system.time(dE <- prE())
 #  showtime(st)
 #  label.figure("E", yfrac=0.9, xfrac=0.1, font = 2)
 #  
-#  ## row 2 (equilibrate 1D)
+#  ## Row 2 (equilibrate 1D)
 #  opar <- par(mar=c(0, 0, 0, 0))
 #  plot.new()
 #  text(0.5, 0.5, "equilibration", srt=90, cex=1.4)
 #  par(opar)
-#  # figure B (balance = "length")
+#  # Figure B (balance = "length")
 #  st <- system.time(prB())
 #  showtime(st)
 #  label.figure("B", yfrac=0.9, xfrac=0.1, font = 2)
-#  # figure D (normalize = TRUE)
+#  # Figure D (normalize = TRUE)
 #  st <- system.time(prD())
 #  showtime(st)
 #  label.figure("D", yfrac=0.9, xfrac=0.1, font = 2)
-#  # figure F (as.residue = TRUE)
+#  # Figure F (as.residue = TRUE)
 #  st <- system.time(prF())
 #  showtime(st)
 #  label.figure("F", yfrac=0.9, xfrac=0.1, font = 2)
@@ -297,7 +302,7 @@ prF <- function() {
 ## ----PRplot, echo = FALSE, results = "hide", message = FALSE, fig.width = 13/2, fig.height = 8.7/2, out.width = "100%", pngquant = pngquant----
 layout(t(matrix(1:12, nrow=4)), widths=c(1, 4, 4, 4), heights=c(0.7, 4, 4))
 
-## row 0 (column titles)
+## Row 0 (column titles)
 opar <- par(mar=c(0, 0, 0, 0))
 plot.new()
 plot.new()
@@ -308,38 +313,38 @@ plot.new()
 text(0.58, 0.5, "as.residue = TRUE\n(balance = 1)", cex=1.4)
 par(opar)
 
-## row 1 (maximum affinity 2D)
+## Row 1 (maximum affinity 2D)
 opar <- par(mar=c(0, 0, 0, 0))
 plot.new()
 text(0.5, 0.5, "maximum affinity", srt=90, cex=1.4)
 par(opar)
-# figure A (balance = "length")
+# Figure A (balance = "length")
 st <- system.time(dA <- prA())
 showtime(st)
 label.figure("A", yfrac=0.9, xfrac=0.1, font = 2)
-# figure C (normalize = TRUE)
+# Figure C (normalize = TRUE)
 st <- system.time(dC <- prC())
 showtime(st)
 label.figure("C", yfrac=0.9, xfrac=0.1, font = 2)
-# figure E (as.residue = TRUE)
+# Figure E (as.residue = TRUE)
 st <- system.time(dE <- prE())
 showtime(st)
 label.figure("E", yfrac=0.9, xfrac=0.1, font = 2)
 
-## row 2 (equilibrate 1D)
+## Row 2 (equilibrate 1D)
 opar <- par(mar=c(0, 0, 0, 0))
 plot.new()
 text(0.5, 0.5, "equilibration", srt=90, cex=1.4)
 par(opar)
-# figure B (balance = "length")
+# Figure B (balance = "length")
 st <- system.time(prB())
 showtime(st)
 label.figure("B", yfrac=0.9, xfrac=0.1, font = 2)
-# figure D (normalize = TRUE)
+# Figure D (normalize = TRUE)
 st <- system.time(prD())
 showtime(st)
 label.figure("D", yfrac=0.9, xfrac=0.1, font = 2)
-# figure F (as.residue = TRUE)
+# Figure F (as.residue = TRUE)
 st <- system.time(prF())
 showtime(st)
 label.figure("F", yfrac=0.9, xfrac=0.1, font = 2)
@@ -348,7 +353,7 @@ label.figure("F", yfrac=0.9, xfrac=0.1, font = 2)
 organisms <- c("METSC", "METJA", "METFE",  "METVO", "METBU",
                "HALJP", "ACEKI", "GEOSE", "BACLI", "AERSA")
 proteins <- c(rep("CSG", 6), rep("SLAP", 4))
-# use red for Methano* genera
+# Use red for Methano* genera
 col <- c(rep(2, 5), rep(1, 5))
 basis("CHNOS+")
 species(proteins, organisms)

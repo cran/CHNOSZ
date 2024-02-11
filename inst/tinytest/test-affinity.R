@@ -122,9 +122,15 @@ expect_equal(A.2303RT_max, A.2303RT_ref, tolerance = 1e-3, info = info)
 # TODO: add comparison with results from loading proteins via species()
 
 info <- "affinity() for proteins (with/without 'iprotein') returns same value as in previous package versions"
-# These values were calculated using versions 0.6, 0.8 and 0.9-7 (25 degrees C, 1 bar, basis species "CHNOS" or "CHNOS+")
-A.2303RT.nonionized <- -3795.297
-A.2303RT.ionized <- -3075.222
+## These values were calculated using versions 0.6, 0.8 and 0.9-7 (25 degrees C, 1 bar, basis species "CHNOS" or "CHNOS+")
+#A.2303RT.nonionized <- -3795.297
+#A.2303RT.ionized <- -3075.222
+## Calculated with version 2.0.0 (util.units() has R = 8.314445)
+#A.2303RT.nonionized <- -3795.291
+#A.2303RT.ionized <- -3075.215
+# Calculated with version 2.0.0-16 (util.units() has R = 8.314463)
+A.2303RT.nonionized <- -3794.69
+A.2303RT.ionized <- -3074.613
 # First for nonionized protein
 basis("CHNOS")
 # Try it with iprotein
@@ -188,3 +194,13 @@ species(1:2, delete = TRUE)
 a1 <- affinity(T = c(0, 100))
 a2 <- affinity(T = c(0, 100), sout = a0$sout)
 expect_equal(a1$values, a2$values, info = info)
+
+info <- "return.sout = TRUE returns output of subcrt()"
+# 20240206
+# Caught by Mosaic Stacking 2 in multi-metal.Rmd
+# (returned value was NULL in CHNOSZ_2.0.0-43,
+#  creating weirdness in mineral-aqueous boundaries on diagram)
+basis("CHNOS+")
+species("CO2")
+a <- affinity(return.sout = TRUE)
+expect_equal(names(a), c("species", "out"), info = info)
