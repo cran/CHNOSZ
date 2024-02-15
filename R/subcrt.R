@@ -625,5 +625,5 @@ subcrt <- function(species, coeff = 1, state = NULL, property = c("logK", "G", "
     OUT <- c(OUT, list(warnings = warnings))
     for(warn in warnings) warning(warn)
   }
-  return(OUT)
+  final <- OUT # to prevent it printing automatically every time funcion is used. It slowes down the execution of the program
 }
