@@ -9,8 +9,8 @@ export(
   "describe.property", "describe.basis", "equilibrate",
   "aminoacids", "ZC.col",
   "pinfo", "protein.length", "protein.formula",
-  "read.fasta", "protein.basis", "add.protein",
-  "unitize", "seq2aa",
+  "protein.basis", "add.protein",
+  "unitize",
   "thermo.refs", "mod.OBIGT",
 # examples
   "examples", "demos", "mtitle",
@@ -20,16 +20,15 @@ export(
   "mass", "entropy", "GHS", "water",
   "i2A",
   "dPdTtr", "Ttr",
-  "count.aa",
   "rho.IAPWS95", "IAPWS95", "water.AW90", "WP02.auxiliary", "water.IAPWS95",
   "getrank", "parent", "sciname", "allparents", "getnodes", "getnames",
   "protein.OBIGT", "which.pmax",
   "equil.boltzmann", "equil.reaction", "find.tp",
-  "ionize.aa", "MP90.cp", "aasum",
+  "ionize.aa", "MP90.cp",
   "ratlab",
   "EOSregress", "EOScoeffs", "EOSplot", "EOSvar",
 # demos
-  "protein.equil", "palply",
+  "palply",
   "label.plot",
   "basis.logact",
   "label.figure", "syslab",
@@ -57,11 +56,11 @@ export(
 # added 20200716 or later
   "mash", "mix", "rebalance",
 # added 20220324
-  "logB.to.OBIGT",
+  "logK.to.OBIGT",
 # added 20220416
   "rank.affinity",
 # added 20220620
-  "stack_mosaic", "add.alpha"
+  "stack_mosaic"
 )
 
 # Load shared objects
@@ -71,7 +70,7 @@ useDynLib(CHNOSZ, .registration = TRUE, .fixes = "C_")
 # Imports from default packages
 importFrom("grDevices", "dev.cur", "dev.off", "extendrange",
   "heat.colors", "png", "rainbow", "topo.colors", "dev.list",
-  "contourLines", "col2rgb", "rgb")
+  "contourLines", "col2rgb", "rgb", "adjustcolor")
 importFrom("graphics", "abline", "axTicks", "axis", "barplot", "box",
   "contour", "image", "legend", "lines", "mtext", "par", "plot",
   "plot.new", "plot.window", "points", "rect", "text", "title")

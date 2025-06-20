@@ -172,8 +172,8 @@ check.EOS <- function(eos, model, prop, return.difference = TRUE) {
     if(prop == "Cp") {
       ## Value of X consistent with IAPWS95
       #X <- -2.773788E-7
-      # We use the value of X consistent with SUPCRT
-      X <- -3.055586E-7
+      # Choose a value of X consistent with SUPCRT92 or DEW 2019 20240417
+      X <- switch(model, HKF = -3.055586E-7, DEW = -3.09E-7)
       refval <- eos$Cp
       calcval <- eos$c1 + eos$c2/(298.15-Theta)^2 + eos$omega*298.15*X
       tol <- thermo$opt$Cp.tol
@@ -181,8 +181,8 @@ check.EOS <- function(eos, model, prop, return.difference = TRUE) {
     } else if(prop == "V") {
       ## Value of Q consistent with IAPWS95
       #Q <- 0.00002483137
-      # Value of Q consistent with SUPCRT92
-      Q <- 0.00002775729
+      # Choose a value of Q consistent with SUPCRT92 or DEW 2019 20240417
+      Q <- switch(model, HKF = 0.00002775729, DEW = 0.0000005903 * 41.84)
       refval <- eos$V
       calcval <- 41.84*eos$a1 + 41.84*eos$a2/2601 + 
         (41.84*eos$a3 + 41.84*eos$a4/2601) / (298.15-Theta) - Q * eos$omega
@@ -265,12 +265,11 @@ check.OBIGT <- function() {
     message(paste("check.OBIGT: checking", what))
     # Looking at thermo$OBIGT
     if(what == "OBIGT") tdata <- get("thermo", CHNOSZ)$OBIGT
-    else if(what == "DEW") tdata <- read.csv(system.file("extdata/OBIGT/DEW.csv", package = "CHNOSZ"), as.is = TRUE)
-    else if(what == "SLOP98") tdata <- read.csv(system.file("extdata/OBIGT/SLOP98.csv", package = "CHNOSZ"), as.is = TRUE)
-    else if(what == "SUPCRT92") tdata <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package = "CHNOSZ"), as.is = TRUE)
-    else if(what == "AS04") tdata <- read.csv(system.file("extdata/OBIGT/AS04.csv", package = "CHNOSZ"), as.is = TRUE)
-    else if(what == "AD") tdata <- read.csv(system.file("extdata/OBIGT/AD.csv", package = "CHNOSZ"), as.is = TRUE)
-    else if(what == "GEMSFIT") tdata <- read.csv(system.file("extdata/OBIGT/GEMSFIT.csv", package = "CHNOSZ"), as.is = TRUE)
+    else {
+      if(what %in% c("DEW", "SLOP98", "SUPCRT92" ,"AD")) file <- paste0("extdata/OBIGT/", what, ".csv")
+      else file <- paste0("extdata/OBIGT/testing/", what, ".csv")
+      tdata <- read.csv(system.file(file, package = "CHNOSZ"), as.is = TRUE)
+    }
     ntot <- nrow(tdata)
     # Where to keep the results
     DCp <- DV <- DG <- rep(NA, ntot)
@@ -297,17 +296,17 @@ check.OBIGT <- function() {
       DG[!isHKF] <- DG.cgl
     }
     # Put it all together
-    out <- data.frame(table = what, ispecies = 1:ntot, name = tdata$name, state = tdata$state, E_units = tdata$E_units, DCp = DCp, DV = DV, DG = DG)
+    out <- data.frame(table = what, name = tdata$name, state = tdata$state, E_units = tdata$E_units, DCp = DCp, DV = DV, DG = DG)
     return(out)
   }
   # Check default database (OBIGT)
   out <- checkfun("OBIGT")
   # Check optional data
-  out <- rbind(out, checkfun("DEW"))
-  out <- rbind(out, checkfun("SLOP98"))
-  out <- rbind(out, checkfun("SUPCRT92"))
-  out <- rbind(out, checkfun("AS04"))
-  out <- rbind(out, checkfun("GEMSFIT"))
+  for(what in c("DEW", "SLOP98", "SUPCRT92" ,"AD")) out <- rbind(out, checkfun(what))
+  # Check testing data 
+  testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+  sources <- gsub(".csv", "", basename(testing_files))
+  for(what in sources) out <- rbind(out, checkfun(what))
   # Set differences within a tolerance to NA
   out$DCp[abs(out$DCp) < 1] <- NA
   out$DV[abs(out$DV) < 1] <- NA
@@ -323,7 +322,7 @@ check.OBIGT <- function() {
   return(out)
 }
 
-RH2OBIGT <- function(compound = NULL, state = "cr", file = system.file("extdata/adds/RH98_Table15.csv", package = "CHNOSZ")) {
+RH2OBIGT <- function(compound = NULL, state = "cr", file = system.file("extdata/misc/RH98_Table15.csv", package = "CHNOSZ")) {
   # Get thermodynamic properties and equations of state parameters using 
   #   group contributions from Richard and Helgeson, 1998   20120609 jmd
   # Read the compound names, physical states, chemical formulas and group stoichiometry from the file
@@ -383,15 +382,18 @@ dumpdata <- function(file = NULL) {
   SLOP98 <- cbind(source = "SLOP98", dat)
   dat <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package = "CHNOSZ"), as.is = TRUE)
   SUPCRT92 <- cbind(source = "SUPCRT92", dat)
-  # More optional data 20220929
-  dat <- read.csv(system.file("extdata/OBIGT/AS04.csv", package = "CHNOSZ"), as.is = TRUE)
-  AS04 <- cbind(source = "AS04", dat)
   dat <- read.csv(system.file("extdata/OBIGT/AD.csv", package = "CHNOSZ"), as.is = TRUE)
   AD <- cbind(source = "AD", dat)
-  dat <- read.csv(system.file("extdata/OBIGT/GEMSFIT.csv", package = "CHNOSZ"), as.is = TRUE)
-  GEMSFIT <- cbind(source = "GEMSFIT", dat)
+  # Testing data 20220929
+  testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+  testing_list <- lapply(testing_files, function(file) {
+    dat <- read.csv(file, as.is = TRUE)
+    source <- gsub(".csv", "", basename(file))
+    cbind(source = source, dat)
+  })
+  testing <- do.call(rbind, testing_list)
   # Put it all together
-  out <- rbind(OBIGT, SUPCRT92, SLOP98, AS04, AD, DEW, GEMSFIT)
+  out <- rbind(OBIGT, SUPCRT92, SLOP98, AD, DEW, testing)
   # Quote columns 2 (name) and 3 (abbrv) because they have commas for some entries
   if(!is.null(file)) write.csv(out, file, row.names = FALSE, quote = c(2, 3))
   else(return(out))
@@ -411,7 +413,7 @@ OBIGT2eos <- function(OBIGT, state, fixGHS = FALSE, toJoules = FALSE) {
   # Figure out the model for each species 20220929
   model <- OBIGT$model
   model[is.na(model)] <- ""
-  isCGL <- model == "CGL"
+  isCGL <- model %in% c("CGL", "CGL_Ttr")
   isHKF <- model == "HKF"
   isDEW <- model == "DEW"
   isAD <- model == "AD"

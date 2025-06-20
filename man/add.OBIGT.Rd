@@ -63,7 +63,7 @@ Use \code{zap = TRUE} to replace all prexisting parameters (except for \code{sta
 The values returned (\code{\link{invisible}}-y) are the indices of the added and/or modified species.
 }
 
-\seealso{ \code{\link{thermo}} (description of OBIGT), \code{\link{mod.buffer}} (modify buffer definitions), \code{\link{logB.to.OBIGT}} (fit thermodynamic parameters to formation constants) }
+\seealso{ \code{\link{thermo}} (description of OBIGT), \code{\link{mod.buffer}} (modify buffer definitions), \code{\link{logK.to.OBIGT}} (fit thermodynamic parameters to formation constants) }
 
 \examples{\dontshow{reset()}
 ## Modify an existing species (not real properties)
@@ -92,25 +92,30 @@ OBIGT()
 # using data from Sverjensky et al., 1997 and Bazarkina et al., 2010
 Cdspecies <- c("Cd+2", "CdCl+", "CdCl2", "CdCl3-", "CdCl4-2")
 P <- c(1, seq(25, 1000, 25))
+# Use data from Sverjensky et al., 1997
+add.OBIGT("SLOP98")
 SSH97 <- lapply(1:4, function(i) {
   subcrt(c(Cdspecies[i], "Cl-", Cdspecies[i+1]),
-    c(-1, -1, 1), T=25, P=P)$out$logK
+    c(-1, -1, 1), T = 25, P = P)$out$logK
 })
-file <- system.file("extdata/adds/BZA10.csv", package="CHNOSZ")
+SSH97 <- do.call(cbind, SSH97)
+# Use data from Bazarkina et al., 2010
+file <- system.file("extdata/misc/BZA10.csv", package = "CHNOSZ")
 add.OBIGT(file)
 BZA10 <- lapply(1:4, function(i) {
   subcrt(c(Cdspecies[i], "Cl-", Cdspecies[i+1]),
-    c(-1, -1, 1), T=25, P=P)$out$logK
+    c(-1, -1, 1), T = 25, P = P)$out$logK
 })
-matplot(P, do.call(cbind, SSH97), type="l")
-matplot(P, do.call(cbind, BZA10), type="l", add=TRUE, lwd=2)
-legend("topleft", legend=c("", "", "Sverjensky et al., 1997",
-  "Bazarkina et al., 2010"), lwd=c(0, 0, 1, 2), bty="n")
+BZA10 <- do.call(cbind, BZA10)
+matplot(P, SSH97, type = "l", lty = 1, lwd = 2, ylab = axis.label("logK"))
+matplot(P, BZA10, type = "l", lty = 2, lwd = 2, add = TRUE)
+ltxt <- c("", "", "Sverjensky et al., 1997", "Bazarkina et al., 2010")
+legend("topleft", ltxt, lty = c(0, 0, 1, 2), lwd = 2, bty = "n")
 # Make reaction labels
 y <- c(1.8, 0.2, -0.5, -1)
 invisible(lapply(1:4, function(i) {
   text(800, y[i], describe.reaction(subcrt(c(Cdspecies[i], "Cl-",
-    Cdspecies[i+1]), c(-1, -1, 1), T=25, P=1)$reaction))
+    Cdspecies[i+1]), c(-1, -1, 1), T = 25, P = 1)$reaction))
 }))
 # Restore default database
 OBIGT()
@@ -135,11 +140,11 @@ OBIGT()
 # Another use of add.OBIGT(): calculate Delta G of
 # H4SiO4 = SiO2 + 2H2O using various sources of data for SiO2.
 # First, get H4SiO4 from Stefansson, 2001
-add.OBIGT("AS04", "H4SiO4")
+add.OBIGT("SiO2", "H4SiO4")
 T <- seq(0, 350, 10)
 s1 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2), T = T)
 # Now, get SiO2 from Apps and Spycher, 2004
-add.OBIGT("AS04", "SiO2")
+add.OBIGT("SiO2", "SiO2")
 s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2), T = T)
 # Plot logK from the first and second calculations
 plot(T, s1$out$G, type = "l", xlab = axis.label("T"),

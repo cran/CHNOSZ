@@ -1,32 +1,98 @@
-# Calculate normalized sum of ranking of affinities for species in designated groups
+# Calculate average rank of affinities for species in different groups
 # 20220416 jmd first version
+# 20250522 rescale ranks
 
-rank.affinity <- function(aout, groups, percent = TRUE) {
+rank.affinity <- function(aout, groups, rescale = TRUE, percent = FALSE) {
+
   # Put the affinities into matrix form
   amat <- sapply(aout$values, as.numeric)
   # Calculate ranks
   # https://stackoverflow.com/questions/1412775/pmax-parallel-maximum-equivalent-for-rank-in-r
   arank <- apply(amat, 1, rank)
-  # Get the normalized ranks for each group
+
+  # Count total number of species in all groups
+  groups_vector <- unlist(groups)
+  if(is.integer(groups_vector)) ntot <- length(groups_vector)
+  if(is.numeric(groups_vector)) ntot <- length(groups_vector)
+  if(is.logical(groups_vector)) ntot <- sum(groups_vector)
+
+  # Get the bounds of average ranks for a group with one species
+  min1 <- 1
+  max1 <- ntot
+
+  # Keep track of empty groups
+  is_empty_group <- logical()
+
+  # Get the average rank for species in each group
   grank <- sapply(groups, function(group) {
-    # Sum the ranks for this group and divide by number of species in the group
+
+    # Get number of species in this group
     if(inherits(group, "logical")) n <- sum(group)
     if(inherits(group, "integer")) n <- length(group)
-    colSums(arank[group, ]) / n
+    # Also handle indices classed as numeric 20250522
+    if(inherits(group, "numeric")) n <- length(group)
+    # Sum the ranks and divide by number of species
+    rank_avg <- colSums(arank[group, , drop = FALSE]) / n
+
+    # Skip rescaling and remember empty group 20250527
+    if(n == 0) {
+
+      is_empty_group <<- c(is_empty_group, TRUE)
+      rank_avg
+
+    } else {
+
+      is_empty_group <<- c(is_empty_group, FALSE)
+      if(rescale) {
+        # Rescale ranks 20250522
+        # Get the bounds of average ranks for a group with n species
+        # Minimum is the average of 1..n for n species
+        min <- sum(1:n) / n
+        # The margin is the difference between the minimum and 1
+        margin <- min - min1
+        # Lower and upper bounds are symmetric, so we subtract the margin from total number of species to get the max
+        max <- ntot - margin
+        # Build a linear model mapping from x (bounds of group with n species) to y (bounds of group with 1 species)
+        x <- c(min, max)
+        y <- c(min1, max1)
+        rescale_lm <- lm(y ~ x)
+        # Rescale average ranks with the linear model
+        rank_avg <- predict(rescale_lm, data.frame(x = rank_avg))
+      } else {
+        rank_avg
+      }
+
+    }
+
   })
-  # Calculate rank-sum percentage 20240106
+
+  # Remove empty groups 20250527
+  if(any(is_empty_group)) {
+    grank <- grank[, !is_empty_group, drop = FALSE]
+    empty_groups <- names(groups)[is_empty_group]
+    message(paste("rank.affinity: removing empty groups:", paste(empty_groups, collapse = ", ")))
+    groups <- groups[!is_empty_group, drop = FALSE]
+  }
+
+  # Calculate average rank percentage 20240106
   if(percent) grank <- grank / rowSums(grank) * 100
+
   # Restore dims
   dims <- dim(aout$values[[1]])
-  # apply() got 'simplify' argument in R 4.1.0 20230313
-  # Using 'simplify = FALSE' in R < 4.1.0 caused error: 3 arguments passed to 'dim<-' which requires 2
-  if(getRversion() < "4.1.0") glist <- lapply(lapply(apply(grank, 2, list), "[[", 1), "dim<-", dims)
-  else glist <- apply(grank, 2, "dim<-", dims, simplify = FALSE)
+  if(getRversion() < "4.1.0") {
+    # Using 'simplify = FALSE' in R < 4.1.0 caused error: 3 arguments passed to 'dim<-' which requires 2
+    glist <- lapply(lapply(apply(grank, 2, list), "[[", 1), "dim<-", dims)
+  } else {
+    # apply() got 'simplify' argument in R 4.1.0 20230313
+    glist <- apply(grank, 2, "dim<-", dims, simplify = FALSE)
+  }
   aout$values <- glist
+
   # Rename species to group names (for use by diagram())
   aout$species <- aout$species[1:length(groups), ]
   aout$species$name <- names(groups)
-  # "Sign" the object with our function name
+  # Label the object with our function name
   aout$fun <- "rank.affinity"
   aout
+
 }

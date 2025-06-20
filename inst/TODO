@@ -6,8 +6,6 @@
 
 - diagram(): produce error or warning for NA values of affinity
 
-- Move protein.equil() example (previously in equilibrium.Rnw) to JMDplots.
-
 - Add elements from Robie and Hemingway (1995).
 
 - Add check to mosaic() that 'stable' values have the right dimensions.
@@ -57,7 +55,3 @@ don't have to compile anything to install CHNOSZ updates).
 - Re-enter data from PS01 and AP01 (original units in J not cal)
 
 - subcrt(): Don't output properties in HKF region 4
-
-[20220503]
-
-- Don't use palply in read.fasta()

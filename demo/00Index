@@ -1,5 +1,4 @@
-sources         Cross-check the reference list with the thermodynamic database
-protein.equil   Chemical activities of two proteins in metastable equilibrium
+references      Cross-check the references in refs.csv with the thermodynamic database
 affinity        Affinities of metabolic reactions and amino acid synthesis
 NaCl            Equilibrium constant for aqueous NaCl dissociation
 density         Density of H2O, inverted from IAPWS-95 equations
@@ -9,6 +8,7 @@ buffer          Minerals and aqueous species as buffers of hydrogen fugacity
 protbuff        Chemical activities buffered by thiol peroxidases or sigma factors
 glycinate       Metal-glycinate complexes
 mosaic          Eh-pH diagram for iron oxides, sulfides and carbonate with two sets of changing basis species
+sum_S           Summed molality of S species and solubility contours for iron and gold
 copper          Another example of mosaic(): complexation of copper with glycine species
 arsenic         Another example of mosaic(): Eh-pH diagram for the system As-O-H-S
 solubility      Solubility of calcite and CO2(gas) as a function of pH
@@ -31,4 +31,7 @@ comproportionation  Gibbs energy of sulfur comproportionation
 Pourbaix        Eh-pH diagram for Fe-O-H with equisolubility lines
 E_coli          Gibbs energy of biomass synthesis in E. coli
 rank.affinity   Affinity ranking for proteins in yeast nutrient limitation
-yttrium         logB.to.OBIGT fits at 800 and 1000 bar and Y speciation in NaCl solution at varying pH
+yttrium         logK.to.OBIGT fits at 800 and 1000 bar and Y speciation in NaCl solution at varying pH
+uranyl          Total (carbonate|sulfate)-pH diagrams for uranyl species
+MgATP           Speciation of ATP with H+ and Mg+2
+rubisco_Zc      Zc of Rubisco vs optimal growth temperature

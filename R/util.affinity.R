@@ -181,9 +181,9 @@ energy <- function(what, vars, vals, lims, T = 298.15, P = "Psat", IS = 0, sout 
   X.reaction <- function(ispecies, X) X.species((ispecies+nbasis), 1, X) + X.basis(ispecies, X)
   # To get logK or subcrt props or other values into the dimensions we are using
   dim.fun <- function(x, idim = NULL) {
-    if(is.null(idim)) {
-      if(transect) idim <- 1
-      else if(is.null(grid)) {
+    # For working Eh in transect mode, always assign idim <- 1 with transect = TRUE 20250421
+    if(transect) idim <- 1 else if(is.null(idim)) {
+      if(is.null(grid)) {
         # One of T, P, IS
         ivar <- which(vars %in% c("T", "P", "IS"))
         if(length(ivar) == 0) ivar <- 1

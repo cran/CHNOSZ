@@ -1,6 +1,7 @@
 # CHNOSZ/demo/buffer.R
 # Calculate buffered activities of basis species using two methods
-# Ater Figure 6 of Schulte and Shock, 1995 (doi:10.1007/BF01581580)
+# After Figure 6 of Schulte and Shock, 1995 (doi:10.1007/BF01581580)
+
 library(CHNOSZ)
 
 # Use Helgeson et al. (1978) minerals for closer reproduction 20201110
@@ -12,7 +13,7 @@ b.logact <- c(0, 1, 0, 0, 0, 0, 0)
 basis(b.species, b.state, b.logact)
 xlim <- c(0, 350)
 thermo.plot.new(xlim = xlim, ylim = c(-4, 4), xlab = axis.label("T"), ylab = axis.label("H2"))
-# Method 1: in affinity(), assign name of buffer to basis species
+# Method 1: in basis(), assign name of buffer to basis species
 bufferline <- function(buffer, ixlab) {
   basis("H2", buffer)
   a <- affinity(T = xlim, P = 300, return.buffer = TRUE, exceed.Ttr = TRUE)

@@ -1,25 +1,28 @@
 \encoding{UTF-8}
 \name{rank.affinity}
 \alias{rank.affinity}
-\title{Average Ranks of Chemical Affinities}
+\title{Average ranks of chemical affinities}
 \description{
 Affinity rankings for groups of species.
 }
 
 \usage{
-  rank.affinity(aout, groups, percent = TRUE)
+  rank.affinity(aout, groups, rescale = TRUE, percent = FALSE)
 }
 
 \arguments{
   \item{aout}{list, output of \code{\link{affinity}}}
-  \item{groups}{named list of indices (integer or numeric) for species in each group}
-  \item{percent}{return average rank percentage for each group}
+  \item{groups}{named list of indices (integer or logical) for species in each group}
+  \item{rescale}{logical, rescale average ranks for each group to have the same bounds?}
+  \item{percent}{logical, take percentages of average ranks for each group (after rescaling)?}
 }
 
 \details{
-The affinities for all species are \code{\link{rank}}ed, then the mean ranking for the species in each group is calculated.
-The mean rankings of groups are converted to a percentage, or returned as-is if \code{percent} is FALSE.
-Note that the calculations are applied to each set of conditions individually (i.e., each grid point in the affinity \code{\link{affinity}} calculation).
+The affinities for all species are \code{\link{rank}}ed, then the average rank for the species in each group is calculated.
+The calculations are applied to each set of conditions individually (i.e., each grid point in the affinity \code{\link{affinity}} calculation).
+
+Unless \code{rescale} is FALSE, the average rank of each group is rescaled to have the same bounds (from 1 to the total number of species).
+If \code{percent} is TRUE, the average ranks of groups (after rescaling) are converted to percentages.
 }
 
 \value{
@@ -38,10 +41,10 @@ Because balancing on a basis species (i.e., dividing by its reaction coefficient
 
 \examples{
 \dontshow{reset()}# Compare Rubisco proteins from three domains
-datfile <- system.file("extdata/cpetc/rubisco.csv", package = "CHNOSZ")
-fastafile <- system.file("extdata/protein/rubisco.fasta", package = "CHNOSZ")
+datfile <- system.file("extdata/protein/rubisco.csv", package = "CHNOSZ")
+aafile <- system.file("extdata/protein/rubisco_aa.csv", package = "CHNOSZ")
 dat <- read.csv(datfile)
-aa <- read.fasta(fastafile)
+aa <- read.csv(aafile)
 groups <- sapply(c("A", "B", "E"), "==", dat$domain, simplify = FALSE)
 names(groups) <- c("Archaea", "Bacteria", "Eukaryota")
 ip <- add.protein(aa, as.residue = TRUE)
@@ -51,7 +54,7 @@ arank <- rank.affinity(aout, groups = groups)
 nspecies <- sapply(groups, sum)
 names <- paste0(names(groups), " (", nspecies, ")")
 diagram(arank, fill = "terrain", font = 2, names = names, format.names = FALSE)
-title("Average affinity ranking of Rubisco proteins")
+title("Average rank of affinity for Rubisco in different domains")
 }
 
 \concept{Extended workflow}

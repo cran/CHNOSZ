@@ -298,9 +298,8 @@ function OpenAllDivs() {
   OpenDiv("optional-SUPCRT92");
   OpenDiv("optional-SLOP98");
   OpenDiv("optional-AD");
-  OpenDiv("optional-AS04");
   OpenDiv("optional-DEW");
-  OpenDiv("optional-GEMSFIT");
+  OpenDiv("optional-Testing");
   // change the footer message
   document.getElementById("footer").style.display = "none";
   document.getElementById("all-open").style.display = "block";
@@ -318,17 +317,16 @@ function CloseAllDivs() {
   CloseDiv("optional-SUPCRT92");
   CloseDiv("optional-SLOP98");
   CloseDiv("optional-AD");
-  CloseDiv("optional-AS04");
   CloseDiv("optional-DEW");
-  CloseDiv("optional-GEMSFIT");
+  CloseDiv("optional-Testing");
   // change the footer message
   document.getElementById("footer").style.display = "block";
   document.getElementById("all-open").style.display = "none";
 }
 </script>
-<p>This vignette, produced on 2024-02-11, lists the references for thermodynamic data in the OBIGT database in CHNOSZ version 2.1.0. Except for Optional Data, all data are present in the default database, which is loaded when the package is attached, or by running <code>reset()</code> or <code>OBIGT()</code>.</p>
-<p>Each section below corresponds to one of the CSV data files in the <code>extdata/OBIGT</code> package directory. Clicking on a button opens that section, which contains a list of primary references (from column <code>ref1</code> in the file) in chronological order. Any secondary references (<code>ref2</code>) are listed with bullet points under the primary reference. Each citation is followed by the number of species, and a note taken from the file <code>extdata/OBIGT/refs.csv</code>. Additional comments (from this vignette) are present for some sections.</p>
-<p>Abbreviations: T (temperature), P (pressure), GHS (standard Gibbs energy, enthalpy, entropy), Cp (heat capacity), V (volume), HKF (<abbr title="Tanger and Helgeson, 1988">revised</abbr> <abbr title="Helgeson et al., 1981">Helgeson-Kirkham-Flowers</abbr> equations).</p>
+<p>This vignette, produced on 2025-06-20, lists the references for thermodynamic data in the OBIGT database in CHNOSZ version 2.2.0. Except for Optional Data, all data are present in the default database, which is loaded when the package is attached, or by running <code>reset()</code> or <code>OBIGT()</code>.</p>
+<p>Each section below corresponds to one of the CSV data files in the <code>extdata/OBIGT</code> package directory. Clicking on a button opens that section, which contains a list of primary references (from column <code>ref1</code> in the file) in chronological order. Any secondary references (<code>ref2</code>) are listed with bullet points under the primary reference. Each citation is followed by the number of species, and a note taken from <code>extdata/thermo/refs.csv</code>. Additional comments (from this vignette) are present for some sections.</p>
+<p>Abbreviations: T (temperature), P (pressure), GHS (standard Gibbs energy, enthalpy, entropy), Cp (standard heat capacity), V (standard volume), HKF (<abbr title="Tanger and Helgeson, 1988">revised</abbr> <abbr title="Helgeson et al., 1981">Helgeson-Kirkham-Flowers</abbr> equations).</p>
 <!-- All buttons at top -->
 <div id="aqueous-species-h2o-inorganic-organic" class="section level3">
 <h3>Aqueous Species <button id="B-aqueous-H2O" onclick="ToggleDiv(&quot;aqueous-H2O&quot;)">H2O</button> <button id="B-aqueous-inorganic" onclick="ToggleDiv(&quot;aqueous-inorganic&quot;)">Inorganic</button> <button id="B-aqueous-organic" onclick="ToggleDiv(&quot;aqueous-organic&quot;)">Organic</button></h3>
@@ -339,8 +337,8 @@ function CloseAllDivs() {
 <div id="gases-inorganic-organic-liquids-organic" class="section level3">
 <h3>Gases <button id="B-gas-inorganic" onclick="ToggleDiv(&quot;gas-inorganic&quot;)">Inorganic</button> <button id="B-gas-organic" onclick="ToggleDiv(&quot;gas-organic&quot;)">Organic</button>    Liquids <button id="B-liquid-organic" onclick="ToggleDiv(&quot;liquid-organic&quot;)">Organic</button></h3>
 </div>
-<div id="optional-data-supcrt92-slop98-ad-as04-dew-gemsfit" class="section level3">
-<h3>Optional Data <button id="B-optional-SUPCRT92" onclick="ToggleDiv(&quot;optional-SUPCRT92&quot;)">SUPCRT92</button> <button id="B-optional-SLOP98" onclick="ToggleDiv(&quot;optional-SLOP98&quot;)">SLOP98</button> <button id="B-optional-AD" onclick="ToggleDiv(&quot;optional-AD&quot;)">AD</button> <button id="B-optional-AS04" onclick="ToggleDiv(&quot;optional-AS04&quot;)">AS04</button> <button id="B-optional-DEW" onclick="ToggleDiv(&quot;optional-DEW&quot;)">DEW</button> <button id="B-optional-GEMSFIT" onclick="ToggleDiv(&quot;optional-GEMSFIT&quot;)">GEMSFIT</button></h3>
+<div id="optional-data-supcrt92-slop98-ad-dew-testing" class="section level3">
+<h3>Optional Data <button id="B-optional-SUPCRT92" onclick="ToggleDiv(&quot;optional-SUPCRT92&quot;)">SUPCRT92</button> <button id="B-optional-SLOP98" onclick="ToggleDiv(&quot;optional-SLOP98&quot;)">SLOP98</button> <button id="B-optional-AD" onclick="ToggleDiv(&quot;optional-AD&quot;)">AD</button> <button id="B-optional-DEW" onclick="ToggleDiv(&quot;optional-DEW&quot;)">DEW</button> <button id="B-optional-Testing" onclick="ToggleDiv(&quot;optional-Testing&quot;)">Testing</button></h3>
 <!-- Normal or "all open" footer message -->
 <div id="footer" style="display: block">
 <p><em>Press a button above to show the citations in that data file.</em> <em>Or, <a href="#showall" onclick="OpenAllDivs()">click here</a> to show all citations.</em></p>
@@ -351,41 +349,40 @@ function CloseAllDivs() {
 <!-- Aqueous species divs -->
 <div id="D-aqueous-H2O" style="display: none">
 <h2 id="aqueous-h2o-3-species"><a id="aqueous-H2O" class="anchor"></a> Aqueous H2O (3 species)</h2>
-<p><span class="citation">Haar et al. (<a href="#ref-HGK84" role="doc-biblioref">1984</a>)</span> – 1 <em>H<sub>2</sub>O</em></p>
+<p><span class="citation">Denbigh (<a href="#ref-Den81" role="doc-biblioref">1981</a>)</span> – 1 <em>hydrogen ion convention</em></p>
+<p><span class="citation">Johnson et al. (<a href="#ref-JOH92" role="doc-biblioref">1992</a>)</span> – 1 <em>thermodynamic and electrostatic properties of H<sub>2</sub>O calculated using HO92D.f source file from SUPCRT92 modified for use in CHNOSZ</em></p>
 <ul>
-<li><span class="citation">Johnson et al. (<a href="#ref-JOH92" role="doc-biblioref">1992</a>)</span> – 1 <em>H<sub>2</sub>O</em></li>
+<li><span class="citation">Haar et al. (<a href="#ref-HGK84" role="doc-biblioref">1984</a>)</span> – 1 <em>thermodynamic properties of H<sub>2</sub>O outside of the critical region</em></li>
 </ul>
-<p><span class="citation">OBIGT (<a href="#ref-proton" role="doc-biblioref">1997</a>)</span> – 1 <em>“The conventional standard molal properties of the hydrogen ion are zero at any pressure and temperature” <span class="citation">(Johnson et al., <a href="#ref-JOH92" role="doc-biblioref">1992</a>)</span></em></p>
-<p><span class="citation">OBIGT (<a href="#ref-electron" role="doc-biblioref">2006</a>)</span> – 1 <em>Non-zero entropy of the electron based on the hydrogen-ion convention</em></p>
+<p><span class="citation">OBIGT database in CHNOSZ (<a href="#ref-OBIGT06" role="doc-biblioref">2006</a>)</span> – 1 <em>non-zero entropy of the electron based on the hydrogen ion convention</em></p>
 <p>This file contains H<sub>2</sub>O, <em>e</em><sup>-</sup>, and H<sup>+</sup>. The properties of H<sub>2</sub>O are listed as NA; CHNOSZ calculates its properties using a Fortran subroutine taken from SUPRCT92 (<a href="https://doi.org/10.1016/0098-3004(92)90029-Q">Johnson et al., 1992</a>) (default) or using the IAPWS-95 equations (<a href="https://doi.org/10.1063/1.1461829">Wagner and Pruß, 2002</a>) or the Deep Earth Water (DEW) model (<a href="https://doi.org/10.1016/j.gca.2013.12.019">Sverjensky et al., 2014</a>).</p>
-<p>By convention, the standard Gibbs energy of formation, entropy, and heat capacity of the aqueous proton (H<sup>+</sup>) are 0 at all <em>T</em> and <em>P</em> (<a href="https://www.worldcat.org/oclc/18559968">e.g. Cox et al., 1989</a>). The formation reaction of the proton can be expressed as ½H<sub>2,(<em>g</em>)</sub> + Z = H<sup>+</sup>, where Z is the “element” of positive charge. Because the conventional standard Gibbs energy of this reaction is 0 at all <em>T</em>, the standard entropy of the reaction is also constrained to be zero (cf. Puigdomenech et al., 1997). Therefore, the “element” of positive charge (Z) has zero thermodynamic properties except for an entropy, <em>S</em>°<sub><em>T</em><sub>r</sub></sub>, that is negative one-half that of H<sub>2,(<em>g</em>)</sub>. The standard entropy of the aqueous electron, which is a solely a pseudospecies defined by <em>e</em><sup>-</sup> = -Z, is opposite that of Z.</p>
+<p>By convention, the standard Gibbs energy of formation, entropy, and heat capacity of the aqueous proton (H<sup>+</sup>) are 0 at all <em>T</em> and <em>P</em> (<a href="https://www.worldcat.org/oclc/18559968">e.g. Cox et al., 1989</a>). The formation reaction of the proton can be expressed as ½H<sub>2,(<em>g</em>)</sub> + Z = H<sup>+</sup>, where Z is the “element” of positive charge. Because the conventional standard Gibbs energy of this reaction is 0 at all <em>T</em>, the standard entropy of the reaction is also constrained to be zero (cf. Denbigh, 1981; Puigdomenech et al., 1997). Therefore, the “element” of positive charge (Z) has zero thermodynamic properties except for an entropy, <em>S</em>°<sub><em>T</em><sub>r</sub></sub>, that is negative one-half that of H<sub>2,(<em>g</em>)</sub>. The standard entropy of the aqueous electron, which is a solely a pseudospecies defined by <em>e</em><sup>-</sup> = -Z, is opposite that of Z.</p>
 <p>Likewise, <a href="http://gems.web.psi.ch/">GEM-Selektor</a> defines “independent components” to be stoichiometric units usually consisting of elements and charge; the latter, <a href="http://gems.web.psi.ch/tests/TestNaCl-dep.html">which is named Zz</a> and has a standard molal entropy of -65.34 J/mol/K and heat capacity of -14.418 J/mol/K (negative one-half those of gaseous hydrogen), is negated in the formula of the fictive “aqueous electron” (<a href="https://doi.org/10.1016/j.chemgeo.2005.08.014">Kulik, 2006</a>).</p>
 <p>Despite these considerations, the final column of the thermodynamic database (<code>thermo()$OBIGT</code>) lists a charge of “0” for both the aqueous proton and electron. Data in this this column are used in CHNOSZ only to specify the charge that is input to the “<em>g</em>-function” (<a href="https://doi.org/10.2475/ajs.288.1.19">Tanger and Helgeson, 1988</a>; <a href="https://doi.org/10.1016/0016-7037(88)90181-0">Shock and Helgeson, 1988</a>). Setting it to zero prevents activation of the <em>g</em>-function, which would result in non-zero contributions to thermodynamic properties, conflicting with the conventions mentioned above. All other calculations in CHNOSZ obtain the elemental makeup, including the correct charge for the species, by parsing the chemical formulas stored in the database.</p>
 </div>
 <div id="D-aqueous-inorganic" style="display: none">
-<h2 id="aqueous-inorganic-880-species"><a id="aqueous-inorganic" class="anchor"></a> Aqueous Inorganic (880 species)</h2>
+<h2 id="aqueous-inorganic-728-species"><a id="aqueous-inorganic" class="anchor"></a> Aqueous Inorganic (728 species)</h2>
+<p><strong>NOTE:</strong> Aqueous U species from <span class="citation">Shock et al. (<a href="#ref-SSB97" role="doc-biblioref">1997</a><a href="#ref-SSB97" role="doc-biblioref">a</a>)</span> (with the exception of HUO<sub>4</sub><sup>-</sup>) have been moved to the SLOP98 optional data file due to incompatibility with more recent data <span class="citation">(Migdisov et al., <a href="#ref-MBA+24" role="doc-biblioref">2024</a>)</span>. Because the latter source includes only uranyl species, the set of data for aqueous uranium species in the default database is currently incomplete.</p>
 <p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 57 <em>ionic species</em></p>
 <p><span class="citation">Shock et al. (<a href="#ref-SHS89" role="doc-biblioref">1989</a>)</span> – 14 <em>inorganic neutral species</em></p>
-<p><span class="citation">Haas et al. (<a href="#ref-HSS95" role="doc-biblioref">1995</a>)</span> – 249 <em>complexes of rare earth elements</em></p>
-<ul>
-<li>slop98.dat – 88 <em>“Corrected values based on data from <span class="citation">Haas et al. (<a href="#ref-HSS95" role="doc-biblioref">1995</a>)</span>”</em></li>
-</ul>
-<p><span class="citation">McCollom and Shock (<a href="#ref-MS97" role="doc-biblioref">1997</a>)</span> – 2 <em>MgSO<sub>4</sub>, NaSO<sub>4</sub><sup>-</sup>, and HCl</em></p>
+<p><span class="citation">McCollom and Shock (<a href="#ref-MS97" role="doc-biblioref">1997</a>)</span> – 2 <em>MgSO<sub>4</sub> and NaSO<sub>4</sub><sup>-</sup></em></p>
 <ul>
 <li>slop98.dat – 2 <em>“Data and parameters as used by <span class="citation">McCollom and Shock (<a href="#ref-MS97" role="doc-biblioref">1997</a>)</span>.”</em></li>
 </ul>
-<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 231 <em>aqueous ions and hydroxide complexes</em></p>
+<p><span class="citation">Shock et al. (<a href="#ref-SSB97" role="doc-biblioref">1997</a><a href="#ref-SSB97" role="doc-biblioref">a</a>)</span> – 1 <em>uranium species</em></p>
+<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 224 <em>aqueous ions and hydroxide complexes</em></p>
 <ul>
-<li><p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 25 <em>values of GHS</em></p></li>
+<li><p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 24 <em>values of GHS</em></p></li>
+<li><p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 1 <em>values of GHS; corrected H for In<sup>+3</sup> <span class="citation">(OBIGT database in CHNOSZ, <a href="#ref-OBIGT25" role="doc-biblioref">2025</a>)</span></em></p></li>
 <li><p><span class="citation">Sassani and Shock (<a href="#ref-SS98a" role="doc-biblioref">1998</a>)</span> – 1 <em>Rh<sup>+3</sup></em></p></li>
 </ul>
-<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 92 <em>metal complexes</em></p>
+<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 86 <em>metal complexes</em></p>
 <ul>
 <li>OBIGT (2017) – 1 <em>AuCl<sub>4</sub><sup>-</sup> renamed to AuCl<sub>4</sub><sup>-3</sup></em></li>
 </ul>
-<p><span class="citation">Shock et al. (<a href="#ref-SSB97" role="doc-biblioref">1997</a><a href="#ref-SSB97" role="doc-biblioref">a</a>)</span> – 15 <em>uranium species</em></p>
 <p><span class="citation">Tagirov et al. (<a href="#ref-TZA97" role="doc-biblioref">1997</a>)</span> – 1 <em>aqueous HCl</em></p>
 <p><span class="citation">Sassani and Shock (<a href="#ref-SS98a" role="doc-biblioref">1998</a>)</span> – 41 <em>platinum-group ions and complexes</em></p>
+<p><span class="citation">Murphy and Shock (<a href="#ref-MS99" role="doc-biblioref">1999</a>)</span> – 38 <em>americium species</em></p>
 <p><span class="citation">Akinfiev and Zotov (<a href="#ref-AZ01" role="doc-biblioref">2001</a>)</span> – 15 <em>M<sup>+</sup>, MCl<sub>2</sub><sup>-</sup>, M(OH)<sub>2</sub><sup>-</sup>, MCl, and MOH (M = Au<sup>+</sup>, Ag<sup>+</sup>, or Cu<sup>+</sup>)</em></p>
 <p><span class="citation">Plyasunov and Shock (<a href="#ref-PS01" role="doc-biblioref">2001</a>)</span> – 3 <em>aqueous nonelectrolytes (Ar, Xe, and CO<sub>2</sub>)</em></p>
 <p><span class="citation">Schulte et al. (<a href="#ref-SSW01" role="doc-biblioref">2001</a>)</span> – 10 <em>AsH<sub>3</sub>, CF<sub>4</sub>, CH<sub>3</sub>F, Cl<sub>2</sub>, ClO<sub>2</sub>, N<sub>2</sub>O, NF<sub>3</sub>, NO, PH<sub>3</sub>, and SF<sub>6</sub></em></p>
@@ -396,12 +393,14 @@ function CloseAllDivs() {
 <p><span class="citation">Nordstrom and Archer (<a href="#ref-NA03" role="doc-biblioref">2003</a>)</span> – 8 <em>aqueous As oxides and sulfides</em></p>
 <p><span class="citation">Akinfiev et al. (<a href="#ref-AVZP06" role="doc-biblioref">2006</a>)</span> – 1 <em>AgCl<sub>3</sub><sup>-2</sup></em></p>
 <p><span class="citation">Perfetti et al. (<a href="#ref-PPB+08" role="doc-biblioref">2008</a>)</span> – 2 <em>As(OH)<sub>3</sub> and AsO(OH)<sub>3</sub></em></p>
-<p><span class="citation">Accornero et al. (<a href="#ref-AML10" role="doc-biblioref">2010</a>)</span> – 43 <em>metal-chromate complexes</em></p>
+<p><span class="citation">Migdisov et al. (<a href="#ref-MWW09" role="doc-biblioref">2009</a>)</span> – 42 <em>REE F<sup>-</sup> and Cl<sup>-</sup> complexes</em></p>
+<p><span class="citation">Accornero et al. (<a href="#ref-AML10" role="doc-biblioref">2010</a>)</span> – 43 <em>metal chromate complexes</em></p>
 <p><span class="citation">Akinfiev and Zotov (<a href="#ref-AZ10" role="doc-biblioref">2010</a>)</span> – 6 <em>MHS and M(HS)<sub>2</sub><sup>-</sup> (M = Au<sup>+</sup>, Ag<sup>+</sup>, or Cu<sup>+</sup>)</em></p>
 <ul>
 <li><span class="citation">Pokrovski et al. (<a href="#ref-PAB+14" role="doc-biblioref">2014</a>)</span> – 1 <em>corrected H of AuHS</em></li>
 </ul>
-<p><span class="citation">Liu et al. (<a href="#ref-LBT+11" role="doc-biblioref">2011</a>)</span> – 4 <em>Co-chloride complexes</em></p>
+<p><span class="citation">Liu et al. (<a href="#ref-LBT+11" role="doc-biblioref">2011</a>)</span> – 4 <em>Co chloride complexes</em></p>
+<p><span class="citation">Loges et al. (<a href="#ref-LMW+13" role="doc-biblioref">2013</a>)</span> – 2 <em>YF<sup>+2</sup> and YF<sub>2</sub><sup>+</sup></em></p>
 <p><span class="citation">Tagirov et al. (<a href="#ref-TBZ+13" role="doc-biblioref">2013</a>)</span> – 11 <em>Pd<sup>+2</sup> and complexes</em></p>
 <p><span class="citation">Akinfiev and Tagirov (<a href="#ref-AT14" role="doc-biblioref">2014</a>)</span> – 13 <em>Zn<sup>+2</sup> and complexes</em></p>
 <p><span class="citation">Pokrovski and Dubessy (<a href="#ref-PD15" role="doc-biblioref">2015</a>)</span> – 1 <em>trisulfur radical ion</em></p>
@@ -409,16 +408,35 @@ function CloseAllDivs() {
 <p><span class="citation">St Clair et al. (<a href="#ref-SPD+19" role="doc-biblioref">2019</a>)</span> – 28 <em>metal carbonate and bicarbonate complexes and FeSO<sub>4</sub></em></p>
 <p><span class="citation">Akinfiev et al. (<a href="#ref-AKK+20" role="doc-biblioref">2020</a>)</span> – 10 <em>Nb and Ta species</em></p>
 <p><span class="citation">Liu et al. (<a href="#ref-LXW21" role="doc-biblioref">2021</a>)</span> – 1 <em>H<sub>2</sub>WO<sub>4</sub></em></p>
+<p><span class="citation">Liu et al. (<a href="#ref-LYX23" role="doc-biblioref">2023</a>)</span> – 6 <em>Sn<sup>+2</sup>, Th<sup>+4</sup>, and Sn chloride complexes</em></p>
+<ul>
+<li><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 2 <em>Sn<sup>+2</sup> and Th<sup>+4</sup> GHS</em></li>
+</ul>
+<p><span class="citation">Hu et al. (<a href="#ref-HET+24" role="doc-biblioref">2024</a>)</span> – 2 <em>Ta(OH)<sub>3</sub>F<sub>3</sub><sup>-</sup> and TaF<sub>7</sub><sup>-2</sup></em></p>
+<p><span class="citation">Huston and Bastrakov (<a href="#ref-HB24" role="doc-biblioref">2024</a>)</span> – 23 <em>data compilation for Cd, Ga, Ge, and In minerals and aqueous species</em></p>
+<ul>
+<li><p><span class="citation">Pokrovski and Schott (<a href="#ref-PS98" role="doc-biblioref">1998</a>)</span> – 2 <em>Ge hydroxide and oxyhydroxide complexes</em></p></li>
+<li><p><span class="citation">Bazarkina et al. (<a href="#ref-BZA10" role="doc-biblioref">2010</a>)</span> – 4 <em>Cd chloride complexes</em></p></li>
+<li><p><span class="citation">Blanc (<a href="#ref-Bla17" role="doc-biblioref">2017</a>)</span> – 4 <em>Ga hydroxide complexes</em></p></li>
+<li><p><span class="citation">Boyer and Shock (<a href="#ref-BS23" role="doc-biblioref">2023</a>)</span> – 9 <em>In complexes; corrected H <span class="citation">(OBIGT database in CHNOSZ, <a href="#ref-OBIGT25" role="doc-biblioref">2025</a>)</span></em></p></li>
+<li><p><span class="citation">Huston and Bastrakov (<a href="#ref-HB24" role="doc-biblioref">2024</a>)</span> – 2 <em>Ga sulfate complexes <span class="citation">(algorithms based on Sverjensky et al., <a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span></em></p></li>
+<li><p><span class="citation">Huston and Bastrakov (<a href="#ref-HB24" role="doc-biblioref">2024</a>)</span> – 2 <em>In sulfate complexes <span class="citation">(algorithms based on Sverjensky et al., <a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span>; corrected H <span class="citation">(OBIGT database in CHNOSZ, <a href="#ref-OBIGT25" role="doc-biblioref">2025</a>)</span></em></p></li>
+</ul>
+<p><span class="citation">Laskar et al. (<a href="#ref-LBP24" role="doc-biblioref">2024</a>)</span> – 2 <em>Pd(HS)<sub>4</sub><sup>-2</sup> and Pt(HS)<sub>4</sub><sup>-2</sup></em></p>
+<p><span class="citation">Migdisov et al. (<a href="#ref-MBA+24" role="doc-biblioref">2024</a>)</span> – 9 <em>uranyl carbonate, chloride, sulfate, and hydroxide complexes</em></p>
+<ul>
+<li><span class="citation">Grenthe et al. (<a href="#ref-NEA20" role="doc-biblioref">2020</a>)</span> – 1 <em>UO<sub>3</sub></em></li>
+</ul>
 </div>
 <div id="D-aqueous-organic" style="display: none">
-<h2 id="aqueous-organic-1058-species"><a id="aqueous-organic" class="anchor"></a> Aqueous Organic (1058 species)</h2>
+<h2 id="aqueous-organic-1103-species"><a id="aqueous-organic" class="anchor"></a> Aqueous Organic (1103 species)</h2>
 <p>Charged amino acid sidechain groups have a Z parameter that is tabulated as zero; their chemical formulas indicate the correct charge. Non-zero values of Z would yield derivatives of the omega parameter (ω) in the revised HKF equations of state for the cations and anions <em>that are not opposites of each other</em>. This would be incompatible with group additivity of cations and anions to give a neutral species, for which the derivatives of ω are taken to be zero (cf. <a href="https://doi.org/10.5194/bg-3-311-2006">Dick et al., 2006</a>).</p>
-<p><span class="citation">Shock and Helgeson (<a href="#ref-SH90" role="doc-biblioref">1990</a>)</span> – 47 <em>organic species</em></p>
+<p><span class="citation">Shock and Helgeson (<a href="#ref-SH90" role="doc-biblioref">1990</a>)</span> – 39 <em>organic species</em></p>
 <ul>
 <li>slop16.dat – 3 <em>hexanol, heptanol, and octanol: “Minor differences in Gibbs energy, entropy, ω, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub> and c<sub>1</sub> values compared to <span class="citation">Shock and Helgeson (<a href="#ref-SH90" role="doc-biblioref">1990</a>)</span>.”</em></li>
 </ul>
 <p><span class="citation">Shock (<a href="#ref-Sho93" role="doc-biblioref">1993</a>)</span> – 2 <em>ethylacetate and acetamide</em></p>
-<p><span class="citation">Shock and Koretsky (<a href="#ref-SK93" role="doc-biblioref">1993</a>)</span> – 104 <em>metal-acetate complexes</em></p>
+<p><span class="citation">Shock and Koretsky (<a href="#ref-SK93" role="doc-biblioref">1993</a>)</span> – 104 <em>metal acetate complexes</em></p>
 <ul>
 <li>slop16.dat – 32 <em>“Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements.”</em></li>
 </ul>
@@ -450,12 +468,12 @@ function CloseAllDivs() {
 </ul>
 <p><span class="citation">Amend and Plyasunov (<a href="#ref-AP01" role="doc-biblioref">2001</a>)</span> – 10 <em>carbohydrates</em></p>
 <ul>
-<li>slop07.dat – 10 <em>high-temperature HKF parameters from <span class="citation">Amend and Plyasunov (<a href="#ref-AP01" role="doc-biblioref">2001</a>)</span></em></li>
+<li>slop07.dat – 10 <em>high temperature HKF parameters from <span class="citation">Amend and Plyasunov (<a href="#ref-AP01" role="doc-biblioref">2001</a>)</span></em></li>
 </ul>
 <p><span class="citation">Plyasunov and Shock (<a href="#ref-PS01" role="doc-biblioref">2001</a>)</span> – 8 <em>aqueous nonelectrolytes (organic species)</em></p>
 <p><span class="citation">Schulte and Rogers (<a href="#ref-SR04" role="doc-biblioref">2004</a>)</span> – 12 <em>alkane thiols</em></p>
 <p><span class="citation">Hawrylak et al. (<a href="#ref-HPT06" role="doc-biblioref">2006</a>)</span> – 2 <em>methyldiethanolamine and methyldiethanolammonium chloride HKF parameters</em></p>
-<p><span class="citation">LaRowe and Helgeson (<a href="#ref-LH06a" role="doc-biblioref">2006</a><a href="#ref-LH06a" role="doc-biblioref">a</a>)</span> – 138 <em>nucleic-acid bases, nucleosides, and nucleotides</em></p>
+<p><span class="citation">LaRowe and Helgeson (<a href="#ref-LH06a" role="doc-biblioref">2006</a><a href="#ref-LH06a" role="doc-biblioref">a</a>)</span> – 138 <em>nucleic acid bases, nucleosides, and nucleotides</em></p>
 <ul>
 <li><span class="citation">Lowe et al. (<a href="#ref-LCT17" role="doc-biblioref">2017</a>)</span> – 1 <em>adenine HKF parameters</em></li>
 </ul>
@@ -467,7 +485,7 @@ function CloseAllDivs() {
 <p><span class="citation">Dick et al. (<a href="#ref-DLH06" role="doc-biblioref">2006</a>)</span> – 38 <em>amino acid, protein, and organic groups</em></p>
 <ul>
 <li><p><span class="citation">LaRowe and Dick (<a href="#ref-LD12" role="doc-biblioref">2012</a>)</span> – 1 <em>methionine sidechain GHS</em></p></li>
-<li><p>OBIGT (2017) – 1 <em>Incorrect values of HKF a<sub>1</sub>–a<sub>4</sub> parameters for [-CH<sub>2</sub>NH<sub>2</sub>] were printed in Table 6 of <span class="citation">Dick et al. (<a href="#ref-DLH06" role="doc-biblioref">2006</a>)</span>; corrected values are used here.</em></p></li>
+<li><p>OBIGT (2017) – 1 <em>incorrect values of HKF a<sub>1</sub>–a<sub>4</sub> parameters for [-CH<sub>2</sub>NH<sub>2</sub>] were printed in Table 6 of <span class="citation">Dick et al. (<a href="#ref-DLH06" role="doc-biblioref">2006</a>)</span>; corrected values are used here.</em></p></li>
 </ul>
 <p><span class="citation">Dick et al. (<a href="#ref-DLH06" role="doc-biblioref">2006</a>)</span> – 19 <em>Gly-X-Gly tripeptides Cp, V, and HKF c<sub>1</sub>, c<sub>2</sub>, ω parameters</em></p>
 <p><span class="citation">Dick (<a href="#ref-Dic07" role="doc-biblioref">2007</a>)</span> – 4 <em>glutathione, cystine, and cystine sidechain</em></p>
@@ -494,26 +512,32 @@ function CloseAllDivs() {
 <li>OBIGT (2021) – 3 <em>diaminopimelic acid, putrescine and spermidine: parameters recalculated to account for a missing [-CH2NH2] group in the group additivity equations</em></li>
 </ul>
 <p><span class="citation">Canovas and Shock (<a href="#ref-CS16" role="doc-biblioref">2016</a>)</span> – 22 <em>citric acid cycle metabolites</em></p>
-<p><span class="citation">Azadi et al. (<a href="#ref-AKAE19" role="doc-biblioref">2019</a>)</span> – 22 <em>metal-glycinate complexes</em></p>
+<p><span class="citation">Azadi et al. (<a href="#ref-AKAE19" role="doc-biblioref">2019</a>)</span> – 22 <em>metal glycinate complexes</em></p>
 <ul>
 <li><p>OBIGT (2019) – 20 <em>recalculated values of Cp (those in <span class="citation">Azadi et al. (<a href="#ref-AKAE19" role="doc-biblioref">2019</a>)</span> appear to be calculated using wrong sign on ω) and enthalpy (using ΔG=ΔH-TΔS and the entropies of the elements)</em></p></li>
 <li><p>OBIGT (2019) – 2 <em>Tl(Gly) and Tl(Gly)<sub>2</sub><sup>-</sup>: change Ti to Tl</em></p></li>
 </ul>
-<p><span class="citation">LaRowe and Amend (<a href="#ref-LA19" role="doc-biblioref">2019</a>)</span> – 6 <em>dimethylamine, trimethylamine, resorcinol, phloroglucinol, cyclohexane carboxylate, and cyclohexane carboxylic acid</em></p>
+<p><span class="citation">LaRowe and Amend (<a href="#ref-LA19" role="doc-biblioref">2019</a>)</span> – 4 <em>dimethylamine, trimethylamine, resorcinol, phloroglucinol, cyclohexane carboxylate, and cyclohexane carboxylic acid</em></p>
+<p><span class="citation">Robinson et al. (<a href="#ref-RSS+24" role="doc-biblioref">2024</a>)</span> – 55 <em>alkylamines, benzylamines, and aminiums</em></p>
 <ul>
-<li><span class="citation">Shvedov and Tremaine (<a href="#ref-ST97" role="doc-biblioref">1997</a>)</span> – 1 <em>dimethylamine HKF parameters</em></li>
+<li><span class="citation">Robinson et al. (<a href="#ref-RSS+24" role="doc-biblioref">2024</a>)</span> – 1 <em>corrected V for tripropylaminium</em></li>
 </ul>
 </div>
 <!-- Solid species divs -->
 <div id="D-solid-inorganic" style="display: none">
-<h2 id="solid-inorganic-156-species"><a id="solid-inorganic" class="anchor"></a> Solid Inorganic (156 species)</h2>
-<p>Chamosite,7A and witherite were present in sprons92.dat but not in slop98.dat or later files, and are not included in CHNOSZ. The source of parameters used here for goethite is different from that in the slop files (<a href="https://doi.org/10.2113/gsecongeo.104.8.1235">Shock, 2009</a>).</p>
-<p><span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span> – 58 <em>minerals</em></p>
+<h2 id="solid-inorganic-272-species"><a id="solid-inorganic" class="anchor"></a> Solid Inorganic (272 species)</h2>
+<p><span class="citation">Naumov et al. (<a href="#ref-NRK74" role="doc-biblioref">1974</a>)</span> – 2 <em>beta-Nb<sub>2</sub>O<sub>5</sub> and CoSO<sub>4</sub></em></p>
+<ul>
+<li><span class="citation">Akinfiev et al. (<a href="#ref-AKK+20" role="doc-biblioref">2020</a>)</span> – 1 <em>V of beta-Nb<sub>2</sub>O<sub>5</sub></em></li>
+</ul>
+<p><span class="citation">Barin et al. (<a href="#ref-BKK77" role="doc-biblioref">1977</a>)</span> – 1 <em>spherocobaltite</em></p>
+<p><span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span> – 59 <em>minerals</em></p>
 <ul>
 <li><p><span class="citation">Pankratz and King (<a href="#ref-PK70" role="doc-biblioref">1970</a>)</span> – 2 <em>bornite and chalcopyrite</em></p></li>
+<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH72" role="doc-biblioref">1972</a>)</span> – 1 <em>nesquehonite Cp</em></p></li>
 <li><p><span class="citation">Helgeson (<a href="#ref-Hel85" role="doc-biblioref">1985</a>)</span> – 1 <em>ferrosilite and siderite</em></p></li>
 <li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>bromellite (melting temperature and G and H not in SUPCRT92)</em></p></li>
-<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 11 <em>phase stability limit</em></p></li>
+<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 11 <em>phase transition temperature</em></p></li>
 <li><p>OBIGT (2017) – 13 <em>GHS (T<sub>r</sub>) of the polymorph that is stable at 298.15 K was combined with H<sub>tr</sub> and the Cp coefficients to calculate the metastable GHS (T<sub>r</sub>) of the polymorphs that are stable at higher temperatures.</em></p></li>
 </ul>
 <p><span class="citation">Robie et al. (<a href="#ref-RHF78" role="doc-biblioref">1978</a>)</span> – 1 <em>chlorargyrite</em></p>
@@ -533,14 +557,9 @@ function CloseAllDivs() {
 <ul>
 <li><span class="citation">Senoh et al. (<a href="#ref-SUF+98" role="doc-biblioref">1998</a>)</span> – 1 <em>Mn(OH)<sub>2</sub>: Cp coefficients from linear fit to values estimated by <span class="citation">Senoh et al. (<a href="#ref-SUF+98" role="doc-biblioref">1998</a>)</span></em></li>
 </ul>
-<p><span class="citation">Jackson and Helgeson (<a href="#ref-JH85" role="doc-biblioref">1985</a>)</span> – 5 <em>Sn minerals</em></p>
+<p><span class="citation">Jackson and Helgeson (<a href="#ref-JH85" role="doc-biblioref">1985</a>)</span> – 4 <em>Sn minerals</em></p>
 <ul>
-<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>phase stability limit</em></p></li>
-<li><p>OBIGT (2017) – 1 <em>GHS (T<sub>r</sub>) of the polymorph that is stable at 298.15 K was combined with H<sub>tr</sub> and the Cp coefficients to calculate the metastable GHS (T<sub>r</sub>) of the polymorphs that are stable at higher temperatures.</em></p></li>
-</ul>
-<p><span class="citation">Pankratz et al. (<a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span> – 3 <em>cattierite, linnaeite, and Co-pentlandite</em></p>
-<ul>
-<li><span class="citation">Williams-Jones and Vasyukova (<a href="#ref-WV22" role="doc-biblioref">2022</a>)</span> – 3 <em>parameters listed here</em></li>
+<li>OBIGT (2017) – 1 <em>GHS (T<sub>r</sub>) of the polymorph that is stable at 298.15 K was combined with H<sub>tr</sub> and the Cp coefficients to calculate the metastable GHS (T<sub>r</sub>) of the polymorphs that are stable at higher temperatures.</em></li>
 </ul>
 <p><span class="citation">Reardon and Armstrong (<a href="#ref-RA87" role="doc-biblioref">1987</a>)</span> – 1 <em>celestite GHS</em></p>
 <ul>
@@ -551,7 +570,7 @@ function CloseAllDivs() {
 <li><span class="citation">Zimmer et al. (<a href="#ref-ZZL+16" role="doc-biblioref">2016</a>)</span> – 1 <em>Cp parameters listed in spronsbl.dat</em></li>
 </ul>
 <p><span class="citation">Parker and Khodakovskii (<a href="#ref-PK95" role="doc-biblioref">1995</a>)</span> – 1 <em>melanterite</em></p>
-<p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 13 <em>gypsum, manganese, manganosite, pyrolusite, bixbyite, hausmannite, huebneritecobalt, cobalt monoxide, guite, cattierite, linnaeite, wustite, willemite, and zinc</em></p>
+<p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 16 <em>aluminum, bixbyite, cassiterite, cattierite, chromite, cobalt, cobalt monoxide, guite, gypsum, hausmannite, huebnerite, linnaeite, manganese, manganosite, pyrolusite, willemite, wustite, zinc</em></p>
 <ul>
 <li><p><span class="citation">Kelley (<a href="#ref-Kel60" role="doc-biblioref">1960</a>)</span> – 1 <em>gypsum Cp</em></p></li>
 <li><p><span class="citation">Barin et al. (<a href="#ref-BKK77" role="doc-biblioref">1977</a>)</span> – 1 <em>willemite Cp</em></p></li>
@@ -563,14 +582,14 @@ function CloseAllDivs() {
 </ul>
 <p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 2 <em>zincite and litharge</em></p>
 <ul>
-<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>phase stability limit</em></p></li>
+<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>phase transition temperature</em></p></li>
 <li><p>slop98.dat – 1 <em>zincite and litharge; “These data were used in <span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span>, but were not tabulated in the paper.”</em></p></li>
 </ul>
-<p><span class="citation">Shock et al. (<a href="#ref-SSB97" role="doc-biblioref">1997</a><a href="#ref-SSB97" role="doc-biblioref">a</a>)</span> – 1 <em>uraninite</em></p>
-<ul>
-<li><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>phase stability limit</em></li>
-</ul>
 <p><span class="citation">Sassani and Shock (<a href="#ref-SS98a" role="doc-biblioref">1998</a>)</span> – 15 <em>platinum-group solids</em></p>
+<p><span class="citation">Shvarov and Bastrakov (<a href="#ref-SB99" role="doc-biblioref">1999</a>)</span> – 1 <em>Co(OH)<sub>2</sub></em></p>
+<ul>
+<li><span class="citation">Shvarov (<a href="#ref-Shv08" role="doc-biblioref">2008</a>)</span> – 1 <em>Co(OH)<sub>2</sub></em></li>
+</ul>
 <p><span class="citation">Stoffregen et al. (<a href="#ref-SAJ00" role="doc-biblioref">2000</a>)</span> – 3 <em>jarosite, natroalunite, and natrojarosite</em></p>
 <p><span class="citation">Wood and Samson (<a href="#ref-WS00" role="doc-biblioref">2000</a>)</span> – 2 <em>scheelite and ferberite; GHS and V of scheelite and V of ferberite are from <span class="citation">Robie et al. (<a href="#ref-RHF78" role="doc-biblioref">1978</a>)</span>.</em></p>
 <ul>
@@ -599,11 +618,46 @@ function CloseAllDivs() {
 <p><span class="citation">Majzlan et al. (<a href="#ref-MNM+06" role="doc-biblioref">2006</a>)</span> – 3 <em>coquimbite, ferricopiapite, and rhomboclase</em></p>
 <p><span class="citation">Perfetti et al. (<a href="#ref-PPB+08" role="doc-biblioref">2008</a>)</span> – 3 <em>arsenopyrite, loellingite, and westerveldite</em></p>
 <p><span class="citation">Grevel and Majzlan (<a href="#ref-GM09" role="doc-biblioref">2009</a>)</span> – 4 <em>kieserite, starkeyite, hexahydrite, and epsomite</em></p>
+<p><span class="citation">Jacob et al. (<a href="#ref-JSW09" role="doc-biblioref">2009</a>)</span> – 1 <em>beta-Ta<sub>2</sub>O<sub>5</sub></em></p>
+<ul>
+<li><span class="citation">Akinfiev et al. (<a href="#ref-AKK+20" role="doc-biblioref">2020</a>)</span> – 1 <em>V of beta-Ta<sub>2</sub>O<sub>5</sub></em></li>
+</ul>
+<p><span class="citation">Migdisov et al. (<a href="#ref-MWBC16" role="doc-biblioref">2016</a>)</span> – 70 <em>data compilation for REE minerals with modifications for OBIGT</em></p>
+<ul>
+<li><p><span class="citation">Diakonov et al. (<a href="#ref-DRT98" role="doc-biblioref">1998</a>)</span> – 8 <em>REE hydroxides</em></p></li>
+<li><p><span class="citation">Konings and Kovács (<a href="#ref-KK03" role="doc-biblioref">2003</a>)</span> – 27 <em>REE chlorides and fluorides</em></p></li>
+<li><p><span class="citation">Morss and Konings (<a href="#ref-MK04" role="doc-biblioref">2004</a>)</span> – 1 <em>Y<sub>2</sub>O<sub>3</sub></em></p></li>
+<li><p><span class="citation">Popa and Konings (<a href="#ref-PK06" role="doc-biblioref">2006</a>)</span> – 7 <em>REE phosphates (monazites) <span class="citation">(different G than Migdisov et al., <a href="#ref-MWBC16" role="doc-biblioref">2016</a>)</span></em></p></li>
+<li><p><span class="citation">Konings et al. (<a href="#ref-KBK+14" role="doc-biblioref">2014</a>)</span> – 19 <em>REE oxides</em></p></li>
+<li><p><span class="citation">Gysi et al. (<a href="#ref-GHFW16" role="doc-biblioref">2016</a>)</span> – 2 <em>REE phosphates (xenotimes) <span class="citation">(different S for DyPO<sub>4</sub> than Migdisov et al., <a href="#ref-MWBC16" role="doc-biblioref">2016</a>)</span></em></p></li>
+<li><p><span class="citation">Navrotsky et al. (<a href="#ref-NLM+15" role="doc-biblioref">2015</a>)</span> – 6 <em>REE phosphates (xenotimes) <span class="citation">(different G than Migdisov et al., <a href="#ref-MWBC16" role="doc-biblioref">2016</a>)</span></em></p></li>
+</ul>
 <p><span class="citation">Zimmer et al. (<a href="#ref-ZZL+16" role="doc-biblioref">2016</a>)</span> – 1 <em>dawsonite GHS</em></p>
 <ul>
 <li><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>dawsonite: Cp coefficients corrected in <span class="citation">Tutolo et al. (<a href="#ref-TKSS14" role="doc-biblioref">2014</a>)</span>; Cp value at 25 °C from <span class="citation">Bénézeth et al. (<a href="#ref-BPAH07" role="doc-biblioref">2007</a>)</span>, citing <span class="citation">Ferrante et al. (<a href="#ref-FSR76" role="doc-biblioref">1976</a>)</span></em></li>
 </ul>
+<p><span class="citation">Leong and Shock (<a href="#ref-LS20" role="doc-biblioref">2020</a>)</span> – 6 <em>Fe-bearing serpentinization-relevant minerals</em></p>
+<p><span class="citation">Grenthe et al. (<a href="#ref-NEA20" role="doc-biblioref">2020</a>)</span> – 11 <em>uranium, uraninite (UO<sub>2</sub>), beta-UO<sub>2.25</sub>, UO<sub>2.25</sub>, alpha-UO<sub>2.3333</sub>, beta-UO<sub>2.3333</sub>, UO<sub>2.6667</sub>, gamma-UO<sub>3</sub>, rutherfordine (UO</sub>2</sub>CO<sub>3</sub>), beta-UO<sub>2</sub>(OH)<sub>2</sub>, and Na<sub>2</sub>U<sub>2</sub>O<sub>7</sub></em></p>
+<ul>
+<li><span class="citation">Hemingway (<a href="#ref-Hem82" role="doc-biblioref">1982</a>)</span> – 1 <em>Cp values of rutherfordine used to obtain parameters of Maier-Kelley equation</em></li>
+</ul>
+<p><span class="citation">Williams-Jones and Vasyukova (<a href="#ref-WV22" role="doc-biblioref">2022</a>)</span> – 3 <em>data compilation for Co minerals</em></p>
+<ul>
+<li><span class="citation">Pankratz et al. (<a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span> – 3 <em>cattierite, linnaeite, and Co-pentlandite</em></li>
+</ul>
 <p><span class="citation">von der Heyden et al. (<a href="#ref-HDR+24" role="doc-biblioref">2024</a>)</span> – 2 <em>carrollite</em></p>
+<p><span class="citation">Huston and Bastrakov (<a href="#ref-HB24" role="doc-biblioref">2024</a>)</span> – 22 <em>data compilation for Cd, Ga, Ge, and In minerals and aqueous species</em></p>
+<ul>
+<li><p><span class="citation">Naumov et al. (<a href="#ref-NRK74" role="doc-biblioref">1974</a>)</span> – 1 <em>GeS<sub>2</sub> <span class="citation">(Cp coefficients from Pankratz et al., <a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span></em></p></li>
+<li><p><span class="citation">Barin et al. (<a href="#ref-BKK77" role="doc-biblioref">1977</a>)</span> – 2 <em>Ga<sub>2</sub>S<sub>3</sub> and In<sub>2</sub>(SO<sub>4</sub>)<sub>3</sub></em></p></li>
+<li><p><span class="citation">Pankratz (<a href="#ref-Pan82" role="doc-biblioref">1982</a>)</span> – 4 <em>gallium, Ga<sub>2</sub>O<sub>3</sub>, indium, In<sub>2</sub>O<sub>3</sub></em></p></li>
+<li><p><span class="citation">Pankratz et al. (<a href="#ref-PMW87" role="doc-biblioref">1987</a>)</span> – 3 <em>GaS, InS, and In<sub>2</sub>S<sub>3</sub></em></p></li>
+<li><p><span class="citation">O’Hare and Curtiss (<a href="#ref-OC95" role="doc-biblioref">1995</a>)</span> – 1 <em>GeS</em></p></li>
+<li><p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 3 <em>germanium, cadmium, and greenockite (CdS)</em></p></li>
+<li><p><span class="citation">Pokrovski and Schott (<a href="#ref-PS98" role="doc-biblioref">1998</a>)</span> – 2 <em>GeO<sub>2</sub> (hex) and (tetr) (augite)</em></p></li>
+<li><p><span class="citation">Málek et al. (<a href="#ref-MMO+11" role="doc-biblioref">2011</a>)</span> – 1 <em>GeS<sub>2</sub> (alpha)</em></p></li>
+<li><p><span class="citation">Blanc (<a href="#ref-Bla17" role="doc-biblioref">2017</a>)</span> – 5 <em>monteponite, Cd(OH)<sub>2</sub>, CdSO<sub>4</sub>, otavite, and GaOOH</em></p></li>
+</ul>
 </div>
 <div id="D-solid-organic" style="display: none">
 <h2 id="solid-organic-480-species"><a id="solid-organic" class="anchor"></a> Solid Organic (480 species)</h2>
@@ -615,7 +669,7 @@ function CloseAllDivs() {
 </ul>
 <p><span class="citation">Richard and Helgeson (<a href="#ref-RH98" role="doc-biblioref">1998</a>)</span> – 311 <em>organic molecules and groups</em></p>
 <p><span class="citation">Richard (<a href="#ref-Ric01" role="doc-biblioref">2001</a>)</span> – 8 <em>organic sulfur compounds</em></p>
-<p><span class="citation">LaRowe and Helgeson (<a href="#ref-LH06a" role="doc-biblioref">2006</a><a href="#ref-LH06a" role="doc-biblioref">a</a>)</span> – 19 <em>nucleic-acid bases, nucleosides, and nucleotides</em></p>
+<p><span class="citation">LaRowe and Helgeson (<a href="#ref-LH06a" role="doc-biblioref">2006</a><a href="#ref-LH06a" role="doc-biblioref">a</a>)</span> – 19 <em>nucleic acid bases, nucleosides, and nucleotides</em></p>
 <p><span class="citation">LaRowe and Helgeson (<a href="#ref-LH06b" role="doc-biblioref">2006</a><a href="#ref-LH06b" role="doc-biblioref">b</a>)</span> – 9 <em>Mg-complexed adenosine nucleotides (ATP), NAD, and NADP</em></p>
 <p><span class="citation">Helgeson et al. (<a href="#ref-HRMNS09" role="doc-biblioref">2009</a>)</span> – 6 <em>kerogens (C128, C292, C406, C415, C515) and pyrobitumen (C<sub>54</sub>H<sub>42</sub>)</em></p>
 <p><span class="citation">Richard and Gaona (<a href="#ref-RG11" role="doc-biblioref">2011</a>)</span> – 13 <em>organic iodine compounds</em></p>
@@ -649,12 +703,13 @@ function CloseAllDivs() {
 </div>
 <!-- Gas species divs -->
 <div id="D-gas-inorganic" style="display: none">
-<h2 id="gas-inorganic-18-species"><a id="gas-inorganic" class="anchor"></a> Gas Inorganic (18 species)</h2>
+<h2 id="gas-inorganic-19-species"><a id="gas-inorganic" class="anchor"></a> Gas Inorganic (19 species)</h2>
 <p><span class="citation">Wagman et al. (<a href="#ref-WEP+82" role="doc-biblioref">1982</a>)</span> – 16 <em>gases GHS</em></p>
 <ul>
 <li><p><span class="citation">Kelley (<a href="#ref-Kel60" role="doc-biblioref">1960</a>)</span> – 14 <em>gases Cp</em></p></li>
 <li><p><span class="citation">Amend and Shock (<a href="#ref-AS01" role="doc-biblioref">2001</a>)</span> – 2 <em>NO and N<sub>2</sub>O</em></p></li>
 </ul>
+<p><span class="citation">Johnson (<a href="#ref-Joh92" role="doc-biblioref">1992</a>)</span> – 1 <em>steam: “Parameters given provide smooth metastable extrapolation of one-bar steam properties predicted by the <span class="citation">Haar et al. (<a href="#ref-HGK84" role="doc-biblioref">1984</a>)</span> equation of state to temperatures &lt; the saturation temperature (99.632 C).”</em></p>
 <p><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 2 <em>hydrogen fluoride and hydrogen chloride</em></p>
 </div>
 <div id="D-gas-organic" style="display: none">
@@ -683,9 +738,10 @@ function CloseAllDivs() {
 <!-- Optional species divs -->
 <div id="D-optional-SUPCRT92" style="display: none">
 <h2 id="optional-supcrt92-177-species"><a id="optional-SUPCRT92" class="anchor"></a> Optional SUPCRT92 (177 species)</h2>
-<p>These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by <span class="citation">Berman (<a href="#ref-Ber88" role="doc-biblioref">1988</a>)</span> (minerals) and <span class="citation">Nordstrom and Archer (<a href="#ref-NA03" role="doc-biblioref">2003</a>)</span> (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al-bearing minerals from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>, as well as calcite, dolomite, hematite, and magnetite. Use <code>add.OBIGT(&quot;SUPCRT92&quot;)</code> to load the data.</p>
+<p>These minerals, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by data from <span class="citation">Berman (<a href="#ref-Ber88" role="doc-biblioref">1988</a>)</span> (most minerals) or <span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> (cassiterite). The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data. The minerals here include all of the silicates and Al- and Ti-bearing minerals from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>, as well as calcite, dolomite, hematite, and magnetite.</p>
+<p>Use <code>add.OBIGT(&quot;SUPCRT92&quot;)</code> to load the data.</p>
 <p><strong>NOTE:</strong> Other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (<strong>inorganic_cr.csv</strong>).</p>
-<p><span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span> – 175 <em>minerals</em></p>
+<p><span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span> – 174 <em>minerals</em></p>
 <ul>
 <li><p><span class="citation">Plummer and Busenberg (<a href="#ref-PB82" role="doc-biblioref">1982</a>)</span> – 2 <em>aragonite and calcite</em></p></li>
 <li><p><span class="citation">Helgeson (<a href="#ref-Hel85" role="doc-biblioref">1985</a>)</span> – 1 <em>ferrosilite and siderite</em></p></li>
@@ -701,72 +757,72 @@ function CloseAllDivs() {
 <li><p><span class="citation">Bowers and Helgeson (<a href="#ref-BH83" role="doc-biblioref">1983</a>)</span> – 1 <em>rutile</em></p></li>
 <li><p>sprons92.dat – 1 <em>titanite: <span class="citation">Bowers and Helgeson (<a href="#ref-BH83" role="doc-biblioref">1983</a>)</span> + “Gibbs free energies and enthalpies were corrected to be consistent with updated values of Gibbs free energies of Ca<sup>2+</sup> and CO<sub>3</sub><sup>2-</sup> <span class="citation">(Shock and Helgeson, <a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> together with the solubilities of calcite and aragonite reported by <span class="citation">Plummer and Busenberg (<a href="#ref-PB82" role="doc-biblioref">1982</a>)</span>”</em></p></li>
 </ul>
+<p><span class="citation">Jackson and Helgeson (<a href="#ref-JH85" role="doc-biblioref">1985</a>)</span> – 1 <em>Sn minerals</em></p>
+<ul>
+<li><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>phase transition temperature</em></li>
+</ul>
 </div>
 <div id="D-optional-SLOP98" style="display: none">
-<h2 id="optional-slop98-172-species"><a id="optional-SLOP98" class="anchor"></a> Optional SLOP98 (172 species)</h2>
-<p>These species, which were taken from or are linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database, including aqueous Al species <span class="citation">(Tagirov and Schott, <a href="#ref-TS01" role="doc-biblioref">2001</a>)</span>, As species <span class="citation">(Nordstrom and Archer, <a href="#ref-NA03" role="doc-biblioref">2003</a>)</span>, Au, Ag, and Cu species <span class="citation">(Akinfiev and Zotov, <a href="#ref-AZ01" role="doc-biblioref">2001</a>; Akinfiev and Zotov, <a href="#ref-AZ10" role="doc-biblioref">2010</a>)</span>, Pd species <span class="citation">(Tagirov et al., <a href="#ref-TBZ+13" role="doc-biblioref">2013</a>)</span>, Zn species <span class="citation">(Akinfiev and Tagirov, <a href="#ref-AT14" role="doc-biblioref">2014</a>)</span>, Pt species <span class="citation">(Tagirov et al., <a href="#ref-TBB15" role="doc-biblioref">2015</a>)</span>, Nb species <span class="citation">(Akinfiev et al., <a href="#ref-AKK+20" role="doc-biblioref">2020</a>)</span>, and CoCl<sub>2</sub><sup>+</sup> <span class="citation">(Liu et al., <a href="#ref-LBT+11" role="doc-biblioref">2011</a>)</span>. This file also contains aqueous transuranic actinide complexes, for which estimated thermodynamic properties have been reported, but no entropies of the corresponding elements at 298.15 K are available to check the self-consistency of the GHS values for the complexes. Use <code>add.OBIGT(&quot;SLOP98&quot;)</code> to load the data.</p>
-<p><strong>NOTE:</strong> Many other species found in slop98.dat and later versions are still present in the default database.</p>
+<h2 id="optional-slop98-410-species"><a id="optional-SLOP98" class="anchor"></a> Optional SLOP98 (410 species)</h2>
+<p>These species, whose parameters were listed in or are otherwise linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database. The elements with updated data for at least some aqueous species include: HCl <span class="citation">(Tagirov et al., <a href="#ref-TZA97" role="doc-biblioref">1997</a>)</span>, Al <span class="citation">(Tagirov and Schott, <a href="#ref-TS01" role="doc-biblioref">2001</a>)</span>, Au, Ag, and Cu(I) <span class="citation">(Akinfiev and Zotov, <a href="#ref-AZ01" role="doc-biblioref">2001</a>; Akinfiev and Zotov, <a href="#ref-AZ10" role="doc-biblioref">2010</a>)</span>, As <span class="citation">(Nordstrom and Archer, <a href="#ref-NA03" role="doc-biblioref">2003</a>)</span>, REE <span class="citation">(Migdisov et al., <a href="#ref-MWW09" role="doc-biblioref">2009</a>)</span>, Cd <span class="citation">(Bazarkina et al., <a href="#ref-BZA10" role="doc-biblioref">2010</a>)</span>, Co <span class="citation">(Liu et al., <a href="#ref-LBT+11" role="doc-biblioref">2011</a>)</span>, Pd <span class="citation">(Tagirov et al., <a href="#ref-TBZ+13" role="doc-biblioref">2013</a>)</span>, Zn <span class="citation">(Akinfiev and Tagirov, <a href="#ref-AT14" role="doc-biblioref">2014</a>)</span>, Pt <span class="citation">(Tagirov et al., <a href="#ref-TBB15" role="doc-biblioref">2015</a>)</span>, Nb <span class="citation">(Akinfiev et al., <a href="#ref-AKK+20" role="doc-biblioref">2020</a>)</span>, Ga and In <span class="citation">(Huston and Bastrakov, <a href="#ref-HB24" role="doc-biblioref">2024</a>)</span>, and U <span class="citation">(Migdisov et al., <a href="#ref-MBA+24" role="doc-biblioref">2024</a>)</span>.</p>
+<p>Use <code>add.OBIGT(&quot;SLOP98&quot;)</code> to load the data.</p>
+<p><strong>NOTE:</strong> Other species listed in slop98.dat and later versions are still present in the default database.</p>
 <p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 1 <em>H<sub>2</sub>AsO<sub>3</sub><sup>-</sup></em></p>
 <p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 1 <em>Ag<sup>+</sup></em></p>
-<p><span class="citation">Shock and Koretsky (<a href="#ref-SK93" role="doc-biblioref">1993</a>)</span> – 9 <em>Ag-, Au-, Cu(I)- and Al-acetate complexes</em></p>
-<p><span class="citation">McCollom and Shock (<a href="#ref-MS97" role="doc-biblioref">1997</a>)</span> – 1 <em>aqueous HCl</em></p>
+<p><span class="citation">Shock and Koretsky (<a href="#ref-SK93" role="doc-biblioref">1993</a>)</span> – 9 <em>Ag, Au, Cu(I) and Al acetate complexes</em></p>
+<p><span class="citation">Haas et al. (<a href="#ref-HSS95" role="doc-biblioref">1995</a>)</span> – 249 <em>complexes of rare earth elements</em></p>
+<ul>
+<li>slop98.dat – 88 <em>“Corrected values based on data from <span class="citation">Haas et al. (<a href="#ref-HSS95" role="doc-biblioref">1995</a>)</span>”</em></li>
+</ul>
+<p><span class="citation">McCollom and Shock (<a href="#ref-MS97" role="doc-biblioref">1997</a>)</span> – 1 <em>HCl</em></p>
 <ul>
 <li>slop98.dat – 1 <em>“Data and parameters as used by <span class="citation">McCollom and Shock (<a href="#ref-MS97" role="doc-biblioref">1997</a>)</span>.”</em></li>
 </ul>
-<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 3 <em>aqueous ions and hydroxide complexes</em></p>
-<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 2 <em>Au<sup>+</sup> and Cu<sup>+</sup></em></p>
+<p><span class="citation">Shock et al. (<a href="#ref-SSB97" role="doc-biblioref">1997</a><a href="#ref-SSB97" role="doc-biblioref">a</a>)</span> – 14 <em>uranium species</em></p>
+<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 6 <em>Au<sup>+</sup>, Cu<sup>+</sup>, Sn<sup>+2</sup>, Th<sup>+4</sup>, and Zn<sup>+2</sup></em></p>
 <ul>
-<li><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 2 <em>values of GHS</em></li>
+<li><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 3 <em>values of GHS</em></li>
 </ul>
 <p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 6 <em>arsenate and arsenite species</em></p>
-<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 5 <em>Al<sup>+3</sup> and Al-hydroxide complexes</em></p>
-<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 5 <em>Zn<sup>+2</sup> and Zn-hydroxide complexes</em></p>
+<p><span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span> – 16 <em>Ag, Al, Ga, Nb, and Zn hydroxide complexes</em></p>
+<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 2 <em>Ag(HS)<sub>2</sub><sup>-</sup> and Au(HS)<sub>2</sub><sup>-</sup></em></p>
+<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 16 <em>Ag, Au, Cd, Co, Cu, In, and Zn chloride complexes</em></p>
 <ul>
-<li><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 1 <em>values of GHS</em></li>
+<li><span class="citation">OBIGT database in CHNOSZ (<a href="#ref-OBIGT25" role="doc-biblioref">2025</a>)</span> – 1 <em>corrected H by -7335 cal/mol to maintain GHS consistency for In<sup>+3</sup> and derived species</em></li>
 </ul>
-<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 1 <em>metal complexes</em></p>
-<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 2 <em>Au(HS)<sub>2</sub><sup>-</sup> and Ag(HS)<sub>2</sub><sup>-</sup></em></p>
-<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 10 <em>Au-, Ag-, Cu- and Zn-chloride complexes</em></p>
-<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 3 <em>Zn-acetate complexes</em></p>
+<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 3 <em>Zn acetate complexes</em></p>
 <ul>
 <li>slop16.dat – 1 <em>Zn(Ac)<sub>3</sub><sup>-</sup>: “Enthalpy changed to be compatible with the equation ΔH=ΔG+TΔS for the formation reaction from elements. See footnote h in table 2 of <span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span>.”</em></li>
 </ul>
+<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 1 <em>In fluoride complex</em></p>
+<ul>
+<li><span class="citation">OBIGT database in CHNOSZ (<a href="#ref-OBIGT25" role="doc-biblioref">2025</a>)</span> – 1 <em>corrected H by -7335 cal/mol to maintain GHS consistency for In<sup>+3</sup> and derived species</em></li>
+</ul>
 <p><span class="citation">Sassani and Shock (<a href="#ref-SS98a" role="doc-biblioref">1998</a>)</span> – 20 <em>Pd<sup>+2</sup> and Pt<sup>+2</sup> and their complexes</em></p>
-<p><span class="citation">Murphy and Shock (<a href="#ref-MS99" role="doc-biblioref">1999</a>)</span> – 38 <em>actinides</em></p>
 <p><span class="citation">Prapaipong et al. (<a href="#ref-PSK99" role="doc-biblioref">1999</a>)</span> – 9 <em>metal-dicarboxylate complexes</em></p>
 <ul>
 <li><p>slop07.dat – 1 <em>corrected charge of Pu(Oxal)<sup>+2</sup></em></p></li>
 <li><p>OBIGT (2017) – 2 <em>charge of NpO<sub>2</sub>(Oxal), La(Succ)<sup>+</sup>, NH<sub>4</sub>(Succ)<sup>-</sup>, and NpO<sub>2</sub>(Succ) as listed by <span class="citation">Prapaipong et al. (<a href="#ref-PSK99" role="doc-biblioref">1999</a>)</span></em></p></li>
 </ul>
 <p><span class="citation">Prapaipong et al. (<a href="#ref-PSK99" role="doc-biblioref">1999</a>)</span> – 2 <em>Al(Mal)<sup>+</sup> and Al(Oxal)<sup>+</sup></em></p>
-<p><span class="citation">Marini and Accornero (<a href="#ref-MA07" role="doc-biblioref">2007</a>)</span> – 52 <em>metal-arsenate and metal-arsenite complexes; linked to properties of arsenate and arsenite from <span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span></em></p>
+<p><span class="citation">Marini and Accornero (<a href="#ref-MA07" role="doc-biblioref">2007</a>)</span> – 52 <em>metal arsenate and arsenite complexes; linked to properties of arsenate and arsenite from <span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span></em></p>
 <ul>
 <li><span class="citation">Marini and Accornero (<a href="#ref-MA10" role="doc-biblioref">2010</a>)</span> – 52 <em>corrected values</em></li>
 </ul>
-<p><span class="citation">Accornero et al. (<a href="#ref-AML10" role="doc-biblioref">2010</a>)</span> – 2 <em>Np- and Am-chromate complexes</em></p>
+<p><span class="citation">Accornero et al. (<a href="#ref-AML10" role="doc-biblioref">2010</a>)</span> – 2 <em>Np and Am chromate complexes</em></p>
 </div>
 <div id="D-optional-AD" style="display: none">
 <h2 id="optional-ad-24-species"><a id="optional-AD" class="anchor"></a> Optional AD (24 species)</h2>
 <p>This file has parameters for aqueous nonelectrolytes in the Akinfiev-Diamond model <span class="citation">(Akinfiev and Diamond, <a href="#ref-AD03" role="doc-biblioref">2003</a>)</span>. Use <code>add.OBIGT(&quot;AD&quot;)</code> to load the data; see <code>demo(AD)</code> for an example.</p>
 <p><span class="citation">Akinfiev and Diamond (<a href="#ref-AD03" role="doc-biblioref">2003</a>)</span> – 10 <em>dissolved gas species; parameters estimated from the experimental Henry’s constant</em></p>
-<p><span class="citation">Akinfiev and Diamond (<a href="#ref-AD03" role="doc-biblioref">2003</a>)</span> – 8 <em>dissolved gas species; parameters estimated from standard-state properties at 25 ° C</em></p>
+<p><span class="citation">Akinfiev and Diamond (<a href="#ref-AD03" role="doc-biblioref">2003</a>)</span> – 8 <em>dissolved gas species; parameters estimated from standard state properties at 25 ° C</em></p>
 <p><span class="citation">Akinfiev and Plyasunov (<a href="#ref-AP14" role="doc-biblioref">2014</a>)</span> – 6 <em>B(OH)<sub>3</sub>, Si(OH)<sub>4</sub>, and As(OH)<sub>3</sub></em></p>
-</div>
-<div id="D-optional-AS04" style="display: none">
-<h2 id="optional-as04-3-species"><a id="optional-AS04" class="anchor"></a> Optional AS04 (3 species)</h2>
-<p>This file has data for aqueous SiO<sub>2</sub> from <span class="citation">Apps and Spycher (<a href="#ref-AS04" role="doc-biblioref">2004</a>)</span> and a HSiO<sub>3</sub><sup>-</sup> modified to be consistent with the SiO<sub>2</sub> here. This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication <span class="citation">(Stefánsson, <a href="#ref-Ste01" role="doc-biblioref">2001</a>)</span> that is roughly consistent with the SiO<sub>2</sub> here. Use <code>add.OBIGT(&quot;AS04&quot;)</code> to load the data; see <code>demo(aluminum)</code> for an example.</p>
-<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 1 <em>HSiO<sub>3</sub><sup>-</sup></em></p>
-<ul>
-<li>OBIGT (2019) – 1 <em>GHS recalculated by adding difference from SiO<sub>2</sub> <span class="citation">(Sverjensky et al., <a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> to updated values for SiO<sub>2</sub> <span class="citation">(Apps and Spycher, <a href="#ref-AS04" role="doc-biblioref">2004</a>)</span></em></li>
-</ul>
-<p><span class="citation">Stefánsson (<a href="#ref-Ste01" role="doc-biblioref">2001</a>)</span> – 1 <em>aqueous H<sub>4</sub>SiO<sub>4</sub></em></p>
-<p><span class="citation">Apps and Spycher (<a href="#ref-AS04" role="doc-biblioref">2004</a>)</span> – 1 <em>aqueous SiO<sub>2</sub></em></p>
 </div>
 <div id="D-optional-DEW" style="display: none">
 <h2 id="optional-dew-210-species"><a id="optional-DEW" class="anchor"></a> Optional DEW (210 species)</h2>
 <p>The Deep Earth Water (DEW) model extends the applicability of the revised HKF equations of state to 60 kbar. Accuracy of the thermodynamic calculations at these conditions is improved by revised correlations for the <i>a</i><sub>1</sub> HKF parameter, as described by <a href="https://doi.org/10.1016/j.gca.2013.12.019">Sverjensky et al. (2014)</a>. The thermodynamic parameters for species were taken from the May 2017 and January 2019 versions of the DEW spreadsheet. The following species are present in the spreadsheet, but are not used here because the parameters are unchanged from the default database in CHNOSZ: B(OH)<sub>3</sub>, Br<sup>-</sup>, Ca<sup>+2</sup>, Cl<sup>-</sup>, Cs<sup>+</sup>, F<sup>-</sup>, H<sup>+</sup>, H<sub>2</sub>, He, I<sup>-</sup>, K<sup>+</sup>, Kr, Li<sup>+</sup>, Mg<sup>+2</sup>, Na<sup>+</sup>, Ne, O<sub>2</sub>, Rb<sup>+</sup>, Rn, SO<sub>4</sub><sup>-2</sup>.</p>
 <p>Besides using <code>add.OBIGT(&quot;DEW&quot;)</code> to load these data, you should also run <code>water(&quot;DEW&quot;)</code> to activate the DEW equations in CHNOSZ. See <code>demo(DEW)</code> for some examples.</p>
-<p>Most of the comments below were transcribed from the DEW spreadsheet. (Comments in parentheses were added by JMD.)</p>
+<p>Most of the comments below were transcribed from the DEW spreadsheet. Comments in parentheses were added by JMD.</p>
 <p><span class="citation">Ruaya and Seward (<a href="#ref-RS87" role="doc-biblioref">1987</a>)</span> – 1 <em>HCl</em></p>
 <ul>
 <li><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 1 <em>Regression of <span class="citation">Ruaya and Seward (<a href="#ref-RS87" role="doc-biblioref">1987</a>)</span> &amp; <span class="citation">Tagirov et al. (<a href="#ref-TZA97" role="doc-biblioref">1997</a>)</span> with new full correlations</em></li>
@@ -801,7 +857,7 @@ function CloseAllDivs() {
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 1 <em>propanoate: Revised a<sub>1</sub> from new delVn correlation for -1 ions</em></p></li>
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 2 <em>formate and lactate: revised with new predicted a<sub>1</sub> for ions</em></p></li>
 </ul>
-<p><span class="citation">Shock and Koretsky (<a href="#ref-SK93" role="doc-biblioref">1993</a>)</span> – 2 <em>metal-acetate complexes</em></p>
+<p><span class="citation">Shock and Koretsky (<a href="#ref-SK93" role="doc-biblioref">1993</a>)</span> – 2 <em>metal acetate complexes</em></p>
 <ul>
 <li><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 2 <em>revised with new predicted a<sub>1</sub> for complex species</em></li>
 </ul>
@@ -834,7 +890,8 @@ function CloseAllDivs() {
 <ul>
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 1 <em>(Al<sup>+3</sup>: parameters in DEW spreadsheet are the same as in <span class="citation">Shock et al. (<a href="#ref-SSWS97" role="doc-biblioref">1997</a><a href="#ref-SSWS97" role="doc-biblioref">b</a>)</span>)</em></p></li>
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 2 <em>revised with new predicted a<sub>1</sub> for ions</em></p></li>
-<li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 21 <em>revised with new predicted a<sub>1</sub> for cations</em></p></li>
+<li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 20 <em>revised with new predicted a<sub>1</sub> for cations</em></p></li>
+<li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 1 <em>revised with new predicted a<sub>1</sub> for cations <span class="citation">(corrected H for In<sup>+3</sup>; OBIGT database in CHNOSZ, <a href="#ref-OBIGT25" role="doc-biblioref">2025</a>)</span></em></p></li>
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 20 <em>revised with new predicted a<sub>1</sub> for complex species</em></p></li>
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 11 <em>revised with a<sub>1</sub> equal to the sum of the ions</em></p></li>
 <li><p><span class="citation">DEW model (<a href="#ref-DEW17" role="doc-biblioref">2017</a>)</span> – 5 <em>revised volume increased in order that a<sub>1</sub> of the complex is the sum of the a<sub>1</sub> values of the ions</em></p></li>
@@ -915,9 +972,28 @@ function CloseAllDivs() {
 <li><p><span class="citation">DEW model (<a href="#ref-DEW19" role="doc-biblioref">2019</a>)</span> – 1 <em>CaO: Fitted by Dimitri to high PT retrievals from Fang</em></p></li>
 </ul>
 </div>
-<div id="D-optional-GEMSFIT" style="display: none">
-<h2 id="optional-gemsfit-42-species"><a id="optional-GEMSFIT" class="anchor"></a> Optional GEMSFIT (42 species)</h2>
-<p><a href="https://doi.org/10.1016/j.gca.2016.04.026">Miron et al. (2016)</a> and <a href="https://doi.org/10.2475/07.2017.01">Miron et al. (2017)</a> described an internally consistent thermodynamic dataset for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl that was obtained by using the <a href="https://doi.org/10.1016/j.apgeochem.2014.10.013">GEMSFIT</a> package. Use <code>add.OBIGT(&quot;GEMSFIT&quot;)</code> to load the data.</p>
+<div id="D-optional-Testing" style="display: none">
+<h2 id="optional-testing-68-species"><a id="optional-Testing" class="anchor"></a> Optional Testing (68 species)</h2>
+<p>These are optional data files used for testing purposes. Load the data with e.g. <code>add.OBIGT(&quot;GEMSFIT&quot;)</code>.</p>
+<h3>
+SiO2
+</h3>
+<p>Aqueous SiO<sub>2</sub> from <span class="citation">Apps and Spycher (<a href="#ref-AS04" role="doc-biblioref">2004</a>)</span> and HSiO<sub>3</sub><sup>-</sup> modified to be consistent with it. This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication <span class="citation">(Stefánsson, <a href="#ref-Ste01" role="doc-biblioref">2001</a>)</span> that is roughly consistent with the SiO<sub>2</sub> here. See <code>demo(aluminum)</code> and the vignette <a href="eos-regress.html"><span style="color:blue"><em>Regressing thermodynamic data</em></span></a> for examples.</p>
+<h3>
+GEMSFIT
+</h3>
+<p>Internally consistent dataset for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl obtained with the <a href="https://doi.org/10.1016/j.apgeochem.2014.10.013">GEMSFIT</a> package <span class="citation">(Miron et al., <a href="#ref-MWKH16" role="doc-biblioref">2016</a>; Miron et al., <a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span>.</p>
+<h3>
+IGEM
+</h3>
+<p>Updates for Au and Cu complexes and SO<sub>4</sub><sup>-2</sup>-bearing species from researchers at the Institute of Geology of Ore Deposits, Petrography, Mineralogy, and Geochemistry, Russian Academy of Sciences (IGEM RAS) <span class="citation">(Akinfiev and Zotov, <a href="#ref-AZ23" role="doc-biblioref">2023</a>; Trofimov et al., <a href="#ref-TTA+23" role="doc-biblioref">2023</a>; Tagirov et al., <a href="#ref-TAT+24" role="doc-biblioref">2024</a><a href="#ref-TAT+24" role="doc-biblioref">a</a>; Tagirov et al., <a href="#ref-TAZ24" role="doc-biblioref">2024</a><a href="#ref-TAZ24" role="doc-biblioref">b</a>)</span>.</p>
+<h3>
+Sandia
+</h3>
+<p>Model for the Mg(OH)<sub>2</sub>-MgCl<sub>2</sub>-H<sub>2</sub>O system at 25 to 150 °C from researchers at Sandia National Laboratories <span class="citation">(Knight et al., <a href="#ref-KBJ24" role="doc-biblioref">2024</a>)</span>.</p>
+<h3>
+Citations
+</h3>
 <p><span class="citation">Shock and Helgeson (<a href="#ref-SH88" role="doc-biblioref">1988</a>)</span> – 6 <em>K<sup>+</sup>, Na<sup>+</sup>, Ca<sup>+2</sup>, Mg<sup>+2</sup>, Cl<sup>-</sup>, and OH<sup>-</sup></em></p>
 <ul>
 <li><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 6 <em>ΔG°<sub>f</sub> values</em></li>
@@ -930,14 +1006,20 @@ function CloseAllDivs() {
 <ul>
 <li><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 1 <em>ΔG°<sub>f</sub> values</em></li>
 </ul>
+<p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 1 <em>HSiO<sub>3</sub><sup>-</sup></em></p>
+<ul>
+<li>OBIGT (2019) – 1 <em>GHS recalculated by adding difference from SiO<sub>2</sub> <span class="citation">(Sverjensky et al., <a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> to updated values for SiO<sub>2</sub> <span class="citation">(Apps and Spycher, <a href="#ref-AS04" role="doc-biblioref">2004</a>)</span></em></li>
+</ul>
 <p><span class="citation">Sverjensky et al. (<a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span> – 3 <em>NaHSiO<sub>3</sub>, CaHSiO<sub>3</sub><sup>+</sup>, and MgHSiO<sub>3</sub><sup>+</sup></em></p>
 <ul>
 <li><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 3 <em>ΔG°<sub>f</sub> values</em></li>
 </ul>
+<p><span class="citation">Stefánsson (<a href="#ref-Ste01" role="doc-biblioref">2001</a>)</span> – 1 <em>aqueous H<sub>4</sub>SiO<sub>4</sub></em></p>
 <p><span class="citation">Tagirov and Schott (<a href="#ref-TS01" role="doc-biblioref">2001</a>)</span> – 6 <em>aqueous Al species</em></p>
 <ul>
 <li><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 6 <em>ΔG°<sub>f</sub> values</em></li>
 </ul>
+<p><span class="citation">Apps and Spycher (<a href="#ref-AS04" role="doc-biblioref">2004</a>)</span> – 1 <em>aqueous SiO<sub>2</sub></em></p>
 <p><span class="citation">Miron et al. (<a href="#ref-MWKH16" role="doc-biblioref">2016</a>)</span> – 5 <em>aqueous NaCl, NaOH, KCl, KOH, and HCl based on new conductance experiments</em></p>
 <ul>
 <li><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 5 <em>ΔG°<sub>f</sub> values</em></li>
@@ -947,9 +1029,17 @@ function CloseAllDivs() {
 <li><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 2 <em>ΔG°<sub>f</sub> values</em></li>
 </ul>
 <p><span class="citation">Miron et al. (<a href="#ref-MWKL17" role="doc-biblioref">2017</a>)</span> – 18 <em>aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl</em></p>
+<p><span class="citation">Akinfiev and Zotov (<a href="#ref-AZ23" role="doc-biblioref">2023</a>)</span> – 2 <em>Cu<sup>+</sup> and CuO<sup>-</sup></em></p>
+<p><span class="citation">Trofimov et al. (<a href="#ref-TTA+23" role="doc-biblioref">2023</a>)</span> – 4 <em>Cu hydrosulfide and chloride complexes</em></p>
+<p><span class="citation">Knight et al. (<a href="#ref-KBJ24" role="doc-biblioref">2024</a>)</span> – 7 <em>Mg(OH)<sub>2</sub>-MgCl<sub>2</sub>-H<sub>2</sub>O phases</em></p>
+<ul>
+<li><span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> – 1 <em>brucite V</em></li>
+</ul>
+<p><span class="citation">Tagirov et al. (<a href="#ref-TAT+24" role="doc-biblioref">2024</a><a href="#ref-TAT+24" role="doc-biblioref">a</a>)</span> – 7 <em>Au-(hydro)sulfide species and SO<sub>4</sub><sup>-2</sup>-bearing species</em></p>
+<p><span class="citation">Tagirov et al. (<a href="#ref-TAZ24" role="doc-biblioref">2024</a><a href="#ref-TAZ24" role="doc-biblioref">b</a>)</span> – 3 <em>Au hydroxide and chloride complexes</em></p>
 </div>
 <hr>
-<p><b>Total count of species</b>: References were found for 3486 of 3486 species in the default OBIGT database and 628 optional species.</p>
+<p><b>Total count of species</b>: References were found for 3496 of 3496 species in default data files and 889 species in optional data files.</p>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
@@ -999,6 +1089,9 @@ function CloseAllDivs() {
 <div id="ref-AZ10">
 <p>Akinfiev NN, Zotov AV. 2010. Thermodynamic description of aqueous species in the system Cu-Ag-Au-S-O-H at temperatures of 0-600°C and pressures of 1-3000 bar. <em>Geochemistry International</em> <strong>48</strong>(7): 714–720. doi: <a href="https://doi.org/10.1134/S0016702910070074">10.1134/S0016702910070074</a></p>
 </div>
+<div id="ref-AZ23">
+<p>Akinfiev NN, Zotov AV. 2023. Copper in hydrothermal systems: A thermodynamic description of hydroxocomplexes. <em>Geology of Ore Deposits</em> <strong>65</strong>(1): 1–10. doi: <a href="https://doi.org/10.1134/S1075701523010026">10.1134/S1075701523010026</a></p>
+</div>
 <div id="ref-AH97b">
 <p>Amend JP, Helgeson HC. 1997. Calculation of the standard molal thermodynamic properties of aqueous biomolecules at elevated temperatures and pressures. Part 1. <span class="smallcaps">l</span>-<span class="math inline"><em>α</em></span>-amino acids. <em>Journal of the Chemical Society, Faraday Transactions</em> <strong>93</strong>(10): 1927–1941. doi: <a href="https://doi.org/10.1039/A608126F">10.1039/A608126F</a></p>
 </div>
@@ -1020,6 +1113,9 @@ function CloseAllDivs() {
 <div id="ref-BKK77">
 <p>Barin I, Knacke O, Kubaschewski OK. 1977. <em>Thermochemical Properties of Inorganic Substances: Supplement</em>. Berlin: Springer-Verlag. doi: <a href="https://doi.org/10.1007/978-3-662-02293-1">10.1007/978-3-662-02293-1</a></p>
 </div>
+<div id="ref-BZA10">
+<p>Bazarkina EF, Zotov AV, Akinfiev NN. 2010. Pressure-dependent stability of cadmium chloride complexes: Potentiometric measurements at 1-1000 bar and 25°C. <em>Geology of Ore Deposits</em> <strong>52</strong>(2): 167–178. doi: <a href="https://doi.org/10.1134/S1075701510020054">10.1134/S1075701510020054</a></p>
+</div>
 <div id="ref-Ber88">
 <p>Berman RG. 1988. Internally-consistent thermodynamic data for minerals in the system Na<span class="math inline"><em></em><sub>2</sub></span>O–K<span class="math inline"><em></em><sub>2</sub></span>O–CaO–MgO–FeO–Fe<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–Al<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–SiO<span class="math inline"><em></em><sub>2</sub></span>–TiO<span class="math inline"><em></em><sub>2</sub></span>–H<span class="math inline"><em></em><sub>2</sub></span>O–CO<span class="math inline"><em></em><sub>2</sub></span>. <em>Journal of Petrology</em> <strong>29</strong>(2): 445–522. doi: <a href="https://doi.org/10.1093/petrology/29.2.445">10.1093/petrology/29.2.445</a></p>
 </div>
@@ -1032,8 +1128,14 @@ function CloseAllDivs() {
 <div id="ref-BPAH07">
 <p>Bénézeth P, Palmer DA, Anovitz LM, Horita J. 2007. Dawsonite synthesis and reevaluation of its thermodynamic properties from solubility measurements: Implications for mineral trapping of CO<span class="math inline"><em></em><sub>2</sub></span>. <em>Geochimica et Cosmochimica Acta</em> <strong>71</strong>(18): 4438–4455. doi: <a href="https://doi.org/10.1016/j.gca.2007.07.003">10.1016/j.gca.2007.07.003</a></p>
 </div>
+<div id="ref-Bla17">
+<p>Blanc P. 2017. Thermoddem: Update for the 2017 version. Bureau de Recherches Géologiques et Minières. Report No.: BRGM/RP-66811-FR. Available at <a href="https://thermoddem.brgm.fr/page/brgm-reports">https://thermoddem.brgm.fr/page/brgm-reports</a>. </p>
+</div>
 <div id="ref-BH83">
 <p>Bowers TS, Helgeson HC. 1983. Calculation of the thermodynamic and geochemical consequences of nonideal mixing in the system H<span class="math inline"><em></em><sub>2</sub></span>O-CO<span class="math inline"><em></em><sub>2</sub></span>-NaCl on phase relations in geologic systems: Equation of state for H<span class="math inline"><em></em><sub>2</sub></span>O-CO<span class="math inline"><em></em><sub>2</sub></span>-NaCl fluids at high pressures and temperatures. <em>Geochimica et Cosmochimica Acta</em> <strong>47</strong>(7): 1247–1275. doi: <a href="https://doi.org/10.1016/0016-7037(83)90066-2">10.1016/0016-7037(83)90066-2</a></p>
+</div>
+<div id="ref-BS23">
+<p>Boyer G, Shock E. 2023. The Complicator (prototype) (v0.0.2). Zenodo. doi: <a href="https://doi.org/10.5281/zenodo.8206644">10.5281/zenodo.8206644</a></p>
 </div>
 <div id="ref-CS16">
 <p>Canovas PA III, Shock EL. 2016. Geobiochemistry of metabolism: Standard state thermodynamic properties of the citric acid cycle. <em>Geochimica et Cosmochimica Acta</em> <strong>195</strong>: 293–322. doi: <a href="https://doi.org/10.1016/j.gca.2016.08.028">10.1016/j.gca.2016.08.028</a></p>
@@ -1047,11 +1149,17 @@ function CloseAllDivs() {
 <div id="ref-DS10">
 <p>Delgado Martín J, Soler i Gil A. 2010. Ilvaite stability in skarns from the northern contact of the Maladeta batholith, Central Pyrenees (Spain). <em>European Journal of Mineralogy</em> <strong>22</strong>(3): 363–380. doi: <a href="https://doi.org/10.1127/0935-1221/2010/0022-2021">10.1127/0935-1221/2010/0022-2021</a></p>
 </div>
+<div id="ref-Den81">
+<p>Denbigh K. 1981. <em>The Principles of Chemical Equilibrium</em>. 4th ed. Cambridge: Cambridge University Press. doi: <a href="https://doi.org/10.1017/CBO9781139167604">10.1017/CBO9781139167604</a></p>
+</div>
 <div id="ref-DEW17">
 <p>DEW model. 2017. Last updated on 2017-05-19. Accessed on 2017-09-26.</p>
 </div>
 <div id="ref-DEW19">
 <p>DEW model. 2019. Last updated on 2019-02-06. Accessed on 2020-06-30.</p>
+</div>
+<div id="ref-DRT98">
+<p>Diakonov II, Ragnarsdottir KV, Tagirov BR. 1998. Standard thermodynamic properties and heat capacity equations of rare earth hydroxides: II. Ce(III)-, Pr-, Sm-, Eu(III)-, Gd-, Tb-, Dy-, Ho-, Er-, Tm-, Yb-, and Y-hydroxides. Comparison of thermochemical and solubility data. <em>Chemical Geology</em> <strong>151</strong>: 327–347. doi: <a href="https://doi.org/10.1016/S0009-2541(98)00088-6">10.1016/S0009-2541(98)00088-6</a></p>
 </div>
 <div id="ref-DPS+96">
 <p>Diakonov I, Pokrovski G, Schott J, Castet S, Gout R. 1996. An experimental and computational study of sodium-aluminum complexing in crustal fluids. <em>Geochimica et Cosmochimica Acta</em> <strong>60</strong>(2): 197–211. doi: <a href="https://doi.org/10.1016/0016-7037(95)00403-3">10.1016/0016-7037(95)00403-3</a></p>
@@ -1086,8 +1194,14 @@ function CloseAllDivs() {
 <div id="ref-Got04">
 <p>Gottschalk M. 2004. Thermodynamic properties of zoisite, clinozoisite and epidote. <em>Reviews in Mineralogy and Geochemistry</em> <strong>56</strong>(1): 83–124. doi: <a href="https://doi.org/10.2138/gsrmg.56.1.83">10.2138/gsrmg.56.1.83</a></p>
 </div>
+<div id="ref-NEA20">
+<p>Grenthe I, Gaona X, Plyasunov A, Rao L, Runde W, Grambow B. 2020. <em>Second Update on the Chemical Thermodynamics of Uranium, Neptunium, Plutonium, Americium and Technetium, Volume 14</em>. OECD; Nuclear Energy Agency. doi: <a href="https://doi.org/10.1787/bf86a907-en">10.1787/bf86a907-en</a></p>
+</div>
 <div id="ref-GM09">
 <p>Grevel K-D, Majzlan J. 2009. Internally consistent thermodynamic data for magnesium sulfate hydrates. <em>Geochimica et Cosmochimica Acta</em> <strong>73</strong>(22): 6805–6815. doi: <a href="https://doi.org/10.1016/j.gca.2009.08.005">10.1016/j.gca.2009.08.005</a></p>
+</div>
+<div id="ref-GHFW16">
+<p>Gysi AP, Harlov D, Filho DC, Williams-Jones AE. 2016. Experimental determination of the high temperature heat capacity of a natural xenotime-(Y) solid solution and synthetic DyPO<sub>4</sub> and ErPO<sub>4</sub> endmembers. <em>Thermochimica Acta</em> <strong>627–629</strong>: 61–67. doi: <a href="https://doi.org/10.1016/j.tca.2016.01.016">10.1016/j.tca.2016.01.016</a></p>
 </div>
 <div id="ref-HGK84">
 <p>Haar L, Gallagher JS, Kell GS. 1984. <em>NBS/NRC Steam Tables: Thermodynamic and Transport Properties and Computer Programs for Vapor and Liquid States of Water in SI Units</em>. Washington, D. C.: Hemisphere Publishing Corporation.</p>
@@ -1119,6 +1233,9 @@ function CloseAllDivs() {
 <div id="ref-HRMNS09">
 <p>Helgeson HC, Richard L, McKenzie WF, Norton DL, Schmitt A. 2009. A chemical and thermodynamic model of oil generation in hydrocarbon source rocks. <em>Geochimica et Cosmochimica Acta</em> <strong>73</strong>(3): 594–695. doi: <a href="https://doi.org/10.1016/j.gca.2008.03.004">10.1016/j.gca.2008.03.004</a></p>
 </div>
+<div id="ref-Hem82">
+<p>Hemingway BS. 1982. Thermodynamic properties of selected uranium compounds and aqueous species at 298.15 K and 1 bar and at higher temperatures; preliminary models for the origin of coffinite deposits. U.S. Geological Survey. Report No.: 82-619. doi: <a href="https://doi.org/10.3133/ofr82619">10.3133/ofr82619</a></p>
+</div>
 <div id="ref-HRA91">
 <p>Hemingway BS, Robie RA, Apps JA. 1991. Revised values for the thermodynamic properties of boehmite, AlO(OH), and related species and phases in the system Al-H-O. <em>American Mineralogist</em> <strong>76</strong>(3-4): 445–457. Available at <a href="https://pubs.usgs.gov/publication/70016664">https://pubs.usgs.gov/publication/70016664</a>. </p>
 </div>
@@ -1128,11 +1245,23 @@ function CloseAllDivs() {
 <div id="ref-HP97">
 <p>Ho PC, Palmer DA. 1997. Ion association of dilute aqueous potassium chloride and potassium hydroxide solutions to 600°C and 300 MPa determined by electrical conductance measurements. <em>Geochimica et Cosmochimica Acta</em> <strong>61</strong>(15): 3027–3040. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00146-4">10.1016/S0016-7037(97)00146-4</a></p>
 </div>
+<div id="ref-HET+24">
+<p>Hu B, Etschmann B, Testemale D, Liu W, Guan Q, Müller H, Brugger J. 2024. Tantalum in hydrothermal fluids. <em>Geochimica et Cosmochimica Acta</em>. doi: <a href="https://doi.org/10.1016/j.gca.2024.10.019">10.1016/j.gca.2024.10.019</a></p>
+</div>
 <div id="ref-HS19">
 <p>Huang F, Sverjensky DA. 2019. Extended Deep Earth Water Model for predicting major element mantle metasomatism. <em>Geochimica et Cosmochimica Acta</em> <strong>254</strong>: 192–230. doi: <a href="https://doi.org/10.1016/j.gca.2019.03.027">10.1016/j.gca.2019.03.027</a></p>
 </div>
+<div id="ref-HB24">
+<p>Huston DL, Bastrakov E. 2024. Germanium, indium, gallium and cadmium in zinc ores: A mineral system approach. <em>Australian Journal of Earth Sciences</em> <strong>71</strong>(8): 1125–1155. doi: <a href="https://doi.org/10.1080/08120099.2024.2423772">10.1080/08120099.2024.2423772</a></p>
+</div>
 <div id="ref-JH85">
 <p>Jackson KJ, Helgeson HC. 1985. Chemical and thermodynamic constraints on the hydrothermal transport and deposition of tin. II. Interpretation of phase relations in the Southeast Asian tin belt. <em>Economic Geology</em> <strong>80</strong>(5): 1365–1378. doi: <a href="https://doi.org/10.2113/gsecongeo.80.5.1365">10.2113/gsecongeo.80.5.1365</a></p>
+</div>
+<div id="ref-JSW09">
+<p>Jacob KT, Shekhar C, Waseda Y. 2009. An update on the thermodynamics of Ta<sub>2</sub>O<sub>5</sub>. <em>The Journal of Chemical Thermodynamics</em> <strong>41</strong>(6): 748–753. doi: <a href="https://doi.org/10.1016/j.jct.2008.12.006">10.1016/j.jct.2008.12.006</a></p>
+</div>
+<div id="ref-Joh92">
+<p>Johnson JW. 1992. sprons92.dat data file for SUPCRT92. Personal calculation, Earth Sciences Dept., Lawrence Livermore National Lab, Livermore, CA.</p>
 </div>
 <div id="ref-JOH92">
 <p>Johnson JW, Oelkers EH, Helgeson HC. 1992. SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000°C. <em>Computers &amp; Geosciences</em> <strong>18</strong>(7): 899–947. doi: <a href="https://doi.org/10.1016/0098-3004(92)90029-Q">10.1016/0098-3004(92)90029-Q</a></p>
@@ -1148,6 +1277,15 @@ function CloseAllDivs() {
 </div>
 <div id="ref-Kit15">
 <p>Kitadai N. 2015. Energetics of amino acid synthesis in alkaline hydrothermal environments. <em>Origins of Life and Evolution of Biospheres</em> <strong>45</strong>(4): 377–409. doi: <a href="https://doi.org/10.1007/s11084-015-9428-3">10.1007/s11084-015-9428-3</a></p>
+</div>
+<div id="ref-KBJ24">
+<p>Knight AW, Bryan CR, Jové-Colón CF. 2024. Development of a consistent geochemical model of the Mg(OH)<sub>2</sub>–MgCl<sub>2</sub>–H<sub>2</sub>O system from 25ºC to 120ºC. <em>Applied Geochemistry</em> <strong>169</strong>: 106032. doi: <a href="https://doi.org/10.1016/j.apgeochem.2024.106032">10.1016/j.apgeochem.2024.106032</a></p>
+</div>
+<div id="ref-KBK+14">
+<p>Konings RJM, Beneš O, Kovács A, Manara D, Sedmidubský D, Gorokhov L, Iorish VS, Yungman V, Shenyavskaya E, Osina E. 2014. The thermodynamic properties of the <em>f</em>-elements and their compounds. Part 2. The lanthanide and actinide oxides. <em>Journal of Physical and Chemical Reference Data</em> <strong>43</strong>(1): 013101. doi: <a href="https://doi.org/10.1063/1.4825256">10.1063/1.4825256</a></p>
+</div>
+<div id="ref-KK03">
+<p>Konings RJM, Kovács A. 2003. Thermodynamic properties of the lanthanide(III) halides. In: Gschneidner KA; Bünzli J-CG; Pecharsky VK, editors. <em>Handbook on the Physics and Chemistry of Rare Earths</em>. Elsevier. pp. 147–247. doi: <a href="https://doi.org/10.1016/S0168-1273(02)33003-4">10.1016/S0168-1273(02)33003-4</a></p>
 </div>
 <div id="ref-Kul06">
 <p>Kulik DA. 2006. Dual-thermodynamic estimation of stoichiometry and stability of solid solution end members in aqueous–solid solution systems. <em>Chemical Geology</em> <strong>225</strong>(3): 189–212. doi: <a href="https://doi.org/10.1016/j.chemgeo.2005.08.014">10.1016/j.chemgeo.2005.08.014</a></p>
@@ -1170,8 +1308,14 @@ function CloseAllDivs() {
 <div id="ref-LH06b">
 <p>LaRowe DE, Helgeson HC. 2006b. The energetics of metabolism in hydrothermal systems: Calculation of the standard molal thermodynamic properties of magnesium-complexed adenosine nucleotides and NAD and NADP at elevated temperatures and pressures. <em>Thermochimica Acta</em> <strong>448</strong>(2): 82–106. doi: <a href="https://doi.org/10.1016/j.tca.2006.06.008">10.1016/j.tca.2006.06.008</a></p>
 </div>
+<div id="ref-LBP24">
+<p>Laskar C, Bazarkina EF, Pokrovski GS. 2024. The role of sulfur in palladium transport and fractionation from platinum by hydrothermal fluids. <em>Geochimica et Cosmochimica Acta</em>. doi: <a href="https://doi.org/10.1016/j.gca.2024.12.019">10.1016/j.gca.2024.12.019</a></p>
+</div>
 <div id="ref-LRB09">
 <p>Lemke KH, Rosenbauer RJ, Bird DK. 2009. Peptide synthesis in early earth hydrothermal systems. <em>Astrobiology</em> <strong>9</strong>(2): 141–146. doi: <a href="https://doi.org/10.1089/ast.2008.0166">10.1089/ast.2008.0166</a></p>
+</div>
+<div id="ref-LS20">
+<p>Leong JAM, Shock EL. 2020. Thermodynamic constraints on the geochemistry of low-temperature, continental, serpentinization-generated fluids. <em>American Journal of Science</em> <strong>320</strong>(3): 185–235. doi: <a href="https://doi.org/10.2475/03.2020.01">10.2475/03.2020.01</a></p>
 </div>
 <div id="ref-LBT+11">
 <p>Liu W, Borg SJ, Testemale D, Etschmann B, Hazemann J-L, Brugger J. 2011. Speciation and thermodynamic properties for cobalt chloride complexes in hydrothermal fluids at 35–440 °C and 600 bar: An <em>in-situ</em> XAS study. <em>Geochimica et Cosmochimica Acta</em> <strong>75</strong>(5): 1227–1248. doi: <a href="https://doi.org/10.1016/j.gca.2010.12.002">10.1016/j.gca.2010.12.002</a></p>
@@ -1184,6 +1328,12 @@ function CloseAllDivs() {
 </div>
 <div id="ref-LXW21">
 <p>Liu X, Xiao C, Wang Y. 2021. The relative solubilities of wolframite and scheelite in hydrothermal fluids: Insights from thermodynamic modeling. <em>Chemical Geology</em> <strong>584</strong>: 120488. doi: <a href="https://doi.org/10.1016/j.chemgeo.2021.120488">10.1016/j.chemgeo.2021.120488</a></p>
+</div>
+<div id="ref-LYX23">
+<p>Liu X, Yu P, Xiao C. 2023. Tin transport and cassiterite precipitation from hydrothermal fluids. <em>Geoscience Frontiers</em> <strong>14</strong>(6): 101624. doi: <a href="https://doi.org/10.1016/j.gsf.2023.101624">10.1016/j.gsf.2023.101624</a></p>
+</div>
+<div id="ref-LMW+13">
+<p>Loges A, Migdisov AA, Wagner T, Williams-Jones AE, Markl G. 2013. An experimental study of the aqueous solubility and speciation of Y(III) fluoride at temperatures up to 250°C. <em>Geochimica et Cosmochimica Acta</em> <strong>123</strong>: 403–415. doi: <a href="https://doi.org/10.1016/j.gca.2013.07.031">10.1016/j.gca.2013.07.031</a></p>
 </div>
 <div id="ref-LCT17">
 <p>Lowe AR, Cox JS, Tremaine PR. 2017. Thermodynamics of aqueous adenine: Standard partial molar volumes and heat capacities of adenine, adeninium chloride, and sodium adeninate from <span class="math inline"><em>T</em></span> = 278.15 K to 393.15 K. <em>Journal of Chemical Thermodynamics</em> <strong>112</strong>: 129–145. doi: <a href="https://doi.org/10.1016/j.jct.2017.04.005">10.1016/j.jct.2017.04.005</a></p>
@@ -1209,11 +1359,23 @@ function CloseAllDivs() {
 <div id="ref-MA10">
 <p>Marini L, Accornero M. 2010. Prediction of the thermodynamic properties of metal-arsenate and metal-arsenite aqueous complexes to high temperatures and pressures and some geological consequences (vol 52, pg 1343, 2007). <em>Environmental Earth Sciences</em> <strong>59</strong>(7): 1601–1606. doi: <a href="https://doi.org/10.1007/s12665-009-0369-x">10.1007/s12665-009-0369-x</a></p>
 </div>
+<div id="ref-MMO+11">
+<p>Málek J, Mitsuhashi T, Ohashi N, Taniguchi Y, Kawaji H, Atake T. 2011. Heat capacity and thermodynamic properties of germanium disulfide at temperatures from <em>T</em> = (2 to 1240) K. <em>The Journal of Chemical Thermodynamics</em> <strong>43</strong>(3): 405–409. doi: <a href="https://doi.org/10.1016/j.jct.2010.10.011">10.1016/j.jct.2010.10.011</a></p>
+</div>
 <div id="ref-MS97">
 <p>McCollom TM, Shock EL. 1997. Geochemical constraints on chemolithoautotrophic metabolism by microorganisms in seafloor hydrothermal systems. <em>Geochimica et Cosmochimica Acta</em> <strong>61</strong>(20): 4375–4391. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00241-X">10.1016/S0016-7037(97)00241-X</a></p>
 </div>
 <div id="ref-MVT01">
 <p>Mercury L, Vieillard P, Tardy Y. 2001. Thermodynamics of ice polymorphs and ‘ice-like’ water in hydrates and hydroxides. <em>Applied Geochemistry</em> <strong>16</strong>(2): 161–181. doi: <a href="https://doi.org/10.1016/S0883-2927(00)00025-1">10.1016/S0883-2927(00)00025-1</a></p>
+</div>
+<div id="ref-MWW09">
+<p>Migdisov AA, Williams-Jones AE, Wagner T. 2009. An experimental study of the solubility and speciation of the Rare Earth Elements (III) in fluoride- and chloride-bearing aqueous solutions at temperatures up to 300 °C. <em>Geochimica et Cosmochimica Acta</em> <strong>73</strong>(23): 7087–7109. doi: <a href="https://doi.org/10.1016/j.gca.2009.08.023">10.1016/j.gca.2009.08.023</a></p>
+</div>
+<div id="ref-MBA+24">
+<p>Migdisov A, Bastrakov E, Alcorn C, Reece M, Boukhalfa H, Caporuscio FA, Jove-Colon C. 2024. A spectroscopic study of the stability of uranyl-carbonate complexes at 25–150 °C and re-visiting the data available for uranyl-chloride, uranyl-sulfate, and uranyl-hydroxide species. <em>Geochimica et Cosmochimica Acta</em>. doi: <a href="https://doi.org/10.1016/j.gca.2024.04.023">10.1016/j.gca.2024.04.023</a></p>
+</div>
+<div id="ref-MWBC16">
+<p>Migdisov A, Williams-Jones AE, Brugger J, Caporuscio FA. 2016. Hydrothermal transport, deposition, and fractionation of the REE: Experimental data and thermodynamic calculations. <em>Chemical Geology</em> <strong>439</strong>: 13–42. doi: <a href="https://doi.org/10.1016/j.chemgeo.2016.06.005">10.1016/j.chemgeo.2016.06.005</a></p>
 </div>
 <div id="ref-MWKH16">
 <p>Miron GD, Wagner T, Kulik DA, Heinrich CA. 2016. Internally consistent thermodynamic data for aqueous species in the system Na–K–Al–Si–O–H–Cl. <em>Geochimica et Cosmochimica Acta</em> <strong>187</strong>: 41–78. doi: <a href="https://doi.org/10.1016/j.gca.2016.04.026">10.1016/j.gca.2016.04.026</a></p>
@@ -1221,8 +1383,17 @@ function CloseAllDivs() {
 <div id="ref-MWKL17">
 <p>Miron GD, Wagner T, Kulik DA, Lothenbach B. 2017. An internally consistent thermodynamic dataset for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl to 800 °C and 5 kbar. <em>American Journal of Science</em> <strong>317</strong>(7): 755–806. doi: <a href="https://doi.org/10.2475/07.2017.01">10.2475/07.2017.01</a></p>
 </div>
+<div id="ref-MK04">
+<p>Morss LR, Konings RJM. 2004. Thermochemistry of binary rare earth oxides. In: Adachi G; Imanaka N; Kang ZC, editors. <em>Binary Rare Earth Oxides</em>. Dordrecht: Springer Netherlands. pp. 163–188. doi: <a href="https://doi.org/10.1007/1-4020-2569-6_7">10.1007/1-4020-2569-6_7</a></p>
+</div>
 <div id="ref-MS99">
 <p>Murphy WM, Shock EL. 1999. Environmental aqueous geochemistry of actinides. <em>Reviews in Mineralogy and Geochemistry</em> <strong>38</strong>(1): 221–253.</p>
+</div>
+<div id="ref-NRK74">
+<p>Naumov GB, Ryzhenko BN, Khodakovsky IL. 1974. <em>Handbook of Thermodynamic Data</em>. Barnes I; Speltz V, editors. Menlo Park, Calif.: U.S. Geological Survey, Water Resources Division. (Vol. PB-226 722/7GA). Available at <a href="https://www.worldcat.org/oclc/8139446">https://www.worldcat.org/oclc/8139446</a>. </p>
+</div>
+<div id="ref-NLM+15">
+<p>Navrotsky A, Lee W, Mielewczyk-Gryn A, Ushakov SV, Anderko A, Wu H, Riman RE. 2015. Thermodynamics of solid phases containing rare earth oxides. <em>The Journal of Chemical Thermodynamics</em> <strong>88</strong>: 126–141. doi: <a href="https://doi.org/10.1016/j.jct.2015.04.008">10.1016/j.jct.2015.04.008</a></p>
 </div>
 <div id="ref-NA03">
 <p>Nordstrom DK, Archer DG. 2003. Arsenic thermodynamic data and environmental geochemistry. In: Welch AH; Stollenwerk KG, editors. <em>Arsenic in Groundwater</em>. New York: Springer. pp. 1–25. doi: <a href="https://doi.org/10.1007/0-306-47956-7_1">10.1007/0-306-47956-7_1</a></p>
@@ -1230,11 +1401,11 @@ function CloseAllDivs() {
 <div id="ref-Noy07">
 <p>Noyes AA. 1907. <em>The Electrical Conductivity of Aqueous Solutions: A Report</em>. Carnegie Inst. of Wash. (Vol. 63).</p>
 </div>
-<div id="ref-proton">
-<p>OBIGT. 1997. Hydrogen-ion convention. OBIGT database in CHNOSZ.</p>
+<div id="ref-OBIGT06">
+<p>OBIGT database in CHNOSZ. 2006. The standard entropy of <em>e</em><sup>-</sup> is assigned to be half that of H<sub>2</sub>(g) as implied by the hydrogen ion convention.</p>
 </div>
-<div id="ref-electron">
-<p>OBIGT. 2006. Non-zero entropy of the electron based on the hydrogen-ion convention. OBIGT database in CHNOSZ.</p>
+<div id="ref-OBIGT25">
+<p>OBIGT database in CHNOSZ. 2025. Corrected Δ<em>H</em>°<sub><em>f</em></sub> by -7335 cal/mol to maintain GHS consistency for In<sup>+3</sup> and derived species.</p>
 </div>
 <div id="ref-OH88">
 <p>Oelkers EH, Helgeson HC. 1988. Calculation of the thermodynamic and transport properties of aqueous species at high pressures and temperatures: Dissociation constants for supercritical alkali metal halides at temperatures from 400 to 800°C and pressures from 500 to 4000 bars. <em>Journal of Physical Chemistry</em> <strong>92</strong>(6): 1631–1639. doi: <a href="https://doi.org/10.1021/j100317a049">10.1021/j100317a049</a></p>
@@ -1242,11 +1413,17 @@ function CloseAllDivs() {
 <div id="ref-OH90">
 <p>Oelkers EH, Helgeson HC. 1990. Triple-ion anions and polynuclear complexing in supercritical electrolyte solutions. <em>Geochimica et Cosmochimica Acta</em> <strong>54</strong>(3): 727–738. doi: <a href="https://doi.org/10.1016/0016-7037(90)90368-U">10.1016/0016-7037(90)90368-U</a></p>
 </div>
+<div id="ref-OC95">
+<p>O’Hare PAG, Curtiss LA. 1995. Thermochemistry of (germanium + sulfur): IV. Critical evaluation of the thermodynamic properties of solid and gaseous germanium(II) sulfide GeS and germanium(IV) disulfide GeS<sub>2</sub>, and digermanium disulfide Ge<sub>2</sub>S<sub>2</sub>(g). Enthalpies of dissociation of bonds in GeS(g), GeS<sub>2</sub>(g), and Ge<sub>2</sub>S<sub>2</sub>(g). <em>The Journal of Chemical Thermodynamics</em> <strong>27</strong>(6): 643–662. doi: <a href="https://doi.org/10.1006/jcht.1995.0066">10.1006/jcht.1995.0066</a></p>
+</div>
 <div id="ref-Pan70">
 <p>Pankratz LB. 1970. <em>Thermodynamic Data for Silver Chloride and Silver Bromide</em>. U. S. Bureau of Mines. (Report of investigations; Vol. 7430). Available at <a href="https://www.worldcat.org/oclc/14154245">https://www.worldcat.org/oclc/14154245</a>. </p>
 </div>
+<div id="ref-Pan82">
+<p>Pankratz LB. 1982. <em>Thermodynamic Properties of Elements and Oxides</em>. Bureau of Mines. (Bulletin; Vol. 672). Available at <a href="https://www.worldcat.org/oclc/8476714">https://www.worldcat.org/oclc/8476714</a>. </p>
+</div>
 <div id="ref-PK70">
-<p>Pankratz LB, King EG. 1970. <em>High-Temperature Enthalpies and Entropies of Chalcopyrite and Bornite</em>. U. S. Bureau of Mines. (Report of investigations; Vol. 7435). Available at <a href="https://hdl.handle.net/2027/mdp.39015078533158">https://hdl.handle.net/2027/mdp.39015078533158</a>. </p>
+<p>Pankratz LB, King EG. 1970. <em>High-Temperature Enthalpies and Entropies of Chalcopyrite and Bornite</em>. U. S. Bureau of Mines. (Report of investigations; Vol. 7435). Available at <a href="https://www.worldcat.org/oclc/14154292">https://www.worldcat.org/oclc/14154292</a>. </p>
 </div>
 <div id="ref-PMW87">
 <p>Pankratz LB, Mah AD, Watson SW. 1987. <em>Thermodynamic Properties of Sulfides</em>. United States Department of the Interior, Bureau of Mines. (Bulletin; Vol. 689). Available at <a href="https://www.worldcat.org/oclc/16131757">https://www.worldcat.org/oclc/16131757</a>. </p>
@@ -1269,6 +1446,9 @@ function CloseAllDivs() {
 <div id="ref-PD15">
 <p>Pokrovski GS, Dubessy J. 2015. Stability and abundance of the trisulfur radical ion in hydrothermal fluids. <em>Earth and Planetary Science Letters</em> <strong>411</strong>: 298–309. doi: <a href="https://doi.org/10.1016/j.epsl.2014.11.035">10.1016/j.epsl.2014.11.035</a></p>
 </div>
+<div id="ref-PS98">
+<p>Pokrovski GS, Schott J. 1998. Thermodynamic properties of aqueous Ge(IV) hydroxide complexes from 25 to 350°C: Implications for the behavior of germanium and the Ge/Si ratio in hydrothermal fluids. <em>Geochimica et Cosmochimica Acta</em> <strong>62</strong>(9): 1631–1642. doi: <a href="https://doi.org/10.1016/S0016-7037(98)00081-7">10.1016/S0016-7037(98)00081-7</a></p>
+</div>
 <div id="ref-PH95">
 <p>Pokrovskii VA, Helgeson HC. 1995. Thermodynamic properties of aqueous species and the solubilities of minerals at high pressures and temperatures: The system Al<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>-H<span class="math inline"><em></em><sub>2</sub></span>O-NaCl. <em>American Journal of Science</em> <strong>295</strong>(10): 1255–1342. doi: <a href="https://doi.org/10.2475/ajs.295.10.1255">10.2475/ajs.295.10.1255</a></p>
 </div>
@@ -1277,6 +1457,9 @@ function CloseAllDivs() {
 </div>
 <div id="ref-Pol90">
 <p>Polya DA. 1990. Pressure-dependence of wolframite solubility for hydrothermal vein formation. <em>Trans Inst Min Metall, Sect B</em> <strong>99</strong>: B120–B124.</p>
+</div>
+<div id="ref-PK06">
+<p>Popa K, Konings RJM. 2006. High-temperature heat capacities of EuPO<sub>4</sub> and SmPO<sub>4</sub> synthetic monazites. <em>Thermochimica Acta</em> <strong>445</strong>(1): 49–52. doi: <a href="https://doi.org/10.1016/j.tca.2006.03.023">10.1016/j.tca.2006.03.023</a></p>
 </div>
 <div id="ref-PSK99">
 <p>Prapaipong P, Shock EL, Koretsky CM. 1999. Metal-organic complexes in geochemical processes: Temperature dependence of the standard thermodynamic properties of aqueous complexes between metal cations and dicarboxylate ligands. <em>Geochimica et Cosmochimica Acta</em> <strong>63</strong>(17): 2547–2577. doi: <a href="https://doi.org/10.1016/S0016-7037(99)00146-5">10.1016/S0016-7037(99)00146-5</a></p>
@@ -1299,11 +1482,17 @@ function CloseAllDivs() {
 <div id="ref-RH98">
 <p>Richard L, Helgeson HC. 1998. Calculation of the thermodynamic properties at elevated temperatures and pressures of saturated and aromatic high molecular weight solid and liquid hydrocarbons in kerogen, bitumen, petroleum, and other organic matter of biogeochemical interest. <em>Geochimica et Cosmochimica Acta</em> <strong>62</strong>(23-24): 3591–3636. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00345-1">10.1016/S0016-7037(97)00345-1</a></p>
 </div>
+<div id="ref-RH72">
+<p>Robie RA, Hemingway BS. 1972. The heat capacities at low temperatures and entropies at 298.15 K of nesquehonite, MgCO<sub>3</sub>·3H<sub>2</sub>O, and hydromagnesite. <em>American Mineralogist</em> <strong>57</strong>: 1768–1781.</p>
+</div>
 <div id="ref-RH95">
 <p>Robie RA, Hemingway BS. 1995. <em>Thermodynamic Properties of Minerals and Related Substances at 298.15 K and 1 Bar (10<sup>5</sup> Pascals) Pressure and at Higher Temperatures</em>. Washington, D.C.: U.S. Geological Survey. (Bulletin 2131). doi: <a href="https://doi.org/10.3133/b2131">10.3133/b2131</a></p>
 </div>
 <div id="ref-RHF78">
 <p>Robie RA, Hemingway BS, Fisher JR. 1978. <em>Thermodynamic Properties of Minerals and Related Substances at 298.15 K and 1 Bar (<span class="math inline">10<sup>5</sup></span> Pascals) Pressure and at Higher Temperatures</em>. U. S. Geological Surv. (Bulletin 1452). doi: <a href="https://doi.org/10.3133/b1452">10.3133/b1452</a></p>
+</div>
+<div id="ref-RSS+24">
+<p>Robinson KJ, Seewald JS, Sylva SP, Fecteau KM, Shock EL. 2024. Thermodynamic property estimations for aqueous primary, secondary, and tertiary alkylamines, benzylamines, and their corresponding aminiums across temperature and pressure are validated by measurements from experiments. <em>Geochimica et Cosmochimica Acta</em> <strong>372</strong>: 62–80. doi: <a href="https://doi.org/10.1016/j.gca.2024.03.013">10.1016/j.gca.2024.03.013</a></p>
 </div>
 <div id="ref-RS87">
 <p>Ruaya JR, Seward TM. 1987. The ion-pair constant and other thermodynamic properties of HCl up to 350°C. <em>Geochimica et Cosmochimica Acta</em> <strong>51</strong>(1): 121–130. doi: <a href="https://doi.org/10.1016/0016-7037(87)90013-5">10.1016/0016-7037(87)90013-5</a></p>
@@ -1368,14 +1557,17 @@ function CloseAllDivs() {
 <div id="ref-SSWS97">
 <p>Shock EL, Sassani DC, Willis M, Sverjensky DA. 1997b. Inorganic species in geologic fluids: Correlations among standard molal thermodynamic properties of aqueous ions and hydroxide complexes. <em>Geochimica et Cosmochimica Acta</em> <strong>61</strong>(5): 907–950. doi: <a href="https://doi.org/10.1016/S0016-7037(96)00339-0">10.1016/S0016-7037(96)00339-0</a></p>
 </div>
+<div id="ref-SB99">
+<p>Shvarov Y, Bastrakov E. 1999. <em>HCh: A Software Package for Geochemical Equilibrium Modelling. User’s Guide</em>. Australian Geological Survey Organisation, Record 1999/25. Available at <a href="https://pid.geoscience.gov.au/dataset/ga/25473">https://pid.geoscience.gov.au/dataset/ga/25473</a>. </p>
+</div>
+<div id="ref-Shv08">
+<p>Shvarov YV. 2008. HCh: New potentialities for the thermodynamic simulation of geochemical systems offered by Windows. <em>Geochemistry International</em> <strong>46</strong>(8): 834–839. doi: <a href="https://doi.org/10.1134/S0016702908080089">10.1134/S0016702908080089</a></p>
+</div>
 <div id="ref-ST97">
 <p>Shvedov D, Tremaine PR. 1997. Thermodynamic properties of aqueous dimethylamine and dimethylammonium chloride at temperatures from 283 K to 523 K: Apparent molar volumes, heat capacities, and temperature dependence of ionization. <em>Journal of Solution Chemistry</em> <strong>26</strong>(12): 1113–1143. doi: <a href="https://doi.org/10.1023/A:1022977006327">10.1023/A:1022977006327</a></p>
 </div>
 <div id="ref-SH77">
 <p>Siebert RM, Hostetler PB. 1977. The stability of the magnesium bicarbonate ion pair from 10° to 90°C. <em>American Journal of Science</em> <strong>277</strong>(6): 697–715. doi: <a href="https://doi.org/10.2475/ajs.277.6.697">10.2475/ajs.277.6.697</a></p>
-</div>
-<div id="ref-SLOP07">
-<p>slop07.dat. 2007. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 2008-04-17. Accessed on 2019-04-08. doi: <a href="https://doi.org/10.5281/zenodo.2630820">10.5281/zenodo.2630820</a></p>
 </div>
 <div id="ref-SLOP16">
 <p>slop16.dat. 2016. Sequential-access thermodynamic datafile used by PROGRAM supcrt92. Last updated on 2019-03-12. Accessed on 2019-04-08. doi: <a href="https://doi.org/10.5281/zenodo.2630820">10.5281/zenodo.2630820</a></p>
@@ -1410,6 +1602,12 @@ function CloseAllDivs() {
 <div id="ref-SSH97">
 <p>Sverjensky DA, Shock EL, Helgeson HC. 1997. Prediction of the thermodynamic properties of aqueous metal complexes to 1000°C and 5 kb. <em>Geochimica et Cosmochimica Acta</em> <strong>61</strong>(7): 1359–1412. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00009-4">10.1016/S0016-7037(97)00009-4</a></p>
 </div>
+<div id="ref-TAT+24">
+<p>Tagirov BR, Akinfiev NN, Tarnopolskaia ME, Nikolaeva IY, Zlivko IY, Volchenkova VA, Koroleva LA, Zotov AV. 2024a. Gold in sulfide fluids revisited. <em>Geochimica et Cosmochimica Acta</em>. doi: <a href="https://doi.org/10.1016/j.gca.2024.08.022">10.1016/j.gca.2024.08.022</a></p>
+</div>
+<div id="ref-TAZ24">
+<p>Tagirov BR, Akinfiev NN, Zotov AV. 2024b. Gold(I) complexation in chloride hydrothermal fluids. <em>Geology of Ore Deposits</em> <strong>66</strong>(5): 581–597. doi: <a href="https://doi.org/10.1134/S1075701524600403">10.1134/S1075701524600403</a></p>
+</div>
 <div id="ref-TBB15">
 <p>Tagirov BR, Baranova NN, Bychkova YV. 2015. Thermodynamic properties of platinum chloride complexes in aqueous solutions: Derivation of consistent parameters from literature data and experiments on Pt<span class="math inline"><em></em><sub>(cr)</sub></span> solubility at 400–475°C and 1 kbar. <em>Geochemistry International</em> <strong>53</strong>(4): 327–340. doi: <a href="https://doi.org/10.1134/S0016702915040084">10.1134/S0016702915040084</a></p>
 </div>
@@ -1430,6 +1628,9 @@ function CloseAllDivs() {
 </div>
 <div id="ref-TSD97">
 <p>Tardy Y, Schaul R, Duplay J. 1997. Domaines de stabilité thermodynamiques des humus, de la microflore et des plantes. <em>Comptes Rendus de l’Academie des Sciences, Serie IIa: Sciences de la Terre et des Planetes</em> <strong>324</strong>(12): 969–976. doi: <a href="https://doi.org/10.1016/S1251-8050(97)83981-X">10.1016/S1251-8050(97)83981-X</a></p>
+</div>
+<div id="ref-TTA+23">
+<p>Trofimov ND, Tagirov BR, Akinfiev NN, Reukov VL, Nickolsky MS, Nikolaeva IY, Tarnopolskaya ME, Afanasyev AA. 2023. Chalcocite Cu<sub>2</sub>S solubility in aqueous sulfide and chloride fluids. Thermodynamic properties of copper(I) aqueous species and copper transport in hydrothermal systems. <em>Chemical Geology</em> <strong>625</strong>: 121413. doi: <a href="https://doi.org/10.1016/j.chemgeo.2023.121413">10.1016/j.chemgeo.2023.121413</a></p>
 </div>
 <div id="ref-TKSS14">
 <p>Tutolo BM, Kong X-Z, Seyfried J William E., Saar MO. 2014. Internal consistency in aqueous geochemical data revisited: Applications to the aluminum system. <em>Geochimica et Cosmochimica Acta</em> <strong>133</strong>: 216–234. doi: <a href="https://doi.org/10.1016/j.gca.2014.02.036">10.1016/j.gca.2014.02.036</a></p>

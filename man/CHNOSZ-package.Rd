@@ -2,7 +2,7 @@
 \name{CHNOSZ-package}
 \alias{CHNOSZ-package}
 \docType{package}
-\title{Thermodynamic Calculations and Diagrams for Geochemistry}
+\title{Thermodynamic calculations and diagrams for geochemistry}
 \description{
 CHNOSZ is a package for thermodynamic calculations, primarily with applications in geochemistry and compositional biology.
 It can be used to calculate the standard molal thermodynamic properties and chemical affinities of reactions relevant to geobiochemical processes, and to visualize the equilibrium activities of species on chemical speciation and predominance diagrams.
@@ -24,7 +24,7 @@ Each help page (other than this one) has been given one of the following \dQuote
   \item Thermodynamic data: \code{\link{data}}, \code{\link{extdata}}, \code{\link{add.OBIGT}}, \code{\link{util.data}}
   \item Thermodynamic calculations: \code{\link{util.formula}}, \code{\link{makeup}}, \code{\link{util.units}}, \code{\link{Berman}}, \code{\link{nonideal}}, \code{\link{util.misc}}
   \item Water properties: \code{\link{water}}, \code{\link{util.water}}, \code{\link{DEW}}, \code{\link{IAPWS95}}
-  \item Protein properties: \code{\link{protein.info}}, \code{\link{add.protein}}, \code{\link{util.fasta}}, \code{\link{util.protein}}, \code{\link{util.seq}}, \code{\link{ionize.aa}}
+  \item Protein properties: \code{\link{protein.info}}, \code{\link{add.protein}}, \code{\link{util.protein}}, \code{\link{util.seq}}, \code{\link{ionize.aa}}
   \item Other tools: \code{\link{examples}}, \code{\link{taxonomy}}
   \item Utility functions: \code{\link{util.expression}}, \code{\link{util.plot}}, \code{\link{util.array}}, \code{\link{util.list}}, \code{\link{palply}}
 }

@@ -1,6 +1,6 @@
 ****************************
 Release checklist for CHNOSZ
-   (updated 2024-02-11)
+   (updated 2024-12-25)
 ****************************
 
 - Run examples() and demos() and inspect their output (especially plots)
@@ -19,24 +19,26 @@ Updating data in OBIGT
 - Add BibTeX references to vignettes/OBIGT.bib
   (used in the OBIGT.Rmd vignette).
 
-- Add references and notes to extdata/OBIGT/refs.csv
+- Add references and notes to extdata/thermo/refs.csv
   (also used in the OBIGT.Rmd vignette and thermo.refs()).
 
-- Check output of demo/sources.R to make sure all references
-  are cited (printed results should be character(0)).
+- Check output of demo/references.R to cross-check references in refs.csv with
+  OBIGT files.
 
 - Rebuild extdata/thermo/stoich.csv.xz after all data updates
   (used in retrieve() to search the databse by element):
-  formula <- thermo()$OBIGT$formula
-  stoich <- i2A(formula)
-  write.csv(stoich, "stoich.csv")
-  system("xz -f stoich.csv")
 
-- Rebuild extdata/adds/OBIGT_check.csv after all data updates:
+formula <- thermo()$OBIGT$formula
+stoich <- i2A(formula)
+write.csv(stoich, "stoich.csv")
+system("xz -f stoich.csv")
+
+- Rebuild extdata/misc/OBIGT_check.csv after all data updates:
   (not used elsewhere in CHNOSZ, but helpful to see which
   species entries have self inconsistencies):
-  co <- check.OBIGT()
-  write.csv(co, "OBIGT_check.csv", row.names = FALSE, na = "")
+
+co <- check.OBIGT()
+write.csv(co, "OBIGT_check.csv", row.names = FALSE, na = "")
 
 ***************
 R compatibility
@@ -75,5 +77,5 @@ Making vignettes for website (https://chnosz.net)
 
 - Build package after setting CHNOSZ_BUILD_LARGE_VIGNETTES environment variable.
 
-- Install the package and run doc/mklinks.sh within the installation directory.
+- Install the package and run doc/postprocess.sh within the installation directory.
   (this adds links to the HTML renditions of Rd files)

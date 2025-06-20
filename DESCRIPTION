@@ -1,15 +1,16 @@
-Date: 2024-02-11
+Date: 2025-06-20
 Package: CHNOSZ
-Version: 2.1.0
+Version: 2.2.0
 Title: Thermodynamic Calculations and Diagrams for Geochemistry
 Authors@R: c(
     person("Jeffrey", "Dick", , "j3ffdick@gmail.com", role = c("aut", "cre"),
       comment = c(ORCID = "0000-0002-0687-5890"))
     )
-Author: Jeffrey Dick [aut, cre] (<https://orcid.org/0000-0002-0687-5890>)
+Author: Jeffrey Dick [aut, cre] (ORCID:
+    <https://orcid.org/0000-0002-0687-5890>)
 Maintainer: Jeffrey Dick <j3ffdick@gmail.com>
 Depends: R (>= 3.1.0)
-Suggests: tinytest, knitr, rmarkdown, tufte
+Suggests: tinytest, knitr, rmarkdown, tufte, canprot (>= 2.0.0)
 Imports: grDevices, graphics, stats, utils
 Description: An integrated set of tools for thermodynamic calculations in
   aqueous geochemistry and geobiochemistry. Functions are provided for writing
@@ -30,9 +31,9 @@ Description: An integrated set of tools for thermodynamic calculations in
 Encoding: UTF-8
 License: GPL-3
 VignetteBuilder: knitr
-URL: https://www.chnosz.net/,
+URL: https://chnosz.net/,
         https://r-forge.r-project.org/projects/chnosz/
 NeedsCompilation: yes
-Packaged: 2024-02-11 13:02:38 UTC; jedick
+Packaged: 2025-06-19 23:40:45 UTC; jedick
 Repository: CRAN
-Date/Publication: 2024-02-11 13:40:02 UTC
+Date/Publication: 2025-06-20 04:50:06 UTC

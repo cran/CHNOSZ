@@ -2,22 +2,6 @@
 # Calculate properties of proteins 20061109 jmd
 # Reorganize protein functions 20120513
 
-# Count numbers of amino acids in a sequence
-seq2aa <- function(sequence, protein = NA) {
-  # Remove newlines and whitespace
-  sequence <- gsub("\\s", "", gsub("[\r\n]", "", sequence))
-  # Make a data frame from counting the amino acids in the sequence
-  caa <- count.aa(sequence)
-  colnames(caa) <- aminoacids(3)
-  # Now make the data frame
-  po <- strsplit(as.character(protein), "_")[[1]]
-  aa <- data.frame(protein = po[1], organism = po[2], ref = NA, abbrv = NA, stringsAsFactors = FALSE)
-  # chains = 1 for any sequence, chains = 0 for no sequence
-  chains <- sum(nchar(sequence) > 0)
-  aa <- cbind(aa, chains = chains, caa)
-  return(aa)
-}
-
 # Add amino acid counts to thermo()$protein (returns iprotein)
 add.protein <- function(aa, as.residue = FALSE) {
   # Add a properly constructed data frame of 
@@ -50,36 +34,5 @@ add.protein <- function(aa, as.residue = FALSE) {
   if(!all(ip.present)) message("add.protein: added ", nrow(aa)-sum(ip.present), " new protein(s) to thermo()$protein")
   if(any(ip.present)) message("add.protein: replaced ", sum(ip.present), " existing protein(s) in thermo()$protein")
   return(ip)
-}
-
-# Combine amino acid counts (sum, average, or weighted sum by abundance)
-aasum <- function(aa, abundance = 1, average = FALSE, protein = NULL, organism = NULL) {
-  # Returns the sum of the amino acid counts in aa,
-  #   multiplied by the abundances of the proteins
-  abundance <- rep(abundance, length.out = nrow(aa))
-  # Drop any NA rows or abundances
-  ina.aa <- is.na(aa$chains)
-  ina.ab <- is.na(abundance)
-  ina <- ina.aa | ina.ab
-  if(any(ina)) {
-    aa <- aa[!ina, ]
-    abundance <- abundance[!ina]
-    message("aasum: dropped ", sum(ina), " proteins with NA composition and/or abundance")
-  }
-  # Multiply
-  aa[, 6:25] <- aa[, 6:25] * abundance
-  # Sum
-  out <- aa[1, ]
-  out[, 5:25] <- colSums(aa[, 5:25])
-  # Average if told to do so
-  if(average) {
-    # Polypeptide chains by number of proteins, residues by frequency
-    out[, 5] <- out[, 5]/nrow(aa)
-    out[, 6:25] <- out[, 6:25]/sum(abundance)
-  }
-  # Add protein and organism names if given
-  if(!is.null(protein)) out$protein <- protein
-  if(!is.null(organism)) out$organism <- organism
-  return(out)
 }
 

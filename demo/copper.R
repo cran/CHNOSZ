@@ -1,12 +1,13 @@
 # CHNOSZ/demo/copper.R
-## Eh-pH diagrams for copper-water-glycine
-## After Fig. 2 of Aksu and Doyle, 2001
-## (Aksu, S. and Doyle, F. M., 2001. Electrochemistry of copper in aqueous glycine 
-## solutions. J. Electrochem. Soc., 148, B51-B57. doi:10.1149/1.1344532)
+# Eh-pH diagrams for copper-water-glycine
+# After Fig. 2 of Aksu and Doyle, 2001
+# (Aksu, S. and Doyle, F. M., 2001. Electrochemistry of copper in aqueous glycine 
+# solutions. J. Electrochem. Soc., 148, B51-B57. doi:10.1149/1.1344532)
+
 library(CHNOSZ)
 
 # We need data for Cu-Gly complexes 20190206
-add.OBIGT(system.file("extdata/adds/SK95.csv", package = "CHNOSZ"))
+add.OBIGT(system.file("extdata/misc/SK95.csv", package = "CHNOSZ"))
 # Add some new species to thermo()$OBIGT
 m1 <- makeup(info(c("Cu+", "glycinate", "glycinate")), sum = TRUE)
 mod.OBIGT(name = "Cu(Gly)2-", formula = as.chemical.formula(m1))

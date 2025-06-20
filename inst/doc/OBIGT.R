@@ -3,24 +3,38 @@ library(CHNOSZ)
 reset()
 
 ## ----setfile, include=FALSE---------------------------------------------------
-# Assign the file name to a variable and print the file name and number of species
+# Assign the file name to the parent frame and return the name and number of species
 setfile <- function(csvfile, dat=NULL) {
   # Assign csvfile outside this function
   assign("csvfile", csvfile, parent.frame())
-  file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
-  dat <- read.csv(file, as.is=TRUE)
-  ## Exclude entries for high-T polymorphs
-  #dat <- dat[!dat$state %in% c("cr2", "cr3", "cr4", "cr5", "cr6", "cr7", "cr8", "cr9"), ]
-  # The state and class of substance (used as section header), followed by number of species
-  basename <- gsub(".csv", "", csvfile)
-  class <- strsplit(basename, "_")[[1]][1]
-  substr(class, 1, 1) <- toupper(substr(class, 1, 1))
-  state <- strsplit(basename, "_")[[1]][2]
-  if(identical(state, "aq")) state <- "Aqueous "
-  else if(identical(state, "cr")) state <- "Solid "
-  else if(identical(state, "gas")) state <- "Gas "
-  else if(identical(state, "liq")) state <- "Liquid "
-  else state <- "Optional "
+  if(csvfile == "testing") {
+    # Deal with testing optional data files as a group
+    testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+    testing_list <- lapply(testing_files, function(file) {
+      dat <- read.csv(file, as.is = TRUE)
+      source <- gsub(".csv", "", basename(file))
+      cbind(source = source, dat)
+    })
+    dat <- do.call(rbind, testing_list)
+    state <- "Optional "
+    class <- "Testing"
+  } else {
+    # Deal with individual optional data files
+    file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
+    dat <- read.csv(file, as.is=TRUE)
+    ## Exclude entries for high-T polymorphs
+    #dat <- dat[!dat$state %in% c("cr2", "cr3", "cr4", "cr5", "cr6", "cr7", "cr8", "cr9"), ]
+    # The state and class of substance (used as section header), followed by number of species
+    basename <- gsub(".csv", "", csvfile)
+    class <- strsplit(basename, "_")[[1]][1]
+    substr(class, 1, 1) <- toupper(substr(class, 1, 1))
+    state <- strsplit(basename, "_")[[1]][2]
+    if(identical(state, "aq")) state <- "Aqueous "
+    else if(identical(state, "cr")) state <- "Solid "
+    else if(identical(state, "gas")) state <- "Gas "
+    else if(identical(state, "liq")) state <- "Liquid "
+    else state <- "Optional "
+  }
   paste0(state, class, " (", nrow(dat), " species)")
 }
 
@@ -30,8 +44,19 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
   whichref <- "ref2"
   # Without dat, look for ref1 in csvfile
   if(is.null(dat)) {
-    file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
-    dat <- read.csv(file, as.is=TRUE)
+    if(csvfile == "testing") {
+      # Deal with testing optional data files as a group
+      testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+      testing_list <- lapply(testing_files, function(file) {
+        dat <- read.csv(file, as.is = TRUE)
+        source <- gsub(".csv", "", basename(file))
+        cbind(source = source, dat)
+      })
+      dat <- do.call(rbind, testing_list)
+    } else {
+      file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
+      dat <- read.csv(file, as.is=TRUE)
+    }
     whichref <- "ref1"
   }
   ## Exclude entries for high-T polymorphs
@@ -59,7 +84,7 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
     if(!identical(note, "")) note <- paste0(" *", note, "* ")
     # Use bullets for ref2
     if(whichref=="ref2") bullet <- "- " else bullet <- ""
-    # Convert key (e.g. LD12.2) to ref in OBIGT.bib (e.g. LD12)
+    # Convert key with subreference (e.g. LD12.2) to reference in OBIGT.bib (e.g. LD12)
     thisref <- gsub("\\..*$", "", thiskey)
     # Replace SLOP98 with slop98.dat, etc.
     # (we don't actually cite them here to keep the year from showing -- it's annoying to see e.g. "slop98.dat (1998)")
@@ -109,9 +134,6 @@ used <- c(used, filerefs(csvfile))
 
 ## ----reflist, results="asis", echo=FALSE--------------------------------------
 used <- c(used, filerefs(csvfile))
-
-## ----optreflist, results="asis", echo=FALSE-----------------------------------
-optused <- c(optused, filerefs(csvfile))
 
 ## ----optreflist, results="asis", echo=FALSE-----------------------------------
 optused <- c(optused, filerefs(csvfile))

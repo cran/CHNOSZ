@@ -2,7 +2,7 @@
 \name{extdata}
 \alias{extdata}
 \docType{data}
-\title{Extra Data}
+\title{Extra data}
 
 \description{
   The files in the subdirectories of \code{extdata} provide additional thermodynamic data and other data to support the examples in the package documentation and vignettes. 
@@ -22,31 +22,25 @@
     \item The \code{testing} directory contains data files based on Berman and Aranovich (1996). These are used to demonstrate the addition of data from a user-supplied file (see \code{\link{Berman}}).
   }
 
-  Files in \code{cpetc} contain experimental and calculated thermodynamic and environmental data:
-  \itemize{
-    \item \code{PM90.csv} Heat capacities of four unfolded aqueous proteins taken from Privalov and Makhatadze, 1990. Temperature in \degC is in the first column, and heat capacities of the proteins in J mol\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} in the remaining columns. See \code{\link{ionize.aa}} and the vignette \viglink{anintro} for examples that use this file.
-    \item \code{RH95.csv} Heat capacity data for iron taken from Robie and Hemingway, 1995. Temperature in Kelvin is in the first column, heat capacity in J K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} in the second. See \code{\link{subcrt}} for an example that uses this file.
-    \item \code{SOJSH.csv} Experimental equilibrium constants for the reaction NaCl(aq) = Na+ + Cl- as a function of temperature and pressure taken from Fig. 1 of Shock et al., 1992. See \code{demo("NaCl")} for an example that uses this file.
-    \item \code{HWM96_V.csv}, \code{HW97_Cp.csv} Apparent molar volumes and heat capacities of \CH4, \CO2, \H2S, and \NH3 in dilute aqueous solutions reported by Hnědkovský et al., 1996 and Hnědkovský and Wood, 1997. Units are Kelvin, MPa, J/K/mol, and cm3/mol. See \code{demo("AD")}, \code{\link{EOSregress}} and the vignette \viglink{eos-regress} for examples that use these files.
-    \item \code{SC10_Rainbow.csv} Values of temperature (\degC), pH and logarithms of activity of \CO2, \H2, \NH4plus, \H2S and \CH4 for mixing of seawater and hydrothermal fluid at Rainbow field (Mid-Atlantic Ridge), taken from Shock and Canovas, 2010. See the vignette \viglink{anintro} for an example that uses this file.
-    \item \code{SS98_Fig5a.csv}, \code{SS98_Fig5b.csv} Values of logarithm of fugacity of \O2 and pH as a function of temperature for mixing of seawater and hydrothermal fluid, digitized from Figs. 5a and b of Shock and Schulte, 1998. See the vignette \viglink{anintro} for an example that uses this file.
-    \item \code{rubisco.csv} UniProt IDs for Rubisco, ranges of optimal growth temperature of organisms, domain and name of organisms, and URL of reference for growth temperature, from Dick, 2014. See \code{\link{rank.affinity}} and the vignette \viglink{anintro} for examples that use this file.
-    \item \code{bluered.txt} Blue - light grey - red color palette, computed using \CRANpkg{colorspace}\code{::diverge_hcl(1000,} \code{c = 100, l = c(50, 90), power = 1)}. This is used by \code{\link{ZC.col}}.
-    \item \code{AD03_Fig1?.csv} Experimental data points digitized from Figure 1 of Akinfiev and Diamond, 2003, used in \code{demo("AD")}.
-    \item \code{TKSS14_Fig2.csv} Experimental data points digitized from Figure 2 of Tutolo et al., 2014, used in \code{demo("aluminum")}.
-    \item \code{Mer75_Table4.csv} Values of log(aK+/aH+) and log(aNa+/aH+) from Table 4 of Merino, 1975, used in \code{demo("aluminum")}.
-  }
-
   Files in \code{protein} contain protein sequences and amino acid compositions for proteins.
   \itemize{
-    \item \code{EF-Tu.aln} consists of aligned sequences (394 amino acids) of elongation factor Tu (EF-Tu). The sequences correspond to those taken from UniProtKB for ECOLI (\emph{Escherichia coli}), THETH (\emph{Thermus thermophilus}) and THEMA (\emph{Thermotoga maritima}), and reconstructed ancestral sequences taken from Gaucher et al., 2003 (maximum likelihood bacterial stem and mesophilic bacterial stem, and alternative bacterial stem). See \code{\link{read.fasta}} for an example that uses this file.
-    \item \code{rubisco.fasta} Sequences of Rubisco obtained from UniProt (see Dick, 2014). See the vignette \viglink{anintro} for an example that uses this file.
+    \item \code{rubisco.csv} UniProt IDs for Rubisco, ranges of optimal growth temperature of organisms, domain and name of organisms,
+    and URL for growth temperature reference, from Dick, 2014. See \code{\link{rank.affinity}} and \code{demo{"rubisco_ZC"}} for examples that use this file.
+    \item \code{rubisco.fasta} Sequences of Rubisco obtained from UniProt.
+    \item \code{rubisco_aa.fasta} Amino acid compositions of Rubisco.
     \item \code{POLG.csv}
       Amino acid compositions of a few proteins used for some tests and examples.
       These are various subunits of the Poliovirus type 1 polyprotein (POLG_POL1M in UniProt).
     \item \code{TBD+05.csv} lists genes with transcriptomic expression changes in carbon limitation stress response experiments in yeast (Tai et al., 2005).
     \item \code{TBD+05_aa.csv} has the amino acid compositions of proteins coded by those genes.
       The last two files are used in \code{demo{"rank.affinity"}}.
+    \item \code{Cas} has scripts and data files for amino acid compositions of CRISPR associated (Cas) proteins.
+    \itemize{
+      \item \file{Cas_uniprot.csv}: class, subtype, organism, locus tag, gene names, and effector proteins from Makarova et al. (2020); UniProt IDs found by searching databases.
+      \item \file{download.R}: script to download sequences in FASTA format from UniProt and UniParc.
+      \item \file{mkaa.R}: script to calculate amino acid compositions from FASTA files.
+      \item \file{Cas_aa.csv}: amino acid compositions generated by above script.
+    }
   }
 
   Files in \code{taxonomy} contain taxonomic data files:
@@ -54,15 +48,24 @@
     \item \code{names.dmp} and \code{nodes.dmp} are excerpts of NCBI taxonomy files (\url{https://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz}, accessed 2010-02-15). These files contain only the entries for \emph{Escherichia coli} K-12, \emph{Saccharomyces cerevisiae}, \emph{Homo sapiens}, \emph{Pyrococcus furisosus} and \emph{Methanocaldococcus jannaschii} (taxids 83333, 4932, 9606, 186497, 243232) and the higher-ranking nodes (genus, family, etc.) in the respective lineages. See \code{\link{taxonomy}} for examples that use these files.
   }
 
-  Files in \code{adds} contain additional thermodynamic data and group additivity definitions:
+  Files in \code{misc} contain miscellaneous data:
   \itemize{
+    \item \code{PM90.csv} Heat capacities of four unfolded aqueous proteins taken from Privalov and Makhatadze, 1990. Temperature in \degC is in the first column, and heat capacities of the proteins in J mol\eqn{^{-1}}{^-1} K\eqn{^{-1}}{^-1} in the remaining columns. See \code{\link{ionize.aa}} and the vignette \viglink{anintro} for examples that use this file.
+    \item \code{RH95.csv} Heat capacity data for iron taken from Robie and Hemingway, 1995. Temperature in Kelvin is in the first column, heat capacity in J K\eqn{^{-1}}{^-1} mol\eqn{^{-1}}{^-1} in the second. See \code{\link{subcrt}} for an example that uses this file.
+    \item \code{SOJSH.csv} Experimental equilibrium constants for the reaction NaCl(aq) = Na+ + Cl- as a function of temperature and pressure taken from Fig. 1 of Shock et al., 1992. See \code{demo("NaCl")} for an example that uses this file.
+    \item \code{HWM96_V.csv}, \code{HW97_Cp.csv} Apparent molar volumes and heat capacities of \CH4, \CO2, \H2S, and \NH3 in dilute aqueous solutions reported by Hnědkovský et al., 1996 and Hnědkovský and Wood, 1997. Units are Kelvin, MPa, J/K/mol, and cm3/mol. See \code{demo("AD")}, \code{\link{EOSregress}} and the vignette \viglink{eos-regress} for examples that use these files.
+    \item \code{SC10_Rainbow.csv} Values of temperature (\degC), pH and logarithms of activity of \CO2, \H2, \NH4plus, \H2S and \CH4 for mixing of seawater and hydrothermal fluid at Rainbow field (Mid-Atlantic Ridge), taken from Shock and Canovas, 2010. See the vignette \viglink{anintro} for an example that uses this file.
+    \item \code{SS98_Fig5a.csv}, \code{SS98_Fig5b.csv} Values of logarithm of fugacity of \O2 and pH as a function of temperature for mixing of seawater and hydrothermal fluid, digitized from Figs. 5a and b of Shock and Schulte, 1998. See the vignette \viglink{anintro} for an example that uses this file.
+    \item \code{bluered.txt} Blue - light grey - red color palette, computed using \CRANpkg{colorspace}\code{::diverge_hcl(1000,} \code{c = 100, l = c(50, 90), power = 1)}. This is used by \code{\link{ZC.col}}.
+    \item \code{AD03_Fig1?.csv} Experimental data points digitized from Figure 1 of Akinfiev and Diamond, 2003, used in \code{demo("AD")}.
+    \item \code{TKSS14_Fig2.csv} Experimental data points digitized from Figure 2 of Tutolo et al., 2014, used in \code{demo("aluminum")}.
+    \item \code{Mer75_Table4.csv} Values of log(aK+/aH+) and log(aNa+/aH+) from Table 4 of Merino, 1975, used in \code{demo("aluminum")}.
     \item \code{BZA10.csv} contains supplementary thermodynamic data taken from Bazarkina et al. (2010). The data can be added to the database in the current session using \code{\link{add.OBIGT}}. See \code{\link{add.OBIGT}} for an example that uses this file.
     \item \code{OBIGT_check.csv} contains the results of running \code{\link{check.OBIGT}} to check the internal consistency of entries in the default and optional datafiles.
     \item \code{RH98_Table15.csv} Group stoichiometries for high molecular weight crystalline and liquid organic compounds taken from Table 15 of Richard and Helgeson, 1998. The first three columns have the \code{compound} name, \code{formula} and physical \code{state} (\samp{cr} or \samp{liq}). The remaining columns have the numbers of each group in the compound; the names of the groups (columns) correspond to species in \code{\link{thermo}$OBIGT}. The compound named \samp{5a(H),14a(H)-cholestane} in the paper has been changed to \samp{5a(H),14b(H)-cholestane} here to match the group stoichiometry given in the table. See \code{\link{RH2OBIGT}} for a function that uses this file.
     \item \code{SK95.csv} contains thermodynamic data for alanate, glycinate, and their complexes with metals, taken from Amend and Helgeson (1997) and Shock and Koretsky (1995) as corrected in slop98.dat. These data are used in \code{demo("copper")} and \code{demo("glycinate")}.
     \item \code{LA19_test.csv} contains thermodynamic data for dimethylamine and trimethylamine from LaRowe and Amend (2019) in energy units of both J and cal. This file is used in \code{test-util.data.R}) to check the messages produced by \code{\link{check.GHS}} and \code{\link{check.EOS}}.
   }
-
 
 }
 
@@ -81,8 +84,6 @@ Dick, J. M. (2014) Average oxidation state of carbon in proteins. \emph{J. R. So
 
 Gattiker, A., Michoud, K., Rivoire, C., Auchincloss, A. H., Coudert, E., Lima, T., Kersey, P., Pagni, M., Sigrist, C. J. A., Lachaize, C., Veuthey, A.-L., Gasteiger, E. and Bairoch, A. (2003) Automatic annotation of microbial proteomes in Swiss-Prot. \emph{Comput. Biol. Chem.} \bold{27}, 49--58. \doi{10.1016/S1476-9271(02)00094-4}
 
-Gaucher, E. A., Thomson, J. M., Burgan, M. F. and Benner, S. A (2003) Inferring the palaeoenvironment of ancient bacteria on the basis of resurrected proteins. \emph{Nature} \bold{425}(6955), 285--288. \doi{10.1038/nature01977}
-
 Helgeson, H. C., Delany, J. M., Nesbitt, H. W. and Bird, D. K. (1978) Summary and critique of the thermodynamic properties of rock-forming minerals. \emph{Am. J. Sci.} \bold{278-A}, 1--229. \url{https://www.worldcat.org/oclc/13594862}
 
 Hnědkovský, L., Wood, R. H. and Majer, V. (1996) Volumes of aqueous solutions of \CH4, \CO2, \H2S, and \NH3 at temperatures from 298.15 K to 705 K and pressures to 35 MPa. \emph{J. Chem. Thermodyn.} \bold{28}, 125--142. \doi{10.1006/jcht.1996.0011}
@@ -92,6 +93,8 @@ Hnědkovský, L. and Wood, R. H. (1997) Apparent molar heat capacities of aqueou
 Joint Genome Institute (2007) Bison Pool Environmental Genome. Protein sequence files downloaded from IMG/M (\url{https://img.jgi.doe.gov/})
 
 LaRowe, D. E. and Amend, J. P. (2019) The energetics of fermentation in natural settings. \emph{Geomicrobiol. J.} \bold{36}, 492--505. \doi{10.1080/01490451.2019.1573278}
+
+Makarova, K. S., Wolf, Y. I., Iranzo, J., Shmakov, S. A., ... and Koonin, E. V. (2020) Evolutionary classification of CRISPR-Cas systems: a burst of class 2 and derived variants. \emph{Nat. Rev. Microbiol.} \bold{18}, 67--83. \doi{10.1038/s41579-019-0299-x}
 
 Merino, E. (1975) Diagenesis in teriary sandstones from Kettleman North Dome, California. II. Interstitial solutions: distribution of aqueous species at 100&deg;C and chemical relation to diagenetic mineralogy. \emph{Geochim. Cosmochim. Acta} \bold{39}, 1629--1645. \doi{10.1016/0016-7037(75)90085-X}
 

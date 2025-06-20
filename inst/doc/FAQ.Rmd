@@ -114,7 +114,7 @@ options(width = 80)
 # Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
-pngquant <- "--speed=1 --quality=0-25"
+pngquant <- if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) "--speed=1 --quality=0-25" else "--speed=1 --quality=0-10"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
 # To make warnings appear in text box 20230619
 # https://selbydavid.com/2017/06/18/rmarkdown-alerts/
@@ -185,14 +185,14 @@ HCO3_ <- "HCO<sub>3</sub><sup>−</sup>"
 O2 <- "O<sub>2</sub>"
 S2 <- "S<sub>2</sub>"
 log <- "log&thinsp;"
-aHCO2_ <- "<i>a</i><sub>HCO<sub>2</sub><sup>−</sup></sub>"
-aHCO3_ <- "<i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub>"
-logfO2 <- "log&thinsp;<i>f</i><sub>O<sub>2</sub></sub>"
+aHCO2_ <- "<i>a</i>HCO<sub>2</sub><sup>−</sup>"
+aHCO3_ <- "<i>a</i>HCO<sub>3</sub><sup>−</sup>"
+logfO2 <- "log&thinsp;<i>f</i>O<sub>2</sub>"
 Ctot <- "C<sub>tot</sub>"
 C3H5O2_ <- "C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup>"
-a3HCO3_ <- "<i>a</i><sup>3</sup><sub>HCO<sub>3</sub><sup>−</sup></sub>"
-aC3H5O2_ <- "<i>a</i><sub>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup></sub>"
-a2HCO3_ <- "<i>a</i><sup>2</sup><sub>HCO<sub>3</sub><sup>−</sup></sub>"
+a3HCO3_ <- "<i>a</i><sup>3<sub>HCO<sub>3</sub><sup>−</sup>"
+aC3H5O2_ <- "<i>a</i>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup>"
+a2HCO3_ <- "<i>a</i><sup>2</sup>HCO<sub>3</sub><sup>−</sup>"
 logCtot <- "log&thinsp;C<sub>tot</sub>"
 CO2 <- "CO<sub>2</sub>"
 H2O <- "H<sub>2</sub>O"
@@ -203,16 +203,35 @@ Kplus <- "K<sup>+</sup>"
 Naplus <- "Na<sup>+</sup>"
 Clminus <- "Cl<sup>-</sup>"
 H2 <- "H<sub>2</sub>"
+Tmax <- "<i>T</i><sub>max</sub>"
 ```
 
 This vignette was compiled on `r Sys.Date()` with CHNOSZ version `r sessionInfo()$otherPkgs$CHNOSZ$Version`.
 
-## How is 'CHNOSZ' pronounced?
+## How is CHNOSZ pronounced?
 
 As one syllable that starts with an *sh* sound and [rhymes with *Oz*](https://en.wiktionary.org/wiki/Rhymes:English/%C9%92z).
 CHNOSZ and [schnoz](https://en.wiktionary.org/wiki/schnozz) are homophones.
 
 *Added on 2023-05-22.*
+
+## Where do the names CHNOSZ, OBIGT, and subcrt come from?
+
+CHNOSZ has the symbols for five elements (carbon, hydrogen, nitrogen, oxygen, and sulfur) and charge (Z).
+These letters appear as the column names in the stoichiometric matrix of basis species for ionized proteins, which were the subject of JMD's PhD thesis.
+
+OBIGT was originally an abbreviation for the OrganoBioGeoTherm software package written by John Donovan,
+a Windows interface to SUPCRT92 that was first mentioned in print by @RH98.
+That package incorporated a database that was used as the starting point for the current OBIGT database.
+
+The name of the `subcrt()` function is loosely based on the SUPCRT92 software package.
+SUPCRT is an abbreviation for supercritical [@JOH92], but `subcrt()` is just a different name and is not limited to subcritical conditions.
+
+I would like to acknowledge Jan Amend for the suggestion to use a different function name than SUPCRT
+and for being possibly the first person to try to pronounce CHNOSZ while looking at the program's output.
+That interaction at the 2007 Goldschmidt conference led me to use CHNOSZ as the name for the package.
+
+*Added on 2025-06-05.*
 
 ## How should CHNOSZ be cited?
 
@@ -252,6 +271,27 @@ reset()
 * A related adjustment is available to convert standard Gibbs energies for gases from the 1 bar standard state used in SUPCRT92 to a variable-pressure standard state [@AC93,Ch.12].
 
 *Added to <https://chnosz.net/> website on 2018-11-13; moved to FAQ on 2023-05-27; added references for **revised** HKF on 2023-11-17.*
+
+## What are the main limitations of CHNOSZ?
+
+- **No phase diagrams:** CHNOSZ does not implement phase diagrams (*).
+  - This includes diagrams with different numbers of coexisting phases and/or phases that don't all have an element in common.
+  - Some types of diagrams that CHNOSZ can't make: binary mixing diagrams, ternary phase diagrams, pseudosections.
+  - Suggested terminology for diagrams that CHNOSZ can make: *stability diagrams* for minerals,
+    *predominance or speciation diagrams* for aqueous species, *activity or fugacity diagrams* to refer to the axis variables,
+    *solubility diagrams* made using the `solubility()` function.
+- **No Gibbs energy minimization:** CHNOSZ does not implement Gibbs energy minimization or other general-purpose equilibrium speciation.
+- **Shared element limitation:**
+  - CHNOSZ makes diagrams for minerals and/or aqueous species that are *balanced on an element*,
+    so every point on the diagram has one mineral or aqueous species with that element.
+  - CHNOSZ can calculate equilibrium concentrations of aqueous species *balanced on an element*, but not for multicomponent systems in general.
+  - [Diagrams with multiple metals](multi-metal.html) are possible but are limited by data availability and have not been tested for more than two metals.
+- Limitations imposed by the **revised HKF model** (or DEW for higher pressures) and **extended Debye-H&uuml;ckel equation**.
+  Highly concentrated solutions (brines) or temperatures below about -20 °C are not supported.
+
+(*) Any diagram with different minerals is technically a phase diagram, but "phase diagram" usually has a more specific meaning depending on the context.
+
+*Added on 2025-06-07.*
 
 ## When and why do equal-activity boundaries depend on total activity?
 
@@ -584,7 +624,7 @@ water(oldwat)
 OBIGT()
 ```
 
-The blocks of code are commented here:
+The blocks of code are described here:
 
 1. Set temperature, pressure, and resolution.
 2. Calculate molality of S from given weight percent [this is rather tedious and could be condensed to fewer lines of code].
@@ -686,8 +726,8 @@ Here are the three plots that we made:
 The value in this column can be one of the following:
 
 1. The temperature of transition to the next polymorph of a mineral;
-2. For the highest-temperature (or only) polymorph, if `T` is positive, it is the phase stability limit (i.e., the temperature of melting or decomposition of a solid or vaporization of a liquid);
-3. For the highest-temperature polymorph, if `T` is negative, the opposite (positive) value is the *T* limit for validity of the *C~p~* equation. (*New feature in development version of CHNOSZ*)
+2. For the highest-temperature (or only) polymorph, if `model == "CGL_Ttr"`, then `T` is the phase transition temperature (e.g., the temperature of melting or decomposition of a solid or vaporization of a liquid);
+3. For the highest-temperature polymorph, if `model != "CGL_Ttr"`, then `T` is the `r Tmax` for the *C~p~* equation.
 
 These cases are handled by `subcrt()` as follows.
 The units of `T` in OBIGT are Kelvin, but `subcrt()` by default uses &deg;C:
@@ -701,14 +741,14 @@ subcrt("pyrrhotite", T = c(25, 150, 350), property = "G")$out
 Note: In both SUPCRT92 and OBIGT, tin, sulfur, and selenium are listed as minerals with one or more polymorphic transitions, but the highest-temperature polymorph actually represents the liquid state.
 Furthermore, quicksilver is listed as a mineral whose polymorphs actually correspond to the liquid and gaseous states.
 
-**2. For a phase stability limit, Δ*G*° is set to NA above the temperature limit:**
+**2. For a phase transition temperature, Δ*G*° is set to NA at higher temperatures:**
 
 ```{r pyrite_limit}
 subcrt("pyrite", T = seq(200, 1000, 200), P = 1)
 ```
 
-This feature is intended to make it harder to obtain potentially unreliable results at temperatures where a mineral (or an organic solid or liquid) is not stable.
-If you want the extrapolated Δ*G*° above the listed phase stability limit, then add `exceed.Ttr = TRUE` to the function call to `subcrt()`.
+This feature is intended to make it harder to obtain potentially unreliable results at temperatures where a mineral, or organic solid or liquid, is not stable.
+If you want the extrapolated Δ*G*° above the listed phase transition temperature, then add `exceed.Ttr = TRUE` to the call to `subcrt()`.
 
 OBIGT has a non-exhaustive list of temperatures of melting, decomposition, or other phase change, some of which were taken from SUPCRT92 while others were taken from @RH95.
 These minerals are listed below:
@@ -716,24 +756,15 @@ These minerals are listed below:
 ```{r mineral_Ttr, collapse = TRUE}
 file <- system.file("extdata/OBIGT/inorganic_cr.csv", package = "CHNOSZ")
 dat <- read.csv(file)
-# Reverse rows so highest-T polymorph for each mineral is listed first
-dat <- dat[nrow(dat):1, ]
-# Remove low-T polymorphs
-dat <- dat[!duplicated(dat$name), ]
-# Remove minerals with no T limit for phase stability (+ve) or Cp equation (-ve)
-dat <- dat[!is.na(dat$z.T), ]
-# Keep minerals with phase stability limit
-dat <- dat[dat$z.T > 0, ]
-# Get names of minerals and put into original order
-rev(dat$name)
+dat$name[dat$model == "CGL_Ttr"]
 ```
 
 <!-- 
      Use square brackets to suppress parentheses around citation 20231115
      https://stackoverflow.com/questions/64209134/r-markdown-suppress-parentheses-in-specific-citations
 -->
-OBIGT now uses the decomposition temperature of covellite [780.5 K from @RH95] in contrast to the previous Tmax from SUPCRT92 [1273 K, which is referenced to a \Cp equation described as "estimated" on p. 62 of @Kel60].
-Selected organic solids and liquids have melting or vaporization temperatures listed as well.
+OBIGT uses the decomposition temperature of covellite [780.5 K from @RH95] in contrast to the value of `r Tmax` from SUPCRT92 [1273 K, which is referenced to a \Cp equation described as "estimated" on p. 62 of @Kel60].
+Selected other organic solids and liquids have melting or vaporization temperatures listed.
 However, no melting temperatures are listed for minerals that use the `Berman` model.
 
 **3. For a *C~p~* equation limit, extrapolated values of Δ*G*° are shown and a warning is produced:**
@@ -744,15 +775,12 @@ subcrt("muscovite", T = 850, P = 4500)
 reset()
 ```
 
-The warning is similar to that produced by SUPCRT92 ("CAUTION: BEYOND T LIMIT OF CP COEFFS FOR A MINERAL OR GAS") at temperatures above maximum temperature of validity of the Maier-Kelley equation (Tmax).
-Notably, SUPCRT92 outputs Δ*G*° and other standard thermodynamic properties at temperatures higher than Tmax despite the warning.
-
-This is a new feature in CHNOSZ version 2.1.0.
-In previous versions of CHNOSZ, values of Δ*G*° above the *C~p~* equation limit were set to NA without a warning, as with the phase stability limit described above.
+The warning is similar to that produced by SUPCRT92 ("CAUTION: BEYOND T LIMIT OF CP COEFFS FOR A MINERAL OR GAS") at temperatures above maximum temperature of validity of the Maier-Kelley equation (`r Tmax`).
+Similar to the behavior of SUPCRT92, CHNOSZ outputs Δ*G*° and other standard thermodynamic properties at temperatures higher than `r Tmax` despite the warning.
 
 **4. Finally, if `T` is NA or 0, then no upper temerature limit is imposed by `subcrt()`.**
 
-*Added on 2023-11-15.*
+*Added on 2023-11-15. Updated on 2024-12-29 for use of `CGL_Ttr`.*
 
 ## How can mineral pH buffers be plotted?
 
@@ -828,5 +856,130 @@ This moves the KMQ buffer closer to the value shown by @HC14, but the MC buffer 
 ```
 
 *Added on 2023-11-28.*
+
+## Why are mineral stability boundaries curved on mosaic diagrams?
+
+The reason they are curved has to do with mass balance of elements in aqueous solution.
+For example, take two reactions between pyrite (FeS~2~) and pyrrhotite (FeS), one with H~2~S and the other with HS^-^:
+
+1. FeS~2~ + H~2~O = FeS + 0.5 O~2~ + H~2~S
+2. FeS~2~ + H~2~O = FeS + 0.5 O~2~ + HS^-^ + H^+^
+
+If a pH 4 solution at 150 &deg;C has 0.001 mol/kg H~2~S, then raising the pH to 8 would give 0.001 mol/kg of HS^-^ and essentially no H~2~S.
+For the remainder of this discussion we will assume that mol/kg is equivalent to activity (i.e., that activity cofficients are unity).
+If we use the same value (0.001) for H~2~S and HS^-^ in reactions 1 and 2 (the *constant activity* constraint), then we will get straight lines on a `r logfO2`&ndash;pH diagram.
+However, this is inconsistent with a *constant sum* constraint of activities that is sometimes attributed to these diagrams.
+
+The *constant activity* constraint is compatible with the *constant sum* constraint only well inside the predominance field of a given aqueous species.
+The equivalence breaks down near the transitions between aqueous species.
+For instance, if the total activity of S is 0.001, then at the p*K*~a~ of H~2~S (about 6.5 at 150 &deg;C), the activities of H~2~S and HS^-^ are equal to each other and by mass balance are both 0.0005.
+The position of the stability boundary should be calculated with these activities to satisfy the *constant sum* constraint.
+
+The following code defines functions to calculate `r logfO2` for these two reactions.
+
+<button id="B-PyPo_logfO2" onclick="ToggleDiv('PyPo_logfO2')">Show code</button>
+<div id="D-PyPo_logfO2" style="display: none">
+```{r PyPo_logfO2, message = FALSE, results = "hide"}
+# Constants
+a_S <- 0.001
+T <- 150
+
+# Get the pKa of H2S (note the minus sign!)
+pKa_H2S <- - subcrt(c("H2S", "HS-", "H+"), c(-1, 1, 1), T = T)$out$logK
+
+# Reaction 1 between pyrite and pyrrhotite with H2S
+basis(c("pyrite", "H2S", "oxygen", "H2O", "H+"))
+PyPo_H2S <- subcrt("pyrrhotite", 1, T = T)
+
+# Reaction 1 law of mass action (LMA)
+# logf_O2 = 2 logK_1 - 2 loga_H2S
+logf_O2_1 <- function(loga_H2S) 2 * PyPo_H2S$out$logK - 2 * loga_H2S
+
+# Reaction 2 between pyrite and pyrrhotite with HS-
+basis(c("pyrite", "HS-", "oxygen", "H2O", "H+"))
+PyPo_HS <- subcrt("pyrrhotite", 1, T = T)
+
+# Reaction 2 LMA
+# logf_O2 = 2 pH + 2 logK_2 - 2 loga_HS-
+logf_O2_2 <- function(pH, loga_HS) 2 * pH + 2 * PyPo_HS$out$logK - 2 * loga_HS
+
+# The logf_O2 for each reaction is the same at the pKa of H2S
+stopifnot(all.equal(logf_O2_1(log10(a_S)), logf_O2_2(pKa_H2S, log10(a_S))))
+stopifnot(all.equal(logf_O2_1(log10(a_S / 2)), logf_O2_2(pKa_H2S, log10(a_S / 2))))
+```
+</div>
+
+At 150 &deg;C and the p*K*~a~ of H~2~S, we get `r logfO2` = `r round(logf_O2_1(log10(0.001)), 2)` for *a*<sub>H~2~S</sub> = *a*<sub>HS^-^</sub> = 0.001 but `r logfO2` = `r round(logf_O2_1(log10(0.0005)), 2)` for *a*<sub>H~2~S</sub> + *a*<sub>HS^-^</sub> = 0.001.
+In other words, the *constant activity* and *constant sum* constraints produce different results; the former yields two straight lines while the latter yields a curve.
+This is shown graphically in the plots below.
+
+<button id="B-PyPo_plot" onclick="ToggleDiv('PyPo_plot')">Show code</button>
+<div id="D-PyPo_plot" style="display: none">
+```{r PyPo_plot, eval = FALSE}
+par(mfrow = c(1, 2))
+
+# Let's draw this out
+thermo.plot.new(c(2, 10), c(-56, -46), xlab = "pH", ylab = axis.label("O2"))
+lines(c(2, pKa_H2S), c(logf_O2_1(log10(a_S)), logf_O2_1(log10(a_S))), col = 2)
+lines(c(pKa_H2S, 10), c(logf_O2_2(pKa_H2S, log10(a_S)), logf_O2_2(10, log10(a_S))), col = 4)
+abline(v = pKa_H2S, lty = 2, col = 8)
+text(6, -46.5, expr.species("H2S"), adj = c(0.5, 1))
+text(7, -46.5, expr.species("HS-"), adj = c(0.5, 1))
+text(4, -54, "pyrite")
+text(4, -55.5, "pyrrhotite")
+points(pKa_H2S, logf_O2_1(log10(a_S)), pch = 0)
+points(pKa_H2S, logf_O2_1(log10(a_S / 2)), pch = 19)
+legend("bottomright", c("Yes", "No"), pch = c(19, 0), title = as.expression(quote(sum(S) == "constant")), bty = "n")
+legend("topleft", legend = lT(T), bty = "n")
+title(quote("Straight lines for" ~ italic(a)[H[2]*S] ~ "=" ~ italic(a)[HS^"-"] == "0.001"), font.main = 1)
+
+# Do it with mosaic()
+basis(c("pyrite", "H2S", "oxygen", "H2O", "H+"))
+# This sets the activity of H2S, which is used for total S when mosaic is called with blend = TRUE
+basis("H2S", -3)
+# This defines the basis species to swap through
+bases <- c("H2S", "HS-")
+species(c("pyrite", "pyrrhotite"))
+m <- mosaic(bases, pH = c(2, 10, 500), O2 = c(-56, -46, 500), T = T)
+diagram(m$A.species, dx = c(-1, -3), dy = c(-3, -1.5), col = 6)
+abline(v = pKa_H2S, lty = 2, col = 8)
+text(6, -46.5, expr.species("H2S"), adj = c(0.5, 1))
+text(7, -46.5, expr.species("HS-"), adj = c(0.5, 1))
+points(pKa_H2S, logf_O2_1(log10(a_S)), pch = 0)
+points(pKa_H2S, logf_O2_1(log10(a_S / 2)), pch = 19)
+legend("bottomright", c("Yes", "No"), pch = c(19, 0), title = as.expression(quote(sum(S) == "constant")), bty = "n")
+legend("topleft", legend = lT(T), bty = "n")
+title(quote("Curved line for" ~ italic(a)[H[2]*S] + italic(a)[HS^"-"] == "0.001"), font.main = 1)
+```
+</div>
+
+```{r PyPo_plot, echo = FALSE, message = FALSE, results = "hide", fig.width = 9, fig.height = 4.5, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE}
+```
+
+The plot on the left is made "by hand" (using equilibrium constants calculated with `subcrt()`)
+while the plot on the right is made with the `mosaic()` and `diagram()` functions.
+The gray area is where water is unstable and is automatically added by `diagram()`.
+If you'd like to make a plot without curved lines (i.e., for *constant activity* instead of *constant sum*), then set `blend = FALSE` in `mosaic()`.
+
+There are relatively few published `r logfO2`&ndash;pH diagrams with curved mineral stability lines.
+An example of one is in Figure 5 of @CBLM00.
+The code below makes a diagram for the minerals shown in that figure:
+
+```{r Fe-S-O-C, message = FALSE, results = "hide", fig.width = 5, fig.height = 5, out.width = "60%", fig.align = "center", pngquant = pngquant, cache = TRUE}
+basis(c("FeO", "SO4-2", "CO3-2", "H2O", "H+", "oxygen"))
+basis("SO4-2", -3)
+basis("CO3-2", -0.6)
+species(c("hematite", "pyrite", "pyrrhotite", "magnetite", "siderite"))
+bases <- list( c("SO4-2", "HSO4-", "HS-", "H2S"), c("CO3-2", "HCO3-", "CO2") )
+m <- mosaic(bases, pH = c(0, 14, 500), O2 = c(-57, -35, 500), T = 150, IS = 0.77)
+d <- diagram(m$A.species, fill = "terrain", dx = c(0, 0, 0, 0, 0.3))
+water.lines(d)
+```
+
+This result suggests two improvements to Fig. 5A in @CBLM00.
+First, the triangular area above the water stability limit should be labeled as part of the siderite field (which is interrupted by the pyrite wedge), not as pyrrhotite.
+Second, the boundary between pyrite and magnetite should have one bend, not two.
+
+*Added on 2024-04-01.*
 
 ## References

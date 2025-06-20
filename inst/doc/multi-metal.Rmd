@@ -58,12 +58,17 @@ function ToggleDiv(ID) {
 </script>
 
 ```{r setup, include=FALSE}
-options(width = 80)
-## Use pngquant to optimize PNG images
 library(knitr)
+options(width = 80)
+
+## Set dpi 20231129
+basedpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 70
+## Use pngquant to optimize PNG images
 knit_hooks$set(pngquant = hook_pngquant)
-pngquant <- "--speed=1 --quality=0-25"
+## Set chunk options
+pngquant <- if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) "--speed=1 --quality=0-25" else "--speed=1 --quality=0-10"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
+opts_chunk$set(dpi = basedpi, pngquant = pngquant)
 
 ## Resolution settings
 # Change this to TRUE to make high-resolution plots
@@ -79,10 +84,6 @@ res2 <- if(hires) res2.hi else res2.lo
 ## logK with a thin space 20200627
 logK <- "log&thinsp;<i>K</i>"
 
-## Set dpi 20231129
-knitr::opts_chunk$set(
-  dpi = if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) 100 else 72
-)
 ```
 
 ```{r CHNOSZ_reset, include=FALSE}
@@ -113,7 +114,7 @@ cat("\n")
 cat("```")
 ```
 
-Basic diagrams in CHNOSZ are made for reactions that are *balanced on an element* (see [Equilibrium in CHNOSZ](equilibrium.html)) and therefore represent minerals or aqueous species that all have one element, often a metal, in common.
+Basic diagrams in CHNOSZ are made for reactions that are *balanced on an element* and therefore represent minerals or aqueous species that all have one element, often a metal, in common.
 The package documentation has many examples of diagrams for a single metal appearing in different minerals or complexed with different ligands, but a common request is to make diagrams for multiple metals.
 This vignette describes some methods for constructing diagrams for multi-metal minerals and other multi-element systems.
 The methods are **mashing**, **mixing**, **mosaic stacking**, and **secondary balancing**.
@@ -122,7 +123,7 @@ The methods are **mashing**, **mixing**, **mosaic stacking**, and **secondary ba
 
 Mashing or simple overlay refers to independent calculations for two different systems that are displayed on the same diagram.
 
-This example starts with a log*f*~O<sub>2</sub>~--pH base diagram for the C-O-H system then overlays a diagram for S-O-H.
+This example starts with a log f*O<sub>2</sub>--pH base diagram for the C-O-H system then overlays a diagram for S-O-H.
 The second call to `affinity()` uses the argument recall feature, where the arguments after the first are taken from the previous command.
 This allows calculations to be run at the same conditions for a different system.
 This feature is also used in other examples in this vignette.
@@ -146,7 +147,7 @@ legend("topright", legend = lTP(25, 1), bty = "n")
 
 The second diagram is just like the first, except the function `mash()` is used to label the fields with names of species from both systems, and a legend is added to indicate the temperature and pressure.
 
-```{r mash, echo = 9:14,  results = "hide", message = FALSE, fig.width = 10, fig.height = 5, out.width = "100%"}
+```{r mash, echo = 9:14,  results = "hide", message = FALSE, fig.width = 10, fig.height = 5, out.width = "100%", dpi = 0.8*basedpi}
 ```
 
 Note that these are predominance diagrams, so they show only the species with highest activity; there is in fact a distribution of activities of aqueous species that is not visible here.
@@ -321,7 +322,7 @@ The `mix()` function is used to calculate the affinities of formation from basis
 Finally, the `diagram()`s are plotted; the `min.area` argument is used to remove labels for very small fields.
 Regarding the legend, it should be noted that although the DFT calculations for solids are made for zero temperature and zero pressure [@SZS_17], the standard Gibbs energies of aqueous species [e.g. @WEP_82] are modified by a correction term so that they can be combined with DFT energies to reproduce the experimental energy for dissolution of a representative material for each metal at 25 °C and 1 bar [@PWLC12].
 
-```{r mixing1, echo = 16:47, message = FALSE, results = "hide", fig.width = 9, fig.height = 3, out.width = "100%", out.extra='class="full-width"', pngquant = pngquant}
+```{r mixing1, echo = 16:47, message = FALSE, results = "hide", fig.width = 9, fig.height = 3, out.width = "100%", out.extra='class="full-width"', dpi=1.1*basedpi}
 ```
 
 In these diagrams, changing the Fe:V ratio affects the fully reduced metallic species.
@@ -409,7 +410,7 @@ Given the diagram for the stable Fe-, V- and bimetallic materials *mixed with th
 This is plotted as a color map in the second diagram.
 (See the source of this vignette for the code used to make the scale bar.)
 
-```{r FeVO4, echo = 31:44, message = FALSE, results = "hide", fig.width = 11, fig.height = 5, out.width = "100%", pngquant = pngquant}
+```{r FeVO4, echo = 31:44, message = FALSE, results = "hide", fig.width = 11, fig.height = 5, out.width = "100%", dpi = 0.8*basedpi}
 ```
 
 Now we locate the pH and Eh that maximize the affinity (that is, minimize Δ*G*~pbx~) of FeVO~4~ compared to the stable species.
@@ -500,7 +501,7 @@ FeCu.abbrv <- c("Ccp", "Bn", "Cu", "Cpr", "Tnr", "Cct", "Cv")
 species(c(FeCu.cr, Cu.cr))
 mFeCu <- mosaic(list(S.aq, Fe.cr), pH = pH, O2 = O2,
               T = T, stable = list(NULL, dFe$predominant))
-col <- c("#FF8C00", rep(2, 6))
+col <- c(rep("#FF8C00", 2), rep(2, 5))
 lwd <- c(2, 1, 1, 1, 1, 1, 1)
 dy = c(0, 0, 0, 0, 0, 1, 0)
 diagram(mFeCu$A.species, add = TRUE, col = col, lwd = lwd, col.names = col, bold = TRUE, names = FeCu.abbrv, dy = dy)
@@ -516,11 +517,11 @@ The NULL means that the abundances of S-bearing aqueous species are calculated a
 Because the Fe-bearing minerals are the second group of changing basis species (`Fe.cr`), their stabilities are given in the second position of the `stable` list.
 The result is used to plot the last layer of the diagram:
 
-4. Stability areas for Cu-bearing minerals (red text and lines; orange for chalcopyrite)
+4. Stability areas for Cu-bearing minerals (red text and lines; orange for chalcopyrite and bornite)
 
 After that we add the legend and title.
 
-```{r stack1_2, echo=5:17, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "75%", fig.align = "center", pngquant = pngquant}
+```{r stack1_2, echo=5:17, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "75%", fig.align = "center"}
 ```
 
 This diagram has a distinctive  chalcopyrite "hook" surrounded by a thin bornite field.
@@ -564,13 +565,13 @@ aqexpr <- as.expression(bquote("("*aq*")"[italic(i)] == 10^.(logm_aq)*m))
 # Setup basis species
 basis(c("Cu+", "pyrite", "H2S", "oxygen", "H2O", "H+", "Cl-"))
 basis("H2S", logmS)
-nacl <- NaCl(m_tot = m_NaCl, T = T, P = "Psat")
-basis("Cl-", log10(nacl$m_Cl))
+NaCl <- NaCl(m_NaCl = m_NaCl, T = T, P = "Psat")
+basis("Cl-", log10(NaCl$m_Clminus))
 # Fe-bearing minerals
 species(Fe.cr)
 # Add aqueous species 20210220
 species(iFe.aq, logm_aq, add = TRUE)
-mFe <- mosaic(S.aq, pH = pH, O2 = O2, T = T, IS = nacl$IS)
+mFe <- mosaic(S.aq, pH = pH, O2 = O2, T = T, IS = NaCl$IS)
 # Start plot with just the fields for transparency effect
 dFe <- diagram(mFe$A.species, lwd = 0, names = FALSE)
 
@@ -590,7 +591,7 @@ Fe.predom <- c(Fe.cr, Fe.aq)[ipredom]
 # c(NA, logm_aq) means to use:
 #   basis()'s value for logact of aqueous S species
 #   logm_aq for logact of aqueous Fe species
-mFeCu <- mosaic(list(S.aq, Fe.predom), pH = pH, O2 = O2, T = T, stable = list(NULL, predom), IS = nacl$IS, loga_aq = c(NA, logm_aq))
+mFeCu <- mosaic(list(S.aq, Fe.predom), pH = pH, O2 = O2, T = T, stable = list(NULL, predom), IS = NaCl$IS, loga_aq = c(NA, logm_aq))
 
 # Adjust labels
 bold <- c(rep(TRUE, length(FeCu.abbrv)), rep(FALSE, length(Cu.aq)))
@@ -610,10 +611,11 @@ dx[names == "CuCl2-"] <- -1
 dy[names == "CuCl2-"] <- 2
 cex[names == "Bn"] <- 0.8
 srt[names == "Bn"] <- 85
-# Highlight Ccp field
 col.names <- col <- rep(2, nrow(mFeCu$A.species$species))
-col[1] <- "#FF8C00"
-col.names[1] <- "#FF8C00"
+# Highlight Ccp and Bn in orange
+col[1:2] <- "#FF8C00"
+col.names[1:2] <- "#FF8C00"
+# Thick line around Ccp field
 lwd <- rep(1, nrow(mFeCu$A.species$species))
 lwd[1] <- 2
 diagram(mFeCu$A.species, add = TRUE, lwd = lwd, col = col, col.names = col.names, names = names, bold = bold, dx = dx, dy = dy, cex.names = cex, srt = srt)
@@ -646,7 +648,7 @@ OBIGT()
 ```
 </div>
 
-```{r stack2, echo = FALSE, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "75%", fig.align = "center", pngquant = pngquant}
+```{r stack2, echo = FALSE, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "75%", fig.align = "center"}
 ```
 
 After running the code to make this diagram, we can list the reference keys for the minerals and aqueous species.
@@ -738,7 +740,7 @@ title("Fe:Cu = 1:2")
 ```
 </div>
 
-```{r mixing2, echo = FALSE, results = "hide", message = FALSE, fig.width = 8, fig.height = 6.5, out.width = "100%", pngquant = pngquant}
+```{r mixing2, echo = FALSE, results = "hide", message = FALSE, fig.width = 8, fig.height = 6.5, out.width = "100%"}
 ```
 
 These diagrams show that changing the amounts of the metals affects the stability of minerals involved in reactions with chalcopyrite.
@@ -802,7 +804,7 @@ title("Cu-Fe-S-O-H")
 ```
 </div>
 
-```{r stack3, echo = FALSE, results = "hide", message = FALSE, fig.width = 6, fig.height = 4, out.width = "100%", pngquant = pngquant}
+```{r stack3, echo = FALSE, results = "hide", message = FALSE, fig.width = 6, fig.height = 4, out.width = "100%"}
 ```
 
 The resulting diagram is similar to Figure 2 of @Sve87; that diagram also shows calculations of the solubility of Cu and concentration of SO~4~^-2^ in model Cu ore-forming fluids.
@@ -817,11 +819,11 @@ This also gives an estimated ionic strength, which is used in the following `mos
 par(mfrow = c(1, 3))
 basis("pH", 6)
 # Estimate the molality of Cl for ca. 80,000 mg/kg solution (Table 2 of Sverjensky, 1987)
-m_tot <- 80000 / mass("Cl") / 1000
-calc <- NaCl(T = T, m_tot = m_tot)
+m_NaCl <- 80000 / mass("Cl") / 1000
+NaCl <- NaCl(m_NaCl = m_NaCl, T = T)
 # Use log molality here, not log activity, because
 # activity coefficients are calculated by setting IS below
-basis("Cl-", log10(calc$m_Cl))
+basis("Cl-", log10(NaCl$m_Clminus))
 # Initial setup: dissolve a single mineral to form aqueous Cu complexes
 species("copper")
 iaq <- retrieve("Cu", c("O", "H", "Cl", "S"), "aq")
@@ -830,11 +832,11 @@ iaq <- retrieve("Cu", c("O", "H", "Cl", "S"), "aq")
 # (i.e. equilibrium is imposed with all of these minerals, not only Cu(s))
 mfun <- function() {
   s <- solubility(iaq, bases = list(bFe, bCu), S2 = c(-34, -10, res1), O2 = c(-55, -40, res1),
-    T = T, IS = calc$IS, stable = list(dFe$predominant, dCu$predominant))
+    T = T, IS = NaCl$IS, stable = list(dFe$predominant, dCu$predominant))
   s <- convert(s, "ppm")
   diagram(aFeCu, names = NA, col = "gray", fill = fill)
-  diagram(s, type = "loga.balance", levels = 10^(-3:3), add = TRUE)
-  diagram(s, type = "loga.balance", levels = 35, add = TRUE, lwd = 3, col = 6, contour.method = NA)
+  diagram(s, levels = 10^(-3:3), add = TRUE)
+  diagram(s, levels = 35, add = TRUE, lwd = 3, col = 6, contour.method = NA)
 }
 # DIAGRAM 1
 mfun()
@@ -875,25 +877,26 @@ basis("pH", 6)
 species("S2")
 # Calculate concentration of SO4-2
 iaq <- info("SO4-2")
-s <- solubility(iaq, S2 = c(-34, -10, res1), O2 = c(-55, -40, res1), T = T, IS = calc$IS, in.terms.of = "SO4-2")
+s <- solubility(iaq, S2 = c(-34, -10, res1), O2 = c(-55, -40, res1), T = T, IS = NaCl$IS, in.terms.of = "SO4-2")
 s <- convert(s, "ppm")
 # DIAGRAM 3
 diagram(aFeCu, names = NA, col = "gray", fill = fill)
-diagram(s, type = "loga.balance", levels = 10^(-3:3), add = TRUE)
-diagram(s, type = "loga.balance", levels = 35, add = TRUE, lwd = 3, col = 6, contour.method = NA)
+diagram(s, levels = 10^(-3:3), add = TRUE)
+diagram(s, levels = 35, add = TRUE, lwd = 3, col = 6, contour.method = NA)
 title(bquote(bold(.(expr.species("SO4-2"))~"(ppm)")))
 ```
 </div>
 
-```{r solubility, echo = FALSE, results = "hide", message = FALSE, fig.width = 7, fig.height = 3, out.width = "100%", fig.align = "center", pngquant = pngquant}
+```{r solubility, echo = FALSE, results = "hide", message = FALSE, fig.width = 7, fig.height = 3, out.width = "100%", fig.align = "center"}
 ```
 
-After running the code above, we can inspect the value of `calc` to show the estimated ionic strength and activity of Cl^-^; the latter is very close to unity.
+After running the code above, we can inspect the value of `NaCl` to show the estimated ionic strength and molality of Cl^-^.
+In this case, they are equivalent because we did not specify pH in the call to `NaCl()`.
 ```{r NaCl}
 # Ionic strength
-calc$IS
-# Logarithm of activity of Cl-
-log10(calc$m_Cl * calc$gam_Cl)
+NaCl$IS
+# Molality of Cl-
+NaCl$m_Clminus
 ```
 
 The thick magenta lines indicate the 35 ppm contour for Cu and SO~4~^-2^.
@@ -914,7 +917,7 @@ subcrt(c("CuCl3-2", "Cu+", "Cl-"), c(-1, 1, 3), T = T)$out$logK
 
 The higher stability of these complexes from @Hel69 causes the 35 ppm contour to move closer to the position shown by @Sve87.
 
-Interestingly, the calculation here also predict substantial increases of Cu concentration of Cu at high *f*~S<sub>2</sub>~ and low *f*~O<sub>2</sub>~, due to the formation of bisulfide complexes with Cu.
+Interestingly, the calculation here also predict substantial increases of Cu concentration of Cu at high *f*S<sub>2</sub> and low *f*O<sub>2</sub>, due to the formation of bisulfide complexes with Cu.
 The aqueous species considered in the calculation can be seen like this:
 ```{r iCu.aq}
 names(iCu.aq)
@@ -922,7 +925,7 @@ names(iCu.aq)
 
 CuHS and Cu(HS)~2~^-^ can be excluded by removing S from the `retrieve()` call above (i.e. only `c("O", "H", "Cl")` as the elements in possible ligands); doing so precludes a high concentration of aqueous Cu in the highly reduced, sulfidic region.
 
-The third plot for the concentation of SO~4~^-2^ is simply made by using `affinity()` to calculate the affinity of its formation reaction as a function of *f*~S<sub>2</sub>~ and *f*~O<sub>2</sub>~ at pH 6 and 125 °C, then using `solubility()` to calculate the solubility of S~2~(gas), expressed in terms of moles of SO~4~^-2^ in order to calculate parts per million (ppm) by weight.
+The third plot for the concentation of SO~4~^-2^ is simply made by using `affinity()` to calculate the affinity of its formation reaction as a function of *f*S<sub>2</sub> and *f*O<sub>2</sub> at pH 6 and 125 °C, then using `solubility()` to calculate the solubility of S~2~(gas), expressed in terms of moles of SO~4~^-2^ in order to calculate parts per million (ppm) by weight.
 
 ## Secondary Balancing
 
@@ -1016,7 +1019,7 @@ The fields in this diagram are labeled with mineral abbreviations from the OBIGT
 ```{r rebalance, eval = FALSE, echo = 36:49}
 ```
 
-```{r rebalance, echo = FALSE, results = "hide", message = FALSE, fig.width = 6.5, fig.height = 5, out.width = "100%", fig.align = "center", pngquant = pngquant}
+```{r rebalance, echo = FALSE, results = "hide", message = FALSE, fig.width = 6.5, fig.height = 5, out.width = "100%", fig.align = "center"}
 ```
 
 The final diagram is like one shown in Figure 5 of @Bri80 and Figure 5 of @MH85.
@@ -1036,7 +1039,7 @@ Here is an example for the Cu-Fe-S-O-H system.
 The reactions are balanced on O~2~, which means that no O~2~ appears in the reaction between any two minerals, but Fe^+2^ and/or Cu^+^ can be present, depending on the chemical composition.
 Saturation limits are shown for species that have no O~2~ in their formation reactions.
 
-```{r non-metal, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "80%", fig.align = "center", pngquant = pngquant}
+```{r non-metal, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "80%", fig.align = "center"}
 basis(c("Fe+2", "Cu+", "hydrogen sulfide", "oxygen", "H2O", "H+"))
 basis("H2S", 2)
 species(c("pyrite", "magnetite", "hematite", "covellite", "tenorite",
@@ -1057,8 +1060,8 @@ legend("topleft", legend = lTP(400, 2000), bty = "n")
 This example was prompted by Figure 3 of @MH85; earlier versions of the diagram are in @HBL69 and @Hel70a.
 
 In some ways this is like the inverse of the **mosaic stacking** example.
-There, reactions were balanced on Fe or Cu, and *f*~O<sub>2</sub>~ and pH were used as plotting variables.
-Here, the reactions are balanced on O~2~ and implicitly on H^+^ through the activity ratios with *a*~Fe^+2^~ and *a*~Cu^+^~, which are the plotting variables.
+There, reactions were balanced on Fe or Cu, and *f*O<sub>2</sub> and pH were used as plotting variables.
+Here, the reactions are balanced on O~2~ and implicitly on H^+^ through the activity ratios with *a*Fe^+2^ and *a*Cu^+^, which are the plotting variables.
 
 More common diagrams of this type are balanced on Si or Al.
 See `demo(saturation)` for an example in the H~2~O-CO~2~-CaO-MgO-SiO~2~ system.
@@ -1151,7 +1154,7 @@ stopifnot(all.equal(as.numeric(e$loga.equil[[3]]), logAcAm, tol = 1e-3, scale = 
 ```
 </div>
 
-```{r mosaic-combo, echo = FALSE, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "80%", fig.align = "center", pngquant = pngquant}
+```{r mosaic-combo, echo = FALSE, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "80%", fig.align = "center"}
 ```
 
 The diagram shows the ionization of acetic acid and NH~3~ at different pHs.
@@ -1163,5 +1166,6 @@ The predicted appearance of acetamide (CH~3~CONH~2~) is a consequence of the int
 
 * 2020-07-15 First version.
 * 2021-03-01 Improve mineral abbreviations and placement of labels; use updated DFT energies from Materials Project; add Mosaic Stacking 2 (minerals and aqueous species); add *K*~eff~ calculation; add Δ*G*~pbx~ color scale.
+* 2024-03-25 Use orange for both chalcopyrite and bornite in Mosaic Stacking 1 and 2
 
 ## References

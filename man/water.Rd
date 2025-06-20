@@ -4,23 +4,23 @@
 \alias{water.SUPCRT92}
 \alias{water.IAPWS95}
 \alias{water.DEW}
-\title{Properties of Water}
+\title{Properties of water}
 \description{
 Calculate thermodynamic and electrostatic properties of water.
 }
 
 \usage{
-  water(property = NULL, T = 298.15, P = "Psat", P1 = TRUE)
-  water.SUPCRT92(property=NULL, T = 298.15, P = 1, P1 = TRUE)
-  water.IAPWS95(property=NULL, T = 298.15, P = 1)
+  water(property = NULL, T = 298.15, P = "Psat", Psat_floor = 1)
+  water.SUPCRT92(property=NULL, T = 298.15, P = 1, Psat_floor = 1)
+  water.IAPWS95(property=NULL, T = 298.15, P = 1, Psat_floor = 1)
   water.DEW(property=NULL, T = 373.15, P = 1000)
 }
 
 \arguments{
   \item{property}{character, computational setting or property(s) to calculate}
   \item{T}{numeric, temperature (K)}
-  \item{P}{numeric, pressure (bar), or \samp{Psat} for vapor-liquid saturation}
-  \item{P1}{logical, output pressure of 1 bar below 100 \degC instead of calculated values of \samp{Psat}?}
+  \item{P}{numeric, pressure (bar), or \samp{Psat} for the greater of 1 bar or the vapor-liquid saturation pressure for \H2O (when P1 is TRUE)}
+  \item{Psat_floor}{numeric, the vapor-liquid saturation curve for \samp{Psat} is floored at this value (in bar); set to NULL or NA to remove the floor}
 }
 
 \details{
@@ -92,7 +92,7 @@ Call \code{water.SUPCRT92}, \code{water.IAPWS95}, or \code{water.DEW} with no ar
 
 \code{water.SUPCRT92} interfaces to the FORTRAN subroutine taken from the \acronym{SUPCRT92} package (H2O92D.F) for calculating properties of water.
 These calculations are based on data and equations of Levelt-Sengers et al., 1983, Haar et al., 1984, and Johnson and Norton, 1991, among others (see Johnson et al., 1992).
-A value of \code{P} set to \samp{Psat} refers to one bar below 100 \degC, otherwise to the vapor-liquid saturation pressure at temperatures below the critical point (\samp{Psat} is not available at temperatures above the critical point).
+A value of \samp{Psat} for \code{P} refers to the greater of 1 bar or the vapor-liquid saturation pressure of H2O (\samp{Psat} is not defined at temperatures above the critical point).
 \code{water.SUPCRT92} provides a limited interface to the FORTRAN subroutine; some functions provided there are not made available here (e.g., using variable density instead of pressure, or calculating the properties of steam).
 
 The stated temperature limits of validity of calculations in \code{water.SUPCRT92} are from the greater of 0 \degC or the melting temperature at pressure, to 2250 \degC (Johnson et al., 1992).

@@ -8,7 +8,7 @@
 \alias{EOScoeffs}
 \alias{Cp_s_var}
 \alias{V_s_var}
-\title{Regress Equations-of-State Parameters for Aqueous Species}
+\title{Regress equations-of-state parameters for aqueous species}
 \description{
 Fit experimental volumes and heat capacities using regression equations.
 Possible models include the Helgeson-Kirkham-Flowers (HKF) equations of state, or other equations defined using any combination of terms derived from the temperature, pressure and thermodynamic and electrostatic properties of water.
@@ -122,7 +122,7 @@ The vignette \viglink{eos-regress} has more references and examples, including a
 ## Fit experimental heat capacities of CH4
 ## using revised Helgeson-Kirkham-Flowers equations
 # Read the data from Hnedkovsky and Wood, 1997
-f <- system.file("extdata/cpetc/HW97_Cp.csv", package = "CHNOSZ")
+f <- system.file("extdata/misc/HW97_Cp.csv", package = "CHNOSZ")
 d <- read.csv(f)
 # Use data for CH4
 d <- d[d$species == "CH4", ]
@@ -170,7 +170,7 @@ attr(invTX, "label") <- quote(phantom() / italic(T * X))
 
 ## Model experimental volumes of CH4
 ## using HKF equation and an exploratory one
-f <- system.file("extdata/cpetc/HWM96_V.csv", package = "CHNOSZ")
+f <- system.file("extdata/misc/HWM96_V.csv", package = "CHNOSZ")
 d <- read.csv(f)
 # Use data for CH4 near 280 bar
 d <- d[d$species == "CH4", ]

@@ -4,7 +4,7 @@ options(width = 80)
 # Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
-pngquant <- "--speed=1 --quality=0-25"
+pngquant <- if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) "--speed=1 --quality=0-25" else "--speed=1 --quality=0-10"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
 # To make warnings appear in text box 20230619
 # https://selbydavid.com/2017/06/18/rmarkdown-alerts/
@@ -73,14 +73,14 @@ HCO3_ <- "HCO<sub>3</sub><sup>−</sup>"
 O2 <- "O<sub>2</sub>"
 S2 <- "S<sub>2</sub>"
 log <- "log&thinsp;"
-aHCO2_ <- "<i>a</i><sub>HCO<sub>2</sub><sup>−</sup></sub>"
-aHCO3_ <- "<i>a</i><sub>HCO<sub>3</sub><sup>−</sup></sub>"
-logfO2 <- "log&thinsp;<i>f</i><sub>O<sub>2</sub></sub>"
+aHCO2_ <- "<i>a</i>HCO<sub>2</sub><sup>−</sup>"
+aHCO3_ <- "<i>a</i>HCO<sub>3</sub><sup>−</sup>"
+logfO2 <- "log&thinsp;<i>f</i>O<sub>2</sub>"
 Ctot <- "C<sub>tot</sub>"
 C3H5O2_ <- "C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup>"
-a3HCO3_ <- "<i>a</i><sup>3</sup><sub>HCO<sub>3</sub><sup>−</sup></sub>"
-aC3H5O2_ <- "<i>a</i><sub>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup></sub>"
-a2HCO3_ <- "<i>a</i><sup>2</sup><sub>HCO<sub>3</sub><sup>−</sup></sub>"
+a3HCO3_ <- "<i>a</i><sup>3<sub>HCO<sub>3</sub><sup>−</sup>"
+aC3H5O2_ <- "<i>a</i>C<sub>3</sub>H<sub>5</sub>O<sub>2</sub><sup>−</sup>"
+a2HCO3_ <- "<i>a</i><sup>2</sup>HCO<sub>3</sub><sup>−</sup>"
 logCtot <- "log&thinsp;C<sub>tot</sub>"
 CO2 <- "CO<sub>2</sub>"
 H2O <- "H<sub>2</sub>O"
@@ -91,6 +91,7 @@ Kplus <- "K<sup>+</sup>"
 Naplus <- "Na<sup>+</sup>"
 Clminus <- "Cl<sup>-</sup>"
 H2 <- "H<sub>2</sub>"
+Tmax <- "<i>T</i><sub>max</sub>"
 
 ## ----alanine_refs, message = FALSE--------------------------------------------
 info(info("alanine"))[c("ref1", "ref2")]
@@ -104,47 +105,47 @@ thermo.refs(sres)
 reset()
 
 ## ----DEW_Ctot, eval = FALSE---------------------------------------------------
-#  ### Based on demo/DEW.R in CHNOSZ
-#  
-#  # Set up subplots
-#  par(mfrow = c(1, 2), mar = c(3.0, 3.5, 2.5, 1.0), mgp = c(1.7, 0.3, 0), las = 1, tcl = 0.3, xaxs = "i", yaxs = "i")
-#  
-#  # Activate DEW model
-#  water("DEW")
-#  
-#  ###########
-#  ## logfO2-pH diagram for aqueous inorganic and organic carbon species at high pressure
-#  ## After Figure 1b of Sverjensky et al., 2014b [SSH14]
-#  ## (Nature Geoscience, https://doi.org/10.1038/NGEO2291)
-#  ###########
-#  
-#  # Define system
-#  basis("CHNOS+")
-#  inorganic <- c("CO2", "HCO3-", "CO3-2", "CH4")
-#  organic <- c("formic acid", "formate", "acetic acid", "acetate", "propanoic acid", "propanoate")
-#  species(c(inorganic, organic), 0)
-#  fill <- c(rep("aliceblue", length(inorganic)), rep("aquamarine", length(organic)))
-#  
-#  # A function to make the diagrams
-#  dfun <- function(T = 600, P = 50000, res = 200, Ctot = 0.03) {
-#    a <- affinity(pH = c(0, 10, res), O2 = c(-24, -12, res), T = T, P = P)
-#    # Set total C concentration to 0.03 molal
-#    # (from EQ3NR model for eclogite [Supporting Information of SSH14])
-#    e <- equilibrate(a, loga.balance = log10(Ctot))
-#    diagram(e, fill = fill)
-#    dp <- describe.property(c("     T", "     P"), c(T, P), digits = 0)
-#    legend("bottomleft", legend = dp, bty = "n")
-#  }
-#  
-#  water("DEW")
-#  add.OBIGT("DEW")
-#  dfun(Ctot = 0.03)
-#  mtitle(c("Inorganic and organic species", "C[total] = 0.03 molal"))
-#  dfun(Ctot = 3)
-#  mtitle(c("Inorganic and organic species", "C[total] = 3 molal"))
-#  
-#  # Restore default settings for the questions below
-#  reset()
+# ### Based on demo/DEW.R in CHNOSZ
+# 
+# # Set up subplots
+# par(mfrow = c(1, 2), mar = c(3.0, 3.5, 2.5, 1.0), mgp = c(1.7, 0.3, 0), las = 1, tcl = 0.3, xaxs = "i", yaxs = "i")
+# 
+# # Activate DEW model
+# water("DEW")
+# 
+# ###########
+# ## logfO2-pH diagram for aqueous inorganic and organic carbon species at high pressure
+# ## After Figure 1b of Sverjensky et al., 2014b [SSH14]
+# ## (Nature Geoscience, https://doi.org/10.1038/NGEO2291)
+# ###########
+# 
+# # Define system
+# basis("CHNOS+")
+# inorganic <- c("CO2", "HCO3-", "CO3-2", "CH4")
+# organic <- c("formic acid", "formate", "acetic acid", "acetate", "propanoic acid", "propanoate")
+# species(c(inorganic, organic), 0)
+# fill <- c(rep("aliceblue", length(inorganic)), rep("aquamarine", length(organic)))
+# 
+# # A function to make the diagrams
+# dfun <- function(T = 600, P = 50000, res = 200, Ctot = 0.03) {
+#   a <- affinity(pH = c(0, 10, res), O2 = c(-24, -12, res), T = T, P = P)
+#   # Set total C concentration to 0.03 molal
+#   # (from EQ3NR model for eclogite [Supporting Information of SSH14])
+#   e <- equilibrate(a, loga.balance = log10(Ctot))
+#   diagram(e, fill = fill)
+#   dp <- describe.property(c("     T", "     P"), c(T, P), digits = 0)
+#   legend("bottomleft", legend = dp, bty = "n")
+# }
+# 
+# water("DEW")
+# add.OBIGT("DEW")
+# dfun(Ctot = 0.03)
+# mtitle(c("Inorganic and organic species", "C[total] = 0.03 molal"))
+# dfun(Ctot = 3)
+# mtitle(c("Inorganic and organic species", "C[total] = 3 molal"))
+# 
+# # Restore default settings for the questions below
+# reset()
 
 ## ----DEW_Ctot, echo = FALSE, message = FALSE, results = "hide", fig.width = 8, fig.height = 4, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE----
 ### Based on demo/DEW.R in CHNOSZ
@@ -267,21 +268,21 @@ cr_parameters
 cr2_parameters
 
 ## ----pyrrhotite_T, eval = FALSE-----------------------------------------------
-#  T <- seq(550, 650, 1)
-#  sout <- subcrt("pyrrhotite_new", T = T, P = 1)$out[[1]]
-#  par(mfrow = c(1, 4), mar = c(4, 4.2, 1, 1))
-#  labels <- c(G = "DG0f", H = "DH0f", S = "S0", Cp = "Cp0")
-#  for(property in c("G", "H", "S", "Cp")) {
-#    plot(sout$T, sout[, property], col = sout$polymorph,
-#      xlab = axis.label("T"), ylab = axis.label(labels[property])
-#    )
-#    abline(v = Ttr, lty = 3, col = 8)
-#    if(property == "G")
-#      legend("bottomleft", c("1", "2"), pch = 1, col = c(1, 2), title = "Polymorph")
-#  }
-#  
-#  # Restore default settings for the questions below
-#  reset()
+# T <- seq(550, 650, 1)
+# sout <- subcrt("pyrrhotite_new", T = T, P = 1)$out[[1]]
+# par(mfrow = c(1, 4), mar = c(4, 4.2, 1, 1))
+# labels <- c(G = "DG0f", H = "DH0f", S = "S0", Cp = "Cp0")
+# for(property in c("G", "H", "S", "Cp")) {
+#   plot(sout$T, sout[, property], col = sout$polymorph,
+#     xlab = axis.label("T"), ylab = axis.label(labels[property])
+#   )
+#   abline(v = Ttr, lty = 3, col = 8)
+#   if(property == "G")
+#     legend("bottomleft", c("1", "2"), pch = 1, col = c(1, 2), title = "Polymorph")
+# }
+# 
+# # Restore default settings for the questions below
+# reset()
 
 ## ----pyrrhotite_T, echo = FALSE, message = FALSE, results = "hide", fig.width = 8, fig.height = 2.5, out.width = "100%", fig.align = "center", pngquant = pngquant----
 T <- seq(550, 650, 1)
@@ -301,150 +302,150 @@ for(property in c("G", "H", "S", "Cp")) {
 reset()
 
 ## ----trisulfur, eval = FALSE, echo = FALSE------------------------------------
-#  par(mfrow = c(1, 3))
-#  
-#  ## BLOCK 1
-#  T <- 350
-#  P <- 5000
-#  res <- 200
-#  
-#  ## BLOCK 2
-#  wt_percent_S <- 10
-#  wt_permil_S <- wt_percent_S * 10
-#  molar_mass_S <- mass("S") # 32.06
-#  moles_S <- wt_permil_S / molar_mass_S
-#  grams_H2O <- 1000 - wt_permil_S
-#  molality_S <- 1000 * moles_S / grams_H2O
-#  logm_S <- log10(molality_S)
-#  
-#  ## BLOCK 3
-#  basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-#  species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  
-#  ## BLOCK 4
-#  mod.buffer("NNO", c("nickel", "bunsenite"), state = "cr", logact = 0)
-#  for(buffer in c("HM", "QFM", "NNO")) {
-#    basis("O2", buffer)
-#    logfO2_ <- affinity(return.buffer = TRUE, T = T, P = P)$O2
-#    abline(h = logfO2_, lty = 3, col = 2)
-#    text(8.5, logfO2_, buffer, adj = c(0, 0), col = 2, cex = 0.9)
-#  }
-#  
-#  ## BLOCK 5
-#  pH <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T = T, P = P)$out$logK / -2
-#  abline(v = pH, lty = 2, col = 4)
-#  
-#  ## BLOCK 6
-#  lTP <- describe.property(c("T", "P"), c(T, P))
-#  lS <- paste(wt_percent_S, "wt% S(aq)")
-#  ltext <- c(lTP, lS)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd = NA)
-#  
-#  ######## Plot 2: Modify Gibbs energy
-#  
-#  oldG <- info(info("S3-"))$G
-#  newG <- oldG - 12548
-#  mod.OBIGT("S3-", G = newG)
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Modified"~log*italic(K)~"after Pokrovski and Dubrovinsky (2011)"), xpd = NA)
-#  OBIGT()
-#  
-#  ######## Plot 3: Do it with DEW
-#  
-#  T <- 700
-#  P <- 10000 # 10000 bar = 1 GPa
-#  oldwat <- water("DEW")
-#  add.OBIGT("DEW")
-#  info(species()$ispecies)
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-18, -10, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  lTP <- describe.property(c("T", "P"), c(T, P))
-#  ltext <- c(lTP, lS)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Deep Earth Water (DEW)"~"model"))
-#  water(oldwat)
-#  OBIGT()
+# par(mfrow = c(1, 3))
+# 
+# ## BLOCK 1
+# T <- 350
+# P <- 5000
+# res <- 200
+# 
+# ## BLOCK 2
+# wt_percent_S <- 10
+# wt_permil_S <- wt_percent_S * 10
+# molar_mass_S <- mass("S") # 32.06
+# moles_S <- wt_permil_S / molar_mass_S
+# grams_H2O <- 1000 - wt_permil_S
+# molality_S <- 1000 * moles_S / grams_H2O
+# logm_S <- log10(molality_S)
+# 
+# ## BLOCK 3
+# basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
+# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+# a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# 
+# ## BLOCK 4
+# mod.buffer("NNO", c("nickel", "bunsenite"), state = "cr", logact = 0)
+# for(buffer in c("HM", "QFM", "NNO")) {
+#   basis("O2", buffer)
+#   logfO2_ <- affinity(return.buffer = TRUE, T = T, P = P)$O2
+#   abline(h = logfO2_, lty = 3, col = 2)
+#   text(8.5, logfO2_, buffer, adj = c(0, 0), col = 2, cex = 0.9)
+# }
+# 
+# ## BLOCK 5
+# pH <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T = T, P = P)$out$logK / -2
+# abline(v = pH, lty = 2, col = 4)
+# 
+# ## BLOCK 6
+# lTP <- describe.property(c("T", "P"), c(T, P))
+# lS <- paste(wt_percent_S, "wt% S(aq)")
+# ltext <- c(lTP, lS)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd = NA)
+# 
+# ######## Plot 2: Modify Gibbs energy
+# 
+# oldG <- info(info("S3-"))$G
+# newG <- oldG - 12548
+# mod.OBIGT("S3-", G = newG)
+# a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Modified"~log*italic(K)~"after Pokrovski and Dubrovinsky (2011)"), xpd = NA)
+# OBIGT()
+# 
+# ######## Plot 3: Do it with DEW
+# 
+# T <- 700
+# P <- 10000 # 10000 bar = 1 GPa
+# oldwat <- water("DEW")
+# add.OBIGT("DEW")
+# info(species()$ispecies)
+# a <- affinity(pH = c(2, 10, res), O2 = c(-18, -10, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# lTP <- describe.property(c("T", "P"), c(T, P))
+# ltext <- c(lTP, lS)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Deep Earth Water (DEW)"~"model"))
+# water(oldwat)
+# OBIGT()
 
 ## ----trisulfur, eval = FALSE, echo = 3:43-------------------------------------
-#  par(mfrow = c(1, 3))
-#  
-#  ## BLOCK 1
-#  T <- 350
-#  P <- 5000
-#  res <- 200
-#  
-#  ## BLOCK 2
-#  wt_percent_S <- 10
-#  wt_permil_S <- wt_percent_S * 10
-#  molar_mass_S <- mass("S") # 32.06
-#  moles_S <- wt_permil_S / molar_mass_S
-#  grams_H2O <- 1000 - wt_permil_S
-#  molality_S <- 1000 * moles_S / grams_H2O
-#  logm_S <- log10(molality_S)
-#  
-#  ## BLOCK 3
-#  basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-#  species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  
-#  ## BLOCK 4
-#  mod.buffer("NNO", c("nickel", "bunsenite"), state = "cr", logact = 0)
-#  for(buffer in c("HM", "QFM", "NNO")) {
-#    basis("O2", buffer)
-#    logfO2_ <- affinity(return.buffer = TRUE, T = T, P = P)$O2
-#    abline(h = logfO2_, lty = 3, col = 2)
-#    text(8.5, logfO2_, buffer, adj = c(0, 0), col = 2, cex = 0.9)
-#  }
-#  
-#  ## BLOCK 5
-#  pH <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T = T, P = P)$out$logK / -2
-#  abline(v = pH, lty = 2, col = 4)
-#  
-#  ## BLOCK 6
-#  lTP <- describe.property(c("T", "P"), c(T, P))
-#  lS <- paste(wt_percent_S, "wt% S(aq)")
-#  ltext <- c(lTP, lS)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd = NA)
-#  
-#  ######## Plot 2: Modify Gibbs energy
-#  
-#  oldG <- info(info("S3-"))$G
-#  newG <- oldG - 12548
-#  mod.OBIGT("S3-", G = newG)
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Modified"~log*italic(K)~"after Pokrovski and Dubrovinsky (2011)"), xpd = NA)
-#  OBIGT()
-#  
-#  ######## Plot 3: Do it with DEW
-#  
-#  T <- 700
-#  P <- 10000 # 10000 bar = 1 GPa
-#  oldwat <- water("DEW")
-#  add.OBIGT("DEW")
-#  info(species()$ispecies)
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-18, -10, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  lTP <- describe.property(c("T", "P"), c(T, P))
-#  ltext <- c(lTP, lS)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Deep Earth Water (DEW)"~"model"))
-#  water(oldwat)
-#  OBIGT()
+# par(mfrow = c(1, 3))
+# 
+# ## BLOCK 1
+# T <- 350
+# P <- 5000
+# res <- 200
+# 
+# ## BLOCK 2
+# wt_percent_S <- 10
+# wt_permil_S <- wt_percent_S * 10
+# molar_mass_S <- mass("S") # 32.06
+# moles_S <- wt_permil_S / molar_mass_S
+# grams_H2O <- 1000 - wt_permil_S
+# molality_S <- 1000 * moles_S / grams_H2O
+# logm_S <- log10(molality_S)
+# 
+# ## BLOCK 3
+# basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
+# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+# a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# 
+# ## BLOCK 4
+# mod.buffer("NNO", c("nickel", "bunsenite"), state = "cr", logact = 0)
+# for(buffer in c("HM", "QFM", "NNO")) {
+#   basis("O2", buffer)
+#   logfO2_ <- affinity(return.buffer = TRUE, T = T, P = P)$O2
+#   abline(h = logfO2_, lty = 3, col = 2)
+#   text(8.5, logfO2_, buffer, adj = c(0, 0), col = 2, cex = 0.9)
+# }
+# 
+# ## BLOCK 5
+# pH <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T = T, P = P)$out$logK / -2
+# abline(v = pH, lty = 2, col = 4)
+# 
+# ## BLOCK 6
+# lTP <- describe.property(c("T", "P"), c(T, P))
+# lS <- paste(wt_percent_S, "wt% S(aq)")
+# ltext <- c(lTP, lS)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd = NA)
+# 
+# ######## Plot 2: Modify Gibbs energy
+# 
+# oldG <- info(info("S3-"))$G
+# newG <- oldG - 12548
+# mod.OBIGT("S3-", G = newG)
+# a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Modified"~log*italic(K)~"after Pokrovski and Dubrovinsky (2011)"), xpd = NA)
+# OBIGT()
+# 
+# ######## Plot 3: Do it with DEW
+# 
+# T <- 700
+# P <- 10000 # 10000 bar = 1 GPa
+# oldwat <- water("DEW")
+# add.OBIGT("DEW")
+# info(species()$ispecies)
+# a <- affinity(pH = c(2, 10, res), O2 = c(-18, -10, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# lTP <- describe.property(c("T", "P"), c(T, P))
+# ltext <- c(lTP, lS)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Deep Earth Water (DEW)"~"model"))
+# water(oldwat)
+# OBIGT()
 
 ## ----trisulfur_logK, message = FALSE, echo = 1:3------------------------------
 species <- c("H2S", "SO4-2", "H+", "S3-", "oxygen", "H2O")
@@ -458,77 +459,77 @@ dlogK <- calclogK[2] - reflogK
 stopifnot(round(dlogK, 4) == -4.4132)
 
 ## ----trisulfur, eval = FALSE, echo = 46:55------------------------------------
-#  par(mfrow = c(1, 3))
-#  
-#  ## BLOCK 1
-#  T <- 350
-#  P <- 5000
-#  res <- 200
-#  
-#  ## BLOCK 2
-#  wt_percent_S <- 10
-#  wt_permil_S <- wt_percent_S * 10
-#  molar_mass_S <- mass("S") # 32.06
-#  moles_S <- wt_permil_S / molar_mass_S
-#  grams_H2O <- 1000 - wt_permil_S
-#  molality_S <- 1000 * moles_S / grams_H2O
-#  logm_S <- log10(molality_S)
-#  
-#  ## BLOCK 3
-#  basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-#  species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  
-#  ## BLOCK 4
-#  mod.buffer("NNO", c("nickel", "bunsenite"), state = "cr", logact = 0)
-#  for(buffer in c("HM", "QFM", "NNO")) {
-#    basis("O2", buffer)
-#    logfO2_ <- affinity(return.buffer = TRUE, T = T, P = P)$O2
-#    abline(h = logfO2_, lty = 3, col = 2)
-#    text(8.5, logfO2_, buffer, adj = c(0, 0), col = 2, cex = 0.9)
-#  }
-#  
-#  ## BLOCK 5
-#  pH <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T = T, P = P)$out$logK / -2
-#  abline(v = pH, lty = 2, col = 4)
-#  
-#  ## BLOCK 6
-#  lTP <- describe.property(c("T", "P"), c(T, P))
-#  lS <- paste(wt_percent_S, "wt% S(aq)")
-#  ltext <- c(lTP, lS)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd = NA)
-#  
-#  ######## Plot 2: Modify Gibbs energy
-#  
-#  oldG <- info(info("S3-"))$G
-#  newG <- oldG - 12548
-#  mod.OBIGT("S3-", G = newG)
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Modified"~log*italic(K)~"after Pokrovski and Dubrovinsky (2011)"), xpd = NA)
-#  OBIGT()
-#  
-#  ######## Plot 3: Do it with DEW
-#  
-#  T <- 700
-#  P <- 10000 # 10000 bar = 1 GPa
-#  oldwat <- water("DEW")
-#  add.OBIGT("DEW")
-#  info(species()$ispecies)
-#  a <- affinity(pH = c(2, 10, res), O2 = c(-18, -10, res), T = T, P = P)
-#  e <- equilibrate(a, loga.balance = logm_S)
-#  diagram(e)
-#  lTP <- describe.property(c("T", "P"), c(T, P))
-#  ltext <- c(lTP, lS)
-#  legend("topright", ltext, bty = "n", bg = "transparent")
-#  title(quote("Deep Earth Water (DEW)"~"model"))
-#  water(oldwat)
-#  OBIGT()
+# par(mfrow = c(1, 3))
+# 
+# ## BLOCK 1
+# T <- 350
+# P <- 5000
+# res <- 200
+# 
+# ## BLOCK 2
+# wt_percent_S <- 10
+# wt_permil_S <- wt_percent_S * 10
+# molar_mass_S <- mass("S") # 32.06
+# moles_S <- wt_permil_S / molar_mass_S
+# grams_H2O <- 1000 - wt_permil_S
+# molality_S <- 1000 * moles_S / grams_H2O
+# logm_S <- log10(molality_S)
+# 
+# ## BLOCK 3
+# basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
+# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+# a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# 
+# ## BLOCK 4
+# mod.buffer("NNO", c("nickel", "bunsenite"), state = "cr", logact = 0)
+# for(buffer in c("HM", "QFM", "NNO")) {
+#   basis("O2", buffer)
+#   logfO2_ <- affinity(return.buffer = TRUE, T = T, P = P)$O2
+#   abline(h = logfO2_, lty = 3, col = 2)
+#   text(8.5, logfO2_, buffer, adj = c(0, 0), col = 2, cex = 0.9)
+# }
+# 
+# ## BLOCK 5
+# pH <- subcrt(c("H2O", "H+", "OH-"), c(-1, 1, 1), T = T, P = P)$out$logK / -2
+# abline(v = pH, lty = 2, col = 4)
+# 
+# ## BLOCK 6
+# lTP <- describe.property(c("T", "P"), c(T, P))
+# lS <- paste(wt_percent_S, "wt% S(aq)")
+# ltext <- c(lTP, lS)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd = NA)
+# 
+# ######## Plot 2: Modify Gibbs energy
+# 
+# oldG <- info(info("S3-"))$G
+# newG <- oldG - 12548
+# mod.OBIGT("S3-", G = newG)
+# a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Modified"~log*italic(K)~"after Pokrovski and Dubrovinsky (2011)"), xpd = NA)
+# OBIGT()
+# 
+# ######## Plot 3: Do it with DEW
+# 
+# T <- 700
+# P <- 10000 # 10000 bar = 1 GPa
+# oldwat <- water("DEW")
+# add.OBIGT("DEW")
+# info(species()$ispecies)
+# a <- affinity(pH = c(2, 10, res), O2 = c(-18, -10, res), T = T, P = P)
+# e <- equilibrate(a, loga.balance = logm_S)
+# diagram(e)
+# lTP <- describe.property(c("T", "P"), c(T, P))
+# ltext <- c(lTP, lS)
+# legend("topright", ltext, bty = "n", bg = "transparent")
+# title(quote("Deep Earth Water (DEW)"~"model"))
+# water(oldwat)
+# OBIGT()
 
 ## ----trisulfur_DEW, message = FALSE, echo = 8:22, collapse = TRUE, fig.keep = "none"----
 # The first four lines are stand-ins to make this block runnable and get the right output from info();
@@ -636,16 +637,7 @@ subcrt("pyrite", T = seq(200, 1000, 200), P = 1)
 ## ----mineral_Ttr, collapse = TRUE---------------------------------------------
 file <- system.file("extdata/OBIGT/inorganic_cr.csv", package = "CHNOSZ")
 dat <- read.csv(file)
-# Reverse rows so highest-T polymorph for each mineral is listed first
-dat <- dat[nrow(dat):1, ]
-# Remove low-T polymorphs
-dat <- dat[!duplicated(dat$name), ]
-# Remove minerals with no T limit for phase stability (+ve) or Cp equation (-ve)
-dat <- dat[!is.na(dat$z.T), ]
-# Keep minerals with phase stability limit
-dat <- dat[dat$z.T > 0, ]
-# Get names of minerals and put into original order
-rev(dat$name)
+dat$name[dat$model == "CGL_Ttr"]
 
 ## ----muscovite_limit, message = FALSE-----------------------------------------
 add.OBIGT("SUPCRT92")
@@ -669,22 +661,22 @@ K_AK <- 10 ^ logK_AK
 (m_K <- m_Cl / (K_AK + 1))
 
 ## ----KMQ_diagram, eval = FALSE, echo = 2:10-----------------------------------
-#  par(mfrow = c(1, 2))
-#  basis("K+", log10(m_K))
-#  a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
-#  diagram(a, srt = 90)
-#  lTP <- as.expression(c(lT(T), lP(P)))
-#  legend("topleft", legend = lTP, bty = "n", inset = c(-0.05, 0), cex = 0.9)
-#  ltxt <- c(quote("Unit molality of Cl"^"-"), "Quartz saturation")
-#  legend("topright", legend = ltxt, bty = "n", cex = 0.9)
-#  title("Mineral data from Berman (1988)\nand Sverjensky et al. (1991) (OBIGT default)",
-#    font.main = 1, cex.main = 0.9)
-#  add.OBIGT("SUPCRT92")
-#  a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
-#  diagram(a, srt = 90)
-#  title("Mineral data from Helgeson et al. (1978)\n(as used in SUPCRT92)",
-#    font.main = 1, cex.main = 0.9)
-#  OBIGT()
+# par(mfrow = c(1, 2))
+# basis("K+", log10(m_K))
+# a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
+# diagram(a, srt = 90)
+# lTP <- as.expression(c(lT(T), lP(P)))
+# legend("topleft", legend = lTP, bty = "n", inset = c(-0.05, 0), cex = 0.9)
+# ltxt <- c(quote("Unit molality of Cl"^"-"), "Quartz saturation")
+# legend("topright", legend = ltxt, bty = "n", cex = 0.9)
+# title("Mineral data from Berman (1988)\nand Sverjensky et al. (1991) (OBIGT default)",
+#   font.main = 1, cex.main = 0.9)
+# add.OBIGT("SUPCRT92")
+# a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
+# diagram(a, srt = 90)
+# title("Mineral data from Helgeson et al. (1978)\n(as used in SUPCRT92)",
+#   font.main = 1, cex.main = 0.9)
+# OBIGT()
 
 ## ----KMQ_diagram, message = FALSE, fig.width = 8, fig.height = 4, out.width = "100%", results = "hide", echo = FALSE----
 par(mfrow = c(1, 2))
@@ -708,20 +700,130 @@ OBIGT()
 thermo.refs(species()$ispecies)
 
 ## ----KMQ_diagram, eval = FALSE, echo = 11:15----------------------------------
-#  par(mfrow = c(1, 2))
-#  basis("K+", log10(m_K))
-#  a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
-#  diagram(a, srt = 90)
-#  lTP <- as.expression(c(lT(T), lP(P)))
-#  legend("topleft", legend = lTP, bty = "n", inset = c(-0.05, 0), cex = 0.9)
-#  ltxt <- c(quote("Unit molality of Cl"^"-"), "Quartz saturation")
-#  legend("topright", legend = ltxt, bty = "n", cex = 0.9)
-#  title("Mineral data from Berman (1988)\nand Sverjensky et al. (1991) (OBIGT default)",
-#    font.main = 1, cex.main = 0.9)
-#  add.OBIGT("SUPCRT92")
-#  a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
-#  diagram(a, srt = 90)
-#  title("Mineral data from Helgeson et al. (1978)\n(as used in SUPCRT92)",
-#    font.main = 1, cex.main = 0.9)
-#  OBIGT()
+# par(mfrow = c(1, 2))
+# basis("K+", log10(m_K))
+# a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
+# diagram(a, srt = 90)
+# lTP <- as.expression(c(lT(T), lP(P)))
+# legend("topleft", legend = lTP, bty = "n", inset = c(-0.05, 0), cex = 0.9)
+# ltxt <- c(quote("Unit molality of Cl"^"-"), "Quartz saturation")
+# legend("topright", legend = ltxt, bty = "n", cex = 0.9)
+# title("Mineral data from Berman (1988)\nand Sverjensky et al. (1991) (OBIGT default)",
+#   font.main = 1, cex.main = 0.9)
+# add.OBIGT("SUPCRT92")
+# a <- affinity(pH = c(2, 10), O2 = c(-55, -38), T = T, P = P, IS = IS)
+# diagram(a, srt = 90)
+# title("Mineral data from Helgeson et al. (1978)\n(as used in SUPCRT92)",
+#   font.main = 1, cex.main = 0.9)
+# OBIGT()
+
+## ----PyPo_logfO2, message = FALSE, results = "hide"---------------------------
+# Constants
+a_S <- 0.001
+T <- 150
+
+# Get the pKa of H2S (note the minus sign!)
+pKa_H2S <- - subcrt(c("H2S", "HS-", "H+"), c(-1, 1, 1), T = T)$out$logK
+
+# Reaction 1 between pyrite and pyrrhotite with H2S
+basis(c("pyrite", "H2S", "oxygen", "H2O", "H+"))
+PyPo_H2S <- subcrt("pyrrhotite", 1, T = T)
+
+# Reaction 1 law of mass action (LMA)
+# logf_O2 = 2 logK_1 - 2 loga_H2S
+logf_O2_1 <- function(loga_H2S) 2 * PyPo_H2S$out$logK - 2 * loga_H2S
+
+# Reaction 2 between pyrite and pyrrhotite with HS-
+basis(c("pyrite", "HS-", "oxygen", "H2O", "H+"))
+PyPo_HS <- subcrt("pyrrhotite", 1, T = T)
+
+# Reaction 2 LMA
+# logf_O2 = 2 pH + 2 logK_2 - 2 loga_HS-
+logf_O2_2 <- function(pH, loga_HS) 2 * pH + 2 * PyPo_HS$out$logK - 2 * loga_HS
+
+# The logf_O2 for each reaction is the same at the pKa of H2S
+stopifnot(all.equal(logf_O2_1(log10(a_S)), logf_O2_2(pKa_H2S, log10(a_S))))
+stopifnot(all.equal(logf_O2_1(log10(a_S / 2)), logf_O2_2(pKa_H2S, log10(a_S / 2))))
+
+## ----PyPo_plot, eval = FALSE--------------------------------------------------
+# par(mfrow = c(1, 2))
+# 
+# # Let's draw this out
+# thermo.plot.new(c(2, 10), c(-56, -46), xlab = "pH", ylab = axis.label("O2"))
+# lines(c(2, pKa_H2S), c(logf_O2_1(log10(a_S)), logf_O2_1(log10(a_S))), col = 2)
+# lines(c(pKa_H2S, 10), c(logf_O2_2(pKa_H2S, log10(a_S)), logf_O2_2(10, log10(a_S))), col = 4)
+# abline(v = pKa_H2S, lty = 2, col = 8)
+# text(6, -46.5, expr.species("H2S"), adj = c(0.5, 1))
+# text(7, -46.5, expr.species("HS-"), adj = c(0.5, 1))
+# text(4, -54, "pyrite")
+# text(4, -55.5, "pyrrhotite")
+# points(pKa_H2S, logf_O2_1(log10(a_S)), pch = 0)
+# points(pKa_H2S, logf_O2_1(log10(a_S / 2)), pch = 19)
+# legend("bottomright", c("Yes", "No"), pch = c(19, 0), title = as.expression(quote(sum(S) == "constant")), bty = "n")
+# legend("topleft", legend = lT(T), bty = "n")
+# title(quote("Straight lines for" ~ italic(a)[H[2]*S] ~ "=" ~ italic(a)[HS^"-"] == "0.001"), font.main = 1)
+# 
+# # Do it with mosaic()
+# basis(c("pyrite", "H2S", "oxygen", "H2O", "H+"))
+# # This sets the activity of H2S, which is used for total S when mosaic is called with blend = TRUE
+# basis("H2S", -3)
+# # This defines the basis species to swap through
+# bases <- c("H2S", "HS-")
+# species(c("pyrite", "pyrrhotite"))
+# m <- mosaic(bases, pH = c(2, 10, 500), O2 = c(-56, -46, 500), T = T)
+# diagram(m$A.species, dx = c(-1, -3), dy = c(-3, -1.5), col = 6)
+# abline(v = pKa_H2S, lty = 2, col = 8)
+# text(6, -46.5, expr.species("H2S"), adj = c(0.5, 1))
+# text(7, -46.5, expr.species("HS-"), adj = c(0.5, 1))
+# points(pKa_H2S, logf_O2_1(log10(a_S)), pch = 0)
+# points(pKa_H2S, logf_O2_1(log10(a_S / 2)), pch = 19)
+# legend("bottomright", c("Yes", "No"), pch = c(19, 0), title = as.expression(quote(sum(S) == "constant")), bty = "n")
+# legend("topleft", legend = lT(T), bty = "n")
+# title(quote("Curved line for" ~ italic(a)[H[2]*S] + italic(a)[HS^"-"] == "0.001"), font.main = 1)
+
+## ----PyPo_plot, echo = FALSE, message = FALSE, results = "hide", fig.width = 9, fig.height = 4.5, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE----
+par(mfrow = c(1, 2))
+
+# Let's draw this out
+thermo.plot.new(c(2, 10), c(-56, -46), xlab = "pH", ylab = axis.label("O2"))
+lines(c(2, pKa_H2S), c(logf_O2_1(log10(a_S)), logf_O2_1(log10(a_S))), col = 2)
+lines(c(pKa_H2S, 10), c(logf_O2_2(pKa_H2S, log10(a_S)), logf_O2_2(10, log10(a_S))), col = 4)
+abline(v = pKa_H2S, lty = 2, col = 8)
+text(6, -46.5, expr.species("H2S"), adj = c(0.5, 1))
+text(7, -46.5, expr.species("HS-"), adj = c(0.5, 1))
+text(4, -54, "pyrite")
+text(4, -55.5, "pyrrhotite")
+points(pKa_H2S, logf_O2_1(log10(a_S)), pch = 0)
+points(pKa_H2S, logf_O2_1(log10(a_S / 2)), pch = 19)
+legend("bottomright", c("Yes", "No"), pch = c(19, 0), title = as.expression(quote(sum(S) == "constant")), bty = "n")
+legend("topleft", legend = lT(T), bty = "n")
+title(quote("Straight lines for" ~ italic(a)[H[2]*S] ~ "=" ~ italic(a)[HS^"-"] == "0.001"), font.main = 1)
+
+# Do it with mosaic()
+basis(c("pyrite", "H2S", "oxygen", "H2O", "H+"))
+# This sets the activity of H2S, which is used for total S when mosaic is called with blend = TRUE
+basis("H2S", -3)
+# This defines the basis species to swap through
+bases <- c("H2S", "HS-")
+species(c("pyrite", "pyrrhotite"))
+m <- mosaic(bases, pH = c(2, 10, 500), O2 = c(-56, -46, 500), T = T)
+diagram(m$A.species, dx = c(-1, -3), dy = c(-3, -1.5), col = 6)
+abline(v = pKa_H2S, lty = 2, col = 8)
+text(6, -46.5, expr.species("H2S"), adj = c(0.5, 1))
+text(7, -46.5, expr.species("HS-"), adj = c(0.5, 1))
+points(pKa_H2S, logf_O2_1(log10(a_S)), pch = 0)
+points(pKa_H2S, logf_O2_1(log10(a_S / 2)), pch = 19)
+legend("bottomright", c("Yes", "No"), pch = c(19, 0), title = as.expression(quote(sum(S) == "constant")), bty = "n")
+legend("topleft", legend = lT(T), bty = "n")
+title(quote("Curved line for" ~ italic(a)[H[2]*S] + italic(a)[HS^"-"] == "0.001"), font.main = 1)
+
+## ----Fe-S-O-C, message = FALSE, results = "hide", fig.width = 5, fig.height = 5, out.width = "60%", fig.align = "center", pngquant = pngquant, cache = TRUE----
+basis(c("FeO", "SO4-2", "CO3-2", "H2O", "H+", "oxygen"))
+basis("SO4-2", -3)
+basis("CO3-2", -0.6)
+species(c("hematite", "pyrite", "pyrrhotite", "magnetite", "siderite"))
+bases <- list( c("SO4-2", "HSO4-", "HS-", "H2S"), c("CO3-2", "HCO3-", "CO2") )
+m <- mosaic(bases, pH = c(0, 14, 500), O2 = c(-57, -35, 500), T = 150, IS = 0.77)
+d <- diagram(m$A.species, fill = "terrain", dx = c(0, 0, 0, 0, 0.3))
+water.lines(d)
 

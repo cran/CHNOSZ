@@ -6,6 +6,7 @@
 # 20220715 Allow to change metals (renamed from zinc.R to minsol.R)
 
 library(CHNOSZ)
+
 opar <- par(no.readonly = TRUE)
 par(mfrow = c(2, 2))
 
@@ -26,8 +27,8 @@ basis("H2S", log10(Stot))
 # Molality of NaCl
 mNaCl <- 1000 * wNaCl / (mass("NaCl") * (1 - wNaCl))
 # Estimate ionic strength and molality of Cl-
-sat <- NaCl(m_tot = mNaCl, T = T)
-basis("Cl-", log10(sat$m_Cl))
+NaCl <- NaCl(m_NaCl = mNaCl, T = T)
+basis("Cl-", log10(NaCl$m_Clminus))
 
 # Add minerals and aqueous species
 icr <- retrieve(metal, c("Cl", "S", "O"), state = "cr")
@@ -38,9 +39,9 @@ species(iaq, logm_metal, add = TRUE)
 
 # Calculate affinities and make diagram
 bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
-m <- mosaic(bases, pH = pH, O2 = O2, T = T, P = P, IS = sat$IS)
+m <- mosaic(bases, pH = pH, O2 = O2, T = T, P = P, IS = NaCl$IS)
 d <- diagram(m$A.species, bold = TRUE)
-diagram(m$A.bases, add = TRUE, col = "slategray", lwd = 2, lty = 3, names = NA)
+diagram(m$A.bases, add = TRUE, col = 8, col.names = 8, lty = 3, italic = TRUE)
 title(bquote(log * italic(m)[.(metal)*"(aq) species"] == .(logm_metal)))
 label.figure("A")
 
@@ -61,24 +62,24 @@ legend("bottomleft", c("Predominance diagram: molality of aqueous", "species def
 par(xpd = FALSE)
 
 # Make diagram for minerals only 20201007
-if(packageVersion("CHNOSZ") <= "1.3.6") species(delete = TRUE)
 species(icr)
-mcr <- mosaic(bases, pH = pH, O2 = O2, T = T, P = P, IS = sat$IS)
+mcr <- mosaic(bases, pH = pH, O2 = O2, T = T, P = P, IS = NaCl$IS)
 diagram(mcr$A.species, col = 2)
 label.figure("B")
 
 # Calculate *minimum* solubility among all the minerals 20201008
 # (i.e. saturation condition for the solution)
 # Use solubility() 20210303
-s <- solubility(iaq, bases = bases, pH = pH, O2 = O2, T = T, P = P, IS = sat$IS, in.terms.of = metal)
+s <- solubility(iaq, bases = bases, pH = pH, O2 = O2, T = T, P = P, IS = NaCl$IS, in.terms.of = metal)
 # Specify contour levels
 levels <- seq(-12, 9, 3)
-diagram(s, type = "loga.balance", levels = levels, contour.method = "flattest")
+diagram(s, levels = levels, contour.method = "flattest")
 
 # Show the mineral stability boundaries
 diagram(mcr$A.species, names = NA, add = TRUE, lty = 2, col = 2)
 title(paste("Solubilities of", length(icr), "minerals"), font.main = 1, line = 1.5)
 title(bquote(log[10]~"moles of"~.(metal)~"in solution"), line = 0.7)
 label.figure("C")
+title(bquote(log * italic(m)*.(metal)*"(aq)" == .(logm_metal)))
 
 par(opar)

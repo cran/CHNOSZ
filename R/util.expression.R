@@ -58,7 +58,8 @@ expr.species <- function(species, state = "aq", value = NULL, log = FALSE, molal
     var <- "a"
     if(molality) var <- "m"
     if(state %in% c("g", "gas")) var <- "f"
-    expr <- substitute(italic(a)[b], list(a = var, b = expr))
+    # For better readability, no longer using subscripts for species formulas 20241201
+    expr <- substitute(italic(a)*b, list(a = var, b = expr))
     # Use the logarithm?
     if(log) expr <- substitute(log ~ a, list(a = expr))
     # Write the value if not NULL or NA
@@ -142,7 +143,7 @@ expr.units <- function(property, prefix = "", per = "mol") {
     if(T.units() == "C") expr <- substitute(degree*a, list(a = expr))
   }
   # Eh - electrical potential
-  if(grepl("Eh", property)) expr <- substitute(a, list(a = "volt"))
+  if(grepl("Eh", property)) expr <- substitute(a, list(a = "V"))
   # IS - ionic strength
   if(grepl("IS", property)) expr <- substitute(a, list(a = mol~kg^-1))
   if(!expr == "") {
@@ -171,8 +172,8 @@ axis.label <- function(label, units = NULL, basis = thermo()$basis, prefix = "",
     desc <- expr.species(label, state = state, log = TRUE, molality = molality)
   } else if(label %in% colnames(basis)) {
     # Make a label for an element (total C, total S, etc.) 20230809
-    if(molality) desc <- bquote(log~italic(m)~"(total "*.(label)*")")
-    else desc <- bquote(log~italic(a)~"(total "*.(label)*")")
+    if(molality) desc <- bquote(log~italic(m)~sum(.(label)))
+    else desc <- bquote(log~italic(a)~sum(.(label)))
   } else {
     # The label is for a chemical property or condition
     # Make the label by putting a comma between the property and the units
@@ -311,7 +312,8 @@ ratlab <- function(top = "K+", bottom = "H+", molality = FALSE) {
   # With molality, change a to m
   a <- ifelse(molality, "m", "a")
   # The final expression
-  substitute(log~(italic(a)[expr.top]^exp.top / italic(a)[expr.bottom]^exp.bottom),
+  # For better readability, no longer using subscripts for species formulas 20241201
+  substitute(log~(italic(a)^exp.top*expr.top / italic(a)^exp.bottom*expr.bottom),
              list(a = a, expr.top = expr.top, exp.top = exp.top, expr.bottom = expr.bottom, exp.bottom = exp.bottom))
 }
 

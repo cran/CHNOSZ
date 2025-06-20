@@ -15,6 +15,279 @@
 \newcommand{\Cp}{\ifelse{latex}{\eqn{C_P}}{\ifelse{html}{\out{<I>C<sub>P</sub></I>}}{Cp}}}
 \newcommand{\DG0}{\ifelse{latex}{\eqn{{\Delta}G^{\circ}}}{\ifelse{html}{\out{&Delta;<I>G</I>&deg;}}{ΔG°}}}
 
+\section{Changes in CHNOSZ version 2.2.0 (2025-06-20)}{
+
+  \subsection{OBIGT DATABASE FORMAT}{
+    \itemize{
+
+      \item Mineral species whose \code{T} value is a Cp equation limit or
+      phase transition temperature are indicated by \samp{CGL} or
+      \samp{CGL_Ttr}, respectively, in \code{model}. At temperatures above the
+      \code{T} limit, \code{subcrt()} extrapolates values and produces a
+      warning for \samp{CGL} species or returns NA values for \samp{CGL_Ttr}
+      species. The addition of \samp{CGL_Ttr} replaces the previous strategy of
+      using signed values of \code{T}.
+
+    }
+  }
+
+  \subsection{OBIGT DEFAULT DATA}{
+    \itemize{
+
+      \item Add tantalum species from
+      \href{https://doi.org/10.1016/j.gca.2024.10.019}{Hu et al. (2024)}.
+
+      \item Add germanium, indium, gallium, and cadmium minerals and aqueous
+      species from the compilation of
+      \href{https://doi.org/10.1080/08120099.2024.2423772}{Huston and Bastrakov
+        (2024)}. Move Cd and In chloride, In fluoride, and Ga hydroxide
+      complexes from \href{https://doi.org/10.1016/S0016-7037(96)00339-0}{Shock
+        et al. (1997)} and
+      \href{https://doi.org/10.1016/S0016-7037(97)00009-4}{Sverjensky et al.
+        (1997)} to optional data. Thanks to Evgeniy Bastrakov for providing
+      data files for these species and for Co, Ta, Nb, U, and REE minerals and
+      uranyl complexes mentioned below.
+
+      \item Add palladium and platinum hydrosulfide complexes
+      (Pd(HS)\s{4}\S{-2} and Pt(HS)\s{4}\S{-2}) from
+      \href{https://doi.org/10.1016/j.gca.2024.12.019}{Laskar et al. (2024)}.
+
+      \item Add aqueous uranyl complexes from
+      \href{https://doi.org/10.1016/j.gca.2024.04.023}{Migdisov et al. (2024)}.
+      Move aqueous uranium species from
+      \href{https://doi.org/10.1016/S0016-7037(97)00240-8}{Shock, Sassani and
+        Betz (1997)} (except for HUO\s{4}\S{-}) to optional data.
+
+      \item Add alkylamines, benzylamines, and aminiums from
+      \href{https://doi.org/10.1016/j.gca.2024.03.013}{Robinson et al. (2024)}.
+
+      \item Add tin chloride complexes and updated parameters for Sn\S{+2} and
+      Th\S{+4} from \href{https://doi.org/10.1016/j.gsf.2023.101624}{Liu et al.
+        (2023)}.
+
+      \item Add uranium, uraninite (UO\s{2}), beta-UO\s{2.25}, UO\s{2.25},
+      alpha-UO\s{2.3333}, beta-UO\s{2.3333}, UO\s{2.6667}, gamma-UO\s{3},
+      rutherfordine (UO\s{2}CO\s{3}), beta-UO\s{2}(OH)\s{2}, and
+      Na\s{2}U\s{2}O\s{7} from
+      \href{https://doi.org/10.1787/bf86a907-en}{Grenthe et al. (2020)}.
+
+      \item Add Fe-bearing serpentinization-relevant minerals (ferrous
+      hydroxide, ferrotremolite, greenalite, minnesotaite, Mg-cronstedtite, and
+      hisingerite) from \href{https://doi.org/10.2475/03.2020.01}{Leong and
+        Shock (2020)}.
+
+      \item Add REE minerals from the compilation of
+      \href{https://doi.org/10.1016/j.chemgeo.2016.06.005}{Migdisov et al.
+        (2016)} with modifications.
+      
+      \item Add yttrium fluoride complexes (YF\S{+2} and YF\s{2}\S{+}) from
+      \href{https://doi.org/10.1016/j.gca.2013.07.031}{Loges et al. (2013)}.
+
+      \item Add REE fluoride and chloride complexes from
+      \href{https://doi.org/10.1016/j.gca.2009.08.023}{Migdisov et al. (2009)}
+      (previously available in CHNOSZ 0.9-5 to 1.0.8). Move aqueous REE species
+      from \href{https://doi.org/10.1016/0016-7037(95)00314-P}{Haas et al.
+        (1995)} to optional data.
+
+      \item Add beta-Ta\s{2}O\s{5} from
+      \href{https://doi.org/10.1016/j.jct.2008.12.006}{Jacob et al. (2009)}.
+
+      \item Add Co(OH)\s{2} from
+      \href{https://pid.geoscience.gov.au/dataset/ga/25473}{Shvarov and
+        Bastrakov, 1999}.
+
+      \item Add chromite (FeCr\s{2}O\s{4}) and cassiterite (SnO\s{2}) from
+      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway (1995)}. Move
+      cassiterite from
+      \href{https://doi.org/10.2113/gsecongeo.80.5.1365}{Jackson and Helgeson
+        (1985)} to optional data.
+
+      \item Add spherocobaltite (CoCO\s{3}) from
+      \href{https://doi.org/10.1007/978-3-662-02293-1}{Barin et al. (1977)}.
+
+      \item Add CoSO\s{4} and beta-Nb\s{2}O\s{5} from
+      \href{https://www.worldcat.org/oclc/8139446}{Naumov et al. (1974)}. A PDF
+      of this publication is available from the
+      \href{https://ntrl.ntis.gov/NTRL/}{National Technical Reports Library}.
+      
+      \item Move americium complexes from optional to default data. Entropy of
+      the element Am has been listed in \file{element.csv} since CHNOSZ 1.4.0.
+
+      \item Cite \href{https://doi.org/10.1017/CBO9781139167604}{Denbigh
+        (1981)} for the hydrogen ion convention.
+
+      \item Due to an apparent typo in
+      \href{https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf}{Wagman et al. (1982)},
+      Δ\emph{H}°\s{f} for In\s{+3} and derived species was corrected by -7335
+      cal/mol to maintain GHS consistency. This is in addition to the
+      correction for S° previously noted by
+      \href{https://doi.org/10.1016/0016-7037(88)90181-0}{Shock and Helgeson
+        (1988)}.
+
+      \item Fix sign of \emph{c} parameter for nesquehonite. Thanks to James
+      Leong and Grayson Boyer.
+
+      \item Restore steam (H\s{2}O gas).
+
+    }
+  }
+
+  \subsection{OBIGT OPTIONAL DATA}{
+    \itemize{
+
+      \item Make new directory \file{OBIGT/testing} to hold optional data files
+      for testing, including \file{SiO2.csv} (renamed from \file{AS04.csv}) and
+      \file{GEMSFIT.csv} in addition to those listed below.
+
+      \item Add \file{testing/IGEM.csv}: Au and Cu complexes and
+      SO\s{4}\S{-2}-bearing species from researchers at IGEM RAS.
+
+      \item Add \file{testing/Sandia.csv}: Mg(OH)\s{2}-MgCl\s{2}-H\s{2}O phases from
+      \href{https://doi.org/10.1016/j.apgeochem.2024.106032}{Knight et al.
+        (2024)}.
+
+    }
+  }
+
+  \subsection{DOCUMENTATION}{
+    \itemize{
+
+      \item Major revision of \viglink{anintro}.
+
+      \item Add \file{demo/MgATP.R}: speciation of ATP with H\S{+} and
+      Mg\S{+2}, based on
+      \href{https://search.worldcat.org/title/51242181}{Alberty (2003)} (moved
+      from \file{anintro.Rmd}).
+
+      \item Update \file{demo/contour.R} to use conditions taken from
+      \href{https://doi.org/10.1016/j.oregeorev.2022.105231}{Ding et al.
+        (2023)} and optional data for Au species from IGEM RAS, including
+      polynuclear Au\s{2}S\s{2}\S{-2}.
+
+      \item Add \file{demo/rubisco_Zc.R}, moved from \file{anintro.Rmd}.
+
+      \item Add \file{demo/sum_S.R}: log \emph{f}O\s{2}--log \emph{m} ΣS
+      diagram for Fe-S-O-C minerals with solubility contours for Fe and Au.
+
+      \item Add \file{demo/uranyl.R}: total (carbonate|sulfate)-pH diagrams for
+      uranyl species, after
+      \href{https://doi.org/10.1016/j.gca.2024.04.023}{Migdisov et al. (2024)}.
+
+      \item Add FAQ questions:
+     
+      \itemize{
+        
+        \item Why are mineral stability boundaries curved on mosaic diagrams?
+
+        \item Where do the names CHNOSZ, OBIGT, and subcrt come from?
+
+        \item What are the main limitations of CHNOSZ?
+
+      }
+
+    }
+  }
+
+  \subsection{NEW FEATURES}{
+    \itemize{
+
+      \item \code{axis.label()} now uses summation symbol (Σ) for total
+      activity or molality of basis species used as a plotting variable in
+      \code{mosaic()}.
+
+      \item Restore \code{lines} to the output of \code{diagram()} with the the
+      x and y coordinates of stability field boundaries.
+
+      \item \code{check.EOS()} now uses values of Born coefficients \emph{X}
+      and \emph{Q} that are consistent with either SUPCRT92 or DEW, depending
+      on the \code{model} listed for the species in OBIGT (HKF or DEW,
+      respectively).
+
+      \item \code{rank.affinity()} now rescales average ranks of groups to the
+      same bounds.
+
+    }
+  }
+
+  \subsection{CHANGES TO NAMES AND DEFAULTS}{
+    \itemize{
+
+      \item In \code{diagram()}, the default for the \strong{type} argument
+      when using the output from \code{solubility()} is now \code{loga.balance}
+      (sum of activities of aqueous species) rather than \code{loga.equil}
+      (activities of individual aqueous species).
+
+      \item In \code{NaCl()}, rename argument \strong{m_tot} to \strong{m_NaCl}
+      (moles of of NaCl added to 1 kg H\s{2}O) and rename output with
+      \samp{m_Naplus}, \samp{m_Clminus}, \samp{m_NaCl0}, and \samp{m_HCl0}
+      (molalities of aqueous species).
+
+      \item Rename \code{logB.to.OBIGT()} to \code{logK.to.OBIGT()} and add a
+      \strong{state} argument which accepts \samp{aq} (aqueous species using
+      heat capacity parameters in the \samp{HKF} model; the default) or
+      \samp{cr} (minerals using the Maier-Kelley equation in the \samp{CGL}
+      model; a new option).
+
+      \item In \code{water()}, rename \strong{P1} logical argument to
+      \strong{Psat_floor} numeric argument.
+
+    }
+  }
+
+  \subsection{BUG FIXES}{
+    \itemize{
+
+      \item \code{water()} with the IAPWS95 model now respects the value of
+      \strong{Psat_floor}, making it possible to remove the floor of 1 bar.
+
+      \item Fix using Eh in transect mode of \code{affinity()} (feature was not
+      working since at least version 0.9-7).
+
+    }
+  }
+
+  \subsection{OTHER CHANGES}{
+    \itemize{
+
+      \item \code{expr.species()} no longer subscripts formulas after a
+      variable (activity, fugacity, or molality: \emph{a}, \emph{f}, or
+      \emph{m}). This avoids readability issues with double subscripting of
+      elements' coefficients. An example of the new formatting is \dQuote{log
+        \emph{f}O\s{2}}. 
+      
+      \item Add scripts and data files in \code{extdata/protein/Cas} for amino
+      acid compositions of CRISPR-associated (Cas) proteins in different
+      classes and subtypes listed by
+      \href{https://doi.org/10.1038/s41579-019-0299-x}{Makarova et al. (2020)}.
+
+
+      \item Remove \code{ispecies} from output of \code{check.OBIGT()} to avoid
+      trivial diffs.
+
+    }
+  }
+
+  \subsection{REMOVED FEATURES}{
+    \itemize{
+
+      \item Remove \code{add.alpha()}. Instead of this function,
+      \code{grDevices::adjustcolor()} is now used in \code{stack_mosaic()} to
+      add transparency.
+
+      \item Remove \code{seq2aa()}.
+
+      \item Move \code{read.fasta()}, \code{count.aa()}, and \code{aasum()} to
+      \href{https://cran.r-project.org/package=canprot}{canprot} with different
+      names (\code{read_fasta()}, \code{count_aa()}, and \code{sum_aa()}).
+
+      \item Move \file{equilibrium.Rmd} and \code{protein.equil()} to
+      \href{https://github.com/jedick/JMDplots}{JMDplots}.
+
+    }
+  }
+
+}
+
 \section{Changes in CHNOSZ version 2.1.0 (2024-02-11)}{
 
   \subsection{NEW FEATURES}{
@@ -158,9 +431,9 @@
 
       \item Merge \file{biotic_aq.csv} into \file{organic_aq.csv}.
 
-      \item \samp{OBIGT/inorganic_cr.csv}: Add cobalt monoxide (CoO), guite
-      (Co\s{3}O\s{4}), and zinc from \href{https://doi.org/10.3133/b2131}{Robie
-        and Hemingway (1995)}.
+      \item \samp{OBIGT/inorganic_cr.csv}: Add aluminum (Al), cobalt monoxide
+      (CoO), guite (Co\s{3}O\s{4}), and zinc from
+      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway (1995)}.
 
       \item \samp{OBIGT/inorganic_cr.csv}: Modify linnaeite (Co\s{3}S\s{4}) to
       use 25 \degC parameters from \href{https://doi.org/10.3133/b2131}{Robie

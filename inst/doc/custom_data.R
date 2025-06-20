@@ -4,7 +4,7 @@ options(width = 80)
 ## Use pngquant to optimize PNG images
 library(knitr)
 knit_hooks$set(pngquant = hook_pngquant)
-pngquant <- "--speed=1 --quality=0-25"
+pngquant <- if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) "--speed=1 --quality=0-25" else "--speed=1 --quality=0-10"
 if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL
 
 # Set dpi 20231129
@@ -43,7 +43,7 @@ reset_ <- '<code style="color: red;">reset()</code>'
 OBIGT_ <- '<code style="color: red;">OBIGT()</code>'
 add.OBIGT_ <- '<code style="color: red;">add.OBIGT()</code>'
 mod.OBIGT_ <- '<code style="color: red;">mod.OBIGT()</code>'
-logB.to.OBIGT_ <- '<code style="color: red;">logB.to.OBIGT()</code>'
+logK.to.OBIGT_ <- '<code style="color: red;">logK.to.OBIGT()</code>'
 basis_ <- '<code style="color: red;">basis()</code>'
 species_ <- '<code style="color: red;">species()</code>'
 E.units_ <- '<code style="color: red;">E.units()</code>'
@@ -56,7 +56,7 @@ check.GHS_ <- '<code style="color: green;">check.GHS()</code>'
 check.EOS_ <- '<code style="color: green;">check.EOS()</code>'
 # Math stuff
 logK <- "log&thinsp;<i>K</i>"
-logB <- "log&thinsp;&beta;"
+logK <- "log&thinsp;&beta;"
 F_ <- "F<sup>-</sup>"
 Hplus <- "H<sup>+</sup>"
 HWO4_ <- "HWO<sub>4</sub><sup>-</sup>"
@@ -109,7 +109,7 @@ iSUPCRT92 <- add.OBIGT("SUPCRT92")
 unique(suppressMessages(info(iSUPCRT92))$name)
 
 ## ----BZA10--------------------------------------------------------------------
-file <- system.file("extdata/adds/BZA10.csv", package = "CHNOSZ")
+file <- system.file("extdata/misc/BZA10.csv", package = "CHNOSZ")
 read.csv(file, as.is = TRUE)
 
 ## ----BZA10_Cd-----------------------------------------------------------------
@@ -171,24 +171,24 @@ P <- "Psat"
 
 ## ----HWO4_--------------------------------------------------------------------
 T <- c(250, 300, 350)
-logB <- c(5.58, 6.51, 7.99)
+logK <- c(5.58, 6.51, 7.99)
 species <- c("WO4-2", "H+", "HWO4-")
 coeff <- c(-1, -1, 1)
-logB.to.OBIGT(logB, species, coeff, T, P)
+logK.to.OBIGT(logK, species, coeff, T, P)
 
 ## ----H3WO4F2------------------------------------------------------------------
 T <- seq(100, 250, 25)
-logB <- c(17.00, 17.11, 17.46, 17.75, 18.17, 18.71, 19.23)
+logK <- c(17.00, 17.11, 17.46, 17.75, 18.17, 18.71, 19.23)
 # Species and coefficients in the formation reaction
 species <- c("H+", "WO4-2", "F-", "H3WO4F2-")
 coeff <- c(-3, -1, -2, 1)
-logB.to.OBIGT(logB, species, coeff, T, P)
+logK.to.OBIGT(logK, species, coeff, T, P)
 
 ## ----H2WO4--------------------------------------------------------------------
-logB <- c(7.12, 7.82, 7.07, 7.76, 7.59, 7.98, 8.28)
+logK <- c(7.12, 7.82, 7.07, 7.76, 7.59, 7.98, 8.28)
 species <- c("H+", "WO4-2", "H2WO4")
 coeff <- c(-2, -1, 1)
-logB.to.OBIGT(logB, species, coeff, T, P, tolerance = 0.3)
+logK.to.OBIGT(logK, species, coeff, T, P, tolerance = 0.3)
 
 ## ----diagram1, message = FALSE, results = "hide", fig.width = 6, fig.height = 5, out.width = "75%", fig.align = "center", pngquant = pngquant----
 basis(c("H+", "WO4-2", "F-", "H2O", "O2"))

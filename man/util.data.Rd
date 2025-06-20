@@ -7,7 +7,7 @@
 \alias{check.OBIGT}
 \alias{dumpdata}
 \alias{RH2OBIGT}
-\title{Functions for Checking Thermodynamic Data}
+\title{Functions for checking thermodynamic data}
 \description{
 Show table of references in a web browser or get individual references for species.
 Check self consistency of individual entries in database.
@@ -20,7 +20,7 @@ Check self consistency of individual entries in database.
   check.OBIGT()
   dumpdata(file)
   RH2OBIGT(compound = NULL, state = "cr", 
-    file = system.file("extdata/adds/RH98_Table15.csv", package = "CHNOSZ"))
+    file = system.file("extdata/misc/RH98_Table15.csv", package = "CHNOSZ"))
 }
 
 \arguments{
@@ -59,9 +59,9 @@ The default tolerances are 1 J/K.mol or 1 cal/K.mol for Cp (depending on the \co
 These can be changed by setting \code{thermo()$opt$Cp.tol}, \code{thermo()$opt$V.tol}, and \code{thermo()$opt$G.tol}.
 
 \code{check.OBIGT} is a function to check self-consistency of each entry in the thermodynamic database, using \code{check.EOS} and \code{check.GHS}.
-The output is a table listing only species that exceed at least one of the tolerance limits, giving the species index (rownumber in `thermo()$OBIGT`), species name and state, and DCp, DV and DG, for the calculated differences (only those above the tolerances are given).
+The output is a table listing only species that exceed at least one of the tolerance limits, giving the species name and state, and DCp, DV and DG, for the calculated differences (only those above the tolerances are given).
 Values of DCp and DG are given in the units present in the data files.
-This function is used to generate the file found at \code{extdata/thermo/OBIGT_check.csv}.
+This function is used to generate the file found at \file{extdata/misc/OBIGT_check.csv}.
 
 \code{dumpdata} returns all of the available data, from both the default and optional data files, or writes it to a file if \code{file} is not NULL.
 The format is the same as \code{\link{thermo}$OBIGT}, except for a single prepended column named \samp{source}, giving the source of the data (\samp{OBIGT} refers to the default database, and \samp{DEW}, \samp{SLOP98}, and \samp{SUPCRT92} are the optional data files).

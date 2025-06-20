@@ -9,7 +9,7 @@ The species in each layer are usually minerals with different metals; any bimeta
 
 \usage{
   stack_mosaic(bases, species1, species2, species12, names = NULL,
-    col = list(4, 3, 6), col.names = list(4, 3, 6), fill = NULL,
+    col = list(1, 4, 4), col.names = list(1, 4, 4), fill = list(NA, NA, NA),
     dx = list(0, 0, 0), dy = list(0, 0, 0), srt = list(0, 0, 0),
     lwd = list(1, 1, 1), lty = list(1, 1, 1), loga_aq = NULL,
     plot.it = TRUE, ...)
@@ -41,14 +41,13 @@ Then, both \code{bases} \emph{and} \code{species1} (the stable species at each p
 
 Note that \code{basis} has aqueous S species in the examples provided, and \code{species1} consists of minerals and/or aqueous species with a single metal (e.g. Fe).
 \code{species2} has minerals and/or aqueous species with a second metal (e.g. Cu), and \code{species12} has bimetallic minerals.
-For \dQuote{mixed} diagrams (where \code{species1} or \code{species2} has both minerals and aqueous species), use \code{loga_aq} to set the logarithms of activities of aqueous species.
+For \dQuote{composite} diagrams (where \code{species1} or \code{species2} has both minerals and aqueous species), use \code{loga_aq} to set the logarithms of activities of aqueous species.
 Here, only a single value of \code{loga_aq} is needed, unlike in \code{\link{mosaic}}, where a value for each set of basis species is required.
 
 The plot parameters \code{col}, \code{col.names}, \code{fill}, \code{dx}, \code{dy}, \code{srt}, \code{lwd}, and \code{lty} should be length-3 lists (not vectors).
 The values of elements 1--3 of the list are recycled to the number of species in \code{species1}, \code{species2}, and \code{species12}, respectively.
 
-For \code{fill}, the default is to use no fill except for \code{species12}, where the fill color is taken from \code{col.names} with added transparency.
-The default definition of \code{fill} is \code{list(NA, NA, add.alpha(col.names[3], "50"))}.
+For \code{fill}, the default is to use no fill except for \code{species12}, where the fill color is taken from \code{col.names} with added transparency added using \code{\link{adjustcolor}}.
 }
 
 \section{Warning}{
@@ -75,8 +74,8 @@ O2 <- c(-48, -33, res)
 basis(c("pyrite", "Cu", "Cl-", "H2S", "H2O", "oxygen", "H+"))
 basis("H2S", -2)
 # Calculate solution composition for 1 mol/kg NaCl
-NaCl <- NaCl(T = T, P = P, m_tot = 1)
-basis("Cl-", log10(NaCl$m_Cl))
+NaCl <- NaCl(m_NaCl = 1, T = T, P = P)
+basis("Cl-", log10(NaCl$m_Clminus))
 
 # Define arguments for stack_mosaic: Speciate aqueous sulfur
 bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
@@ -85,20 +84,12 @@ species1 <- c("pyrite", "pyrrhotite", "magnetite", "hematite")
 # Calculate stabilities of Cu-bearing and FeCu-bearing minerals second
 species2 <- c("copper", "cuprite", "tenorite", "chalcocite", "covellite")
 species12 <- c("chalcopyrite", "bornite")
-# Use abbreviations for Fe-bearing minerals and formulas for Cu-bearing minerals
-names1 <- c("Py", "Po", "Mag", "Hem")
-names2 <- info(info(species2))$formula
-names12 <- info(info(species12))$formula
-names <- list(names1, names2, names12)
 # Adjust x-position for one species (chalcocite, Cu2S)
 dx <- list(c(0, 0, 0, 0), c(0, 0, 0, 1, 0), c(0, 0))
-# Use thick dashed lines for the bimetallic species
-lwd <- list(1, 1, 2)
-lty <- list(1, 1, 2)
 
 # Make the diagram
-stack_mosaic(bases, species1, species2, species12, names = names,
-  dx = dx, lwd = lwd, lty = lty,
+stack_mosaic(bases,
+  species1, species2, species12, dx = dx,
   pH = pH, O2 = O2, T = T, P = P, IS = NaCl$IS)
 # Add legend and title
 lTP <- lex(lTP(T, P))

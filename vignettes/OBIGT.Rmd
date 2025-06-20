@@ -70,9 +70,8 @@ function OpenAllDivs() {
   OpenDiv("optional-SUPCRT92");
   OpenDiv("optional-SLOP98");
   OpenDiv("optional-AD");
-  OpenDiv("optional-AS04");
   OpenDiv("optional-DEW");
-  OpenDiv("optional-GEMSFIT");
+  OpenDiv("optional-Testing");
   // change the footer message
   document.getElementById("footer").style.display = "none";
   document.getElementById("all-open").style.display = "block";
@@ -90,9 +89,8 @@ function CloseAllDivs() {
   CloseDiv("optional-SUPCRT92");
   CloseDiv("optional-SLOP98");
   CloseDiv("optional-AD");
-  CloseDiv("optional-AS04");
   CloseDiv("optional-DEW");
-  CloseDiv("optional-GEMSFIT");
+  CloseDiv("optional-Testing");
   // change the footer message
   document.getElementById("footer").style.display = "block";
   document.getElementById("all-open").style.display = "none";
@@ -105,24 +103,38 @@ reset()
 ```
 
 ```{r setfile, include=FALSE}
-# Assign the file name to a variable and print the file name and number of species
+# Assign the file name to the parent frame and return the name and number of species
 setfile <- function(csvfile, dat=NULL) {
   # Assign csvfile outside this function
   assign("csvfile", csvfile, parent.frame())
-  file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
-  dat <- read.csv(file, as.is=TRUE)
-  ## Exclude entries for high-T polymorphs
-  #dat <- dat[!dat$state %in% c("cr2", "cr3", "cr4", "cr5", "cr6", "cr7", "cr8", "cr9"), ]
-  # The state and class of substance (used as section header), followed by number of species
-  basename <- gsub(".csv", "", csvfile)
-  class <- strsplit(basename, "_")[[1]][1]
-  substr(class, 1, 1) <- toupper(substr(class, 1, 1))
-  state <- strsplit(basename, "_")[[1]][2]
-  if(identical(state, "aq")) state <- "Aqueous "
-  else if(identical(state, "cr")) state <- "Solid "
-  else if(identical(state, "gas")) state <- "Gas "
-  else if(identical(state, "liq")) state <- "Liquid "
-  else state <- "Optional "
+  if(csvfile == "testing") {
+    # Deal with testing optional data files as a group
+    testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+    testing_list <- lapply(testing_files, function(file) {
+      dat <- read.csv(file, as.is = TRUE)
+      source <- gsub(".csv", "", basename(file))
+      cbind(source = source, dat)
+    })
+    dat <- do.call(rbind, testing_list)
+    state <- "Optional "
+    class <- "Testing"
+  } else {
+    # Deal with individual optional data files
+    file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
+    dat <- read.csv(file, as.is=TRUE)
+    ## Exclude entries for high-T polymorphs
+    #dat <- dat[!dat$state %in% c("cr2", "cr3", "cr4", "cr5", "cr6", "cr7", "cr8", "cr9"), ]
+    # The state and class of substance (used as section header), followed by number of species
+    basename <- gsub(".csv", "", csvfile)
+    class <- strsplit(basename, "_")[[1]][1]
+    substr(class, 1, 1) <- toupper(substr(class, 1, 1))
+    state <- strsplit(basename, "_")[[1]][2]
+    if(identical(state, "aq")) state <- "Aqueous "
+    else if(identical(state, "cr")) state <- "Solid "
+    else if(identical(state, "gas")) state <- "Gas "
+    else if(identical(state, "liq")) state <- "Liquid "
+    else state <- "Optional "
+  }
   paste0(state, class, " (", nrow(dat), " species)")
 }
 ```
@@ -133,8 +145,19 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
   whichref <- "ref2"
   # Without dat, look for ref1 in csvfile
   if(is.null(dat)) {
-    file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
-    dat <- read.csv(file, as.is=TRUE)
+    if(csvfile == "testing") {
+      # Deal with testing optional data files as a group
+      testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+      testing_list <- lapply(testing_files, function(file) {
+        dat <- read.csv(file, as.is = TRUE)
+        source <- gsub(".csv", "", basename(file))
+        cbind(source = source, dat)
+      })
+      dat <- do.call(rbind, testing_list)
+    } else {
+      file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
+      dat <- read.csv(file, as.is=TRUE)
+    }
     whichref <- "ref1"
   }
   ## Exclude entries for high-T polymorphs
@@ -162,7 +185,7 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
     if(!identical(note, "")) note <- paste0(" *", note, "* ")
     # Use bullets for ref2
     if(whichref=="ref2") bullet <- "- " else bullet <- ""
-    # Convert key (e.g. LD12.2) to ref in OBIGT.bib (e.g. LD12)
+    # Convert key with subreference (e.g. LD12.2) to reference in OBIGT.bib (e.g. LD12)
     thisref <- gsub("\\..*$", "", thiskey)
     # Replace SLOP98 with slop98.dat, etc.
     # (we don't actually cite them here to keep the year from showing -- it's annoying to see e.g. "slop98.dat (1998)")
@@ -194,17 +217,20 @@ Except for Optional Data, all data are present in the default database, which is
 Each section below corresponds to one of the CSV data files in the `extdata/OBIGT` package directory.
 Clicking on a button opens that section, which contains a list of primary references (from column `ref1` in the file) in chronological order.
 Any secondary references (`ref2`) are listed with bullet points under the primary reference.
-Each citation is followed by the number of species, and a note taken from the file `extdata/OBIGT/refs.csv`.
+Each citation is followed by the number of species, and a note taken from `extdata/thermo/refs.csv`.
 Additional comments (from this vignette) are present for some sections.
 
-Abbreviations: T (temperature), P (pressure), GHS (standard Gibbs energy, enthalpy, entropy), Cp (heat capacity), V (volume), HKF (<abbr title="Tanger and Helgeson, 1988">revised</abbr> <abbr title="Helgeson et al., 1981">Helgeson-Kirkham-Flowers</abbr> equations).
+Abbreviations: T (temperature), P (pressure), GHS (standard Gibbs energy, enthalpy, entropy), Cp (standard heat capacity), V (standard volume), HKF (<abbr title="Tanger and Helgeson, 1988">revised</abbr> <abbr title="Helgeson et al., 1981">Helgeson-Kirkham-Flowers</abbr> equations).
 
 <!-- All buttons at top -->
 
 ### Aqueous Species <button id="B-aqueous-H2O" onclick='ToggleDiv("aqueous-H2O")'>H2O</button> <button id="B-aqueous-inorganic" onclick='ToggleDiv("aqueous-inorganic")'>Inorganic</button> <button id="B-aqueous-organic" onclick='ToggleDiv("aqueous-organic")'>Organic</button>
+
 ### Solids <button id="B-solid-inorganic" onclick='ToggleDiv("solid-inorganic")'>Inorganic</button> <button id="B-solid-organic" onclick='ToggleDiv("solid-organic")'>Organic</button> <button id="B-solid-Berman" onclick='ToggleDiv("solid-Berman")'>Berman</button>
+
 ### Gases <button id="B-gas-inorganic" onclick='ToggleDiv("gas-inorganic")'>Inorganic</button> <button id="B-gas-organic" onclick='ToggleDiv("gas-organic")'>Organic</button> &nbsp;&nbsp;&nbsp;Liquids <button id="B-liquid-organic" onclick='ToggleDiv("liquid-organic")'>Organic</button>
-### Optional Data <button id="B-optional-SUPCRT92" onclick='ToggleDiv("optional-SUPCRT92")'>SUPCRT92</button> <button id="B-optional-SLOP98" onclick='ToggleDiv("optional-SLOP98")'>SLOP98</button> <button id="B-optional-AD" onclick='ToggleDiv("optional-AD")'>AD</button> <button id="B-optional-AS04" onclick='ToggleDiv("optional-AS04")'>AS04</button> <button id="B-optional-DEW" onclick='ToggleDiv("optional-DEW")'>DEW</button> <button id="B-optional-GEMSFIT" onclick='ToggleDiv("optional-GEMSFIT")'>GEMSFIT</button>
+
+### Optional Data <button id="B-optional-SUPCRT92" onclick='ToggleDiv("optional-SUPCRT92")'>SUPCRT92</button> <button id="B-optional-SLOP98" onclick='ToggleDiv("optional-SLOP98")'>SLOP98</button> <button id="B-optional-AD" onclick='ToggleDiv("optional-AD")'>AD</button> <button id="B-optional-DEW" onclick='ToggleDiv("optional-DEW")'>DEW</button> <button id="B-optional-Testing" onclick='ToggleDiv("optional-Testing")'>Testing</button>
 
 <!-- Normal or "all open" footer message --> 
 
@@ -231,7 +257,7 @@ The properties of H<sub>2</sub>O are listed as NA; CHNOSZ calculates its propert
 
 By convention, the standard Gibbs energy of formation, entropy, and heat capacity of the aqueous proton (H<sup>+</sup>) are 0 at all *T* and *P* ([e.g. Cox et al., 1989](https://www.worldcat.org/oclc/18559968)).
 The formation reaction of the proton can be expressed as &frac12;H<sub>2,(*g*)</sub> + Z = H<sup>+</sup>, where Z is the "element" of positive charge.
-Because the conventional standard Gibbs energy of this reaction is 0 at all *T*, the standard entropy of the reaction is also constrained to be zero (cf. Puigdomenech et al., 1997).
+Because the conventional standard Gibbs energy of this reaction is 0 at all *T*, the standard entropy of the reaction is also constrained to be zero (cf. Denbigh, 1981; Puigdomenech et al., 1997).
 Therefore, the "element" of positive charge (Z) has zero thermodynamic properties except for an entropy, *S*°<sub>*T*<sub>r</sub></sub>, that is negative one-half that of H<sub>2,(*g*)</sub>.
 The standard entropy of the aqueous electron, which is a solely a pseudospecies defined by *e*<sup>-</sup> = -Z, is opposite that of Z.
 
@@ -245,6 +271,8 @@ All other calculations in CHNOSZ obtain the elemental makeup, including the corr
 
 <div id="D-aqueous-inorganic" style="display: none">
 ## <a id="aqueous-inorganic" class="anchor"></a> `r setfile("inorganic_aq.csv")`
+
+**NOTE:** Aqueous U species from @SSB97 (with the exception of HUO<sub>4</sub><sup>-</sup>) have been moved to the SLOP98 optional data file due to incompatibility with more recent data [@MBA+24]. Because the latter source includes only uranyl species, the set of data for aqueous uranium species in the default database is currently incomplete.
 
 ```{r reflist, results="asis", echo=FALSE}
 ```
@@ -264,8 +292,6 @@ This would be incompatible with group additivity of cations and anions to give a
 
 <div id="D-solid-inorganic" style="display: none">
 ## <a id="solid-inorganic" class="anchor"></a> `r setfile("inorganic_cr.csv")`
-Chamosite,7A and witherite were present in sprons92.dat but not in slop98.dat or later files, and are not included in CHNOSZ.
-The source of parameters used here for goethite is different from that in the slop files ([Shock, 2009](https://doi.org/10.2113/gsecongeo.104.8.1235)).
 
 ```{r reflist, results="asis", echo=FALSE}
 ```
@@ -316,24 +342,40 @@ Thermodynamic properties for these minerals are listed as NA in `thermo()$OBIGT`
 
 <div id="D-optional-SUPCRT92" style="display: none">
 ## <a id="optional-SUPCRT92" class="anchor"></a> `r setfile("SUPCRT92.csv")`
-These minerals and aqueous species, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by @Ber88 (minerals) and @NA03 (H<sub>2</sub>AsO<sub>3</sub><sup>-</sup>).
+These minerals, taken from the SUPCRT92 database, were present in earlier versions of CHNOSZ but have since been superseded by data from @Ber88 (most minerals) or @RH95 (cassiterite).
 The thermodynamic properties and parameters are kept here as optional data for reproducing published calculations and making comparisons with newer data.
-The minerals here include all of the silicates and Al-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite.
+The minerals here include all of the silicates and Al- and Ti-bearing minerals from @HDNB78, as well as calcite, dolomite, hematite, and magnetite.
+
 Use `add.OBIGT("SUPCRT92")` to load the data.
 
 **NOTE:** Other minerals from SUPCRT92, including native elements, sulfides, halides, sulfates, and selected carbonates and oxides that do not duplicate those in the Berman dataset, are still present in the default database (**inorganic_cr.csv**).
 
 ```{r optreflist, results="asis", echo=FALSE}
+optused <- c(optused, filerefs(csvfile))
 ```
 </div>
 
 <div id="D-optional-SLOP98" style="display: none">
 ## <a id="optional-SLOP98" class="anchor"></a> `r setfile("SLOP98.csv")`
-These species, which were taken from or are linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database, including aqueous Al species [@TS01], As species [@NA03], Au, Ag, and Cu species [@AZ01; @AZ10], Pd species [@TBZ+13], Zn species [@AT14], Pt species [@TBB15], Nb species [@AKK+20], and CoCl<sub>2</sub><sup>+</sup> [@LBT+11].
-This file also contains aqueous transuranic actinide complexes, for which estimated thermodynamic properties have been reported, but no entropies of the corresponding elements at 298.15 K are available to check the self-consistency of the GHS values for the complexes.
+These species, whose parameters were listed in or are otherwise linked to slop98.dat (or later versions) and were present in earlier versions of CHNOSZ, have been replaced by or are incompatible with species currently in the default database.
+The elements with updated data for at least some aqueous species include:
+HCl [@TZA97],
+Al [@TS01],
+Au, Ag, and Cu(I) [@AZ01; @AZ10],
+As [@NA03],
+REE [@MWW09],
+Cd [@BZA10],
+Co [@LBT+11],
+Pd [@TBZ+13],
+Zn [@AT14],
+Pt [@TBB15],
+Nb [@AKK+20],
+Ga and In [@HB24], and
+U [@MBA+24].
+
 Use `add.OBIGT("SLOP98")` to load the data.
 
-**NOTE:** Many other species found in slop98.dat and later versions are still present in the default database.
+**NOTE:** Other species listed in slop98.dat and later versions are still present in the default database.
 
 ```{r optreflist, results="asis", echo=FALSE}
 ```
@@ -343,16 +385,6 @@ Use `add.OBIGT("SLOP98")` to load the data.
 ## <a id="optional-AD" class="anchor"></a> `r setfile("AD.csv")`
 This file has parameters for aqueous nonelectrolytes in the Akinfiev-Diamond model [@AD03].
 Use `add.OBIGT("AD")` to load the data; see `demo(AD)` for an example.
-
-```{r optreflist, results="asis", echo=FALSE}
-```
-</div>
-
-<div id="D-optional-AS04" style="display: none">
-## <a id="optional-AS04" class="anchor"></a> `r setfile("AS04.csv")`
-This file has data for aqueous SiO<sub>2</sub> from @AS04 and a HSiO<sub>3</sub><sup>-</sup> modified to be consistent with the SiO<sub>2</sub> here.
-This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication [@Ste01] that is roughly consistent with the SiO<sub>2</sub> here.
-Use `add.OBIGT("AS04")` to load the data; see `demo(aluminum)` for an example.
 
 ```{r optreflist, results="asis", echo=FALSE}
 ```
@@ -368,17 +400,37 @@ The following species are present in the spreadsheet, but are not used here beca
 Besides using `add.OBIGT("DEW")` to load these data, you should also run `water("DEW")` to activate the DEW equations in CHNOSZ.
 See `demo(DEW)` for some examples.
 
-Most of the comments below were transcribed from the DEW spreadsheet. (Comments in parentheses were added by JMD.)
+Most of the comments below were transcribed from the DEW spreadsheet. Comments in parentheses were added by JMD.
 
 ```{r optreflist, results="asis", echo=FALSE}
-optused <- c(optused, filerefs(csvfile))
 ```
 </div>
 
-<div id="D-optional-GEMSFIT" style="display: none">
-## <a id="optional-GEMSFIT" class="anchor"></a> `r setfile("GEMSFIT.csv")`
-[Miron et al. (2016)](https://doi.org/10.1016/j.gca.2016.04.026) and [Miron et al. (2017)](https://doi.org/10.2475/07.2017.01) described an internally consistent thermodynamic dataset for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl that was obtained by using the [GEMSFIT](https://doi.org/10.1016/j.apgeochem.2014.10.013) package.
-Use `add.OBIGT("GEMSFIT")` to load the data.
+<div id="D-optional-Testing" style="display: none">
+## <a id="optional-Testing" class="anchor"></a> `r setfile("testing")`
+
+These are optional data files used for testing purposes.
+Load the data with e.g. `add.OBIGT("GEMSFIT")`.
+
+<h3>SiO2</h3>
+
+Aqueous SiO<sub>2</sub> from @AS04 and HSiO<sub>3</sub><sup>-</sup> modified to be consistent with it.
+This file also has H<sub>4</sub>SiO<sub>4</sub> from an earlier publication [@Ste01] that is roughly consistent with the SiO<sub>2</sub> here.
+See `demo(aluminum)` and the vignette [<span style="color:blue">*Regressing thermodynamic data*</span>](eos-regress.html) for examples.
+
+<h3>GEMSFIT</h3>
+
+Internally consistent dataset for aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl obtained with the [GEMSFIT](https://doi.org/10.1016/j.apgeochem.2014.10.013) package [@MWKH16;@MWKL17].
+
+<h3>IGEM</h3>
+
+Updates for Au and Cu complexes and SO<sub>4</sub><sup>-2</sup>-bearing species from researchers at the Institute of Geology of Ore Deposits, Petrography, Mineralogy, and Geochemistry, Russian Academy of Sciences (IGEM RAS) [@AZ23;@TTA+23;@TAT+24;@TAZ24].
+
+<h3>Sandia</h3>
+
+Model for the Mg(OH)<sub>2</sub>-MgCl<sub>2</sub>-H<sub>2</sub>O system at 25 to 150 &deg;C from researchers at Sandia National Laboratories [@KBJ24].
+
+<h3>Citations</h3>
 
 ```{r optreflist, results="asis", echo=FALSE}
 ```
@@ -386,7 +438,7 @@ Use `add.OBIGT("GEMSFIT")` to load the data.
 
 <hr>
 
-<b>Total count of species</b>: References were found for `r length(used)` of `r nrow(thermo()$OBIGT)` species in the default OBIGT database and `r length(optused)` optional species.
+<b>Total count of species</b>: References were found for `r length(used)` of `r nrow(thermo()$OBIGT)` species in default data files and `r length(optused)` species in optional data files.
 
 # References
 

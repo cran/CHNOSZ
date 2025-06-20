@@ -9,12 +9,7 @@ output:
     toc: true
     mathjax: null
     highlight: null
-  tufte::tufte_handout:
-    citation_package: natbib
-    latex_engine: xelatex
-  tufte::tufte_book:
-    citation_package: natbib
-    latex_engine: xelatex
+    margin_references: false
 vignette: >
   %\VignetteIndexEntry{Regressing thermodynamic data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -76,12 +71,9 @@ knit_hooks$set(small.mar = function(before, options, envir) {
 })
 # Use pngquant to optimize PNG images
 knit_hooks$set(pngquant = hook_pngquant)
+pngquant <- if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) "--speed=1 --quality=0-25" else "--speed=1 --quality=0-10"
 # pngquant isn't available on R-Forge ...
-if (!nzchar(Sys.which("pngquant"))) {
-  pngquant <- NULL 
-} else {
-  pngquant <- "--speed=1 --quality=0-50"
-}
+if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL 
 
 ## Colorize messages 20171031
 ## Adapted from https://gist.github.com/yihui/2629886#file-knitr-color-msg-rnw
@@ -142,7 +134,7 @@ reset()
 Now, read a data file with experimental measurements from @HW97 and convert pressures in MPa to bar (the values of `r Cp0` in Joules will be used as-is):
 
 ```{r Cpdat}
-file <- system.file("extdata/cpetc/HW97_Cp.csv", package = "CHNOSZ")
+file <- system.file("extdata/misc/HW97_Cp.csv", package = "CHNOSZ")
 Cpdat <- read.csv(file)
 # Use data for CH4
 Cpdat <- Cpdat[Cpdat$species == "CH4", ]
@@ -196,7 +188,7 @@ Let's regress volumetric data using a value of omega taken from the heat capacit
 First, read the data from @HWM96.
 
 ```{r Vdat}
-file <- system.file("extdata/cpetc/HWM96_V.csv", package = "CHNOSZ")
+file <- system.file("extdata/misc/HWM96_V.csv", package = "CHNOSZ")
 Vdat <- read.csv(file)
 # Use data for CH4 near 280 bar
 Vdat <- Vdat[Vdat$species == "CH4", ]
@@ -357,8 +349,8 @@ EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
 Some mineral stability diagrams use the activity of `r h4sio4` as a variable.
 However, the primary species for dissolved silica in CHNOSZ is `r sio2`(aq).
 As recommended by @WJ17, let us use data for `r sio2`(aq) from @AS04, which gives a higher solubility of quartz compared to values from @SHS89 that are loaded by default in the package:
-```{r AS04, message=FALSE}
-add.OBIGT("AS04")
+```{r add_SiO2, message=FALSE}
+add.OBIGT("SiO2")
 ```
 
 The pseudo-reaction with zero properties, `r h4sio4` = `r sio2`  + 2 `r h2o`, defines the properties of the pseudospecies `r h4sio4`.
@@ -443,17 +435,19 @@ legend("topright", legend = c("calc-H4SiO4 (this vignette)",
 text(225, 1000, describe.reaction(s1$reaction))
 ```
 
-Let's compare `H4SiO4` from Stef&aacute;nsson (2001) and the `calc-H4SiO4` we just made with the calculated properties of `r sio2` + 2 `r h2o` as a function of temperature:
+Let's compare `H4SiO4` from @Ste01 and the `calc-H4SiO4` we just made with the calculated properties of `r sio2` + 2 `r h2o` as a function of temperature:
 ```{r subcrt_H4SiO4, eval=FALSE}
 ```
 
 Ideally, the lines would be horizontal with a _y_-interecept of 0.
-However, both the `calc-H4SiO4` we made here and the `H4SiO4` from Stef&aacute;nsson (2001) show deviations that increase at higher temperatures.
+However, both the `calc-H4SiO4` we made here and the `H4SiO4` from @Ste01 show deviations that increase at higher temperatures.
 While they are not quite negligible, these deviations are comparatively small.
 For example, the almost 800 J/mol offset in &Delta;<i>G</i>&deg; at 350 &deg;C corresponds to a difference in log<i>K</i> of only -0.07.
 
-The following example uses the `H4SiO4` from Stef&aacute;nsson (2001) to make an activity diagram for the K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O system.
-This is similar to the diagram on p. 361 of [Garrels and Christ, 1965](https://www.worldcat.org/oclc/517586), but is quantitatively a closer match to the diagram in the [User's Guide to PHREEQC](https://wwwbrr.cr.usgs.gov/projects/GWC_coupled/phreeqc/html/final-75.html).
+The following example uses the `H4SiO4` from @Ste01 to make an activity diagram for the
+K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O system.
+This is similar to the diagram on p. 361 of @GC65, but the positions of the stability boundaries
+are closer to those shown on p. 316 of the User's Guide for PHRREQC v3 [@PA13].
 
 ```{r activity_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, echo=TRUE, results="hide", message=FALSE, out.width="100%", cache=TRUE, fig.cap="Activity diagram for K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O.", pngquant=pngquant}
 basis(c("Al+3", "H4SiO4", "K+", "H2O", "H+", "O2"))
@@ -462,3 +456,5 @@ a <- affinity(H4SiO4 = c(-8, 0, 300), `K+` = c(-1, 8, 300))
 diagram(a, ylab = ratlab("K+"), fill = "terrain", yline = 1.7)
 legend("bottomleft", describe.property(c("T", "P"), c(25, 1)), bty = "n")
 ```
+
+## References

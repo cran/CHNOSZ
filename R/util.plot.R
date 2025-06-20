@@ -205,7 +205,7 @@ ZC.col <- function(z) {
   # Diverging (blue - light grey - red) palette
   # dcol <- colorspace::diverge_hcl(1000, c = 100, l = c(50, 90), power = 1)
   # Use precomputed values
-  file <- system.file("extdata/cpetc/bluered.txt", package = "CHNOSZ")
+  file <- system.file("extdata/misc/bluered.txt", package = "CHNOSZ")
   dcol <- read.table(file, as.is = TRUE)[[1]]
   # Reverse the palette so red is at lower ZC (more reduced)
   rev(dcol)[z]
@@ -295,12 +295,4 @@ thermo.axis <- function(lab = NULL, side = 1:4,line = 1.5, cex = par('cex'), lwd
     if(thisside %in% c(2,4)) las <- 0 else las <- 1
     if(!is.null(lab)) mtext(lab, side = thisside, line = line, cex = cex, las = las)
   }
-}
-
-# Function to add transparency to given color 20220223
-add.alpha <- function(col, alpha) {
-  x <- col2rgb(col)
-  newcol <- rgb(x[1], x[2], x[3], maxColorValue = 255)
-  newcol <- paste0(newcol, alpha)
-  newcol
 }

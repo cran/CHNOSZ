@@ -1,8 +1,8 @@
 \encoding{UTF-8}
-\name{buffer}
-\alias{buffer}
+\name{mod.buffer}
 \alias{mod.buffer}
-\title{Calculating Buffered Chemical Activities}
+\alias{buffer}
+\title{Calculating buffered chemical activities}
 \description{
 Calculate values of activity or fugacity of basis species buffered by an assemblage of one or more species.
 }

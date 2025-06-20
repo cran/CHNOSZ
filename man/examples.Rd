@@ -2,7 +2,7 @@
 \name{examples}
 \alias{examples}
 \alias{demos}
-\title{Run Examples from the Documentation}
+\title{Run examples from the documentation}
 \description{
   Run the examples contained in each of the documentation topics. }
 
@@ -13,12 +13,13 @@
 
 \usage{
   examples(save.png = FALSE)
-  demos(which = c("sources", "protein.equil", "affinity", "NaCl",
+  demos(which = c("references", "dehydration", "affinity", "NaCl",
     "density", "ORP", "ionize", "buffer", "protbuff",
     "glycinate", "mosaic", "copper", "arsenic", "solubility", "gold",
     "contour", "sphalerite", "minsol", "Shh", "saturation",
     "adenine", "DEW", "lambda", "potassium", "TCA", "aluminum", "AD",
-    "comproportionation", "Pourbaix", "E_coli", "yttrium", "rank.affinity"),
+    "comproportionation", "Pourbaix", "E_coli", "yttrium", "rank.affinity",
+    "uranyl", "sum_S", "MgATP", "rubisco_Zc"),
     save.png = FALSE)
 }
 
@@ -31,9 +32,9 @@
 The demo(s) to run is/are specified by \code{which}; the default is to run them in the order of the list below.
 
   \describe{
-    \item{sources}{Cross-check the reference list with the thermodynamic database}
-    \item{protein.equil}{Chemical activities of two proteins in metastable equilibrium (Dick and Shock, 2011)}
+    \item{references}{Cross-check the references in refs.csv with the thermodynamic database}
     \item{affinity}{Affinities of metabolic reactions and amino acid synthesis (Amend and Shock, 1998, 2001)}
+    \item{dehydration}{\logK of dehydration reactions}
     \item{NaCl}{Equilibrium constant for aqueous NaCl dissociation (Shock et al., 1992)}
     \item{density}{Density of \H2O, inverted from IAPWS-95 equations (\code{\link{rho.IAPWS95}})}
     \item{ORP}{Temperature dependence of oxidation-reduction potential for redox standards}
@@ -46,10 +47,9 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \item{arsenic}{Another example of \code{\link{mosaic}}: Eh-pH diagram for the system As-O-H-S (Lu and Zhu, 2011)}
     \item{solubility}{Solubility of calcite (cf. Manning et al., 2013) and \CO2 (cf. Stumm and Morgan, 1996)}
     \item{gold}{Solubility of gold (Akinfiev and Zotov; 2001; Stef{\aacute}nsson and Seward, 2004; Williams-Jones et al., 2009)}
-    \item{contour}{Gold solubility contours on a log fO2 - pH diagram (Williams-Jones et al., 2009)}
+    \item{contour}{Gold solubility contours on a log fO2 - pH diagram (Ding et al., 2023)}
     \item{sphalerite}{Solubility of sphalerite (Akinfiev and Tagirov, 2014)}
     \item{minsol}{Solubilities of multiple minerals}
-    \item{dehydration}{\logK of dehydration reactions; SVG file contains tooltips and links}
     \item{Shh}{Affinities of transcription factors relative to Sonic hedgehog (Dick, 2015)}
     \item{saturation}{Equilibrium activity diagram showing activity ratios and mineral saturation limits (Bowers et al., 1984)}
     \item{adenine}{HKF regression of heat capacity and volume of aqueous adenine (Lowe et al., 2017)}
@@ -64,13 +64,16 @@ The demo(s) to run is/are specified by \code{which}; the default is to run them 
     \item{Pourbaix}{Eh-pH diagram for Fe-O-H with equisolubility lines (Pourbaix, 1974)}
     \item{E_coli}{Gibbs energy of biomass synthesis in \emph{E. coli} (LaRowe and Amend, 2016)}
     \item{rank.affinity}{Affinity ranking for proteins in yeast nutrient limitation (data from Tai et al., 2005)}
-    \item{yttrium}{\code{\link{logB.to.OBIGT}} fits at 800 and 1000 bar and Y speciation in \code{\link{NaCl}} solution at varying pH (Guan et al., 2020)}
+    \item{yttrium}{\code{\link{logK.to.OBIGT}} fits at 800 and 1000 bar and Y speciation in \code{\link{NaCl}} solution at varying pH (Guan et al., 2020)}
+    \item{uranyl}{Total (carbonate|sulfate)-pH diagrams for uranyl species (Migdisov et al., 2024)}
+    \item{sum_S}{Summed molality of S species and solubility contours for iron and gold (Skirrow and Walshe, 2002)}
+    \item{MgATP}{Speciation of ATP with H+ and Mg+2 (Alberty, 2003)}
+    \item{rubisco_Zc}{Zc of Rubisco vs optimal growth temperature}
   }
 
 For either function, if \code{save.png} is TRUE, the plots are saved in \code{\link{png}} files whose names begin with the names of the help topics or demos.
 
 Two of the demos have external dependencies and are not automatically run by \code{demos}.
-\samp{dehydration} creates an interactive SVG file; this demo depends on \CRANpkg{RSVGTipsDevice}, which is not available for Windows.
 \samp{carboxylase} creates an animated GIF; this demo requires that the ImageMagick \code{convert} commmand be available on the system (tested on Linux and Windows).
 
 \samp{carboxylase} animates diagrams showing rankings of calculated chemical activities along a combined \T and \logaH2 gradient, or makes a single plot on the default device (without conversion to animated GIF) if a single temperature (\code{T}) is specified in the code.
@@ -96,6 +99,8 @@ Akinfiev, N. N. and Zotov, A. V. (2001) Thermodynamic description of chloride, h
 
 Aksu, S. and Doyle, F. M. (2001) Electrochemistry of copper in aqueous glycine solutions. \emph{J. Electrochem. Soc.} \bold{148}, B51--B57.
 
+Alberty, R. A. (2003) \emph{Thermodynamics of Biochemical Reactions}, John Wiley & Sons, Hoboken, New Jersey, 397 p. \url{https://www.worldcat.org/oclc/51242181}
+
 Amend, J. P. and Shock, E. L. (1998) Energetics of amino acid synthesis in hydrothermal ecosystems. \emph{Science} \bold{281}, 1659--1662. \doi{10.1126/science.281.5383.1659}
 
 Amend, J. P. and Shock, E. L. (2001) Energetics of overall metabolic reactions of thermophilic and hyperthermophilic Archaea and Bacteria. \emph{FEMS Microbiol. Rev.} \bold{25}, 175--243. \doi{10.1016/S0168-6445(00)00062-0}
@@ -114,6 +119,8 @@ Dick, J. M. and Shock, E. L. (2011) Calculation of the relative chemical stabili
 
 Dick, J. M. (2015) Chemical integration of proteins in signaling and development. \emph{bioRxiv}. \doi{10.1101/015826}
 
+Ding, Z., Sun, X., Hu, S., Chen, H., Li, D., Fu, Y., Xu, L., Wu, Z., and Huang, F.. (2023) Role of carbonaceous material in gold precipitation for orogenic gold deposits: A case study of the Bangbu gold deposit in southern Tibet, China. \emph{Ore Geol. Rev.} \bold{152}, 105231. \doi{10.1016/j.oregeorev.2022.105231}
+
 Garrels, R. M. and Christ, C. L. (1965) \emph{Solutions, Minerals, and Equilibria}, Harper & Row, New York, 450 p. \url{https://www.worldcat.org/oclc/517586}
 
 Guan, Q., Mei, Y., Etschmann, B., Testemale, D., Louvel, M. and Brugger, J. (2020) Yttrium complexation and hydration in chloride-rich hydrothermal fluids: A combined \emph{ab initio} molecular dynamics and \emph{in situ} X-ray absorption spectroscopy study. \emph{Geochim. Cosmochim. Acta} \bold{281}, 168--189. \doi{10.1016/j.gca.2020.04.015}
@@ -128,6 +135,8 @@ Lu, P. and Zhu, C. (2011) Arsenic Eh--pH diagrams at 25\degC and 1 bar. \emph{En
   
 Manning, C. E., Shock, E. L. and Sverjensky, D. A. (2013) The chemistry of carbon in aqueous fluids at crustal and upper-mantle conditions: Experimental and theoretical constraints. \emph{Rev. Mineral. Geochem.} \bold{75}, 109--148. \doi{10.2138/rmg.2013.75.5}
 
+Migdisov, A., Bastrakov, E., Alcorn C., Reece M., Boukhalfa H., Caporuscio, F. A. and Jove-Colon, C. (2024) A spectroscopic study of the stability of uranyl-carbonate complexes at 25--150 \degC and re-visiting the data available for uranyl-chloride, uranyl-sulfate, and uranyl-hydroxide species. \emph{Geochim. Cosmochim. Acta}. \doi{10.1016/j.gca.2024.04.023}
+
 Pourbaix, M. (1974) \emph{Atlas of Electrochemical Equilibria in Aqueous Solutions}, NACE, Houston, TX and CEBELCOR, Brussels. \url{https://www.worldcat.org/oclc/563921897}
 
 Schulte, M. D. and Shock, E. L. (1995) Thermodynamics of Strecker synthesis in hydrothermal systems. \emph{Orig. Life Evol. Biosph.} \bold{25}, 161--173. \doi{10.1007/BF01581580}
@@ -135,6 +144,8 @@ Schulte, M. D. and Shock, E. L. (1995) Thermodynamics of Strecker synthesis in h
 Shock, E. L. and Koretsky, C. M. (1995) Metal-organic complexes in geochemical processes: Estimation of standard partial molal thermodynamic properties of aqueous complexes between metal cations and monovalent organic acid ligands at high pressures and temperatures. \emph{Geochim. Cosmochim. Acta} \bold{59}, 1497--1532. \doi{10.1016/0016-7037(95)00058-8}
 
 Shock, E. L., Oelkers, E. H., Johnson, J. W., Sverjensky, D. A. and Helgeson, H. C. (1992) Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 \degC and 5 kbar. \emph{J. Chem. Soc. Faraday Trans.} \bold{88}, 803--826. \doi{10.1039/FT9928800803}
+
+Skirrow, R. G. and Walshe, J. L. (2002) Reduced and oxidized Au-Cu-Bi iron oxide deposits of the Tennant Creek Inlier, Australia: An integrated geologic and chemical model. \emph{Econ. Geol.}. \bold{97}, 1167--1202. \doi{10.2113/gsecongeo.97.6.1167}
 
 Stef{\aacute}nsson, A. and Seward, T. M. (2004) Gold(I) complexing in aqueous sulphide solutions to 500\degC at 500 bar. \emph{Geochim. Cosmochim. Acta} \bold{68}, 4121--4143. \doi{10.1016/j.gca.2004.04.006}
 

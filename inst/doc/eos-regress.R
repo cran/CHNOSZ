@@ -31,12 +31,9 @@ knit_hooks$set(small.mar = function(before, options, envir) {
 })
 # Use pngquant to optimize PNG images
 knit_hooks$set(pngquant = hook_pngquant)
+pngquant <- if(nzchar(Sys.getenv("CHNOSZ_BUILD_LARGE_VIGNETTES"))) "--speed=1 --quality=0-25" else "--speed=1 --quality=0-10"
 # pngquant isn't available on R-Forge ...
-if (!nzchar(Sys.which("pngquant"))) {
-  pngquant <- NULL 
-} else {
-  pngquant <- "--speed=1 --quality=0-50"
-}
+if (!nzchar(Sys.which("pngquant"))) pngquant <- NULL 
 
 ## Colorize messages 20171031
 ## Adapted from https://gist.github.com/yihui/2629886#file-knitr-color-msg-rnw
@@ -55,7 +52,7 @@ library(CHNOSZ)
 reset()
 
 ## ----Cpdat--------------------------------------------------------------------
-file <- system.file("extdata/cpetc/HW97_Cp.csv", package = "CHNOSZ")
+file <- system.file("extdata/misc/HW97_Cp.csv", package = "CHNOSZ")
 Cpdat <- read.csv(file)
 # Use data for CH4
 Cpdat <- Cpdat[Cpdat$species == "CH4", ]
@@ -75,16 +72,16 @@ PS01_data <- convert(EOScoeffs("CH4", "Cp"), "J")
 EOSplot(Cpdat, coefficients = PS01_data, add = TRUE, lty = 2, col = "blue")
 
 ## ----EOSplot, eval=FALSE------------------------------------------------------
-#  EOSplot(Cpdat, coefficients = round(Cplm_low$coefficients, 1))
-#  EOSplot(Cpdat, coeficients = Cplm_high, add = TRUE, lty = 3)
-#  PS01_data <- convert(EOScoeffs("CH4", "Cp"), "J")
-#  EOSplot(Cpdat, coefficients = PS01_data, add = TRUE, lty = 2, col = "blue")
+# EOSplot(Cpdat, coefficients = round(Cplm_low$coefficients, 1))
+# EOSplot(Cpdat, coeficients = Cplm_high, add = TRUE, lty = 3)
+# PS01_data <- convert(EOScoeffs("CH4", "Cp"), "J")
+# EOSplot(Cpdat, coefficients = PS01_data, add = TRUE, lty = 2, col = "blue")
 
 ## ----Cpcoeffs, message=FALSE--------------------------------------------------
 convert(EOScoeffs("CH4", "Cp"), "J")
 
 ## ----Vdat---------------------------------------------------------------------
-file <- system.file("extdata/cpetc/HWM96_V.csv", package = "CHNOSZ")
+file <- system.file("extdata/misc/HWM96_V.csv", package = "CHNOSZ")
 Vdat <- read.csv(file)
 # Use data for CH4 near 280 bar
 Vdat <- Vdat[Vdat$species == "CH4", ]
@@ -115,13 +112,13 @@ EOSplot(Vdat, coefficients = Vcoeffs_database, T.plot = 600, lty = 2)
 EOSplot(Vdat, coefficients = Vcoeffs, add = TRUE)
 
 ## ----Vplot, eval=FALSE--------------------------------------------------------
-#  par(mfrow = c(2, 1))
-#  # plot 1
-#  EOSplot(Vdat, coefficients = Vcoeffs)
-#  EOSplot(Vdat, coefficients = Vcoeffs_database, add = TRUE, lty = 2)
-#  # plot 2
-#  EOSplot(Vdat, coefficients = Vcoeffs_database, T.plot = 600, lty = 2)
-#  EOSplot(Vdat, coefficients = Vcoeffs, add = TRUE)
+# par(mfrow = c(2, 1))
+# # plot 1
+# EOSplot(Vdat, coefficients = Vcoeffs)
+# EOSplot(Vdat, coefficients = Vcoeffs_database, add = TRUE, lty = 2)
+# # plot 2
+# EOSplot(Vdat, coefficients = Vcoeffs_database, T.plot = 600, lty = 2)
+# EOSplot(Vdat, coefficients = Vcoeffs, add = TRUE)
 
 ## ----Nadat--------------------------------------------------------------------
 T <- convert(seq(0, 600, 50), "K")
@@ -173,29 +170,29 @@ EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
   omega.PrTr = convert(coefficients["V_s_var"], "joules"))
 
 ## ----NaVolume, eval=FALSE-----------------------------------------------------
-#  T <- convert(seq(0, 600, 25), "K")
-#  P <- 1000
-#  prop.PT <- subcrt("Na+", T = T, P = P, grid = "T", convert = FALSE)$out[[1]]
-#  NaVdat <- prop.PT[, c("T", "P", "V")]
-#  var1 <- c("invTTheta", "V_s_var")
-#  omega.guess <- 1400000
-#  diff.omega <- 999
-#  while(abs(diff.omega) > 1) {
-#    NaVlm1 <- EOSregress(NaVdat, var1,
-#      omega.PrTr = tail(convert(omega.guess, "joules"), 1), Z = 1)
-#    omega.guess <- c(omega.guess, coef(NaVlm1)[3])
-#    diff.omega <- tail(diff(omega.guess), 1)
-#  }
-#  EOSplot(NaVdat, coefficients = signif(coef(NaVlm1), 6),
-#    omega.PrTr = tail(convert(omega.guess, "joules"), 1), Z = 1,
-#    fun.legend = "bottomleft")
-#  coefficients <- convert(EOScoeffs("Na+", "V", P = 1000), "J")
-#  names(coefficients)[3] <- "V_s_var"
-#  EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
-#    omega.PrTr = convert(coefficients["V_s_var"], "joules"))
+# T <- convert(seq(0, 600, 25), "K")
+# P <- 1000
+# prop.PT <- subcrt("Na+", T = T, P = P, grid = "T", convert = FALSE)$out[[1]]
+# NaVdat <- prop.PT[, c("T", "P", "V")]
+# var1 <- c("invTTheta", "V_s_var")
+# omega.guess <- 1400000
+# diff.omega <- 999
+# while(abs(diff.omega) > 1) {
+#   NaVlm1 <- EOSregress(NaVdat, var1,
+#     omega.PrTr = tail(convert(omega.guess, "joules"), 1), Z = 1)
+#   omega.guess <- c(omega.guess, coef(NaVlm1)[3])
+#   diff.omega <- tail(diff(omega.guess), 1)
+# }
+# EOSplot(NaVdat, coefficients = signif(coef(NaVlm1), 6),
+#   omega.PrTr = tail(convert(omega.guess, "joules"), 1), Z = 1,
+#   fun.legend = "bottomleft")
+# coefficients <- convert(EOScoeffs("Na+", "V", P = 1000), "J")
+# names(coefficients)[3] <- "V_s_var"
+# EOSplot(NaVdat, coefficients = coefficients, Z = 1, add = TRUE, lty = 2,
+#   omega.PrTr = convert(coefficients["V_s_var"], "joules"))
 
-## ----AS04, message=FALSE------------------------------------------------------
-add.OBIGT("AS04")
+## ----add_SiO2, message=FALSE--------------------------------------------------
+add.OBIGT("SiO2")
 
 ## ----SiO2_2H2O, message=FALSE-------------------------------------------------
 s_25C <- subcrt(c("SiO2", "H2O"), c(1, 2), T = 25)$out
@@ -258,15 +255,15 @@ legend("topright", legend = c("calc-H4SiO4 (this vignette)",
 text(225, 1000, describe.reaction(s1$reaction))
 
 ## ----subcrt_H4SiO4, eval=FALSE------------------------------------------------
-#  s1 <- subcrt(c("calc-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
-#  plot(s1$out$T, s1$out$G, type = "l", ylim = c(-500, 2000),
-#    xlab = axis.label("T"), ylab = axis.label("DG0"))
-#  s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
-#  lines(s2$out$T, s2$out$G, lty = 2)
-#  abline(h = 0, lty = 3)
-#  legend("topright", legend = c("calc-H4SiO4 (this vignette)",
-#    "H4SiO4 (Stef\u00e1nsson, 2001)"), lty = c(1, 2), bty = "n")
-#  text(225, 1000, describe.reaction(s1$reaction))
+# s1 <- subcrt(c("calc-H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+# plot(s1$out$T, s1$out$G, type = "l", ylim = c(-500, 2000),
+#   xlab = axis.label("T"), ylab = axis.label("DG0"))
+# s2 <- subcrt(c("H4SiO4", "SiO2", "H2O"), c(-1, 1, 2))
+# lines(s2$out$T, s2$out$G, lty = 2)
+# abline(h = 0, lty = 3)
+# legend("topright", legend = c("calc-H4SiO4 (this vignette)",
+#   "H4SiO4 (Stef\u00e1nsson, 2001)"), lty = c(1, 2), bty = "n")
+# text(225, 1000, describe.reaction(s1$reaction))
 
 ## ----activity_diagram, fig.margin=TRUE, fig.width=4, fig.height=4, small.mar=TRUE, echo=TRUE, results="hide", message=FALSE, out.width="100%", cache=TRUE, fig.cap="Activity diagram for K<sub>2</sub>O-Al<sub>2</sub>O<sub>3</sub>-SiO<sub>2</sub>-H<sub>2</sub>O.", pngquant=pngquant----
 basis(c("Al+3", "H4SiO4", "K+", "H2O", "H+", "O2"))

@@ -9,8 +9,7 @@
 \alias{water.lines}
 \alias{mtitle}
 \alias{ZC.col}
-\alias{add.alpha}
-\title{Functions to Create and Modify Plots}
+\title{Functions to create and modify plots}
 
 \description{
   Initialize a new plot window using preset parameters, add an axis or title to a plot, generate labels for axes and subplots, add stability lines for water, get colors for a set of numeric values.
@@ -34,7 +33,6 @@
     lty = 2, lwd = 1, col = par("fg"), plot.it = TRUE)
   mtitle(main, line = 0, spacing = 1, ...)
   ZC.col(z)
-  add.alpha(col, alpha)
 }
 
 \arguments{
@@ -72,7 +70,6 @@
   \item{main}{character, text for plot title}
   \item{spacing}{numeric, spacing between multiple lines}
   \item{z}{numeric, set of values}
-  \item{alpha}{character, hexadecimal value of color transparency (alpha)}
 }
 
 \details{
@@ -107,8 +104,6 @@ This function exists to facilitate using \code{\link{expression}}s in multiline 
 \code{ZC.col} uses \CRANpkg{colorspace}) to generate colors from a diverging palette (red - light grey - blue) corresponding to the values in \code{z}.
 Red is associated with lower values of \code{z}.
 This function is intended to generate colors for distinguishing average oxidation state of carbon \code{\link{ZC}}, but any numeric values can be supplied.
-
-\code{add.alpha} adds transparency to a color by appending the value of \code{alpha} to the hexadecimal representation of the color given in \code{col}.
 }
 
 \seealso{
