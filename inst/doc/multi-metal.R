@@ -49,7 +49,9 @@ cat("```")
 # species(c("CH4", "CO2", "HCO3-", "CO3-2"))
 # aC <- affinity(pH = c(0, 14), O2 = c(-75, -60))
 # dC <- diagram(aC, dx = c(0, 1, 0, 0), dy = c(0, 1, 0, 0))
-# species(c("H2S", "HS-", "HSO4-", "SO4-2"))
+# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2"))
+# # Uncomment to include the trisulfur radical ion (slower)
+# # species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 # aS <- affinity(aC)  # argument recall
 # dS <- diagram(aS, add = TRUE, col = 4, col.names = 4, dx = c(0, -0.5, 0, 0))
 # aCS <- mash(dC, dS)
@@ -65,7 +67,9 @@ basis("CHNOS+")
 species(c("CH4", "CO2", "HCO3-", "CO3-2"))
 aC <- affinity(pH = c(0, 14), O2 = c(-75, -60))
 dC <- diagram(aC, dx = c(0, 1, 0, 0), dy = c(0, 1, 0, 0))
-species(c("H2S", "HS-", "HSO4-", "SO4-2"))
+species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2"))
+# Uncomment to include the trisulfur radical ion (slower)
+# species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 aS <- affinity(aC)  # argument recall
 dS <- diagram(aS, add = TRUE, col = 4, col.names = 4, dx = c(0, -0.5, 0, 0))
 aCS <- mash(dC, dS)
@@ -419,7 +423,9 @@ pH <- c(0, 14, res2)
 O2 <- c(-48, -33, res2)
 basis(c("Cu+", "pyrite", "H2S", "oxygen", "H2O", "H+"))
 basis("H2S", logaH2S)
-S.aq <- c("H2S", "HS-", "HSO4-", "SO4-2")
+S.aq <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# S.aq <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 Fe.cr <- c("pyrite", "pyrrhotite", "magnetite", "hematite")
 Fe.abbrv <- c("Py", "Po", "Mag", "Hem")
 
@@ -470,7 +476,9 @@ title("Cu-Fe-S-O-H (minerals only)", font.main = 1)
 # m_NaCl <- 0.1
 # logm_aq <- -6 # for both Fe- and Cu-bearing aq species
 # # Basis species
-# S.aq <- c("H2S", "HS-", "HSO4-", "SO4-2")
+# S.aq <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# # Uncomment to include the trisulfur radical ion (slower)
+# # S.aq <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 # # Minerals
 # Fe.cr <- c("pyrite", "pyrrhotite", "magnetite", "hematite")
 # Fe.abbrv <- c("Py", "Po", "Mag", "Hem")
@@ -581,7 +589,9 @@ logmS <- -2
 m_NaCl <- 0.1
 logm_aq <- -6 # for both Fe- and Cu-bearing aq species
 # Basis species
-S.aq <- c("H2S", "HS-", "HSO4-", "SO4-2")
+S.aq <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# S.aq <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 # Minerals
 Fe.cr <- c("pyrite", "pyrrhotite", "magnetite", "hematite")
 Fe.abbrv <- c("Py", "Po", "Mag", "Hem")
@@ -926,6 +936,8 @@ title("Cu-Fe-S-O-H")
 # mfun()
 # title("Cu (ppm)")
 # 
+# # Load SLOP98 data to use legacy parameters for CuCl2- and CuCl3-2
+# add.OBIGT("SLOP98")
 # # Calculate logK for CuCl2- dissociation at 125 °C
 # logK <- subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 # # Sverjensky (1987) used Helgeson (1969) value, which is ca. -5.2
@@ -996,6 +1008,8 @@ mfun <- function() {
 mfun()
 title("Cu (ppm)")
 
+# Load SLOP98 data to use legacy parameters for CuCl2- and CuCl3-2
+add.OBIGT("SLOP98")
 # Calculate logK for CuCl2- dissociation at 125 °C
 logK <- subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 # Sverjensky (1987) used Helgeson (1969) value, which is ca. -5.2
@@ -1049,10 +1063,12 @@ NaCl$m_Clminus
 # logK values interpolated from Table 5 of Helgeson (1969)
 subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 subcrt(c("CuCl3-2", "Cu+", "Cl-"), c(-1, 1, 3), T = T)$out$logK
-# Default OBIGT database
-reset()
+# SLOP98 values
+add.OBIGT("SLOP98")
 subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 subcrt(c("CuCl3-2", "Cu+", "Cl-"), c(-1, 1, 3), T = T)$out$logK
+# Reset database to default
+reset()
 
 ## ----iCu.aq-------------------------------------------------------------------
 names(iCu.aq)
@@ -1109,7 +1125,7 @@ names(iCu.aq)
 # label.plot("E")
 # 
 # db <- describe.basis(3)
-# leg <- lex(lTP(400, 2000), db)
+# leg <- c(lTP(400, 2000), db)
 # legend("bottomleft", legend = leg, bty = "n")
 
 ## ----rebalance, eval = FALSE, echo = 5:6--------------------------------------
@@ -1164,7 +1180,7 @@ names(iCu.aq)
 # label.plot("E")
 # 
 # db <- describe.basis(3)
-# leg <- lex(lTP(400, 2000), db)
+# leg <- c(lTP(400, 2000), db)
 # legend("bottomleft", legend = leg, bty = "n")
 
 ## ----rebalance, eval = FALSE, echo = 10:33------------------------------------
@@ -1219,7 +1235,7 @@ names(iCu.aq)
 # label.plot("E")
 # 
 # db <- describe.basis(3)
-# leg <- lex(lTP(400, 2000), db)
+# leg <- c(lTP(400, 2000), db)
 # legend("bottomleft", legend = leg, bty = "n")
 
 ## ----rebalance, eval = FALSE, echo = 36:49------------------------------------
@@ -1274,7 +1290,7 @@ names(iCu.aq)
 # label.plot("E")
 # 
 # db <- describe.basis(3)
-# leg <- lex(lTP(400, 2000), db)
+# leg <- c(lTP(400, 2000), db)
 # legend("bottomleft", legend = leg, bty = "n")
 
 ## ----rebalance, echo = FALSE, results = "hide", message = FALSE, fig.width = 6.5, fig.height = 5, out.width = "100%", fig.align = "center"----
@@ -1329,7 +1345,7 @@ title(bquote("Fe and/or Cu; 2° balance:" ~ .(expr.species("H+"))))
 label.plot("E")
 
 db <- describe.basis(3)
-leg <- lex(lTP(400, 2000), db)
+leg <- c(lTP(400, 2000), db)
 legend("bottomleft", legend = leg, bty = "n")
 
 ## ----non-metal, results = "hide", message = FALSE, fig.width = 6, fig.height = 5, out.width = "80%", fig.align = "center"----

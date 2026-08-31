@@ -1,3 +1,7 @@
+demos           Meta-demo that runs all other demos (screen output)
+demos_png       Meta-demo that runs all other demos (PNG output)
+examples        Demo that runs all examples in the package (screen output)
+examples_png    Demo that runs all examples in the package (PNG output)
 references      Cross-check the references in refs.csv with the thermodynamic database
 affinity        Affinities of metabolic reactions and amino acid synthesis
 NaCl            Equilibrium constant for aqueous NaCl dissociation
@@ -8,11 +12,11 @@ buffer          Minerals and aqueous species as buffers of hydrogen fugacity
 protbuff        Chemical activities buffered by thiol peroxidases or sigma factors
 glycinate       Metal-glycinate complexes
 mosaic          Eh-pH diagram for iron oxides, sulfides and carbonate with two sets of changing basis species
-sum_S           Summed molality of S species and solubility contours for iron and gold
+sulfur          Solubility contours for iron and gold as a function of total S
 copper          Another example of mosaic(): complexation of copper with glycine species
 arsenic         Another example of mosaic(): Eh-pH diagram for the system As-O-H-S
 solubility      Solubility of calcite and CO2(gas) as a function of pH
-gold            Solubility of gold
+gold1           Solubility of gold 1
 contour         Gold solubility contours on a log fO2 - pH diagram
 sphalerite      Solubility of sphalerite
 minsol          Solubilities of multiple minerals
@@ -35,3 +39,8 @@ yttrium         logK.to.OBIGT fits at 800 and 1000 bar and Y speciation in NaCl 
 uranyl          Total (carbonate|sulfate)-pH diagrams for uranyl species
 MgATP           Speciation of ATP with H+ and Mg+2
 rubisco_Zc      Zc of Rubisco vs optimal growth temperature
+phosphorylate   Phosphorylation model for nucleotide polymerization
+gold2           Solubility of gold 2
+neodymium       Solubility of Nd minerals
+chalcocite      Solubility of chalcocite and gold
+ATP_hydrolysis  Biochemical standard state Gibbs energy of ATP hydrolysis

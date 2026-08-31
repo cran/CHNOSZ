@@ -24,19 +24,19 @@ basis(delete = TRUE)
 ## First calculation: CHNOSZ default
 # kaolinite from Berman, 1988
 # boehmite from Hemingway et al., 1991
-r1 <- subcrt(c("boehmite", "H2O", "SiO2", "kaolinite"), c(-1, -0.5, -1, 0.5), T = T, P = 1000, exceed.Ttr = TRUE) 
+r1 <- subcrt(c("boehmite", "H2O", "SiO2", "kaolinite"), c(-1, -0.5, -1, 0.5), T = T, P = 1000) 
 ## Second calculation: get SiO2(aq) from Apps and Spycher, 2004
 add.OBIGT("SiO2")
-r2 <- subcrt(c("boehmite", "H2O", "SiO2", "kaolinite"), c(-1, -0.5, -1, 0.5), T = T, P = 1000, exceed.Ttr = TRUE) 
+r2 <- subcrt(c("boehmite", "H2O", "SiO2", "kaolinite"), c(-1, -0.5, -1, 0.5), T = T, P = 1000) 
 reset()
 ## Third calculation: get Si(OH)4 from Akinfiev and Plyasunov, 2014
 add.OBIGT("AD")
-r3 <- subcrt(c("boehmite", "Si(OH)4", "H2O", "kaolinite"), c(-1, -1, 1.5, 0.5), T = T, P = 1000, exceed.Ttr = TRUE) 
+r3 <- subcrt(c("boehmite", "Si(OH)4", "H2O", "kaolinite"), c(-1, -1, 1.5, 0.5), T = T, P = 1000) 
 reset()
 ## Fourth calculation: minerals as in SUPCRT92
 add.OBIGT("SUPCRT92") # gets kaolinite and boehmite from HDNB78
-# We need exceed.Ttr = TRUE because the T limit for boehmite is 500 K (Helgeson et al., 1978)
-r4 <- subcrt(c("boehmite", "H2O", "SiO2", "kaolinite"), c(-1, -0.5, -1, 0.5), T = T, P = 1000, exceed.Ttr = TRUE) 
+# We need warn.Ttr = TRUE because the T limit for boehmite is 500 K (Helgeson et al., 1978)
+r4 <- subcrt(c("boehmite", "H2O", "SiO2", "kaolinite"), c(-1, -0.5, -1, 0.5), T = T, P = 1000) 
 reset()
 ## log activity of SiO2 is -ve logK
 lines(T, -r1$out$logK, lwd = 1.5)
@@ -52,7 +52,7 @@ legend("bottomright", lty = c(0, 0, 1, 2, 3, 0), pch = c(1, 4, NA, NA, NA, NA), 
        legend = c("Hemley et al., 1980", "SUPCRTBL", "CHNOSZ", 'add.OBIGT("SiO2")', 'add.OBIGT("AD")', ""))
 legend("bottomright", lty = 4, pch = NA, lwd = 1, col = "blue", legend = 'add.OBIGT("SUPCRT92")', bty = "n", cex = 0.9)
 legend("topleft", c("Boehmite - Kaolinite", "After Zhu and Lu, 2009 Fig. A1"), bty = "n")
-# Helgeson et al., 1978 (HDNB78): http://www.worldcat.org/oclc/13594862
+# Helgeson et al., 1978 (HDNB78): https://search.worldcat.org/title/13594862
 # Shock et al., 1989 (SHS89): doi:10.1016/0016-7037(89)90341-4
 # Berman, 1988 (Ber88): doi:10.1093/petrology/29.2.445
 # Holland and Powell, 2011 (HP11): 10.1111/j.1525-1314.2010.00923.x

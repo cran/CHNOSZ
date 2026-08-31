@@ -14,6 +14,262 @@
 % Heat capacity and standard Gibbs energy 20231115
 \newcommand{\Cp}{\ifelse{latex}{\eqn{C_P}}{\ifelse{html}{\out{<I>C<sub>P</sub></I>}}{Cp}}}
 \newcommand{\DG0}{\ifelse{latex}{\eqn{{\Delta}G^{\circ}}}{\ifelse{html}{\out{&Delta;<I>G</I>&deg;}}{ΔG°}}}
+% Psat and doi -> href shortcut 20260610
+\newcommand{\Psat}{\ifelse{latex}{\eqn{P_{\mathrm{SAT}}}}{\ifelse{html}{\out{<i>P</i><sub>SAT</sub>}}{Psat}}}
+\newcommand{\doiref}{\href{https://doi.org/#1}{#2}}
+
+\section{Changes in CHNOSZ version 2.3.0 (2026-08-31)}{
+
+  \subsection{DEMOS}{
+
+    \itemize{
+
+      \item Add \file{demo/gold2.R} for Au solubility and speciation as a
+      function of pH, after \doiref{10.1016/j.gca.2024.08.022}{Tagirov et al.
+        (2025)}. The speciation plot uses \code{equilibrate(balance = 1)}
+      (i.e., per formula unit) to reduce the predominance range of the
+      binuclear species Au\s{2}S\s{2}\S{-2}, matching the solubility plot.
+
+      \item In \file{demo/contour.R}, add \code{balance = 1} to the
+      \code{diagram()} call for predominance fields. The small size of the
+      Au\s{2}S\s{2}\S{-2} predominance field matches the diagram in
+      \doiref{10.1134/S1075701525600690}{Rubtsova et al. (2026)}.
+      
+      \item NOTE: \emph{Balancing per formula unit with \code{balance = 1} is
+        not recommended for mineral stability diagrams.} The default
+      \code{balance = NULL} (i.e., per element) remains useful for reproducing
+      most mineral stability diagrams and some diagrams with polynuclear
+      aqueous species (e.g. S\s{3}\S{-}). 
+
+      \item Add \file{demo/neodymium.R} for solubility of multiple Nd minerals
+      as a function of pH, after
+      \doiref{10.1016/j.chemgeo.2016.06.005}{Migdisov et al. (2016)}. This
+      diagram currently uses data for NdO\s{2}H (i.e. Nd(OH)\s{3}(aq)) from
+      \doiref{10.1016/0016-7037(95)00314-P}{Haas et al. (1995)}, which
+      overestimates solubility at alkaline conditions.
+
+      \item Add \file{demo/chalcocite.R} for solubility of chalcocite and gold
+      in a rock-buffered system, after
+      \doiref{10.1016/j.chemgeo.2023.121413}{Trofimov et al. (2023)}.
+
+      \item Add \file{demo/ATP_hydrolysis.R} for Gibbs energy of ATP hydrolysis
+      as a function of pH in the biochemical standard state, after
+      \href{https://search.worldcat.org/title/51242181}{Alberty (2003)}.
+
+      \item Rename \file{demo/sum_S.R} to \file{demo/sulfur.R}.
+
+    }
+
+  }
+
+  \subsection{OBIGT DATABASE}{
+
+    \itemize{
+
+      \item Add organic phosphates and related species from LaRowe et al.
+      (2026) (submitted manuscript).
+
+      \item Add REE minerals from
+      \doiref{10.1016/j.chemgeo.2026.123471}{Pan et al. (2026)}.
+
+      \item Add AuHS(H\s{2}S)\s{3} from
+      \doiref{10.1134/S1075701525600690}{Rubtsova et al. (2026)}.
+
+      \item Add Nd species from \doiref{10.1016/j.gca.2024.07.014}{Figueroa
+        Penarrieta and Gysi (2025)}.
+
+      \item Move Au chloride, hydroxide, and (hydro)sulfide complexes
+      (\doiref{10.1134/S1075701524600403}{Tagirov et al., 2024};
+      \doiref{10.1016/j.gca.2024.08.022}{2025}) from \file{testing/IGEM.csv} to
+      the default database.
+
+      \item Move Cu\S{+} and Cu chloride, hydroxide, and hydrosulfide complexes
+      (\doiref{10.1134/S1075701523010026}{Akinfiev and Zotov, 2023};
+      \doiref{10.1016/j.chemgeo.2023.121413}{Trofimov et al., 2023}) from
+      \file{testing/IGEM.csv} to the default database.
+
+      \item Add skutterudite (CoAs\s{2.92}) and heazlewoodite (Ni\s{3}S\s{2})
+      from \doiref{10.2138/am-2022-8337}{Majzlan et al. (2022)}.
+      Thanks to Yufei Wang for the request.
+
+      \item Correct formula of oleate (C\s{18}H\s{33}O\s{2}\S{-}) from
+      \doiref{10.1038/ismej.2015.227}{LaRowe and Amend (2016)}. Thanks to
+      Grayson Boyer for the report.
+
+      \item Add bastnäsite-(Ce)
+      (Ce\s{0.50}La\s{0.25}Nd\s{0.20}Pr\s{0.05}CO\s{3}F) and parisite-(Ce)
+      (CaCe\s{0.95}La\s{0.60}Nd\s{0.35}Pr\s{0.10}(CO\s{3})\s{3}F\s{2}) from
+      \doiref{10.1016/j.chemgeo.2014.11.001}{Gysi and Williams-Jones (2015)}.
+
+      \item Add eucryptite, spodumene, cookeite, and petalite from
+      \doiref{10.1346/CCMN.2007.0550306}{Bobos et al. (2007)}.
+      Thanks to Yongchao Liu for the request.
+
+      \item Add CuCl\s{3}\S{-2} from \doiref{10.1016/j.gca.2007.08.003}{Brugger
+        et al. (2007)}.
+
+      \item Add S(liq) (liquid sulfur) from \doiref{10.18434/T42S31}{NIST-JANAF
+        Thermochemical Tables (1998)}. To handle the liquid-liquid transition
+      at 432.02 K, the two liquid forms are listed with states of cr and cr2;
+      this invokes the polymorph-selection logic in \code{subcrt()}, originally
+      intended for mineral polymorphs. Unlike other species in OBIGT, the
+      species name (\code{S_liq}) has the state made explicit to help identify
+      it as the liquid. A predominance field for S(liq) appears in the high-S
+      system shown in \file{demo/contour.R} Thanks to Evgeniy Bastrakov for the
+      request.
+
+      \item Add C\s{2}H\s{2}(gas) (ethyne, acetylene) from
+      \doiref{10.18434/T42S31}{NIST-JANAF Thermochemical Tables (1998)}. Thanks
+      to George Brimhall for the request.
+
+      \item Add stibnite (Sb\s{2}S\s{3}) from \doiref{10.3133/b2131}{Robie and
+        Hemingway (1995)}. Thanks to Miao Yu for the request.
+
+    }
+
+  }
+
+  \subsection{DOCUMENTATION}{
+
+    \itemize{
+
+      \item Add FAQ question: How is the \emph{sum of activities} of basis
+      species defined for mosaic diagrams? Thanks to Xiangchong Liu for the
+      question.
+
+      \item Add aqueous SO\s{2} and the trisulfur radical ion (S\s{3}\S{-}) to
+      basis species for mosaic calculations in examples, demos, and vignettes.
+      Thanks to Evgeniy Bastrakov for suggesting this change. Some instances of
+      S\s{3}\S{-} are commented because of slowdowns associated with non-unity
+      balance constraints, particularly in \viglink{anintro} and
+      \viglink{multi-metal}.
+
+      \item Remove exported functions \code{demos()} and \code{examples()} and
+      make new demos from them. These "meta-demos" show plots from all the
+      other demos on the screen (\file{demo/demos.R}, \file{demo/examples.R})
+      or save them to PNG files (\file{demo/demos_png.R},
+      \file{demo/examples_png.R})
+
+      \item Use \href{https://online.ucpress.edu/elementa}{Elementa} reference
+      style (like \href{https://www.csemanual.org}{CSE} name-year style but all
+      authors are listed) in Rd files.
+
+      \item Add colors to \file{demo/NaCl.R}.
+
+    }
+
+  }
+
+  \subsection{BUG FIXES}{
+
+    \itemize{
+
+      \item \code{mass()} and \code{entropy()} can now be used with chemical
+      formulas even if the package isn't attached. Thanks to Pim Meijer for the
+      request concerning \code{mass()}.
+
+      \item For the IAPWS95 water model, add 0.1 bar (0.01 MPa) to values of
+      \Psat > 1 bar computed from \code{WP02.auxiliary()} to prevent Born
+      functions, which are calculated as finite difference derivatives, from
+      exploding.  Thanks to Grayson Boyer for the bug report.
+
+      \item Fix bug preventing \code{mosaic()} from being used to form \H2O.
+      This is needed for \code{phosphorylate()}.
+
+      \item \code{mosaic()} now computes the solubility contour for a single
+      non-aqueous candidate basis species. This extra logic is needed to handle
+      S(liq); the previous method gave a sharply pointed predominance field
+      where it should be curved, resulting in misaligned contours on the
+      S(liq)-to-aqueous boundary for the high-S system in
+      \code{demo/contour.R}. The function errors if it detects more than one
+      non-aqueous candidate basis species (this is doable in principle, but
+      needs more work).
+
+    }
+
+  }
+
+  \subsection{NEW FUNCTIONS}{
+
+    \itemize{
+
+      \item Add \code{phosphorylate()} and \code{phospho.plot()} to calculate
+      and visualize affinity of phosphorylation reactions with pH-dependent
+      speciation, including Mg-complexed species. Thanks to Doug LaRowe for the
+      use case.
+
+      \item Add \code{JANAF.to.OBIGT()} to import data for gases from
+      \doiref{10.18434/T42S31}{NIST-JANAF Thermochemical Tables}. This function
+      was used to create the database entry for acetylene (C\s{2}H\s{2}(gas))
+      but not for S(liq); \file{tinytest/test-S_liq.R} was used for that.
+
+      \item Add \code{hyphen.in.pdf()} for replacing minus signs with
+      hyphens in text added to PDF plots.
+
+    }
+
+  }
+
+  \subsection{API CHANGES}{
+
+    \itemize{
+
+      \item Standard Gibbs energies and other thermodynamic properties are now
+      always extrapolated beyond the phase transition temperature for minerals,
+      gases and liquids. The \strong{exceed.Ttr} argument in \code{subcrt()}
+      and \code{affinity()} has been replaced by \strong{warn.Ttr} with a
+      default of TRUE. For species with \code{model = "CGL_Ttr"}, this produces
+      a warning when T is above the transition temperature for the species. Set
+      \strong{warn.Ttr} to FALSE to silence the warning.
+
+      \item For dissolution of more than one substrate, \code{solubility()} now
+      returns a list with elements named \code{aqueous} with the activities of
+      aqueous species and \code{substrate} with the solubilities of substrates
+      in \code{loga.equil}. Both elements contain the overall solubility among
+      all substrates in \code{loga.balance}, as before. This allows plotting
+      either the aqueous activities, relative stabilities of substrates (e.g.
+      minerals), or both, from a single \code{solubility()} call. This is used
+      in some demos and \viglink{anintro} (look for \code{s$substrate}).
+
+      \item \code{affinity()} now outputs a \code{T_grid} value, which consists
+      of the temperatures used for the calculation (in the user's units) in the
+      same dimensions as the affinity values. This allows easily converting
+      affinity to Gibbs energy for any set of conditions with e.g. \code{TK <-
+        convert(affinity()$T_grid, "K"); DGr <- convert(affinity()$values[[1]],
+        "G", T = TK)}.
+
+    }
+
+  }
+
+  \subsection{OTHER CHANGES}{
+
+    \itemize{
+
+      \item \code{label.plot()} and \code{label.figure()} now handle
+      logarithmic scales for x and y axes.
+
+      \item Remove \code{lex()}, which only wrapped its argument in
+      \code{as.expression(c())}.
+
+      \item Remove unused subroutines in \file{src/H2O92D.f}: \code{valTD},
+      \code{Psublm}, \code{TsHGK}, \code{TdPsdT}, \code{tcorr}, and
+      \code{cpswap}.
+
+      \item For historical purposes, the original version of the \H2O model
+      from SUPCRT92 is stored unchanged at
+      \file{inst/extdata/src/H2O92D.f.orig}. This file can be diffed with the
+      version at \file{src/H2O92D.f} to identify the changes made for CHNOSZ.
+
+      \item Add GitHub actions for R CMD check workflow and Codecov test
+      coverage, with badges in \file{README.md}.
+
+    }
+
+  }
+
+}
+
 
 \section{Changes in CHNOSZ version 2.2.0 (2025-06-20)}{
 
@@ -35,93 +291,93 @@
     \itemize{
 
       \item Add tantalum species from
-      \href{https://doi.org/10.1016/j.gca.2024.10.019}{Hu et al. (2024)}.
+      \doiref{10.1016/j.gca.2024.10.019}{Hu et al. (2024)}.
 
       \item Add germanium, indium, gallium, and cadmium minerals and aqueous
       species from the compilation of
-      \href{https://doi.org/10.1080/08120099.2024.2423772}{Huston and Bastrakov
+      \doiref{10.1080/08120099.2024.2423772}{Huston and Bastrakov
         (2024)}. Move Cd and In chloride, In fluoride, and Ga hydroxide
-      complexes from \href{https://doi.org/10.1016/S0016-7037(96)00339-0}{Shock
+      complexes from \doiref{10.1016/S0016-7037(96)00339-0}{Shock
         et al. (1997)} and
-      \href{https://doi.org/10.1016/S0016-7037(97)00009-4}{Sverjensky et al.
+      \doiref{10.1016/S0016-7037(97)00009-4}{Sverjensky et al.
         (1997)} to optional data. Thanks to Evgeniy Bastrakov for providing
       data files for these species and for Co, Ta, Nb, U, and REE minerals and
       uranyl complexes mentioned below.
 
       \item Add palladium and platinum hydrosulfide complexes
       (Pd(HS)\s{4}\S{-2} and Pt(HS)\s{4}\S{-2}) from
-      \href{https://doi.org/10.1016/j.gca.2024.12.019}{Laskar et al. (2024)}.
+      \doiref{10.1016/j.gca.2024.12.019}{Laskar et al. (2025)}.
 
       \item Add aqueous uranyl complexes from
-      \href{https://doi.org/10.1016/j.gca.2024.04.023}{Migdisov et al. (2024)}.
+      \doiref{10.1016/j.gca.2024.04.023}{Migdisov et al. (2025)}.
       Move aqueous uranium species from
-      \href{https://doi.org/10.1016/S0016-7037(97)00240-8}{Shock, Sassani and
+      \doiref{10.1016/S0016-7037(97)00240-8}{Shock, Sassani and
         Betz (1997)} (except for HUO\s{4}\S{-}) to optional data.
 
       \item Add alkylamines, benzylamines, and aminiums from
-      \href{https://doi.org/10.1016/j.gca.2024.03.013}{Robinson et al. (2024)}.
+      \doiref{10.1016/j.gca.2024.03.013}{Robinson et al. (2024)}.
 
       \item Add tin chloride complexes and updated parameters for Sn\S{+2} and
-      Th\S{+4} from \href{https://doi.org/10.1016/j.gsf.2023.101624}{Liu et al.
+      Th\S{+4} from \doiref{10.1016/j.gsf.2023.101624}{Liu et al.
         (2023)}.
 
       \item Add uranium, uraninite (UO\s{2}), beta-UO\s{2.25}, UO\s{2.25},
       alpha-UO\s{2.3333}, beta-UO\s{2.3333}, UO\s{2.6667}, gamma-UO\s{3},
       rutherfordine (UO\s{2}CO\s{3}), beta-UO\s{2}(OH)\s{2}, and
       Na\s{2}U\s{2}O\s{7} from
-      \href{https://doi.org/10.1787/bf86a907-en}{Grenthe et al. (2020)}.
+      \doiref{10.1787/bf86a907-en}{Grenthe et al. (2020)}.
 
       \item Add Fe-bearing serpentinization-relevant minerals (ferrous
       hydroxide, ferrotremolite, greenalite, minnesotaite, Mg-cronstedtite, and
-      hisingerite) from \href{https://doi.org/10.2475/03.2020.01}{Leong and
+      hisingerite) from \doiref{10.2475/03.2020.01}{Leong and
         Shock (2020)}.
 
       \item Add REE minerals from the compilation of
-      \href{https://doi.org/10.1016/j.chemgeo.2016.06.005}{Migdisov et al.
+      \doiref{10.1016/j.chemgeo.2016.06.005}{Migdisov et al.
         (2016)} with modifications.
       
       \item Add yttrium fluoride complexes (YF\S{+2} and YF\s{2}\S{+}) from
-      \href{https://doi.org/10.1016/j.gca.2013.07.031}{Loges et al. (2013)}.
+      \doiref{10.1016/j.gca.2013.07.031}{Loges et al. (2013)}.
 
       \item Add REE fluoride and chloride complexes from
-      \href{https://doi.org/10.1016/j.gca.2009.08.023}{Migdisov et al. (2009)}
+      \doiref{10.1016/j.gca.2009.08.023}{Migdisov et al. (2009)}
       (previously available in CHNOSZ 0.9-5 to 1.0.8). Move aqueous REE species
-      from \href{https://doi.org/10.1016/0016-7037(95)00314-P}{Haas et al.
+      from \doiref{10.1016/0016-7037(95)00314-P}{Haas et al.
         (1995)} to optional data.
 
       \item Add beta-Ta\s{2}O\s{5} from
-      \href{https://doi.org/10.1016/j.jct.2008.12.006}{Jacob et al. (2009)}.
+      \doiref{10.1016/j.jct.2008.12.006}{Jacob et al. (2009)}.
 
       \item Add Co(OH)\s{2} from
       \href{https://pid.geoscience.gov.au/dataset/ga/25473}{Shvarov and
         Bastrakov, 1999}.
 
       \item Add chromite (FeCr\s{2}O\s{4}) and cassiterite (SnO\s{2}) from
-      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway (1995)}. Move
+      \doiref{10.3133/b2131}{Robie and Hemingway (1995)}. Move
       cassiterite from
-      \href{https://doi.org/10.2113/gsecongeo.80.5.1365}{Jackson and Helgeson
+      \doiref{10.2113/gsecongeo.80.5.1365}{Jackson and Helgeson
         (1985)} to optional data.
 
       \item Add spherocobaltite (CoCO\s{3}) from
-      \href{https://doi.org/10.1007/978-3-662-02293-1}{Barin et al. (1977)}.
+      \doiref{10.1007/978-3-662-02293-1}{Barin et al. (1977)}.
 
       \item Add CoSO\s{4} and beta-Nb\s{2}O\s{5} from
-      \href{https://www.worldcat.org/oclc/8139446}{Naumov et al. (1974)}. A PDF
-      of this publication is available from the
+      \href{https://search.worldcat.org/title/8139446}{Naumov et al. (1974)}. A
+      PDF of this publication is available from the
       \href{https://ntrl.ntis.gov/NTRL/}{National Technical Reports Library}.
       
       \item Move americium complexes from optional to default data. Entropy of
       the element Am has been listed in \file{element.csv} since CHNOSZ 1.4.0.
 
-      \item Cite \href{https://doi.org/10.1017/CBO9781139167604}{Denbigh
+      \item Cite \doiref{10.1017/CBO9781139167604}{Denbigh
         (1981)} for the hydrogen ion convention.
 
       \item Due to an apparent typo in
       \href{https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf}{Wagman et al. (1982)},
-      Δ\emph{H}°\s{f} for In\s{+3} and derived species was corrected by -7335
+      Δ\emph{H}°\s{f} for In\S{+3} and derived species was corrected by -7335
       cal/mol to maintain GHS consistency. This is in addition to the
       correction for S° previously noted by
-      \href{https://doi.org/10.1016/0016-7037(88)90181-0}{Shock and Helgeson
+      \doiref{10.1016/0016-7037(88)90181-0}{Shock and Helgeson
         (1988)}.
 
       \item Fix sign of \emph{c} parameter for nesquehonite. Thanks to James
@@ -143,7 +399,7 @@
       SO\s{4}\S{-2}-bearing species from researchers at IGEM RAS.
 
       \item Add \file{testing/Sandia.csv}: Mg(OH)\s{2}-MgCl\s{2}-H\s{2}O phases from
-      \href{https://doi.org/10.1016/j.apgeochem.2024.106032}{Knight et al.
+      \doiref{10.1016/j.apgeochem.2024.106032}{Knight et al.
         (2024)}.
 
     }
@@ -157,21 +413,21 @@
       \item Add \file{demo/MgATP.R}: speciation of ATP with H\S{+} and
       Mg\S{+2}, based on
       \href{https://search.worldcat.org/title/51242181}{Alberty (2003)} (moved
-      from \file{anintro.Rmd}).
+      from \viglink{anintro}).
 
       \item Update \file{demo/contour.R} to use conditions taken from
-      \href{https://doi.org/10.1016/j.oregeorev.2022.105231}{Ding et al.
-        (2023)} and optional data for Au species from IGEM RAS, including
-      polynuclear Au\s{2}S\s{2}\S{-2}.
+      \doiref{10.1016/j.oregeorev.2022.105231}{Ding et al. (2023)} and optional
+      data for Au species from IGEM RAS, including polynuclear
+      Au\s{2}S\s{2}\S{-2}.
 
-      \item Add \file{demo/rubisco_Zc.R}, moved from \file{anintro.Rmd}.
+      \item Add \file{demo/rubisco_Zc.R}, moved from \viglink{anintro}.
 
       \item Add \file{demo/sum_S.R}: log \emph{f}O\s{2}--log \emph{m} ΣS
       diagram for Fe-S-O-C minerals with solubility contours for Fe and Au.
 
       \item Add \file{demo/uranyl.R}: total (carbonate|sulfate)-pH diagrams for
       uranyl species, after
-      \href{https://doi.org/10.1016/j.gca.2024.04.023}{Migdisov et al. (2024)}.
+      \doiref{10.1016/j.gca.2024.04.023}{Migdisov et al. (2025)}.
 
       \item Add FAQ questions:
      
@@ -258,8 +514,7 @@
       \item Add scripts and data files in \code{extdata/protein/Cas} for amino
       acid compositions of CRISPR-associated (Cas) proteins in different
       classes and subtypes listed by
-      \href{https://doi.org/10.1038/s41579-019-0299-x}{Makarova et al. (2020)}.
-
+      \doiref{10.1038/s41579-019-0299-x}{Makarova et al. (2020)}.
 
       \item Remove \code{ispecies} from output of \code{check.OBIGT()} to avoid
       trivial diffs.
@@ -341,16 +596,16 @@
       for details.
 
       \item Add carrollite (Cu\s{0.92}Co\s{2.07}S\s{4}) from
-      \href{https://doi.org/10.3749/2300028}{von der Heyden et al. (2024)}.
+      \doiref{10.3749/2300028}{von der Heyden et al. (2024)}.
 
       \item Modify cattierite (CoS\s{2}) and linnaeite (Co\s{3}S\s{4}) to use
-      parameters from \href{https://www.worldcat.org/oclc/16131757}{Pankratz et
-        al. (1987)} as listed by
-      \href{https://doi.org/10.5382/econgeo.4895}{Williams-Jones and Vasyukova
+      parameters from
+      \href{https://search.worldcat.org/title/16131757}{Pankratz et al. (1987)}
+      as listed by \doiref{10.5382/econgeo.4895}{Williams-Jones and Vasyukova
         (2022)}.
       
       \item Add 36 charged amino acids from
-      \href{https://doi.org/10.1007/s11084-015-9428-3}{Kitadai (2015)} and
+      \doiref{10.1007/s11084-015-9428-3}{Kitadai (2015)} and
       update several others (Arg\S{+}, Arg\S{-}, Asp\S{-}, Glu\S{-}, His\S{+},
       Lys\S{+}, Lys\S{-}, and Tyr\S{-}). Thanks to Grayson Boyer.
 
@@ -433,18 +688,19 @@
 
       \item \samp{OBIGT/inorganic_cr.csv}: Add aluminum (Al), cobalt monoxide
       (CoO), guite (Co\s{3}O\s{4}), and zinc from
-      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway (1995)}.
+      \doiref{10.3133/b2131}{Robie and Hemingway (1995)}.
 
       \item \samp{OBIGT/inorganic_cr.csv}: Modify linnaeite (Co\s{3}S\s{4}) to
-      use 25 \degC parameters from \href{https://doi.org/10.3133/b2131}{Robie
-        and Hemingway (1995)} and heat capacity coefficients from
-      \href{https://www.worldcat.org/oclc/16131757}{Pankratz et al. (1987)}.
+      use 25 \degC parameters from \doiref{10.3133/b2131}{Robie and Hemingway
+        (1995)} and heat capacity coefficients from
+      \href{https://search.worldcat.org/title/16131757}{Pankratz et al.
+        (1987)}.
 
       \item \samp{OBIGT/inorganic_cr.csv}: Modify Co-pentlandite
       (Co\s{9}S\s{8}) to use parameters from
-      \href{https://www.worldcat.org/oclc/16131757}{Pankratz et al. (1987)} as
-      listed by \href{https://doi.org/10.5382/econgeo.4895}{Williams-Jones and
-        Vasyukova (2022)}.
+      \href{https://search.worldcat.org/title/16131757}{Pankratz et al. (1987)}
+      as listed by \doiref{10.5382/econgeo.4895}{Williams-Jones and Vasyukova
+        (2022)}.
 
       \item \samp{OBIGT/organic_aq.csv}: Correct formulas of Na(Mal)-, K(Mal)-,
       and Dy(Mal)+. Thanks to Grayson Boyer.
@@ -480,7 +736,7 @@
       \item Add \code{loga_aq} argument to \code{mosiac()} (also present in new
       function \code{stack_mosaic()}) to control the activity of mosaiced
       aqueous basis species. This obviates a workaround that was previously
-      used in the Mosaic Stacking 2 section of \strong{multi-metal.Rmd}.
+      used in the Mosaic Stacking 2 section of \viglink{multi-metal}.
 
       \item Add \code{add.alpha()} to add alpha value to a color specified in
       any notation accepted by \code{col2rgb()}.
@@ -526,7 +782,7 @@
       \item The two preceding features are used in a new demo \code{yttrium.R}
       to show speciation of Y-Cl complexes as a function of NaCl concentration,
       pH, \emph{T}, and \emph{P}, after
-      \href{https://doi.org/10.1016/j.gca.2020.04.015}{Guan et al. (2020)}.
+      \doiref{10.1016/j.gca.2020.04.015}{Guan et al. (2020)}.
 
     }
   }
@@ -556,7 +812,7 @@
       \code{mix()}, needed for \R < 4.0.0. Thanks to Xiaojia Jiang for the bug
       report.
 
-      \item In \strong{multi-metal.Rmd}, work around absence of
+      \item In \viglink{multi-metal}, work around absence of
       \code{hcl.colors()} in \R < 3.6.0.
 
       \item \code{diagram()}: Improve handling of length > 1 \code{col},
@@ -566,7 +822,7 @@
       species for which different-colored or -styled lines are desired should
       be placed at the top of the species list. This change makes possible one
       less call to \code{diagram()} in Mosaic Stacking 1 and 2 in
-      \strong{multi-metal.Rmd}, and now the entire chalcopyrite field in Mosaic
+      \viglink{multi-metal}, and now the entire chalcopyrite field in Mosaic
       Stacking 2 is bounded by a thick orange line, instead of just the border
       with bornite.
 
@@ -645,13 +901,13 @@
     \itemize{
 
       \item The \code{AD()} function, which provides an implementation of the
-      \href{https://doi.org/10.1016/S0016-7037(02)01141-9}{Akinfiev and Diamond
+      \doiref{10.1016/S0016-7037(02)01141-9}{Akinfiev and Diamond
         (2003)} equation of state for aqueous nonelectrolytes, now calculates
       entropy, heat capacity, and volume in addition to the previously
       available Gibbs energy.
       
       \item For minerals with thermodynamic parameters in the equations of
-      \href{https://doi.org/10.1093/petrology/29.2.445}{Berman (1988)},
+      \doiref{10.1093/petrology/29.2.445}{Berman (1988)},
       \code{info()} with a numeric argument now lists values of \code{G},
       \code{H}, \code{S}, \code{Cp}, and \code{V} at 25 \degC and 1 bar (these
       were previously shown as \code{NA}). Thanks to Evgeniy Bastrakov for
@@ -664,16 +920,16 @@
     \itemize{
 
       \item Add H\s{2}WO\s{4}(aq) and Cp coefficients of scheelite (CaWO\s{4})
-      from \href{https://doi.org/10.1016/j.chemgeo.2021.120488}{Liu et al.
+      from \doiref{10.1016/j.chemgeo.2021.120488}{Liu et al.
         (2021)}.
 
       \item Add aqueous species in the system Ca-Mg-Na-K-Al-Si-O-H-C-Cl from
-      \href{https://doi.org/10.1016/j.gca.2016.04.026}{Miron et al. (2016)} and
-      \href{https://doi.org/10.2475/07.2017.01}{Miron et al. (2017)} to
+      \doiref{10.1016/j.gca.2016.04.026}{Miron et al. (2016)} and
+      \doiref{10.2475/07.2017.01}{Miron et al. (2017)} to
       \file{GEMSFIT.csv}.
       
       \item Add pyrobitumen (C\s{54}H\s{42}) from
-      \href{https://doi.org/10.1016/j.gca.2008.03.004}{Helgeson et al.  (2009)}
+      \doiref{10.1016/j.gca.2008.03.004}{Helgeson et al.  (2009)}
       to \file{organic_cr.csv}.
       
       \item Move Ar, Xe, CH\s{4}, and CO\s{2} from \file{organic_aq.csv} to
@@ -704,9 +960,9 @@
       \item Names of functions, variables, and data files now use capitalized
       \samp{Berman}, not \samp{berman}.
 
-      \item In \file{vignettes/multi-metal.Rmd} (\dQuote{Diagrams with multiple
-        metals}), add a link to the associated paper
-      (\href{https://doi.org/10.1016/j.acags.2021.100059}{Dick, 2021}).
+      \item In \viglink{multi-metal} (\dQuote{Diagrams with multiple metals}),
+      add a link to the associated paper
+      (\doiref{10.1016/j.acags.2021.100059}{Dick, 2021}).
 
     }
   }
@@ -735,8 +991,8 @@
     \itemize{
 
       \item Add \samp{demo/Pourbaix.R} (Eh-pH diagrams with isosolubility
-      lines, after \href{https://www.worldcat.org/oclc/563921897}{Pourbaix,
-      1974}). This demo depends on the following two changes.
+      lines, after \href{https://search.worldcat.org/title/563921897}{Pourbaix,
+        1974}). This demo depends on the following two changes.
 
       \item Revise \code{solubility()} to enable calculating overall (i.e.
       minimum) solubility for multiple minerals. Calculations for multiple
@@ -756,21 +1012,21 @@
 
       \item \samp{OBIGT/Berman_cr.csv}: Where possible, use standard
       abbreviations for mineral names (including hematite (Hem) and magnetite
-      (Mag)), as listed by \href{https://doi.org/10.2138/am.2010.3371}{Whitney
+      (Mag)), as listed by \doiref{10.2138/am.2010.3371}{Whitney
         and Evans (2010)}.
 
       \item \samp{OBIGT/organic_aq.csv}: Add properties of aqueous fatty acids,
       saccharides, and other species, and add associated \samp{demo/E_coli.R}
       (Gibbs energy of biomass synthesis in \emph{E. coli}, after
-      \href{https://doi.org/10.1038/ismej.2015.227}{LaRowe and Amend, 2016}).
+      \doiref{10.1038/ismej.2015.227}{LaRowe and Amend, 2016}).
 
       \item \samp{OBIGT/inorganic_aq.csv}: Add properties of aqueous Nb and Ta
-      species from \href{https://doi.org/10.1016/j.gca.2020.04.009}{Akinfiev et
+      species from \doiref{10.1016/j.gca.2020.04.009}{Akinfiev et
         al., 2020}.
       
       \item \samp{OBIGT/inorganic_cr.csv}: Add willemite (Zn\s{2}SiO\s{4}) from
-      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway, 1995} and
-      \href{https://doi.org/10.1007/978-3-662-02293-1}{Barin et al., 1977}
+      \doiref{10.3133/b2131}{Robie and Hemingway, 1995} and
+      \doiref{10.1007/978-3-662-02293-1}{Barin et al., 1977}
       (heat capacity equation).
 
       \item \samp{OBIGT/inorganic_cr.csv}: Move alunite here from
@@ -800,13 +1056,13 @@
       \code{equilibrate}. Therefore it can now be used to draw contours or a
       color image showing the activities of the predominant species. This is
       used for a diagram in a new preprint
-      (\href{https://doi.org/10.1101/2021.01.29.428804}{Dick, 2021}).
+      (\doiref{10.1101/2021.01.29.428804}{Dick, 2021}).
 
-      \item Revise multi-metal.Rmd: Improve mineral abbreviations and placement
-      of labels; use updated DFT energies from Materials Project; add Mosaic
-      Stacking 2 (minerals and aqueous species); add \emph{K}\S{eff}
-      calculation (\href{https://doi.org/10.1016/j.gca.2021.01.038}{Robinson et
-      al., 2021}); add Δ\emph{G}\s{pbx} color scale.
+      \item Revise \viglink{multi-metal}: Improve mineral abbreviations and
+      placement of labels; use updated DFT energies from Materials Project; add
+      Mosaic Stacking 2 (minerals and aqueous species); add \emph{K}\S{eff}
+      calculation (\doiref{10.1016/j.gca.2021.01.038}{Robinson et al., 2021});
+      add Δ\emph{G}\s{pbx} color scale.
 
       \item Rename \samp{demo/berman.R} to \samp{demo/potassium.R}.
 
@@ -892,9 +1148,9 @@
       (or "stacked"), for instance to sequentially add metals (Fe, then Cu) to
       a diagram.
 
-      \item Add vignette \strong{multi-metal.Rmd} for examples that use these
-      new features to make diagrams for systems with multiple metals
-      (specifically Fe-V and Fe-Cu).
+      \item Add vignette \viglink{multi-metal} for examples that use these new
+      features to make diagrams for systems with multiple metals (specifically
+      Fe-V and Fe-Cu).
 
     }
   }
@@ -907,46 +1163,45 @@
       to render the current date using the previous format, has been removed.
 
       \item Update species parameters for the 2019 version of the Deep Earth
-      Water (DEW) model (\href{https://doi.org/10.1016/j.gca.2019.03.027}{Huang
+      Water (DEW) model (\doiref{10.1016/j.gca.2019.03.027}{Huang
       and Sverjensky, 2019}).
 
       \item \samp{inorganic_aq.csv}, \samp{inorganic_aq.csv}: Add arsenopyrite,
       loellingite, westerveldite, and aqueous As(OH)\s{3} and AsO(OH)\s{3} from
-      \href{https://doi.org/10.1016/j.gca.2007.11.017}{Perfetti et al., 2008}.
+      \doiref{10.1016/j.gca.2007.11.017}{Perfetti et al., 2008}.
 
       \item \samp{inorganic_aq.csv}: Add Co-chloride species from
-      \href{https://doi.org/10.1016/j.gca.2010.12.002}{Liu et al., 2018}.
+      \doiref{10.1016/j.gca.2010.12.002}{Liu et al., 2018}.
 
       \item \samp{inorganic_aq.csv}: Add metal carbonate and bicarbonate
       complexes and FeSO\s{4} from
-      \href{https://doi.org/10.1021/acsearthspacechem.9b00016}{St Clair et al.,
+      \doiref{10.1021/acsearthspacechem.9b00016}{St Clair et al.,
         2019}.
 
       \item \samp{inorganic_cr.csv}: Add wustite, manganese, and Mn oxides
       (manganosite, pyrolusite, bixbyite, and hausmannite) from
-      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway,
+      \doiref{10.3133/b2131}{Robie and Hemingway,
         1995}.
 
       \item \samp{inorganic_cr.csv}: Add amorphous Mn(OH)\s{2} from
       \href{https://srd.nist.gov/JPCRD/jpcrdS2Vol11.pdf}{Wagman et al., 1982}
-      (GHS) and \href{https://doi.org/10.1016/S0925-8388(98)00739-7}{Senoh et
+      (GHS) and \doiref{10.1016/S0925-8388(98)00739-7}{Senoh et
         al., 1998} (estimated Cp values).
 
       \item \samp{inorganic_cr.csv}: Add huebnerite (MnWO\s{4}) from
-      \href{https://doi.org/10.1016/j.oregeorev.2019.103289}{Liu and Xiao,
+      \doiref{10.1016/j.oregeorev.2019.103289}{Liu and Xiao,
         2020}.
 
       \item \samp{inorganic_cr.csv}: Add linnaeite (Co\s{3}S\s{4}) and
       Co-pentlandite (Co\s{9}S\s{8}) from
-      \href{https://www.worldcat.org/oclc/801856147}{Vaughan and Craig, 1978}
-      and cattierite (CoS\s{2}) and cobalt from
-      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway,
-        1995}.
+      \href{https://search.worldcat.org/title/801856147}{Vaughan and Craig,
+        1978} and cattierite (CoS\s{2}) and cobalt from
+      \doiref{10.3133/b2131}{Robie and Hemingway, 1995}.
 
       \item Add GHS and Cp at 25 \degC for almandine, dickite, fluorphlogopite,
       glaucophane, grunerite, halloysite, larnite, pyrope (\samp{SUPCRT92.csv})
       and bromellite (\samp{inorganic_cr.csv}) from
-      \href{https://doi.org/10.3133/b2131}{Robie and Hemingway,
+      \doiref{10.3133/b2131}{Robie and Hemingway,
         1995}.
 
       \item \samp{inorganic_cr.csv}: Correct formulas for number of \H2O in
@@ -976,30 +1231,30 @@
   \subsection{DEMOS AND VIGNETTES}{
     \itemize{
 
-      \item Add \samp{demo/comproportionation.R}: Gibbs energy of sulfur
-      comproportionation, after
-      \href{https://doi.org/10.1111/1462-2920.14982}{Amend et al., 2020}.
+      \item Add \file{demo/comproportionation.R}: Gibbs energy of sulfur
+      comproportionation, after \doiref{10.1111/1462-2920.14982}{Amend et al.,
+        2020}.
 
-      \item Add \samp{demo/zinc.R}: Solubilities of multiple minerals (zincite
+      \item Add \file{demo/zinc.R}: Solubilities of multiple minerals (zincite
       and sphalerite).
 
-      \item Revise and simplify \samp{anintro.Rmd} and \samp{equilibrium.Rmd}
-      (converted from \samp{equilibrium.Rnw}).
+      \item Revise and simplify \viglink{anintro} and \file{equilibrium.Rmd}
+      (converted from \file{equilibrium.Rnw}).
 
-      \item Revise \samp{OBIGT.Rmd} to reduce the size of the HTML file and
-      make deep linking to individual sections work.
+      \item Revise \viglink{OBIGT} to reduce the size of the HTML file and make
+      deep linking to individual sections work.
 
       \item Add \samp{viglink} Rd macro so HTML versions of Rd files can link
       to vignettes.
 
-      \item Remove vignette \samp{hotspring.Rnw} and demos \samp{bison.R} and
-      \samp{bugstab.R}. The material is now in the \samp{bison.Rmd} vignette
-      and \samp{bugstab.R} demo in the \pkg{JMDplots} package
+      \item Remove vignette \file{hotspring.Rnw} and demos \file{bison.R} and
+      \file{bugstab.R}. The material is now in the \file{bison.Rmd} vignette
+      and \file{bugstab.R} demo in the \pkg{JMDplots} package
       (\url{https://github.com/jedick/JMDplots}).
 
-      \item New demo \samp{berman.R}, extracted from \samp{berman.Rd}.
+      \item New demo \file{berman.R}, extracted from \file{berman.Rd}.
 
-      \item Revise demo \samp{mosaic.R} to use \code{mash()} to show S and C
+      \item Revise demo \file{mosaic.R} to use \code{mash()} to show S and C
       species together, make better use of transparency, and \code{dy} argument
       to adjust positions of labels.
 
@@ -1035,7 +1290,7 @@
       \item The list returned by \code{diagram()} now includes a
       \strong{predominant.values} component, which has the affinities of the
       predominant species at each grid point. This can be used as shown in the
-      \code{multi-metal.Rmd} vignette to compute the Pourbaix energy
+      \viglink{multi-metal} vignette to compute the Pourbaix energy
       (Δ\emph{G}\s{pbx}) for a metastable material.
 
     }
@@ -1067,7 +1322,7 @@
         check}.
 
       \item Remove \code{wjd()} (implementation of Gibbs energy minimization
-      method from \href{https://doi.org/10.1063/1.1744264}{White et al., 1958})
+      method from \doiref{10.1063/1.1744264}{White et al., 1958})
       and demo \code{wjd.R} and supporting data file.
 
       \item Add "QCa" as a keyword for preset species in \code{basis()}

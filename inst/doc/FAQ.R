@@ -70,6 +70,7 @@ logK <- "log&thinsp;<i>K</i>"
 Hplus <- "H<sup>+</sup>"
 HCO2_ <- "HCO<sub>2</sub><sup>−</sup>"
 HCO3_ <- "HCO<sub>3</sub><sup>−</sup>"
+CO3__ <- "CO<sub>3</sub><sup>−2</sup>"
 O2 <- "O<sub>2</sub>"
 S2 <- "S<sub>2</sub>"
 log <- "log&thinsp;"
@@ -320,7 +321,7 @@ reset()
 # 
 # ## BLOCK 3
 # basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+# species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 # a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 # e <- equilibrate(a, loga.balance = logm_S)
 # diagram(e)
@@ -348,7 +349,7 @@ reset()
 # ######## Plot 2: Modify Gibbs energy
 # 
 # oldG <- info(info("S3-"))$G
-# newG <- oldG - 12548
+# newG <- oldG - 12586
 # mod.OBIGT("S3-", G = newG)
 # a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 # e <- equilibrate(a, loga.balance = logm_S)
@@ -393,7 +394,7 @@ reset()
 # 
 # ## BLOCK 3
 # basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+# species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 # a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 # e <- equilibrate(a, loga.balance = logm_S)
 # diagram(e)
@@ -421,7 +422,7 @@ reset()
 # ######## Plot 2: Modify Gibbs energy
 # 
 # oldG <- info(info("S3-"))$G
-# newG <- oldG - 12548
+# newG <- oldG - 12586
 # mod.OBIGT("S3-", G = newG)
 # a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 # e <- equilibrate(a, loga.balance = logm_S)
@@ -451,7 +452,7 @@ reset()
 species <- c("H2S", "SO4-2", "H+", "S3-", "oxygen", "H2O")
 coeffs <- c(-2, -1, -1, 1, 0.75, 2.5)
 (calclogK <- subcrt(species, coeffs, T = seq(300, 450, 50), P = 5000)$out$logK)
-fcalclogK <- formatC(calclogK, format = "f", digits = 1)
+fcalclogK <- formatC(calclogK, format = "f", digits = 2)
 reflogK <- -9.6
 dlogK <- calclogK[2] - reflogK
 # Put in a test so that we don't get surprised by
@@ -477,7 +478,7 @@ stopifnot(round(dlogK, 4) == -4.4132)
 # 
 # ## BLOCK 3
 # basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-# species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+# species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 # a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 # e <- equilibrate(a, loga.balance = logm_S)
 # diagram(e)
@@ -505,7 +506,7 @@ stopifnot(round(dlogK, 4) == -4.4132)
 # ######## Plot 2: Modify Gibbs energy
 # 
 # oldG <- info(info("S3-"))$G
-# newG <- oldG - 12548
+# newG <- oldG - 12586
 # mod.OBIGT("S3-", G = newG)
 # a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 # e <- equilibrate(a, loga.balance = logm_S)
@@ -535,7 +536,7 @@ stopifnot(round(dlogK, 4) == -4.4132)
 # The first four lines are stand-ins to make this block runnable and get the right output from info();
 # the diagram actually shown in the vignette is made using the 'trisulfur' block above
 b <- basis("CHNOS+")
-s <- species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+s <- species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 res <- 10
 wt_percent_S <- logm_S <- 0
 ######## End of stand-in code ########
@@ -574,7 +575,7 @@ logm_S <- log10(molality_S)
 
 ## BLOCK 3
 basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 e <- equilibrate(a, loga.balance = logm_S)
 diagram(e)
@@ -602,7 +603,7 @@ title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd 
 ######## Plot 2: Modify Gibbs energy
 
 oldG <- info(info("S3-"))$G
-newG <- oldG - 12548
+newG <- oldG - 12586
 mod.OBIGT("S3-", G = newG)
 a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 e <- equilibrate(a, loga.balance = logm_S)
@@ -631,7 +632,7 @@ OBIGT()
 ## ----pyrrhotite_polymorphs, collapse = TRUE-----------------------------------
 subcrt("pyrrhotite", T = c(25, 150, 350), property = "G")$out
 
-## ----pyrite_limit-------------------------------------------------------------
+## ----pyrite_limit, message = FALSE--------------------------------------------
 subcrt("pyrite", T = seq(200, 1000, 200), P = 1)
 
 ## ----mineral_Ttr, collapse = TRUE---------------------------------------------
@@ -639,7 +640,7 @@ file <- system.file("extdata/OBIGT/inorganic_cr.csv", package = "CHNOSZ")
 dat <- read.csv(file)
 dat$name[dat$model == "CGL_Ttr"]
 
-## ----muscovite_limit, message = FALSE-----------------------------------------
+## ----muscovite_limit----------------------------------------------------------
 add.OBIGT("SUPCRT92")
 subcrt("muscovite", T = 850, P = 4500)
 reset()
@@ -818,12 +819,148 @@ legend("topleft", legend = lT(T), bty = "n")
 title(quote("Curved line for" ~ italic(a)[H[2]*S] + italic(a)[HS^"-"] == "0.001"), font.main = 1)
 
 ## ----Fe-S-O-C, message = FALSE, results = "hide", fig.width = 5, fig.height = 5, out.width = "60%", fig.align = "center", pngquant = pngquant, cache = TRUE----
-basis(c("FeO", "SO4-2", "CO3-2", "H2O", "H+", "oxygen"))
-basis("SO4-2", -3)
+basis(c("FeO", "H2S", "CO3-2", "H2O", "H+", "oxygen"))
+basis("H2S", -3)
 basis("CO3-2", -0.6)
 species(c("hematite", "pyrite", "pyrrhotite", "magnetite", "siderite"))
-bases <- list( c("SO4-2", "HSO4-", "HS-", "H2S"), c("CO3-2", "HCO3-", "CO2") )
+bases <- list( c("H2S", "HS-", "SO2", "HSO4-", "SO4-2"), c("CO3-2", "HCO3-", "CO2") )
+# Uncomment to include the trisulfur radical ion (slower)
+# bases <- list( c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"), c("CO3-2", "HCO3-", "CO2") )
 m <- mosaic(bases, pH = c(0, 14, 500), O2 = c(-57, -35, 500), T = 150, IS = 0.77)
 d <- diagram(m$A.species, fill = "terrain", dx = c(0, 0, 0, 0, 0.3))
 water.lines(d)
+
+## ----H2S_plot, eval = FALSE---------------------------------------------------
+# par(mfrow = c(1, 2))
+# 
+# # The basis species we are speciating
+# bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+# # The basis species defining the system
+# # Note 1: for mosaic(), the first species in 'bases' must be in this list
+# # Note 2: for solubility(), the first species in this list must contain S
+# basis(c("H2S", "CO2", "H2O", "O2", "H+"))
+# # Define a low fO2 so reduced sulfur dominates over most of the pH range
+# basis("O2", -75)
+# # The pH range we'll look at
+# pH <- c(0, 14)
+# # The logarithm of activity used for aH2S or sum(S)
+# log_activity <- -2
+# 
+# # Left-hand plot: Constant log aH2S, variable sum(S)
+# # Set it up as a solubility calculation
+# # Define a single log aH2S
+# species("H2S", log_activity)
+# # Specify the aqueous species in equilibrium with H2S
+# iaq <- info(bases)
+# # Run the calculation to calculate all species' activities
+# s <- solubility(iaq, pH = c(0, 14))
+# # Diagram individual activities then total activity
+# diagram(s, type = "loga.equil", ylim = c(-15, 10))
+# diagram(s, lwd = 2, col = 4, add = TRUE)
+# title(quote("Constant"~italic(a)*H[2]*S))
+# 
+# # Right-hand plot: Constant sum(S), variable log aH2S
+# # Start by loading all the candidate species with preset activities
+# species(bases)
+# # Calculate affinities of formation reactions
+# a <- affinity(pH = pH)
+# # Equilibrate the species for a total activity of S
+# e <- equilibrate(a, loga.balance = log_activity)
+# # Diagram individual activities then total activity
+# diagram(e, ylim = c(-15, 10))
+# diagram(e, lwd = 2, col = 4, add = TRUE, type = "loga.balance")
+# title(quote("Constant total activity of S ("*sum(italic(a)*S)*")"))
+
+## ----H2S_plot, echo = FALSE, message = FALSE, results = "hide", fig.width = 9, fig.height = 4.5, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE----
+par(mfrow = c(1, 2))
+
+# The basis species we are speciating
+bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+# The basis species defining the system
+# Note 1: for mosaic(), the first species in 'bases' must be in this list
+# Note 2: for solubility(), the first species in this list must contain S
+basis(c("H2S", "CO2", "H2O", "O2", "H+"))
+# Define a low fO2 so reduced sulfur dominates over most of the pH range
+basis("O2", -75)
+# The pH range we'll look at
+pH <- c(0, 14)
+# The logarithm of activity used for aH2S or sum(S)
+log_activity <- -2
+
+# Left-hand plot: Constant log aH2S, variable sum(S)
+# Set it up as a solubility calculation
+# Define a single log aH2S
+species("H2S", log_activity)
+# Specify the aqueous species in equilibrium with H2S
+iaq <- info(bases)
+# Run the calculation to calculate all species' activities
+s <- solubility(iaq, pH = c(0, 14))
+# Diagram individual activities then total activity
+diagram(s, type = "loga.equil", ylim = c(-15, 10))
+diagram(s, lwd = 2, col = 4, add = TRUE)
+title(quote("Constant"~italic(a)*H[2]*S))
+
+# Right-hand plot: Constant sum(S), variable log aH2S
+# Start by loading all the candidate species with preset activities
+species(bases)
+# Calculate affinities of formation reactions
+a <- affinity(pH = pH)
+# Equilibrate the species for a total activity of S
+e <- equilibrate(a, loga.balance = log_activity)
+# Diagram individual activities then total activity
+diagram(e, ylim = c(-15, 10))
+diagram(e, lwd = 2, col = 4, add = TRUE, type = "loga.balance")
+title(quote("Constant total activity of S ("*sum(italic(a)*S)*")"))
+
+## ----CO3SO4_plot, eval = FALSE------------------------------------------------
+# par(mfrow = c(1, 2))
+# 
+# # Look at the stabilities of calcite and anhydrite
+# basis(c("Ca+2", "CO3-2", "SO4-2", "H2O", "O2", "H+"))
+# basis("Ca+2", -3)
+# # For afffinity(), these are single activities
+# # For mosaic(), these are total activities for groups of species in the 'bases' list
+# basis("CO3-2", -3)
+# basis("SO4-2", -3)
+# species(c("calcite", "anhydrite"))
+# 
+# # affinity() calculation
+# a <- affinity(pH = pH)
+# diagram(a, ylim = c(-5, 3))
+# title(quote("affinity(): constant"~italic(a)*CO[3]^"-2"~and~italic(a)*SO[4]^"-2"))
+# 
+# # mosaic() calculation
+# bases <- list(
+#   c("CO3-2", "HCO3-", "CO2"),
+#   c("SO4-2", "HSO4-")
+# )
+# m <- mosaic(bases, pH = pH)
+# diagram(m$A.species, ylim = c(-5, 3))
+# title(quote("mosaic(): constant"~sum(italic(a)*C)~and~sum(italic(a)*S)))
+
+## ----CO3SO4_plot, echo = FALSE, message = FALSE, results = "hide", fig.width = 9, fig.height = 4.5, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE----
+par(mfrow = c(1, 2))
+
+# Look at the stabilities of calcite and anhydrite
+basis(c("Ca+2", "CO3-2", "SO4-2", "H2O", "O2", "H+"))
+basis("Ca+2", -3)
+# For afffinity(), these are single activities
+# For mosaic(), these are total activities for groups of species in the 'bases' list
+basis("CO3-2", -3)
+basis("SO4-2", -3)
+species(c("calcite", "anhydrite"))
+
+# affinity() calculation
+a <- affinity(pH = pH)
+diagram(a, ylim = c(-5, 3))
+title(quote("affinity(): constant"~italic(a)*CO[3]^"-2"~and~italic(a)*SO[4]^"-2"))
+
+# mosaic() calculation
+bases <- list(
+  c("CO3-2", "HCO3-", "CO2"),
+  c("SO4-2", "HSO4-")
+)
+m <- mosaic(bases, pH = pH)
+diagram(m$A.species, ylim = c(-5, 3))
+title(quote("mosaic(): constant"~sum(italic(a)*C)~and~sum(italic(a)*S)))
 

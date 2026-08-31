@@ -109,7 +109,7 @@ opts_chunk$set(
 # Setup the C-H-N-O-S basis system with electron
 basis("CHNOSe")
 # Define aqueous sulfur species
-species(c("SO4-2", "HSO4-", "HS-", "H2S"))
+species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 # Calculate affinities on an Eh-pH grid
 a <- affinity(pH = c(0, 14), Eh = c(-0.8, 1.2))
 # Create an Eh-pH (Pourbaix) diagram
@@ -126,7 +126,7 @@ basis("H2S", -6)
 basis("Cl-", -1)
 species(c("CuCl", "CuCl2-", "CuCl3-2", "CuCl+", "CuCl2", "CuCl3-", "CuCl4-2"))
 species(c("chalcocite", "tenorite", "cuprite", "copper"), add = TRUE)
-bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 m <- mosaic(bases, pH = c(0, 12), Eh = c(-1, 1), T = 200)
 a <- m$A.species
 diagram(a, lwd = 2, bold = species()$state == "cr")
@@ -203,7 +203,9 @@ basis(c(metal, "H2S", "Cl-", "oxygen", "H2O", "H+"))
 basis("H2S", log10(Stot))
 basis("Cl-", log10(m_Clminus))
 # Define basis species to swap through for mosaic calculation
-bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+bases <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 
 # Get minerals and aqueous species
 icr <- info(c("hematite", "magnetite", "pyrite", "pyrrhotite"))
@@ -219,43 +221,31 @@ diagram(m$A.species, bold = species()$state == "cr")
 species(icr)
 s <- solubility(iaq, bases = bases, pH = pH, O2 = O2, T = T, P = P, IS = IS, in.terms.of = metal)
 levels <- seq(-9, -3, 3)
-diagram(s, levels = levels, contour.method = "flattest", add = TRUE, col = "green4", lwd = 2)
+diagram(s$aqueous, levels = levels, contour.method = "flattest", add = TRUE, col = "green4", lwd = 2)
 # Add a legend
 leg_list <- c(
   lTP(T, P),
   lNaCl(1.9),
   lS(Stot)
 )
-leg_expr <- lex(leg_list)
-legend("bottomleft", legend = leg_expr, bg = "white")
+legend("bottomleft", legend = leg_list, bg = "white")
 title("Total solubility is higher than quasisolubility", font.main = 1)
 
 ## Second plot: activities of aqueous species in solubility calculation
 basis("O2", -46)
 s <- solubility(iaq, bases = bases, pH = pH, T = T, P = P, IS = IS, in.terms.of = metal)
-diagram(s, col = "green4", lwd = 2, ylim = c(-10, -6))
+# Plot solubility followed by speciation
+diagram(s$aqueous, col = "green4", lwd = 2, ylim = c(-10, -6))
+diagram(s$aqueous, type = "loga.equil", add = TRUE)
+
 # Locate the stability boundary between pyrite and magnetite along the the pH axis 
-ipH <- which.min(abs(s$loga.equil[[3]] - s$loga.equil[[2]]))
+s_sub <- s$substrate
+ipH <- which.min(abs(s_sub$loga.equil[[3]] - s_sub$loga.equil[[2]]))
 # Show py-mag stability boundary
-pH_py_mag <- s$vals$pH[ipH]
+pH_py_mag <- s_sub$vals$pH[ipH]
 abline(v = pH_py_mag, col = 8)
 text(pH_py_mag, -6, "pyrite", adj = c(1.2, 1.5), font = 2)
 text(pH_py_mag, -6, "magnetite", adj = c(-0.1, 1.5), font = 2)
-
-# Consider each mineral separately to get activities of aqueous speices
-species("pyrite")
-s_py <- solubility(iaq, bases = bases, pH = pH, T = T, P = P, IS = IS, in.terms.of = metal)
-species("magnetite")
-s_mag <- solubility(iaq, bases = bases, pH = pH, T = T, P = P, IS = IS, in.terms.of = metal)
-# Merge activities for stable regions of each mineral
-loga.equil_both <- lapply(1:length(s_py$loga.equil), function(ispecies) {
-  c(s_py$loga.equil[[ispecies]][1:(ipH-1)], s_mag$loga.equil[[ispecies]][ipH:res])
-})
-# Put merged activities into new object for plotting
-s_both <- s_py
-s_both$loga.equil <- loga.equil_both
-diagram(s_both, type = "loga.equil", add = TRUE)
-
 leg_expr <- expr.species("O2", "gas", value = -46, log = TRUE)
 legend("bottomleft", legend = leg_expr, bg = "white")
 title("Species contributing to total solubility", font.main = 1)
@@ -282,7 +272,9 @@ title("Species contributing to total solubility", font.main = 1)
 # basis("H2S", log10(Stot))
 # basis("Cl-", log10(m_Clminus))
 # # Define basis species to swap through for mosaic calculation
-# bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+# bases <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# # Uncomment to include the trisulfur radical ion (slower)
+# # bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 # 
 # # Get minerals and aqueous species
 # icr <- info(c("hematite", "magnetite", "pyrite", "pyrrhotite"))
@@ -298,43 +290,31 @@ title("Species contributing to total solubility", font.main = 1)
 # species(icr)
 # s <- solubility(iaq, bases = bases, pH = pH, O2 = O2, T = T, P = P, IS = IS, in.terms.of = metal)
 # levels <- seq(-9, -3, 3)
-# diagram(s, levels = levels, contour.method = "flattest", add = TRUE, col = "green4", lwd = 2)
+# diagram(s$aqueous, levels = levels, contour.method = "flattest", add = TRUE, col = "green4", lwd = 2)
 # # Add a legend
 # leg_list <- c(
 #   lTP(T, P),
 #   lNaCl(1.9),
 #   lS(Stot)
 # )
-# leg_expr <- lex(leg_list)
-# legend("bottomleft", legend = leg_expr, bg = "white")
+# legend("bottomleft", legend = leg_list, bg = "white")
 # title("Total solubility is higher than quasisolubility", font.main = 1)
 # 
 # ## Second plot: activities of aqueous species in solubility calculation
 # basis("O2", -46)
 # s <- solubility(iaq, bases = bases, pH = pH, T = T, P = P, IS = IS, in.terms.of = metal)
-# diagram(s, col = "green4", lwd = 2, ylim = c(-10, -6))
+# # Plot solubility followed by speciation
+# diagram(s$aqueous, col = "green4", lwd = 2, ylim = c(-10, -6))
+# diagram(s$aqueous, type = "loga.equil", add = TRUE)
+# 
 # # Locate the stability boundary between pyrite and magnetite along the the pH axis
-# ipH <- which.min(abs(s$loga.equil[[3]] - s$loga.equil[[2]]))
+# s_sub <- s$substrate
+# ipH <- which.min(abs(s_sub$loga.equil[[3]] - s_sub$loga.equil[[2]]))
 # # Show py-mag stability boundary
-# pH_py_mag <- s$vals$pH[ipH]
+# pH_py_mag <- s_sub$vals$pH[ipH]
 # abline(v = pH_py_mag, col = 8)
 # text(pH_py_mag, -6, "pyrite", adj = c(1.2, 1.5), font = 2)
 # text(pH_py_mag, -6, "magnetite", adj = c(-0.1, 1.5), font = 2)
-# 
-# # Consider each mineral separately to get activities of aqueous speices
-# species("pyrite")
-# s_py <- solubility(iaq, bases = bases, pH = pH, T = T, P = P, IS = IS, in.terms.of = metal)
-# species("magnetite")
-# s_mag <- solubility(iaq, bases = bases, pH = pH, T = T, P = P, IS = IS, in.terms.of = metal)
-# # Merge activities for stable regions of each mineral
-# loga.equil_both <- lapply(1:length(s_py$loga.equil), function(ispecies) {
-#   c(s_py$loga.equil[[ispecies]][1:(ipH-1)], s_mag$loga.equil[[ispecies]][ipH:res])
-# })
-# # Put merged activities into new object for plotting
-# s_both <- s_py
-# s_both$loga.equil <- loga.equil_both
-# diagram(s_both, type = "loga.equil", add = TRUE)
-# 
 # leg_expr <- expr.species("O2", "gas", value = -46, log = TRUE)
 # legend("bottomleft", legend = leg_expr, bg = "white")
 # title("Species contributing to total solubility", font.main = 1)
@@ -483,7 +463,9 @@ basis(c(metal, "H2S", "Cl-", "oxygen", "H2O", "H+"))
 basis("H2S", log10(Stot))
 basis("Cl-", log10(m_Clminus))
 # Define basis species to swap through for mosaic calculation
-bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+bases <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 
 # Get minerals and aqueous species
 icr <- retrieve(metal, c("Cl", "S", "O", "H"), state = "cr")
@@ -501,8 +483,7 @@ leg_list <- c(
   lNaCl(m_NaCl),
   lS(Stot)
 )
-leg_expr <- lex(leg_list)
-legend("topright", legend = leg_expr, bty = "n")
+legend("topright", legend = leg_list, bty = "n")
 
 # Make diagram for aqueous species
 species(iaq)
@@ -523,7 +504,7 @@ title(main, font.main = 1)
 species(icr)
 s <- solubility(iaq, bases = bases, pH = pH, O2 = O2, T = T, P = P, IS = IS, in.terms.of = metal)
 levels <- seq(-12, 9, 3)
-diagram(s, levels = levels, contour.method = "flattest", col = "green4")
+diagram(s$aqueous, levels = levels, contour.method = "flattest", col = "green4")
 title("Total solubility contours", font.main = 1)
 
 ## ----solubility, eval=FALSE, cache=FALSE------------------------------------------------------------------------------------------------------------------------------------------
@@ -561,7 +542,9 @@ title("Total solubility contours", font.main = 1)
 # basis("H2S", log10(Stot))
 # basis("Cl-", log10(m_Clminus))
 # # Define basis species to swap through for mosaic calculation
-# bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+# bases <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# # Uncomment to include the trisulfur radical ion (slower)
+# # bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 # 
 # # Get minerals and aqueous species
 # icr <- retrieve(metal, c("Cl", "S", "O", "H"), state = "cr")
@@ -579,8 +562,7 @@ title("Total solubility contours", font.main = 1)
 #   lNaCl(m_NaCl),
 #   lS(Stot)
 # )
-# leg_expr <- lex(leg_list)
-# legend("topright", legend = leg_expr, bty = "n")
+# legend("topright", legend = leg_list, bty = "n")
 # 
 # # Make diagram for aqueous species
 # species(iaq)
@@ -601,7 +583,7 @@ title("Total solubility contours", font.main = 1)
 # species(icr)
 # s <- solubility(iaq, bases = bases, pH = pH, O2 = O2, T = T, P = P, IS = IS, in.terms.of = metal)
 # levels <- seq(-12, 9, 3)
-# diagram(s, levels = levels, contour.method = "flattest", col = "green4")
+# diagram(s$aqueous, levels = levels, contour.method = "flattest", col = "green4")
 # title("Total solubility contours", font.main = 1)
 
 ## ----convert----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -619,7 +601,7 @@ convert(1, "J")
 convert(10, "cal")
 
 ## ----convert_ppm, fig.cap = "Solubility in units of ppm"--------------------------------------------------------------------------------------------------------------------------
-sppm <- convert(s, "ppm")
+sppm <- convert(s$aqueous, "ppm")
 levels <- c(1e-6, 1e-3, 1e0, 1e3)
 diagram(sppm, levels = levels, col = "green4")
 
@@ -1021,7 +1003,9 @@ basis("H2S", log_aH2S)
 # Load aqueous species for relative stability calculation
 species(iaq)
 # Define basis species to swap through for mosaic calculation
-bases <- c("H2S", "HS-", "SO4-2", "HSO4-")
+bases <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 m <- mosaic(bases = bases, pH = c(2, 8), O2 = c(-32, -24), T = T_fixed, P = P)
 a <- m$A.species
 fill <- adjustcolor(col, alpha.f = 0.5)
@@ -1112,7 +1096,9 @@ text(pH_KMQ - 0.2, -28, "KMQ", srt = 90, col = 4, cex = 0.8)
 # # Load aqueous species for relative stability calculation
 # species(iaq)
 # # Define basis species to swap through for mosaic calculation
-# bases <- c("H2S", "HS-", "SO4-2", "HSO4-")
+# bases <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# # Uncomment to include the trisulfur radical ion (slower)
+# # bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 # m <- mosaic(bases = bases, pH = c(2, 8), O2 = c(-32, -24), T = T_fixed, P = P)
 # a <- m$A.species
 # fill <- adjustcolor(col, alpha.f = 0.5)
@@ -1213,7 +1199,7 @@ e <- equilibrate(a, normalize = TRUE, loga.balance = 0)
 col <- c("darkred", "red", "darkgray", "blue", "darkblue")
 diagram(e, ylim = c(-4, -2.5), col = col, lwd = 2)
 legend("bottomleft", c("High-T reducing", NA, NA, NA, "Low-T oxidizing"),
-  lty = 1:5, col = col, title = "Environmental Conditions", inset = c(0.1, 0))
+  lty = 1:5, col = col, title = "Source environment", inset = c(0.1, 0))
 
 ## ----protein_11-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Sample protein data from YeastGFP study
@@ -1570,9 +1556,9 @@ title("Class 2", font.main = 1)
 # title("Class 2", font.main = 1)
 
 ## ----the_end----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   ######    ##   ##    ##   ##    ######     #####  #####
- ##         ##===##    ## \\##   ##    ##     \\       //
- ######    ##   ##    ##   ##    ######    #####      #####
+   ######  ##   ##  ##   ##   ######  ##### #####
+ ##       ##===##  ## \\##  ##    ##   \\     //
+ ######  ##   ##  ##   ##   ######  #####    #####
 
 ## ----sessionInfo, echo = FALSE----------------------------------------------------------------------------------------------------------------------------------------------------
 ## For finding what versions of packages are on R-Forge and winbuilder

@@ -182,6 +182,7 @@ logK <- "log&thinsp;<i>K</i>"
 Hplus <- "H<sup>+</sup>"
 HCO2_ <- "HCO<sub>2</sub><sup>−</sup>"
 HCO3_ <- "HCO<sub>3</sub><sup>−</sup>"
+CO3__ <- "CO<sub>3</sub><sup>−2</sup>"
 O2 <- "O<sub>2</sub>"
 S2 <- "S<sub>2</sub>"
 log <- "log&thinsp;"
@@ -208,28 +209,26 @@ Tmax <- "<i>T</i><sub>max</sub>"
 
 This vignette was compiled on `r Sys.Date()` with CHNOSZ version `r sessionInfo()$otherPkgs$CHNOSZ$Version`.
 
-## How is CHNOSZ pronounced?
-
-As one syllable that starts with an *sh* sound and [rhymes with *Oz*](https://en.wiktionary.org/wiki/Rhymes:English/%C9%92z).
-CHNOSZ and [schnoz](https://en.wiktionary.org/wiki/schnozz) are homophones.
-
-*Added on 2023-05-22.*
-
 ## Where do the names CHNOSZ, OBIGT, and subcrt come from?
 
 CHNOSZ has the symbols for five elements (carbon, hydrogen, nitrogen, oxygen, and sulfur) and charge (Z).
-These letters appear as the column names in the stoichiometric matrix of basis species for ionized proteins, which were the subject of JMD's PhD thesis.
+These are the main elements in proteins, which were the subject of JMD's PhD thesis.
 
-OBIGT was originally an abbreviation for the OrganoBioGeoTherm software package written by John Donovan,
-a Windows interface to SUPCRT92 that was first mentioned in print by @RH98.
-That package incorporated a database that was used as the starting point for the current OBIGT database.
+OBIGT started as an abbreviation for the OrganoBioGeoTherm software package written by John Donovan at UC Berkeley.
+This was a Windows interface to SUPCRT92 that was probably first cited by @RH98.
+That package held a database that was the seed for the current OBIGT database.
 
 The name of the `subcrt()` function is loosely based on the SUPCRT92 software package.
-SUPCRT is an abbreviation for supercritical [@JOH92], but `subcrt()` is just a different name and is not limited to subcritical conditions.
+SUPCRT is an abbreviation for *supercritical* [@JOH92].
+`subcrt()` is just a different name and is not limited to subcritical conditions.
 
-I would like to acknowledge Jan Amend for the suggestion to use a different function name than SUPCRT
-and for being possibly the first person to try to pronounce CHNOSZ while looking at the program's output.
-That interaction at the 2007 Goldschmidt conference led me to use CHNOSZ as the name for the package.
+During a meeting at the 2007 Goldschmidt conference,
+Jan Amend suggested using a unique name (not SUPCRT) and vocalized *CHNOSZ* while looking at the program output.
+That interaction resulted in `subcrt()` and CHNOSZ for the function and package names.
+
+> The author pronounces *CHNOSZ* as one syllable that starts with an *sh* sound and [rhymes with *Oz*](https://en.wiktionary.org/wiki/Rhymes:English/%C9%92z).
+> In this pronunciation, CHNOSZ and [schnoz](https://en.wiktionary.org/wiki/schnozz) are homophones.
+
 
 *Added on 2025-06-05.*
 
@@ -569,7 +568,7 @@ logm_S <- log10(molality_S)
 
 ## BLOCK 3
 basis(c("Ni", "SiO2", "Fe2O3", "H2S", "H2O", "oxygen", "H+"))
-species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 e <- equilibrate(a, loga.balance = logm_S)
 diagram(e)
@@ -597,7 +596,7 @@ title(quote("Parameters for"~S[3]^"-"~"from Pokrovski and Dubessy (2015)"), xpd 
 ######## Plot 2: Modify Gibbs energy
 
 oldG <- info(info("S3-"))$G
-newG <- oldG - 12548
+newG <- oldG - 12586
 mod.OBIGT("S3-", G = newG)
 a <- affinity(pH = c(2, 10, res), O2 = c(-34, -22, res), T = T, P = P)
 e <- equilibrate(a, loga.balance = logm_S)
@@ -657,7 +656,7 @@ Let's calculate `r logK` for the reaction 2 `r H2S`(aq) + `r SO4__` + `r Hplus` 
 species <- c("H2S", "SO4-2", "H+", "S3-", "oxygen", "H2O")
 coeffs <- c(-2, -1, -1, 1, 0.75, 2.5)
 (calclogK <- subcrt(species, coeffs, T = seq(300, 450, 50), P = 5000)$out$logK)
-fcalclogK <- formatC(calclogK, format = "f", digits = 1)
+fcalclogK <- formatC(calclogK, format = "f", digits = 2)
 reflogK <- -9.6
 dlogK <- calclogK[2] - reflogK
 # Put in a test so that we don't get surprised by
@@ -666,7 +665,7 @@ stopifnot(round(dlogK, 4) == -4.4132)
 ```
 
 By using the thermodynamic parameters for `r S3minus` in OBIGT that are taken from @PD15, `r logK` is calculated to be `r paste(paste(fcalclogK[1:3], collapse = ", "), fcalclogK[4], sep = ", and ")` at 300, 350, 400, and 450 °C and 5000 bar.
-In contrast, ref. 22 of @PD11 lists `r reflogK` for `r logK` at 350 °C; this is `r round(-dlogK, 1)` log units higher than the calculated value of `r fcalclogK[2]`. 
+In contrast, ref. 22 of @PD11 lists `r reflogK` for `r logK` at 350 °C; this is `r round(-dlogK, 2)` log units higher than the calculated value of `r fcalclogK[2]`. 
 This corresponds to a difference of Gibbs energy of -2.303 * 1.9872 * (350 + 273.15) * `r round(-dlogK, 1)` = `r formatC(-2.303 * 1.9872 * (350 + 273.15) * -dlogK, format = "f", digits = 0)` cal/mol.
 
 In the code below, we use the difference of Gibbs energy to temporarily update the OBIGT entry for `r S3minus`.
@@ -692,7 +691,7 @@ At the end, reset the water model and OBIGT database.
 # The first four lines are stand-ins to make this block runnable and get the right output from info();
 # the diagram actually shown in the vignette is made using the 'trisulfur' block above
 b <- basis("CHNOS+")
-s <- species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2", "S3-"))
+s <- species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 res <- 10
 wt_percent_S <- logm_S <- 0
 ######## End of stand-in code ########
@@ -727,7 +726,7 @@ The value in this column can be one of the following:
 
 1. The temperature of transition to the next polymorph of a mineral;
 2. For the highest-temperature (or only) polymorph, if `model == "CGL_Ttr"`, then `T` is the phase transition temperature (e.g., the temperature of melting or decomposition of a solid or vaporization of a liquid);
-3. For the highest-temperature polymorph, if `model != "CGL_Ttr"`, then `T` is the `r Tmax` for the *C~p~* equation.
+3. For the highest-temperature polymorph, if `model == "CGL"`, then `T` is the `r Tmax` for the *C~p~* equation.
 
 These cases are handled by `subcrt()` as follows.
 The units of `T` in OBIGT are Kelvin, but `subcrt()` by default uses &deg;C:
@@ -741,16 +740,16 @@ subcrt("pyrrhotite", T = c(25, 150, 350), property = "G")$out
 Note: In both SUPCRT92 and OBIGT, tin, sulfur, and selenium are listed as minerals with one or more polymorphic transitions, but the highest-temperature polymorph actually represents the liquid state.
 Furthermore, quicksilver is listed as a mineral whose polymorphs actually correspond to the liquid and gaseous states.
 
-**2. For a phase transition temperature, Δ*G*° is set to NA at higher temperatures:**
+**2. For species with phase transitions, extrapolated values of Δ*G*° are returned and a warning is produced:**
 
-```{r pyrite_limit}
+```{r pyrite_limit, message = FALSE}
 subcrt("pyrite", T = seq(200, 1000, 200), P = 1)
 ```
 
-This feature is intended to make it harder to obtain potentially unreliable results at temperatures where a mineral, or organic solid or liquid, is not stable.
-If you want the extrapolated Δ*G*° above the listed phase transition temperature, then add `exceed.Ttr = TRUE` to the call to `subcrt()`.
+The warning alerts when the temperature is above the transition temperature for species with `model = "CGL_Ttr"`.
+To silence the warning, add `warn.Ttr = FALSE` to the call to `subcrt()`.
 
-OBIGT has a non-exhaustive list of temperatures of melting, decomposition, or other phase change, some of which were taken from SUPCRT92 while others were taken from @RH95.
+`CGL_Ttr` in OBIGT is used for species where the T limit represent melting, decomposition, or other phase change.
 These minerals are listed below:
 
 ```{r mineral_Ttr, collapse = TRUE}
@@ -767,18 +766,18 @@ OBIGT uses the decomposition temperature of covellite [780.5 K from @RH95] in co
 Selected other organic solids and liquids have melting or vaporization temperatures listed.
 However, no melting temperatures are listed for minerals that use the `Berman` model.
 
-**3. For a *C~p~* equation limit, extrapolated values of Δ*G*° are shown and a warning is produced:**
+**3. For a *C~p~* equation limit, extrapolated values of Δ*G*° are returned and a message is emitted:**
 
-```{r muscovite_limit, message = FALSE}
+```{r muscovite_limit}
 add.OBIGT("SUPCRT92")
 subcrt("muscovite", T = 850, P = 4500)
 reset()
 ```
 
-The warning is similar to that produced by SUPCRT92 ("CAUTION: BEYOND T LIMIT OF CP COEFFS FOR A MINERAL OR GAS") at temperatures above maximum temperature of validity of the Maier-Kelley equation (`r Tmax`).
-Similar to the behavior of SUPCRT92, CHNOSZ outputs Δ*G*° and other standard thermodynamic properties at temperatures higher than `r Tmax` despite the warning.
+The message is similar to that produced by SUPCRT92 ("CAUTION: BEYOND T LIMIT OF CP COEFFS FOR A MINERAL OR GAS") at temperatures above maximum temperature of validity of the Maier-Kelley equation (`r Tmax`).
+Similar to the behavior of SUPCRT92, CHNOSZ outputs Δ*G*° and other standard thermodynamic properties at temperatures higher than `r Tmax` despite the message.
 
-**4. Finally, if `T` is NA or 0, then no upper temerature limit is imposed by `subcrt()`.**
+**4. Finally, if `T` is NA or 0, then no message or warning is produced.**
 
 *Added on 2023-11-15. Updated on 2024-12-29 for use of `CGL_Ttr`.*
 
@@ -966,11 +965,13 @@ An example of one is in Figure 5 of @CBLM00.
 The code below makes a diagram for the minerals shown in that figure:
 
 ```{r Fe-S-O-C, message = FALSE, results = "hide", fig.width = 5, fig.height = 5, out.width = "60%", fig.align = "center", pngquant = pngquant, cache = TRUE}
-basis(c("FeO", "SO4-2", "CO3-2", "H2O", "H+", "oxygen"))
-basis("SO4-2", -3)
+basis(c("FeO", "H2S", "CO3-2", "H2O", "H+", "oxygen"))
+basis("H2S", -3)
 basis("CO3-2", -0.6)
 species(c("hematite", "pyrite", "pyrrhotite", "magnetite", "siderite"))
-bases <- list( c("SO4-2", "HSO4-", "HS-", "H2S"), c("CO3-2", "HCO3-", "CO2") )
+bases <- list( c("H2S", "HS-", "SO2", "HSO4-", "SO4-2"), c("CO3-2", "HCO3-", "CO2") )
+# Uncomment to include the trisulfur radical ion (slower)
+# bases <- list( c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"), c("CO3-2", "HCO3-", "CO2") )
 m <- mosaic(bases, pH = c(0, 14, 500), O2 = c(-57, -35, 500), T = 150, IS = 0.77)
 d <- diagram(m$A.species, fill = "terrain", dx = c(0, 0, 0, 0, 0.3))
 water.lines(d)
@@ -981,5 +982,132 @@ First, the triangular area above the water stability limit should be labeled as 
 Second, the boundary between pyrite and magnetite should have one bend, not two.
 
 *Added on 2024-04-01.*
+
+## How is the *sum of activities* of basis species defined for mosaic diagrams?
+
+Short answer:
+
+- `basis(..., log_activity)` before `mosaic()` defines the **sum of activities** of the set of basis species starting with `...` in the `bases` argument to `mosaic()`.
+- `basis(..., log_activity)` before `affinity()` defines the **activity** of the single basis species identified by `...`.
+
+Longer explanation:
+
+The purpose of `mosaic()` is to *speciate the basis species*; that is, to allow an element such as S to be distributed among different candidate basis species,
+which in turn are used to construct the formation reactions of species for relative stability calculations.
+Let's take `r H2S` as the starting basis species for S.
+If we define a *constant activity of `r H2S`*, then the distribution of S-bearing basis species looks like the plot on the left.
+If we define a *constant sum of activities* of S-bearing species, we get the plot on the right.
+
+<button id="B-H2S_plot" onclick="ToggleDiv('H2S_plot')">Show code</button>
+<div id="D-H2S_plot" style="display: none">
+```{r H2S_plot, eval = FALSE}
+par(mfrow = c(1, 2))
+
+# The basis species we are speciating
+bases <- c("H2S", "HS-", "HSO4-", "SO4-2")
+# The basis species defining the system
+# Note 1: for mosaic(), the first species in 'bases' must be in this list
+# Note 2: for solubility(), the first species in this list must contain S
+basis(c("H2S", "CO2", "H2O", "O2", "H+"))
+# Define a low fO2 so reduced sulfur dominates over most of the pH range
+basis("O2", -75)
+# The pH range we'll look at
+pH <- c(0, 14)
+# The logarithm of activity used for aH2S or sum(S)
+log_activity <- -2
+
+# Left-hand plot: Constant log aH2S, variable sum(S)
+# Set it up as a solubility calculation
+# Define a single log aH2S
+species("H2S", log_activity)
+# Specify the aqueous species in equilibrium with H2S
+iaq <- info(bases)
+# Run the calculation to calculate all species' activities
+s <- solubility(iaq, pH = c(0, 14))
+# Diagram individual activities then total activity
+diagram(s, type = "loga.equil", ylim = c(-15, 10))
+diagram(s, lwd = 2, col = 4, add = TRUE)
+title(quote("Constant"~italic(a)*H[2]*S))
+
+# Right-hand plot: Constant sum(S), variable log aH2S
+# Start by loading all the candidate species with preset activities
+species(bases)
+# Calculate affinities of formation reactions
+a <- affinity(pH = pH)
+# Equilibrate the species for a total activity of S
+e <- equilibrate(a, loga.balance = log_activity)
+# Diagram individual activities then total activity
+diagram(e, ylim = c(-15, 10))
+diagram(e, lwd = 2, col = 4, add = TRUE, type = "loga.balance")
+title(quote("Constant total activity of S ("*sum(italic(a)*S)*")"))
+```
+</div>
+
+```{r H2S_plot, echo = FALSE, message = FALSE, results = "hide", fig.width = 9, fig.height = 4.5, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE}
+```
+
+The right-hand plot is how `mosaic()` interprets the value defined in `basis("H2S", log_activity)`.
+If `log_activity` is -2, then the formation reactions see these activities of `r H2S`:
+
+- log *a*`r H2S` = -2 at pH 0
+- log *a*`r H2S` = -11 at pH 14
+
+`r H2S` practically disappears at pH 14 and is replaced by `r SO4__` with a log activity of -2.
+Thus, for the purposes of `mosaic()`, `basis("H2S", -2)` defines a constant sum of activity of all S-bearing basis species, not a constant activity of `r H2S`.
+
+What does this mean in practice?
+It means that the affinities to form minerals or aqueous species are sensitive to the speciation of basis species.
+Let's set up a simple system to compare the affinities of forming calcite (CaCO~3~) and anhydrite (CaSO~4~) as a function of pH.
+If we define constant activities of carbonate (`r CO3__`) and sulfate (`r SO4__`), we get the plot on the left.
+The flat lines are suspicious; the protonated forms of these ions are are stabilized by acidic conditions, and changing the basis species should change the affinities.
+
+<button id="B-CO3SO4_plot" onclick="ToggleDiv('CO3SO4_plot')">Show code</button>
+<div id="D-CO3SO4_plot" style="display: none">
+```{r CO3SO4_plot, eval = FALSE}
+par(mfrow = c(1, 2))
+
+# Look at the stabilities of calcite and anhydrite
+basis(c("Ca+2", "CO3-2", "SO4-2", "H2O", "O2", "H+"))
+basis("Ca+2", -3)
+# For afffinity(), these are single activities
+# For mosaic(), these are total activities for groups of species in the 'bases' list
+basis("CO3-2", -3)
+basis("SO4-2", -3)
+species(c("calcite", "anhydrite"))
+
+# affinity() calculation
+a <- affinity(pH = pH)
+diagram(a, ylim = c(-5, 3))
+title(quote("affinity(): constant"~italic(a)*CO[3]^"-2"~and~italic(a)*SO[4]^"-2"))
+
+# mosaic() calculation
+bases <- list(
+  c("CO3-2", "HCO3-", "CO2"),
+  c("SO4-2", "HSO4-")
+)
+m <- mosaic(bases, pH = pH)
+diagram(m$A.species, ylim = c(-5, 3))
+title(quote("mosaic(): constant"~sum(italic(a)*C)~and~sum(italic(a)*S)))
+```
+</div>
+
+```{r CO3SO4_plot, echo = FALSE, message = FALSE, results = "hide", fig.width = 9, fig.height = 4.5, out.width = "100%", fig.align = "center", pngquant = pngquant, cache = TRUE}
+```
+
+The key idea is to speciate the basis species by listing the candatate basis species in the `bases` argument of `mosaic()`:
+
+```r
+bases <- list(
+  c("CO3-2", "HCO3-", "CO2"),
+  c("SO4-2", "HSO4-")
+)
+m <- mosaic(bases, pH = pH)
+```
+
+This underlies the diagram on the right.
+The lower affinity at lower pH makes sense because the activities of `r CO3__` and `r SO4__` are becoming depleted as the protonated forms become more stable.
+In both cases the total activity of C and S in the sets of basis species defined by `bases` is constant.
+
+*Added on 2026-06-02.*
 
 ## References

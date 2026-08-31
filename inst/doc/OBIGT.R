@@ -7,19 +7,21 @@ reset()
 setfile <- function(csvfile, dat=NULL) {
   # Assign csvfile outside this function
   assign("csvfile", csvfile, parent.frame())
-  if(csvfile == "testing") {
-    # Deal with testing optional data files as a group
-    testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
-    testing_list <- lapply(testing_files, function(file) {
+  if(csvfile %in% c("SLOP98", "testing")) {
+    # Deal with SLOP98 or testing optional data files as a group
+    if(csvfile == "SLOP98") group_files <- dir(system.file("extdata/OBIGT", package = "CHNOSZ"), "SLOP98", full.names = TRUE)
+    if(csvfile == "testing") group_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+    group_files <- dir(system.file("extdata/OBIGT", package = "CHNOSZ"), "SLOP98", full.names = TRUE)
+    group_list <- lapply(group_files, function(file) {
       dat <- read.csv(file, as.is = TRUE)
       source <- gsub(".csv", "", basename(file))
       cbind(source = source, dat)
     })
-    dat <- do.call(rbind, testing_list)
+    dat <- do.call(rbind, group_list)
     state <- "Optional "
-    class <- "Testing"
+    class <- ifelse(csvfile == "SLOP98", "SLOP98", "Testing")
   } else {
-    # Deal with individual optional data files
+    # Deal with individual data files
     file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
     dat <- read.csv(file, as.is=TRUE)
     ## Exclude entries for high-T polymorphs
@@ -44,15 +46,16 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
   whichref <- "ref2"
   # Without dat, look for ref1 in csvfile
   if(is.null(dat)) {
-    if(csvfile == "testing") {
-      # Deal with testing optional data files as a group
-      testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
-      testing_list <- lapply(testing_files, function(file) {
+    if(csvfile %in% c("SLOP98", "testing")) {
+      # Deal with SLOP98 or testing optional data files as a group
+      if(csvfile == "SLOP98") group_files <- dir(system.file("extdata/OBIGT", package = "CHNOSZ"), "SLOP98", full.names = TRUE)
+      if(csvfile == "testing") group_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
+      group_list <- lapply(group_files, function(file) {
         dat <- read.csv(file, as.is = TRUE)
         source <- gsub(".csv", "", basename(file))
         cbind(source = source, dat)
       })
-      dat <- do.call(rbind, testing_list)
+      dat <- do.call(rbind, group_list)
     } else {
       file <- system.file(paste0("extdata/OBIGT/", csvfile), package="CHNOSZ")
       dat <- read.csv(file, as.is=TRUE)
@@ -107,6 +110,9 @@ filerefs <- function(csvfile, dat=NULL, message=FALSE) {
 used <- character()
 # Initialize the list of used optional species
 optused <- character()
+
+## ----reflist, results="asis", echo=FALSE--------------------------------------
+used <- c(used, filerefs(csvfile))
 
 ## ----reflist, results="asis", echo=FALSE--------------------------------------
 used <- c(used, filerefs(csvfile))

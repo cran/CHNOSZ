@@ -80,9 +80,9 @@ affinity(T = c(200, 400, 11), P = 2000)$values
 # Setup H2S and O2 to be buffered by PPM
 basis(c("H2S", "O2"), c("PPM", "PPM"))
 # Inspect values of H2S activity and O2 fugacity
-affinity(T = c(200, 400, 11), P = 2000, return.buffer = TRUE, exceed.Ttr = TRUE)
+affinity(T = c(200, 400, 11), P = 2000, return.buffer = TRUE)
 # Calculate affinities of formation reactions of species in the buffer
-a <- affinity(T = c(200, 400, 11), P = 2000, exceed.Ttr = TRUE)$values
+a <- affinity(T = c(200, 400, 11), P = 2000)$values
 # The affinities for species in the buffer are all equal to zero
 all.equal(as.numeric(a[[1]]), rep(0, 11))  # TRUE
 all.equal(as.numeric(a[[2]]), rep(0, 11))  # TRUE
@@ -130,7 +130,7 @@ affinity(return.buffer = TRUE)
 }
 
 \references{
-Garrels, R. M. (1960) \emph{Mineral Equilibria}. Harper & Brothers, New York, 254 p. \url{https://www.worldcat.org/oclc/552690}
+Garrels RM. 1960. \emph{Mineral Equilibria}. New York: Harper & Brothers. 254 p. \url{https://search.worldcat.org/title/552690}
 }
 
 \concept{Extended workflow}

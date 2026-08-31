@@ -1,5 +1,5 @@
 # CHNOSZ/demo/uranyl.R
-# Total (carbonate|sulfate)-pH diagrams for uranyl species, after Migdisov et al., 2024
+# Total (carbonate|sulfate)-pH diagrams for uranyl species, after Migdisov et al. (2025)
 # 20241116 first version
 
 library(CHNOSZ)
@@ -32,17 +32,17 @@ bases <- c("CO3-2", "HCO3-", "CO2")
 m <- suppressWarnings(mosaic(bases, pH = c(pH_lim, res), "CO3-2" = c(CS_lim, res), T = T, P = P, IS = IS))
 diagram(m$A.species)
 diagram(m$A.bases, add = TRUE, col = 8, lty = 2, col.names = 8, italic = TRUE)
-title("Uranyl-carbonate complexation at 200 \u00b0C, after Migdisov et al., 2024", font.main = 1)
+title("Uranyl-carbonate complexation at 200 \u00b0C, after Migdisov et al., 2025", font.main = 1)
 
 # Total sulfate-pH
 iaq <- retrieve("U", ligands = c("S", "O", "H", "Cl", "Na"), state = "aq")
 icr <- retrieve("U", ligands = c("S", "O", "H", "Cl", "Na"), state = "cr", T = T)
-basis(c("UO2+2", "SO4-2", "Na+", "Cl-", "H+", "H2O", "O2"))
+basis(c("UO2+2", "H2S", "Na+", "Cl-", "H+", "H2O", "O2"))
 basis(c("Na+", "Cl-"), c(logm_Naplus, logm_Clminus))
 species(iaq, logm_U)
 species(icr, add = TRUE)
-bases <- c("SO4-2", "HSO4-", "HS-", "H2S")
-m <- suppressWarnings(mosaic(bases, pH = c(pH_lim, res), "SO4-2" = c(CS_lim, res), T = T, P = P, IS = IS))
+bases <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
+m <- suppressWarnings(mosaic(bases, pH = c(pH_lim, res), "H2S" = c(CS_lim, res), T = T, P = P, IS = IS))
 diagram(m$A.species)
 diagram(m$A.bases, add = TRUE, col = 8, lty = 2, col.names = 8, italic = TRUE)
-title("Uranyl-sulfate complexation at 200 \u00b0C, after Migdisov et al., 2024", font.main = 1)
+title("Uranyl-sulfate complexation at 200 \u00b0C, after Migdisov et al., 2025", font.main = 1)

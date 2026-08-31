@@ -10,7 +10,7 @@
   subcrt(species, coeff = 1, state = NULL,
     property = c("logK","G","H","S","V","Cp"),
     T = seq(273.15,623.15,25), P = "Psat", grid = NULL, 
-    convert = TRUE, exceed.Ttr = FALSE, exceed.rhomin = FALSE,
+    convert = TRUE, warn.Ttr = TRUE, exceed.rhomin = FALSE,
     logact = NULL, autobalance = TRUE, use.polymorphs = TRUE, IS = 0)
 }
 
@@ -22,7 +22,7 @@
   \item{T}{numeric, temperature(s) of the calculation}
   \item{P}{numeric, pressure(s) of the calculation, or character, \samp{Psat}}
   \item{grid}{character, type of \code{P}\eqn{\times}{x}\code{T} grid to produce (NULL, the default, means no gridding)}
-  \item{exceed.Ttr}{logical, calculate Gibbs energies of mineral phases and other species beyond their transition temperatures?}
+  \item{warn.Ttr}{logical, warn for temperatures above phase transition temperature?}
   \item{exceed.rhomin}{logical, return properties of species in the HKF model below 0.35 g cm\S{-3}?}
   \item{logact}{numeric, logarithms of activities of species in reaction}
   \item{convert}{logical, are units of T, P, and energy settable by the user (default) (see \code{\link{T.units}})?}
@@ -81,6 +81,10 @@ Values of \code{logK} of reactions calculated for \code{IS} not equal to zero ar
 
 If \code{thermo()$opt$varP} is \code{TRUE}, standard Gibbs energies of gases will be converted from a standard state at 1 bar (as used in SUPCRT) to a variable pressure standard state (see chapter 12 in Anderson and Crerar, 1993).
 This is useful for constructing e.g. boiling curves for organic compounds.
+
+For species with \code{model == "CGL_Ttr"} in OBIGT, a warning is produced if any temperature is above the phase transition temperature.
+This does not alter the results of calculations; values of thermodynamic properties are extrapolated to all temperatures.
+Set \code{warn.Ttr} to \code{FALSE} to silence this warning.
 }
 
 \section{Warning}{
@@ -105,9 +109,6 @@ On the other hand, if the \code{water} option is \samp{SUPCRT} (the default), \c
 Minerals with polymorphic transitions (denoted in OBIGT by having states \samp{cr} (lowest-\T phase), \samp{cr2}, etc.) can be specified by name with \samp{cr} for the \code{state} or by using a numeric species index for the lowest-\T polymorph.
 If \code{use.polymorphs} is TRUE, \code{subcrt} uses the transition temperatures calculated from those at P = 1 bar given in OBIGT together with functions of the entropies and volumes of transitions (see \code{\link{dPdTtr}}) to determine the stable polymorph at each grid point and uses the properties of that polymorph in the output.
 A \code{polymorph} column is added to the output to indicate the stable polymorph at each \T-\P condition.
-If \code{exceed.Ttr} is \code{FALSE} (the default), output values of Gibbs energy are assigned NA beyond the transition temperature of the highest-temperature polymorph.
-Set \code{exceed.Ttr} to \code{TRUE} to identify the stable polymorphs by comparing their extrapolated Gibbs energies instead of the tabulated transition temperatures.
-This is generally not advised, as extrapolated Gibbs energies may not reliably determine the stable polymorph at extreme temperatures.
 }
 
 \value{
@@ -156,7 +157,7 @@ subcrt("pyrrhotite")
 # Reactions automatically use stable polymorph
 subcrt(c("pyrite", "pyrrhotite", "H2O", "H2S", "O2"), c(-1, 1, -1, 1, 0.5))
 # Extrapolated properties of the lowest-T polymorph (metastable at higher temperatures)
-subcrt(c("pyrrhotite"), use.polymorphs = FALSE, exceed.Ttr = TRUE)
+subcrt(c("pyrrhotite"), use.polymorphs = FALSE)
 
 ## Messages about problems with the calculation
 # Above the T, P limits for the H2O equations of state
@@ -211,13 +212,10 @@ par(opar)
 ## Calculations using a variable-pressure standard state
 thermo("opt$varP" = TRUE)
 # Calculate the boiling point of octane at 2 and 20 bar
-# We need exceed.Ttr = TRUE because the liquid is metastable
-# at high temperatures (also, the gas is metastable at low
-# temperatures, but that doesn't produce NA in the output)
 sout2 <- subcrt(rep("octane", 2), c("liq", "gas"),
-  c(-1, 1), T = seq(-50, 300, 0.1), P = 2, exceed.Ttr = TRUE)$out
+  c(-1, 1), T = seq(-50, 300, 0.1), P = 2, warn.Ttr = FALSE)$out
 sout20 <- subcrt(rep("octane", 2), c("liq", "gas"),
-  c(-1, 1), T = seq(-50, 300, 0.1), P = 20, exceed.Ttr = TRUE)$out
+  c(-1, 1), T = seq(-50, 300, 0.1), P = 20, warn.Ttr = FALSE)$out
 # Find T with the Gibbs energy of reaction that is closest to zero
 Tvap2 <- sout2$T[which.min(abs(sout2$G))]
 Tvap20 <- sout20$T[which.min(abs(sout20$G))]
@@ -229,15 +227,15 @@ thermo("opt$varP" = FALSE)
 }
 
 \references{
-  Anderson, G. M. and Crerar, D. A. (1993) \emph{Thermodynamics in Geochemistry: The Equilibrium Model}, Oxford University Press. \url{https://www.worldcat.org/oclc/803272549}
+Anderson GM, Crerar DA. 1993. \emph{Thermodynamics in Geochemistry: The Equilibrium Model}. New York: Oxford University Press. \url{https://search.worldcat.org/title/803272549}
 
-  Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \doi{10.1016/0098-3004(92)90029-Q}
+Johnson JW, Oelkers EH, Helgeson HC. 1992. SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000°C. \emph{Comput Geosci} \bold{18}: 899--947. \doi{10.1016/0098-3004(92)90029-Q}
 
-  Helgeson, H. C., Owens, C. E., Knox, A. M. and Richard, L. (1998) Calculation of the standard molal thermodynamic properties of crystalline, liquid, and gas organic molecules at high temperatures and pressures. \emph{Geochim. Cosmochim. Acta} \bold{62}, 985--1081. \doi{10.1016/S0016-7037(97)00219-6}
+Helgeson HC, Owens CE, Knox AM, Richard L. 1998. Calculation of the standard molal thermodynamic properties of crystalline, liquid, and gas organic molecules at high temperatures and pressures. \emph{Geochim Cosmochim Acta} \bold{62}: 985--1081. \doi{10.1016/S0016-7037(97)00219-6}
 
-  LaRowe, D. E. and Helgeson, H. C. (2007) Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}, 153--168. \doi{10.1111/j.1472-4669.2007.00099.x}
+LaRowe DE, Helgeson HC. 2007. Quantifying the energetics of metabolic reactions in diverse biogeochemical systems: electron flow and ATP synthesis. \emph{Geobiology} \bold{5}: 153--168. \doi{10.1111/j.1472-4669.2007.00099.x}
 
-  Shock, E. L., Oelkers, E. H., Johnson, J. W., Sverjensky, D. A. and Helgeson, H. C. (1992) Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 \degC and 5 kbar. \emph{J. Chem. Soc. Faraday Trans.} \bold{88}, 803--826. \doi{10.1039/FT9928800803}
+Shock EL, Oelkers EH, Johnson JW, Sverjensky DA, Helgeson HC. 1992. Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants and standard partial molal properties to 1000 °C and 5 kbar. \emph{J Chem Soc Faraday Trans} \bold{88}: 803--826. \doi{10.1039/FT9928800803}
 }
 
 \concept{Main workflow}

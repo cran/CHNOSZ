@@ -7,7 +7,7 @@ Calculate the chemical affinities of formation reactions of species.
 }
 
 \usage{
-  affinity(..., property = NULL, sout = NULL, exceed.Ttr = FALSE,
+  affinity(..., property = NULL, sout = NULL, warn.Ttr = TRUE,
     exceed.rhomin = FALSE, return.buffer = FALSE, return.sout = FALSE,
     balance = "PBB", iprotein = NULL, loga.protein = 0, transect = NULL)
 }
@@ -16,7 +16,7 @@ Calculate the chemical affinities of formation reactions of species.
   \item{...}{numeric, zero or more named arguments, used to identify the variables of interest in the calculations. For argument recall, pass the output from a previous calculation of \code{affinity} as an unnamed first argument.}
   \item{property}{character, the property to be calculated. Default is \samp{A}, for chemical affinity of formation reactions of species of interest}
   \item{sout}{list, output from \code{\link{subcrt}}}
-  \item{exceed.Ttr}{logical, allow \code{\link{subcrt}} to compute properties for phases beyond their transition temperature?}
+  \item{warn.Ttr}{logical, warn for temperatures above phase transition temperature?}
   \item{exceed.rhomin}{logical, allow \code{\link{subcrt}} to compute properties of species in the HKF model below 0.35 g cm\S{-3}?}
   \item{return.buffer}{logical. If \code{TRUE}, and a \code{\link{buffer}} has been associated with one or more basis species in the system, return the values of the activities of the basis species calculated using the buffer. Default is \code{FALSE}.}
   \item{return.sout}{logical, return only the values calculated with \code{\link{subcrt}}?}
@@ -47,7 +47,7 @@ For any arguments that refer to basis species, the numerical values are the loga
 If \samp{T}, \samp{P}, and/or \samp{IS} are not among the \code{var}s, their constant values can be supplied in \code{T}, \code{P}, or \code{IS} (in mol kg\eqn{^{-1}}{^-1}).
 The units of \samp{T} and \samp{P} are those set by \code{\link{T.units}} and \code{\link{P.units}} (on program start-up these are \degC and bar, respectively). 
 \code{sout}, if provided, replaces the call to \code{\link{subcrt}}, which can greatly speed up the calculations if this intermediate result is stored by other functions.
-\code{exceed.Ttr} is passed to \code{\link{subcrt}} so that the properties of mineral phases beyond their transition temperatures can optionally be calculated.
+\code{warn.Ttr} is passed to \code{\link{subcrt}} to control warnings about temperatures above the transition temperature for minerals, gases, or liquids.
 
 If one or more buffers are assigned to the definition of \code{\link{basis}} species, the logarithms of activities of these basis species are taken from the buffer (see \code{\link{buffer}}).
 
@@ -63,8 +63,20 @@ The function then calls itself using the settings from the previous calculation,
 }
 
 \value{
-A list, elements of which are \code{fun} the name of the function (\samp{affinity}), \code{args} all of the arguments except for \samp{sout} (these are used for argument recall), \code{sout} output from \code{\link{subcrt}}, \code{property} name of the calculated property (\samp{A} for chemical affinity), \code{basis} and \code{species} definition of basis species and species of interest in effect at runtime, \code{T} and \code{P} temperature and pressure, in the system units of Kelvin and bar, set to \code{numeric()} (length=0) if either one is a variable, \code{vars} the names of the variables, \code{vals} the values of the variables (a list, one element for each variable), \code{values} the result of the calculation (a list, one element for each species, with names taken from the species index in \code{\link{thermo}$OBIGT}).
-The elements of the lists in \code{vals} and \code{values} are arrays of \eqn{n}{n} dimensions, where \eqn{n}{n} is the number of variables.
+A list, elements of which are:
+  \itemize{
+    \item \code{fun} the name of the function (\samp{affinity}),
+    \item \code{args} all of the arguments except for \samp{sout} (these are used for argument recall),
+    \item \code{sout} output from \code{\link{subcrt}},
+    \item \code{property} name of the calculated property (\samp{A} for chemical affinity),
+    \item \code{basis} and \code{species} definition of basis species and species of interest in effect at runtime,
+    \item \code{T} and \code{P} temperature and pressure, in the system units of Kelvin and bar, set to \code{numeric()} (length=0) if either one is a variable,
+    \item \code{vars} the names of the variables,
+    \item \code{vals} the values of the variables (a list, one element for each variable),
+    \item \code{T_grid} the temperatures used for the calculation (in the user's units) in the same dimensions as the affinity values,
+    \item \code{values} the calculated affinity (a list, one element for each species, with names taken from the species index in \code{\link{thermo}$OBIGT}).
+  }
+The elements of the lists in \code{T_grid} and \code{values} are arrays of \eqn{n}{n} dimensions, where \eqn{n}{n} is the number of variables.
 The values of chemical affinity of formation reactions of the species are returned in dimensionless units (for use with decimal logarithms, i.e., \emph{A}/\eqn{2.303RT}).
 
 Names other than \samp{T} or \samp{P} in \code{vars} generally refer to basis species, and the corresponding \code{vals} are the logarithms of activity or fugacity.
@@ -102,7 +114,7 @@ affinity(T = c(25, 110, 115, 215), P = c(11, 335, 500, 1450))
 }
 
 \references{
-Helgeson, H. C., Richard, L, McKenzie, W. F., Norton, D. L. and Schmitt, A. (2009) A chemical and thermodynamic model of oil generation in hydrocarbon source rocks. \emph{Geochim. Cosmochim. Acta} \bold{73}, 594--695. \doi{10.1016/j.gca.2008.03.004}
+Helgeson HC, Richard L, McKenzie WF, Norton DL, Schmitt A. 2009. A chemical and thermodynamic model of oil generation in hydrocarbon source rocks. \emph{Geochim Cosmochim Acta} \bold{73}: 594--695. \doi{10.1016/j.gca.2008.03.004}
 }
 
 \concept{Main workflow}

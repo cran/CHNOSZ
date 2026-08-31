@@ -1,6 +1,6 @@
-Date: 2025-06-20
+Date: 2026-08-31
 Package: CHNOSZ
-Version: 2.2.0
+Version: 2.3.0
 Title: Thermodynamic Calculations and Diagrams for Geochemistry
 Authors@R: c(
     person("Jeffrey", "Dick", , "j3ffdick@gmail.com", role = c("aut", "cre"),
@@ -34,6 +34,6 @@ VignetteBuilder: knitr
 URL: https://chnosz.net/,
         https://r-forge.r-project.org/projects/chnosz/
 NeedsCompilation: yes
-Packaged: 2025-06-19 23:40:45 UTC; jedick
+Packaged: 2026-08-31 12:54:06 UTC; jedick
 Repository: CRAN
-Date/Publication: 2025-06-20 04:50:06 UTC
+Date/Publication: 2026-08-31 19:31:20 UTC

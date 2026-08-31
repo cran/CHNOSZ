@@ -16,7 +16,7 @@ maxdiff <- function(x, y) max(abs(y - x))
 info <- "A and B parameters are calculated correctly"
 ## Psat
 # Values from Helgeson, 1967 "Solution chemistry and metamorphism"
-# (chapter in http://www.worldcat.org/oclc/152725534)
+# (chapter in https://search.worldcat.org/title/152725534)
 T <- c(25, 50, 100, 200, 300, 350)
 A <- c(0.5095, 0.5354, 0.6019, 0.8127, 1.2979, 1.9936)
 B <- c(0.3284, 0.3329, 0.3425, 0.3659, 0.4010, 0.4300)
@@ -169,3 +169,14 @@ expect_equivalent(a_T.IS$values[[2]][, 3], as.numeric(a250$values[[2]]), info = 
 # IS-T grid
 a_IS.T <- affinity(T = c(190, 310, 5), IS = c(0, 1, 6))
 expect_equivalent(a_IS.T$values[[2]][3, ], as.numeric(a250$values[[2]]), info = info)
+
+# Tests added on 20260107
+info <- "bgamma() runs without error"
+# Save plot to a temporary PNG file
+pngfile <- tempfile(fileext = ".png")
+png(pngfile)
+expect_silent(bgamma(showsplines = "T"), info = info)
+expect_silent(bgamma(showsplines = "P"), info = info)
+# Close the graphics device and remove the temporary PNG file
+dev.off()
+file.remove(pngfile)

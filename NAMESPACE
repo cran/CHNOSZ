@@ -13,7 +13,7 @@ export(
   "unitize",
   "thermo.refs", "mod.OBIGT",
 # examples
-  "examples", "demos", "mtitle",
+  "mtitle",
   "list2array", "slice", "dimSums", "slice.affinity",
   "add.OBIGT", "RH2OBIGT",
   "expr.property", "expr.units",
@@ -52,7 +52,7 @@ export(
   "dumpdata", "thermo.axis", "solubility", "NaCl",
 # added 20190213 or later
   "CHNOSZ", "thermo", "reset", "OBIGT", "retrieve", "moles",
-  "lNaCl", "lS", "lT", "lP", "lTP", "lex",
+  "lNaCl", "lS", "lT", "lP", "lTP",
 # added 20200716 or later
   "mash", "mix", "rebalance",
 # added 20220324
@@ -60,7 +60,11 @@ export(
 # added 20220416
   "rank.affinity",
 # added 20220620
-  "stack_mosaic"
+  "stack_mosaic",
+# added 20251207
+  "phosphorylate", "phospho.plot", "hyphen.in.pdf",
+# added 20260605
+  "JANAF.to.OBIGT"
 )
 
 # Load shared objects
@@ -73,7 +77,7 @@ importFrom("grDevices", "dev.cur", "dev.off", "extendrange",
   "contourLines", "col2rgb", "rgb", "adjustcolor")
 importFrom("graphics", "abline", "axTicks", "axis", "barplot", "box",
   "contour", "image", "legend", "lines", "mtext", "par", "plot",
-  "plot.new", "plot.window", "points", "rect", "text", "title")
+  "plot.new", "plot.window", "points", "rect", "text", "title", "layout")
 importFrom("stats", "D", "as.formula", "cor", "lm", "loess.smooth",
   "na.omit", "predict.lm", "qqline", "qqnorm", "sd", "splinefun",
   "uniroot", "median", "predict", "smooth.spline", "optimize", "formula")

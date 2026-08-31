@@ -6,7 +6,7 @@
 #source("util.data.R")
 #source("util.character.R")
 
-thermo.refs <- function(key = NULL, keep.duplicates = FALSE) {
+thermo.refs <- function(key = NULL, keep.duplicates = FALSE, browser = getOption("browser")) {
   ## Return references for thermodynamic data.
   ## 20110615 browse.refs() first version
   ## 20170212 thermo.refs() remove browsing (except for table of all sources)
@@ -60,6 +60,7 @@ thermo.refs <- function(key = NULL, keep.duplicates = FALSE) {
                 "http://www.w3.org/TR/html4/strict.dtd">\n', file = con)
     .cat("<html>")
     .cat("<head>")
+    .cat('<meta charset="UTF-8">')
     .cat("<title>", title, "</title>")
     # sorttable.js is "Blocked for security reasons" in Gmail 20170317
     #.cat("<script src=sorttable.js type='text/javascript'></script>")
@@ -127,8 +128,8 @@ thermo.refs <- function(key = NULL, keep.duplicates = FALSE) {
     .cat("</table></body></html>")
     ### End adaptation from print.findFn
     # Show table in browser
-    browseURL(File)
-    cat("thermo.refs: table of references is shown in browser\n")
+    browseURL(File, browser = browser)
+    message("thermo.refs: table of references is shown in browser")
   } else if(is.character(key)) {
     # Return citation information for the given source(s)
     # We omit the [S92] in "HDNB78 [S92]" etc.
@@ -266,7 +267,7 @@ check.OBIGT <- function() {
     # Looking at thermo$OBIGT
     if(what == "OBIGT") tdata <- get("thermo", CHNOSZ)$OBIGT
     else {
-      if(what %in% c("DEW", "SLOP98", "SUPCRT92" ,"AD")) file <- paste0("extdata/OBIGT/", what, ".csv")
+      if(what %in% c("DEW", "SLOP98-a", "SLOP98-b", "SUPCRT92" ,"AD")) file <- paste0("extdata/OBIGT/", what, ".csv")
       else file <- paste0("extdata/OBIGT/testing/", what, ".csv")
       tdata <- read.csv(system.file(file, package = "CHNOSZ"), as.is = TRUE)
     }
@@ -302,7 +303,7 @@ check.OBIGT <- function() {
   # Check default database (OBIGT)
   out <- checkfun("OBIGT")
   # Check optional data
-  for(what in c("DEW", "SLOP98", "SUPCRT92" ,"AD")) out <- rbind(out, checkfun(what))
+  for(what in c("DEW", "SLOP98-a", "SLOP98-b", "SUPCRT92" ,"AD")) out <- rbind(out, checkfun(what))
   # Check testing data 
   testing_files <- dir(system.file("extdata/OBIGT/testing", package = "CHNOSZ"), full.names = TRUE)
   sources <- gsub(".csv", "", basename(testing_files))
@@ -378,8 +379,10 @@ dumpdata <- function(file = NULL) {
   # Optional data
   dat <- read.csv(system.file("extdata/OBIGT/DEW.csv", package = "CHNOSZ"), as.is = TRUE)
   DEW <- cbind(source = "DEW", dat)
-  dat <- read.csv(system.file("extdata/OBIGT/SLOP98.csv", package = "CHNOSZ"), as.is = TRUE)
-  SLOP98 <- cbind(source = "SLOP98", dat)
+  dat <- read.csv(system.file("extdata/OBIGT/SLOP98-a.csv", package = "CHNOSZ"), as.is = TRUE)
+  SLOP98a <- cbind(source = "SLOP98-a", dat)
+  dat <- read.csv(system.file("extdata/OBIGT/SLOP98-b.csv", package = "CHNOSZ"), as.is = TRUE)
+  SLOP98b <- cbind(source = "SLOP98-b", dat)
   dat <- read.csv(system.file("extdata/OBIGT/SUPCRT92.csv", package = "CHNOSZ"), as.is = TRUE)
   SUPCRT92 <- cbind(source = "SUPCRT92", dat)
   dat <- read.csv(system.file("extdata/OBIGT/AD.csv", package = "CHNOSZ"), as.is = TRUE)
@@ -393,7 +396,7 @@ dumpdata <- function(file = NULL) {
   })
   testing <- do.call(rbind, testing_list)
   # Put it all together
-  out <- rbind(OBIGT, SUPCRT92, SLOP98, AD, DEW, testing)
+  out <- rbind(OBIGT, SUPCRT92, SLOP98a, SLOP98b, AD, DEW, testing)
   # Quote columns 2 (name) and 3 (abbrv) because they have commas for some entries
   if(!is.null(file)) write.csv(out, file, row.names = FALSE, quote = c(2, 3))
   else(return(out))

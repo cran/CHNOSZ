@@ -48,7 +48,9 @@ diagram <- function(
   if(!(efun %in% c("affinity", "rank.affinity", "equilibrate") | grepl("solubilit", efun)))
     stop("'eout' is not the output from one of these functions: affinity, rank.affinity, equilibrate, or solubility")
   # For solubility(), default type is loga.balance 20210303
-  if(grepl("solubilit", efun) & missing(type)) type <- "loga.balance"
+  if(grepl("solubility", efun) & missing(type)) type <- "loga.balance"
+  # Use loga.equil to plot stabilities of multiple substrates 20260614
+  if(grepl("solubilities", efun) & missing(type)) type <- "loga.equil"
   # Check balance argument for rank.affinity() 20220416
   if(efun == "rank.affinity") {
     if(!identical(balance, 1)) {
@@ -266,7 +268,7 @@ diagram <- function(
       }
       else names <- as.character(eout$species$name)
       # Remove non-unique organism or protein names
-      if(all(grepl("_", names))) {
+      if(all(is.protein(names))) {
         is.pname <- TRUE
         # Everything before the underscore (the protein)
         pname <- gsub("_.*$", "", names)
@@ -290,7 +292,7 @@ diagram <- function(
   }
 
   ## Apply formatting to chemical formulas 20170204
-  if(all(grepl("_", names))) is.pname <- TRUE
+  if(all(is.protein(names))) is.pname <- TRUE
   if(format.names & !is.pname) {
     # Check if names are a deparsed expression (used in mix()) 20200718
     parsed <- FALSE

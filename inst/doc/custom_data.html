@@ -15,107 +15,105 @@
 
 <title>Customizing the thermodynamic database</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
   }
 });
 </script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
 
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -148,6 +146,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
 
 <style type="text/css">body {
 background-color: #fff;
@@ -347,57 +367,137 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="TOC">
 <ul>
-<li><a href="#basic-structure-of-obigt">Basic structure of OBIGT</a></li>
-<li><a href="#conventions-for-data-entry-in-obigt">Conventions for data entry in OBIGT</a><ul>
-<li><a href="#types-of-data">Types of data</a></li>
-<li><a href="#ranges-of-hkf-and-cgl-models">Ranges of HKF and CGL models</a></li>
-<li><a href="#required-and-optional-data">Required and optional data</a></li>
-<li><a href="#na-or-0">NA or 0?</a></li>
-<li><a href="#oom-scaling-and-info">OOM scaling and <code style="color: green;">info()</code></a></li>
+<li><a href="#basic-structure-of-obigt" id="toc-basic-structure-of-obigt">Basic structure of OBIGT</a></li>
+<li><a href="#conventions-for-data-entry-in-obigt" id="toc-conventions-for-data-entry-in-obigt">Conventions for data entry
+in OBIGT</a>
+<ul>
+<li><a href="#types-of-data" id="toc-types-of-data">Types of
+data</a></li>
+<li><a href="#ranges-of-hkf-and-cgl-models" id="toc-ranges-of-hkf-and-cgl-models">Ranges of HKF and CGL
+models</a></li>
+<li><a href="#required-and-optional-data" id="toc-required-and-optional-data">Required and optional data</a></li>
+<li><a href="#na-or-0" id="toc-na-or-0">NA or 0?</a></li>
+<li><a href="#oom-scaling-and-info" id="toc-oom-scaling-and-info">OOM
+scaling and <code style="color: green;">info()</code></a></li>
 </ul></li>
-<li><a href="#case-study-na-and-0-in-the-default-database">Case study: NA and 0 in the default database</a></li>
-<li><a href="#examples-of-adding-data-from-a-file">Examples of adding data from a file</a><ul>
-<li><a href="#add.obigt-with-optional-data-files"><code style="color: red;">add.OBIGT()</code> with optional data files</a></li>
-<li><a href="#add.obigt-with-other-csv-files"><code style="color: red;">add.OBIGT()</code> with other CSV files</a></li>
+<li><a href="#case-study-na-and-0-in-the-default-database" id="toc-case-study-na-and-0-in-the-default-database">Case study: NA and
+0 in the default database</a></li>
+<li><a href="#examples-of-adding-data-from-a-file" id="toc-examples-of-adding-data-from-a-file">Examples of adding data
+from a file</a>
+<ul>
+<li><a href="#add.obigt-with-optional-data-files" id="toc-add.obigt-with-optional-data-files"><code style="color: red;">add.OBIGT()</code>
+with optional data files</a></li>
+<li><a href="#add.obigt-with-other-csv-files" id="toc-add.obigt-with-other-csv-files"><code style="color: red;">add.OBIGT()</code>
+with other CSV files</a></li>
 </ul></li>
-<li><a href="#examples-of-adding-and-modifying-data-with-a-function">Examples of adding and modifying data with a function</a><ul>
-<li><a href="#mod.obigt-for-aqueous-species"><code style="color: red;">mod.OBIGT()</code> for aqueous species</a></li>
-<li><a href="#mod.obigt-for-minerals"><code style="color: red;">mod.OBIGT()</code> for minerals</a></li>
+<li><a href="#examples-of-adding-and-modifying-data-with-a-function" id="toc-examples-of-adding-and-modifying-data-with-a-function">Examples
+of adding and modifying data with a function</a>
+<ul>
+<li><a href="#mod.obigt-for-aqueous-species" id="toc-mod.obigt-for-aqueous-species"><code style="color: red;">mod.OBIGT()</code>
+for aqueous species</a></li>
+<li><a href="#mod.obigt-for-minerals" id="toc-mod.obigt-for-minerals"><code style="color: red;">mod.OBIGT()</code>
+for minerals</a></li>
 </ul></li>
-<li><a href="#case-study-formation-constants-for-aqueous-tungsten-species">Case study: Formation constants for aqueous tungsten species</a><ul>
-<li><a href="#fitting-formation-constants">Fitting formation constants</a></li>
-<li><a href="#diagram-1-constant-molality-of-f-">Diagram 1: Constant molality of F<sup>-</sup></a></li>
-<li><a href="#diagram-2-variable-molality-of-f-">Diagram 2: Variable molality of F<sup>-</sup></a></li>
+<li><a href="#case-study-formation-constants-for-aqueous-tungsten-species" id="toc-case-study-formation-constants-for-aqueous-tungsten-species">Case
+study: Formation constants for aqueous tungsten species</a>
+<ul>
+<li><a href="#fitting-formation-constants" id="toc-fitting-formation-constants">Fitting formation
+constants</a></li>
+<li><a href="#diagram-1-constant-molality-of-f-" id="toc-diagram-1-constant-molality-of-f-">Diagram 1: Constant molality
+of F<sup>-</sup></a></li>
+<li><a href="#diagram-2-variable-molality-of-f-" id="toc-diagram-2-variable-molality-of-f-">Diagram 2: Variable molality
+of F<sup>-</sup></a></li>
 </ul></li>
-<li><a href="#references">References</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
 </ul>
 </div>
 
-<p>This vignette was compiled on 2025-06-20 with CHNOSZ version 2.2.0.</p>
-<p>This vignette will cover some topics about using custom thermodynamic data in CHNOSZ. The two main functions to remember are <code style="color: red;">add.OBIGT()</code> to add data from a CSV file and <code style="color: red;">mod.OBIGT()</code> to add or modify data through a function interface. A third function, <code style="color: red;">logK.to.OBIGT()</code>, is provided to fit thermodynamic parameters to experimental formation constants (log β).</p>
-<p>Before describing the methods to add or modify data, some notes on the basic structure of the database and data entry conventions are given. Column names (or parts thereof) are formatted in blue (e.g. <tt style="color: blue;">formula</tt>), and important notes are highlighted in yellow (<span style="background-color: yellow;">NOTE</span>). Function names in CHNOSZ are colored red for functions that have side effects (including those that modify the database; e.g. <code style="color: red;">add.OBIGT()</code>) and green for functions that don’t have side effects. Note that <code style="color: green;">info()</code> is used for querying the OBIGT thermodynamic database, and <code style="color: green;">subcrt()</code> is the main function in CHNOSZ for calculating standard thermodynamic properties as a function of temperature and pressure from the parameters in the database.</p>
+<p>This vignette was compiled on 2026-08-31 with CHNOSZ version
+2.3.0.</p>
+<p>This vignette will cover some topics about using custom thermodynamic
+data in CHNOSZ. The two main functions to remember are
+<code style="color: red;">add.OBIGT()</code> to add data from a CSV file
+and <code style="color: red;">mod.OBIGT()</code> to add or modify data
+through a function interface. A third function,
+<code style="color: red;">logK.to.OBIGT()</code>, is provided to fit
+thermodynamic parameters to experimental formation constants
+(log β).</p>
+<p>Before describing the methods to add or modify data, some notes on
+the basic structure of the database and data entry conventions are
+given. Column names (or parts thereof) are formatted in blue
+(e.g. <tt style="color: blue;">formula</tt>), and important notes are
+highlighted in yellow (<span style="background-color: yellow;">NOTE</span>). Function names in CHNOSZ
+are colored red for functions that have side effects (including those
+that modify the database;
+e.g. <code style="color: red;">add.OBIGT()</code>) and green for
+functions that don’t have side effects. Note that
+<code style="color: green;">info()</code> is used for querying the OBIGT
+thermodynamic database, and <code style="color: green;">subcrt()</code>
+is the main function in CHNOSZ for calculating standard thermodynamic
+properties as a function of temperature and pressure from the parameters
+in the database.</p>
 <!-- ######## SECTION MARKER ######## -->
 <div id="basic-structure-of-obigt" class="section level2">
 <h2>Basic structure of OBIGT</h2>
-<p>OBIGT is the name of the thermodynamic database in CHNOSZ. The data are distributed in CSV files in the <code>inst/extdata/OBIGT</code> directory of the CHNOSZ package. When the package is installed, the files are copied to the <code>exdata/OBIGT</code> directory of the installed package location. To find out where this is on your computer, run the following command.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">system.file</span>(<span class="st">&quot;extdata/OBIGT&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>)</span></code></pre></div>
-<pre><code>## [1] &quot;/home/tmp/RtmpzPkrue/Rinst79e72f35401e/CHNOSZ/extdata/OBIGT&quot;</code></pre>
-<p>The directory path on your computer will be different. Although possible, it is <strong>NOT</strong> recommended to edit the data files at that location. This is because they will be overwritten by package updates; moreover, it is good practice to keep all the files needed for your project in a project directory.</p>
+<p>OBIGT is the name of the thermodynamic database in CHNOSZ. The data
+are distributed in CSV files in the <code>inst/extdata/OBIGT</code>
+directory of the CHNOSZ package. When the package is installed, the
+files are copied to the <code>exdata/OBIGT</code> directory of the
+installed package location. To find out where this is on your computer,
+run the following command.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">system.file</span>(<span class="st">&quot;extdata/OBIGT&quot;</span>, <span class="at">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;/home/tmp/RtmpXLddU6/Rinst6797717e42ef/CHNOSZ/extdata/OBIGT&quot;</code></pre>
+<p>The directory path on your computer will be different. Although
+possible, it is <strong>NOT</strong> recommended to edit the data files
+at that location. This is because they will be overwritten by package
+updates; moreover, it is good practice to keep all the files needed for
+your project in a project directory.</p>
 <p>This lists the files in the installation directory:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">dir</span>(<span class="kw">system.file</span>(<span class="st">&quot;extdata/OBIGT&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">dir</span>(<span class="fu">system.file</span>(<span class="st">&quot;extdata/OBIGT&quot;</span>, <span class="at">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>))</span></code></pre></div>
 <pre><code>##  [1] &quot;AD.csv&quot;            &quot;Berman_cr.csv&quot;     &quot;DEW.csv&quot;          
-##  [4] &quot;H2O_aq.csv&quot;        &quot;SLOP98.csv&quot;        &quot;SUPCRT92.csv&quot;     
-##  [7] &quot;inorganic_aq.csv&quot;  &quot;inorganic_cr.csv&quot;  &quot;inorganic_gas.csv&quot;
-## [10] &quot;organic_aq.csv&quot;    &quot;organic_cr.csv&quot;    &quot;organic_gas.csv&quot;  
-## [13] &quot;organic_liq.csv&quot;   &quot;testing&quot;</code></pre>
-<p>Some of these files are used to build the default OBIGT database that is created when CHNOSZ starts up. There are also a number of additional data files that have optional datasets. The <a href="OBIGT.html"><span style="color:blue"><em>OBIGT thermodynamic database</em></span></a> vignette summarizes the contents of the default and optional data files. The files can also be opened by a spreadsheet program and used as templates for adding data yourself.</p>
-<p><code>thermo()$OBIGT</code> (hereafter, just OBIGT) is the “live” version of the database that is assembled from the CSV data files when CHNOSZ starts up or by using the <code style="color: red;">reset()</code> or <code style="color: red;">OBIGT()</code> functions. The OBIGT data frame is stored in an environment named <code>CHNOSZ</code> that is part of the namespace of the CHNOSZ package. More specifically, it is part of a list named <code>thermo</code>, which has the OBIGT database and other parameters and settings used by CHNOSZ. <code style="color: red;">reset()</code> restores the entire <code>thermo</code> object to default values; <code style="color: red;">OBIGT()</code> restores just the OBIGT data frame. The latter is useful for seeing the effects of changing the thermodynamic database on on chemical affinities calculated with <code style="color: green;">affinity()</code>, without changing the chemical species.</p>
-<p>OBIGT can be modified during an R session; if it couldn’t, some of the examples in this vignette would not be possible! When you quit R, it offers the option of saving your workspace so it can be reloaded it when R is restarted. I always say “no” here; my preference is to load data into a fresh session every time I start R. This “load saved workspace” feature means that OBIGT might not be the default database in any given R session. To ensure that this vignette is run using the default database, we start by running <code style="color: red;">reset()</code> to reset OBIGT and the other settings used by CHNOSZ.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">reset</span>()</span></code></pre></div>
+##  [4] &quot;H2O_aq.csv&quot;        &quot;SLOP98-a.csv&quot;      &quot;SLOP98-b.csv&quot;     
+##  [7] &quot;SUPCRT92.csv&quot;      &quot;inorganic_aq.csv&quot;  &quot;inorganic_cr.csv&quot; 
+## [10] &quot;inorganic_gas.csv&quot; &quot;inorganic_liq.csv&quot; &quot;organic_aq.csv&quot;   
+## [13] &quot;organic_cr.csv&quot;    &quot;organic_gas.csv&quot;   &quot;organic_liq.csv&quot;  
+## [16] &quot;testing&quot;</code></pre>
+<p>Some of these files are used to build the default OBIGT database that
+is created when CHNOSZ starts up. There are also a number of additional
+data files that have optional datasets. The <a href="OBIGT.html"><span style="color:blue"><em>OBIGT thermodynamic database</em></span></a>
+vignette summarizes the contents of the default and optional data files.
+The files can also be opened by a spreadsheet program and used as
+templates for adding data yourself.</p>
+<p><code>thermo()$OBIGT</code> (hereafter, just OBIGT) is the “live”
+version of the database that is assembled from the CSV data files when
+CHNOSZ starts up or by using the
+<code style="color: red;">reset()</code> or
+<code style="color: red;">OBIGT()</code> functions. The OBIGT data frame
+is stored in an environment named <code>CHNOSZ</code> that is part of
+the namespace of the CHNOSZ package. More specifically, it is part of a
+list named <code>thermo</code>, which has the OBIGT database and other
+parameters and settings used by CHNOSZ.
+<code style="color: red;">reset()</code> restores the entire
+<code>thermo</code> object to default values;
+<code style="color: red;">OBIGT()</code> restores just the OBIGT data
+frame. The latter is useful for seeing the effects of changing the
+thermodynamic database on on chemical affinities calculated with
+<code style="color: green;">affinity()</code>, without changing the
+chemical species.</p>
+<p>OBIGT can be modified during an R session; if it couldn’t, some of
+the examples in this vignette would not be possible! When you quit R, it
+offers the option of saving your workspace so it can be reloaded it when
+R is restarted. I always say “no” here; my preference is to load data
+into a fresh session every time I start R. This “load saved workspace”
+feature means that OBIGT might not be the default database in any given
+R session. To ensure that this vignette is run using the default
+database, we start by running <code style="color: red;">reset()</code>
+to reset OBIGT and the other settings used by CHNOSZ.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">reset</span>()</span></code></pre></div>
 <pre><code>## reset: resetting &quot;thermo&quot; object</code></pre>
-<pre><code>## OBIGT: loading default database with 1833 aqueous, 3496 total species</code></pre>
-<p><code style="color: green;">thermo()</code> is a convenience function to access or modify parts of the <code>thermo</code> list object. To see the first few entries in OBIGT, do this:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">head</span>(<span class="kw">thermo</span>()<span class="op">$</span>OBIGT)</span></code></pre></div>
+<pre><code>## OBIGT: loading default database with 1327 aqueous, 3099 total species</code></pre>
+<p><code style="color: green;">thermo()</code> is a convenience function
+to access or modify parts of the <code>thermo</code> list object. To see
+the first few entries in OBIGT, do this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">thermo</span>()<span class="sc">$</span>OBIGT)</span></code></pre></div>
 <pre><code>##    name abbrv formula state    ref1  ref2       date model E_units      G
 ## 1 water  &lt;NA&gt;     H2O   liq   JOH92 HGK84 2006-10-25   H2O     cal     NA
 ## 2    e-  &lt;NA&gt;   (Z-1)    aq OBIGT06  &lt;NA&gt; 2006-10-28   HKF     cal      0
@@ -423,7 +523,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="conventions-for-data-entry-in-obigt" class="section level2">
 <h2>Conventions for data entry in OBIGT</h2>
-<p>The format of OBIGT is described in the CHNOSZ manual: see <code style="color: green;">thermo()</code>. Next, we point out some particular conventions including types of data, required and optional data, order-of-magnitude scaling. Here are the numbered column names for reference:</p>
+<p>The format of OBIGT is described in the CHNOSZ manual: see
+<code style="color: green;">thermo()</code>. Next, we point out some
+particular conventions including types of data, required and optional
+data, order-of-magnitude scaling. Here are the numbered column names for
+reference:</p>
 <pre><code>##  [1] &quot;1 name&quot;          &quot;2 abbrv&quot;         &quot;3 formula&quot;       &quot;4 state&quot;        
 ##  [5] &quot;5 ref1&quot;          &quot;6 ref2&quot;          &quot;7 date&quot;          &quot;8 model&quot;        
 ##  [9] &quot;9 E_units&quot;       &quot;10 G&quot;            &quot;11 H&quot;            &quot;12 S&quot;           
@@ -435,142 +539,299 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <ul>
 <li>Columns 1–9 have character data.
 <ul>
-<li>Column 8 is named <span style="color: blue;">model</span>; here are the two models that are most frequent in the default database:
+<li>Column 8 is named <span style="color: blue;">model</span>; here are
+the two models that are most frequent in the default database:
 <ul>
-<li><code>HKF</code>: Revised Helgeson-Kirkham-Flowers “equation-of-state” parameters for aqueous species</li>
-<li><code>CGL</code>: Heat capacity coefficients for crystalline, gaseous, and liquid species. The first three terms in the CGL heat capacity equation correspond to the Maier-Kelley equation for heat capacity <span class="citation">(Maier and Kelley, <a href="#ref-MK32" role="doc-biblioref">1932</a>)</span>; the additional terms are useful for representing heat capacities of minerals <span class="citation">(Robie and Hemingway, <a href="#ref-RH95" role="doc-biblioref">1995</a>)</span> and organic gases and liquids <span class="citation">(Helgeson et al., <a href="#ref-HOKR98" role="doc-biblioref">1998</a>)</span>.</li>
+<li><code>HKF</code>: Revised Helgeson-Kirkham-Flowers
+“equation-of-state” parameters for aqueous species</li>
+<li><code>CGL</code>: Heat capacity coefficients for crystalline,
+gaseous, and liquid species. The first three terms in the CGL heat
+capacity equation correspond to the Maier-Kelley equation for heat
+capacity <span class="citation">(<a href="#ref-MK32">Maier and Kelley,
+1932</a>)</span>; the additional terms are useful for representing heat
+capacities of minerals <span class="citation">(<a href="#ref-RH95">Robie
+and Hemingway, 1995</a>)</span> and organic gases and liquids <span class="citation">(<a href="#ref-HOKR98">Helgeson et al.,
+1998</a>)</span>.</li>
 </ul></li>
 </ul></li>
 <li>Columns 10–22 have numeric data.
 <ul>
-<li>Columns 10–14 have standard-state thermodynamic properties at 25 °C and 1 bar.</li>
-<li>Columns 15–21 have parameters for calculating thermodynamic properties at other temperatures and pressures.
+<li>Columns 10–14 have standard-state thermodynamic properties at 25 °C
+and 1 bar.</li>
+<li>Columns 15–21 have parameters for calculating thermodynamic
+properties at other temperatures and pressures.
 <ul>
-<li>The columns are named by combining the the names of the HKF and CGL coefficients, separated by a dot.</li>
+<li>The columns are named by combining the the names of the HKF and CGL
+coefficients, separated by a dot.</li>
 </ul></li>
-<li>Column 22 has the charge used in the HKF EOS or the maximum temperature for CGL species.
+<li>Column 22 has the charge used in the HKF EOS or the maximum
+temperature for CGL species.
 <ul>
-<li><span style="background-color: yellow;">NOTE</span>: The value of charge used in the HKF EOS (in particular, the <em>g</em> function for the temperature derivatives of the ω parameter <span class="citation">(Shock et al., <a href="#ref-SOJSH92" role="doc-biblioref">1992</a>)</span>) is taken from this column and not from the chemical formula of the species.</li>
+<li><span style="background-color: yellow;">NOTE</span>: The value of
+charge used in the HKF EOS (in particular, the <em>g</em> function for
+the temperature derivatives of the ω parameter <span class="citation">(<a href="#ref-SOJSH92">Shock et al., 1992</a>)</span>)
+is taken from this column and not from the chemical formula of the
+species.</li>
 </ul></li>
 </ul></li>
 </ul>
 </div>
 <div id="ranges-of-hkf-and-cgl-models" class="section level3">
 <h3>Ranges of HKF and CGL models</h3>
-<p>To a first approximation, the revised HKF equations of state are applicable within the stability region of liquid water or the supercritical fluid with a density greater than 0.35 g/cm3, and not exceeding the ranges of 0 to 1000 °C and 1 to 5000 bar <span class="citation">(see Shock et al., <a href="#ref-SOJSH92" role="doc-biblioref">1992</a> for details)</span>. There are two ways in which these limits are enforced in CHNOSZ:</p>
+<p>To a first approximation, the revised HKF equations of state are
+applicable within the stability region of liquid water or the
+supercritical fluid with a density greater than 0.35 g/cm3, and not
+exceeding the ranges of 0 to 1000 °C and 1 to 5000 bar <span class="citation">(see <a href="#ref-SOJSH92">Shock et al., 1992</a> for
+details)</span>. There are two ways in which these limits are enforced
+in CHNOSZ:</p>
 <ul>
-<li>The default source of water properties (H2O92D Fortran subroutine modified from SUPCRT92) yields NA values beyonds these T and P ranges. Note that the Deep Earth Water (DEW) model is available to extend the applicable range to pressures of up to 60 kbar (6 GPa) <span class="citation">(Sverjensky et al., <a href="#ref-SHA14" role="doc-biblioref">2014</a>)</span>.</li>
-<li><code style="color: green;">subcrt()</code> generates NA values beyond the density limit; the <code>exceed.rhomin</code> argument can be used to enable calculations at lower density in the supercritical region.</li>
+<li>The default source of water properties (H2O92D Fortran subroutine
+modified from SUPCRT92) yields NA values beyonds these T and P ranges.
+Note that the Deep Earth Water (DEW) model is available to extend the
+applicable range to pressures of up to 60 kbar (6 GPa) <span class="citation">(<a href="#ref-SHA14">Sverjensky et al.,
+2014</a>)</span>.</li>
+<li><code style="color: green;">subcrt()</code> generates NA values
+beyond the density limit; the <code>exceed.rhomin</code> argument can be
+used to enable calculations at lower density in the supercritical
+region.</li>
 </ul>
-<p>The upper temperature limit for validity of the CGL heat-capacity equation is a species-dependent parameter. This value is stored as a negative value in the <tt style="color: blue;">T</tt> column of OBIGT and is used by <code style="color: green;">subcrt()</code> to issue a warning at temperatures beyond this limit.</p>
+<p>The upper temperature limit for validity of the CGL heat-capacity
+equation is a species-dependent parameter. This value is stored as a
+negative value in the <tt style="color: blue;">T</tt> column of OBIGT
+and is used by <code style="color: green;">subcrt()</code> to issue a
+warning at temperatures beyond this limit.</p>
 </div>
 <div id="required-and-optional-data" class="section level3">
 <h3>Required and optional data</h3>
 <p>REQUIRED:</p>
 <ul>
-<li>All species need a <tt style="color: blue;">name</tt> and a <tt style="color: blue;">state</tt>.
+<li>All species need a <tt style="color: blue;">name</tt> and a
+<tt style="color: blue;">state</tt>.
 <ul>
-<li>The state can be one of <code>aq</code>, <code>gas</code>, or <code>cr</code>.</li>
-<li>For minerals with higher-temperature polymorphs, they are named <code>cr2</code>, <code>cr3</code>, etc.</li>
-<li><span style="background-color: yellow;">NOTE</span>: <code>cr</code> stands for “crystalline”; this naming convention (which was inherited from SUPCRT92 data files) refers to any solid phases including amorphous SiO<sub>2</sub> and other minerals.</li>
+<li>The state can be one of <code>aq</code>, <code>gas</code>, or
+<code>cr</code>.</li>
+<li>For minerals with higher-temperature polymorphs, they are named
+<code>cr2</code>, <code>cr3</code>, etc.</li>
+<li><span style="background-color: yellow;">NOTE</span>: <code>cr</code>
+stands for “crystalline”; this naming convention (which was inherited
+from SUPCRT92 data files) refers to any solid phases including amorphous
+SiO<sub>2</sub> and other minerals.</li>
 </ul></li>
-<li>A chemical <tt style="color: blue;">formula</tt> is required to do almost anything useful in CHNOSZ (e.g. check reaction balancing with <code style="color: green;">subcrt()</code> and add species with <code style="color: red;">basis()</code> or <code style="color: red;">species()</code>).
+<li>A chemical <tt style="color: blue;">formula</tt> is required to do
+almost anything useful in CHNOSZ (e.g. check reaction balancing with
+<code style="color: green;">subcrt()</code> and add species with
+<code style="color: red;">basis()</code> or
+<code style="color: red;">species()</code>).
 <ul>
-<li><span style="background-color: yellow;">NOTE</span>: The <tt style="color: blue;">name</tt> of <em>inorganic</em> aqueous species <em>and CH<sub>4</sub></em> in OBIGT is the same as the chemical formula.</li>
-<li>Most minerals, gases, liquids, and organic aqueous species have a <tt style="color: blue;">name</tt> that is a common name. This permits a shortcut to identify commonly used species in <code style="color: green;">subcrt()</code>.</li>
-<li>For example, <code>info(&quot;O2&quot;)</code> refers to dissolved oxygen, while <code>info(&quot;oxygen&quot;)</code> or <code>info(&quot;O2&quot;, &quot;gas&quot;)</code> refers to the gas.</li>
+<li><span style="background-color: yellow;">NOTE</span>: The
+<tt style="color: blue;">name</tt> of <em>inorganic</em> aqueous species
+<em>and CH<sub>4</sub></em> in OBIGT is the same as the chemical
+formula.</li>
+<li>Most minerals, gases, liquids, and organic aqueous species have a
+<tt style="color: blue;">name</tt> that is a common name. This permits a
+shortcut to identify commonly used species in
+<code style="color: green;">subcrt()</code>.</li>
+<li>For example, <code>info(&quot;O2&quot;)</code> refers to dissolved oxygen,
+while <code>info(&quot;oxygen&quot;)</code> or <code>info(&quot;O2&quot;, &quot;gas&quot;)</code>
+refers to the gas.</li>
 </ul></li>
-<li><code>E_units</code> needs to be defined to perform any calculations of thermodynamic properties.
+<li><code>E_units</code> needs to be defined to perform any calculations
+of thermodynamic properties.
 <ul>
-<li>The value can be <code>J</code> for Joules or <code>cal</code> for calories.</li>
+<li>The value can be <code>J</code> for Joules or <code>cal</code> for
+calories.</li>
 </ul></li>
 </ul>
-<p>OPTIONAL: Everything else. Really, it depends on what you need. For instance, if you just want to use <code style="color: green;">subcrt()</code> to calculate log β of a reaction from Δ<i>G</i>° of species at 25 °C, then <tt style="color: blue;">G</tt> is the only parameter that is needed.</p>
+<p>OPTIONAL: Everything else. Really, it depends on what you need. For
+instance, if you just want to use
+<code style="color: green;">subcrt()</code> to calculate log β of a
+reaction from Δ<i>G</i>° of species at 25 °C, then
+<tt style="color: blue;">G</tt> is the only parameter that is
+needed.</p>
 <p>OPTIONAL but useful:</p>
 <ul>
-<li><tt style="color: blue;">abbrv</tt> <em>may be</em> an abbreviation (e.g. Qtz for quartz). It is used by <code style="color: green;">info()</code> (together with <tt style="color: blue;">name</tt> and <tt style="color: blue;">formula</tt>) to look up species in the database.</li>
-<li><tt style="color: blue;">date</tt> is a timestamp for the data entry (YYYY-MM-DD format in the default OBIGT database).</li>
-<li><tt style="color: blue;">ref1</tt> and <tt style="color: blue;">ref2</tt> are bibliographic reference keys. They have matching entries in <code>extdata/thermo/refs.csv</code>, which is used by <code style="color: green;">thermo.refs()</code> to display references, and in <code>vignettes/OBIGT.bib</code>, which is used in the <a href="OBIGT.html"><span style="color:blue"><em>OBIGT thermodynamic database</em></span></a> vignette to produce a reference list.</li>
+<li><tt style="color: blue;">abbrv</tt> <em>may be</em> an abbreviation
+(e.g. Qtz for quartz). It is used by
+<code style="color: green;">info()</code> (together with
+<tt style="color: blue;">name</tt> and
+<tt style="color: blue;">formula</tt>) to look up species in the
+database.</li>
+<li><tt style="color: blue;">date</tt> is a timestamp for the data entry
+(YYYY-MM-DD format in the default OBIGT database).</li>
+<li><tt style="color: blue;">ref1</tt> and
+<tt style="color: blue;">ref2</tt> are bibliographic reference keys.
+They have matching entries in <code>extdata/thermo/refs.csv</code>,
+which is used by <code style="color: green;">thermo.refs()</code> to
+display references, and in <code>vignettes/OBIGT.bib</code>, which is
+used in the <a href="OBIGT.html"><span style="color:blue"><em>OBIGT
+thermodynamic database</em></span></a> vignette to produce a reference
+list.</li>
 </ul>
-<p><span style="background-color: yellow;">NOTE</span>: Other functions in CHNOSZ do not depend on <tt style="color: blue;">date</tt>, <tt style="color: blue;">ref1</tt>, and <tt style="color: blue;">ref2</tt>, so you can put anything there that is convenient for you.</p>
+<p><span style="background-color: yellow;">NOTE</span>: Other functions
+in CHNOSZ do not depend on <tt style="color: blue;">date</tt>,
+<tt style="color: blue;">ref1</tt>, and
+<tt style="color: blue;">ref2</tt>, so you can put anything there that
+is convenient for you.</p>
 </div>
 <div id="na-or-0" class="section level3">
 <h3>NA or 0?</h3>
-<p>If a character value (in Columns 1–9) or thermodynamic parameter (in Columns 10–14) is unknown, use <code>NA</code>. Note that a missing (blank) value in the file is treated as NA.</p>
+<p>If a character value (in Columns 1–9) or thermodynamic parameter (in
+Columns 10–14) is unknown, use <code>NA</code>. Note that a missing
+(blank) value in the file is treated as NA.</p>
 <ul>
-<li>Unknown values for character values (usually <tt style="color: blue;">abbrv</tt>, <tt style="color: blue;">date</tt>, <tt style="color: blue;">ref1</tt>, or <tt style="color: blue;">ref2</tt>) should be NA.</li>
-<li>If you have only two of <tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, and <tt style="color: blue;">S</tt>, then the missing one should be NA.
+<li>Unknown values for character values (usually
+<tt style="color: blue;">abbrv</tt>, <tt style="color: blue;">date</tt>,
+<tt style="color: blue;">ref1</tt>, or
+<tt style="color: blue;">ref2</tt>) should be NA.</li>
+<li>If you have only two of <tt style="color: blue;">G</tt>,
+<tt style="color: blue;">H</tt>, and <tt style="color: blue;">S</tt>,
+then the missing one should be NA.
 <ul>
-<li>Do <strong>NOT</strong> set a missing value of <tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> to 0. Zero is a numeric value that is incorrect except for very special cases.</li>
-<li><span style="background-color: yellow;">NOTE</span>: <code style="color: green;">info()</code> – and, by extension, <code style="color: green;">subcrt()</code> – “know” about the equation Δ<i>G</i>°<sub><i>f</i></sub> = Δ<i>H</i>°<sub><i>f</i></sub> - <i>T</i>Δ<i>S</i>°<sub><i>f</i></sub> and the entropies of the elements needed to calculate Δ<i>S</i>°<sub><i>f</i></sub> from values of <tt style="color: blue;">S</tt> in OBIGT. This equation is used to compute a missing value of <tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> from the other two, or to cross-check the values if all three are present for any species.</li>
+<li>Do <strong>NOT</strong> set a missing value of
+<tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, or
+<tt style="color: blue;">S</tt> to 0. Zero is a numeric value that is
+incorrect except for very special cases.</li>
+<li><span style="background-color: yellow;">NOTE</span>:
+<code style="color: green;">info()</code> – and, by extension,
+<code style="color: green;">subcrt()</code> – “know” about the equation
+Δ<i>G</i>°<sub><i>f</i></sub> = Δ<i>H</i>°<sub><i>f</i></sub> -
+<i>T</i>Δ<i>S</i>°<sub><i>f</i></sub> and the entropies of the elements
+needed to calculate Δ<i>S</i>°<sub><i>f</i></sub> from values of
+<tt style="color: blue;">S</tt> in OBIGT. This equation is used to
+compute a missing value of <tt style="color: blue;">G</tt>,
+<tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> from
+the other two, or to cross-check the values if all three are present for
+any species.</li>
 </ul></li>
-<li>If you don’t have <tt style="color: blue;">Cp</tt> or <tt style="color: blue;">V</tt>, then set it to NA.
+<li>If you don’t have <tt style="color: blue;">Cp</tt> or
+<tt style="color: blue;">V</tt>, then set it to NA.
 <ul>
-<li>If HKF or CGL parameters are present, they will be used to calculate <tt style="color: blue;">Cp</tt>, so thermodynamic properties <em>can</em> be calculated at T &gt; 25 °C.</li>
-<li>If HKF or CGL parameters aren’t present, thermodynamic properties <em>can’t</em> be calculated at T &gt; 25 °C (NAs will propagate to higher T).</li>
+<li>If HKF or CGL parameters are present, they will be used to calculate
+<tt style="color: blue;">Cp</tt>, so thermodynamic properties
+<em>can</em> be calculated at T &gt; 25 °C.</li>
+<li>If HKF or CGL parameters aren’t present, thermodynamic properties
+<em>can’t</em> be calculated at T &gt; 25 °C (NAs will propagate to
+higher T).</li>
 </ul></li>
 </ul>
-<p>If an “equation-of-state” parameter or heat capacity coefficient (Columns 15-21) is unknown, use 0.</p>
+<p>If an “equation-of-state” parameter or heat capacity coefficient
+(Columns 15-21) is unknown, use 0.</p>
 <ul>
-<li>Furthermore, if you would like to assume that <tt style="color: blue;">Cp</tt> or <tt style="color: blue;">V</tt> is 0, then set it to 0.
+<li>Furthermore, if you would like to assume that
+<tt style="color: blue;">Cp</tt> or <tt style="color: blue;">V</tt> is
+0, then set it to 0.
 <ul>
-<li>Then, thermodynamic properties will be extrapolated to T &gt; 25 °C and P &gt; 1 bar assuming that <tt style="color: blue;">Cp</tt> and <tt style="color: blue;">V</tt> are 0.</li>
+<li>Then, thermodynamic properties will be extrapolated to T &gt; 25 °C
+and P &gt; 1 bar assuming that <tt style="color: blue;">Cp</tt> and
+<tt style="color: blue;">V</tt> are 0.</li>
 </ul></li>
 </ul>
-<p>More detail on the inner working of the functions: For both HKF and CGL, if at least one parameter for a species is provided, any NA values of the other parameters are taken to be zero. If all EOS parameters are NA, but values of <tt style="color: blue;">Cp</tt> and/or <tt style="color: blue;">V</tt> are present, they are assumed to be constants for extrapolating thermodynamic properties (e.g. Δ<i>G</i>°) as a function of temperature and pressure.</p>
+<p>More detail on the inner working of the functions: For both HKF and
+CGL, if at least one parameter for a species is provided, any NA values
+of the other parameters are taken to be zero. If all EOS parameters are
+NA, but values of <tt style="color: blue;">Cp</tt> and/or
+<tt style="color: blue;">V</tt> are present, they are assumed to be
+constants for extrapolating thermodynamic properties (e.g. Δ<i>G</i>°)
+as a function of temperature and pressure.</p>
 </div>
 <div id="oom-scaling-and-info" class="section level3">
 <h3>OOM scaling and <code style="color: green;">info()</code></h3>
-<p>HKF parameters in the the CSV files and OBIGT data frame are scaled by order-of-magnitude (OOM) factors. For these parameters, OOM scaling is nearly always used in published data tables. See <code style="color: green;">thermo()</code> for details of the OOM scaling.</p>
-<p><code style="color: green;">info()</code> provides a simple user interface to the OBIGT database and is called by other functions in CHNOSZ to retrieve unscaled values from the database. This is a summary of its main features:</p>
+<p>HKF parameters in the the CSV files and OBIGT data frame are scaled
+by order-of-magnitude (OOM) factors. For these parameters, OOM scaling
+is nearly always used in published data tables. See
+<code style="color: green;">thermo()</code> for details of the OOM
+scaling.</p>
+<p><code style="color: green;">info()</code> provides a simple user
+interface to the OBIGT database and is called by other functions in
+CHNOSZ to retrieve unscaled values from the database. This is a summary
+of its main features:</p>
 <ul>
-<li>Remove OOM scaling. This is used primarily by other functions in CHNOSZ to get a set of unscaled <span style="color: blue;">model</span> parameters for calculating thermodynamic properties as a function of T and P.</li>
-<li>Extract the HKF or CGL parts of column names (only if all matching species have the same <span style="color: blue;">model</span>).</li>
-<li>Calculate a missing one of <tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> if two of them are present.</li>
-<li>Cross-check <tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, and <tt style="color: blue;">S</tt> if all of them are present, and print a message if the difference is above a threshold (see <code style="color: green;">check.GHS()</code>).</li>
-<li>Calculate a missing <tt style="color: blue;">Cp</tt> or <tt style="color: blue;">V</tt> from the <span style="color: blue;">model</span> parameters, if possible.</li>
-<li>Cross-check <tt style="color: blue;">Cp</tt> or <tt style="color: blue;">V</tt> (if present) against the <span style="color: blue;">model</span> parameters, if possible, and print a message if the difference is above a threshold (see <code style="color: green;">check.EOS()</code>).</li>
+<li>Remove OOM scaling. This is used primarily by other functions in
+CHNOSZ to get a set of unscaled <span style="color: blue;">model</span>
+parameters for calculating thermodynamic properties as a function of T
+and P.</li>
+<li>Extract the HKF or CGL parts of column names (only if all matching
+species have the same <span style="color: blue;">model</span>).</li>
+<li>Calculate a missing one of <tt style="color: blue;">G</tt>,
+<tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> if
+two of them are present.</li>
+<li>Cross-check <tt style="color: blue;">G</tt>,
+<tt style="color: blue;">H</tt>, and <tt style="color: blue;">S</tt> if
+all of them are present, and print a message if the difference is above
+a threshold (see <code style="color: green;">check.GHS()</code>).</li>
+<li>Calculate a missing <tt style="color: blue;">Cp</tt> or
+<tt style="color: blue;">V</tt> from the <span style="color: blue;">model</span> parameters, if possible.</li>
+<li>Cross-check <tt style="color: blue;">Cp</tt> or
+<tt style="color: blue;">V</tt> (if present) against the <span style="color: blue;">model</span> parameters, if possible, and print a
+message if the difference is above a threshold (see
+<code style="color: green;">check.EOS()</code>).</li>
 </ul>
-<p><span style="background-color: yellow;">NOTE</span>: <code style="color: green;">info()</code> does <strong>NOT</strong> change the units of energy; the values it displays (including possibly calculated ones) correspond to the <tt style="color: blue;">E_units</tt> for that species in OBIGT. On the other hand, <code style="color: green;">subcrt()</code> outputs values in the units previously selected with the function <code style="color: red;">E.units()</code>.</p>
+<p><span style="background-color: yellow;">NOTE</span>:
+<code style="color: green;">info()</code> does <strong>NOT</strong>
+change the units of energy; the values it displays (including possibly
+calculated ones) correspond to the <tt style="color: blue;">E_units</tt>
+for that species in OBIGT. On the other hand,
+<code style="color: green;">subcrt()</code> outputs values in the units
+previously selected with the function
+<code style="color: red;">E.units()</code>.</p>
 <!-- ######## SECTION MARKER ######## -->
 </div>
 </div>
 <div id="case-study-na-and-0-in-the-default-database" class="section level2">
 <h2>Case study: NA and 0 in the default database</h2>
-<p>Use the <code style="color: green;">info()</code> function to look at the database and <code style="color: green;">subcrt()</code> to calculate thermodynamic properties.</p>
-<p>Let’s look at some minerals first. First use <code style="color: green;">info()</code> to get the species indices (i.e. rownumbers) in OBIGT, then pull out the “raw” data (including any NA values).</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>icr &lt;-<span class="st"> </span><span class="kw">info</span>(<span class="kw">c</span>(<span class="st">&quot;orpiment,amorphous&quot;</span>, <span class="st">&quot;arsenic,alpha&quot;</span>, <span class="st">&quot;tin&quot;</span>))</span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">thermo</span>()<span class="op">$</span>OBIGT[icr, ]</span></code></pre></div>
+<p>Use the <code style="color: green;">info()</code> function to look at
+the database and <code style="color: green;">subcrt()</code> to
+calculate thermodynamic properties.</p>
+<p>Let’s look at some minerals first. First use
+<code style="color: green;">info()</code> to get the species indices
+(i.e. rownumbers) in OBIGT, then pull out the “raw” data (including any
+NA values).</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>icr <span class="ot">&lt;-</span> <span class="fu">info</span>(<span class="fu">c</span>(<span class="st">&quot;orpiment,amorphous&quot;</span>, <span class="st">&quot;arsenic,alpha&quot;</span>, <span class="st">&quot;tin&quot;</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">thermo</span>()<span class="sc">$</span>OBIGT[icr, ]</span></code></pre></div>
 <pre><code>##                    name abbrv formula state ref1     ref2       date model
-## 2051 orpiment,amorphous  &lt;NA&gt;   As2S3    cr NA03     &lt;NA&gt; 2017-10-16   CGL
-## 2044      arsenic,alpha  &lt;NA&gt;      As    cr NA03 ZZL+16.1 2017-10-16   CGL
-## 1994                tin    Sn      Sn    cr JH85     &lt;NA&gt; 1985-08-00   CGL
+## 1545 orpiment,amorphous  &lt;NA&gt;   As2S3    cr NA03     &lt;NA&gt; 2017-10-16   CGL
+## 1538      arsenic,alpha  &lt;NA&gt;      As    cr NA03 ZZL+16.1 2017-10-16   CGL
+## 1488                tin    Sn      Sn    cr JH85     &lt;NA&gt; 1985-08-00   CGL
 ##      E_units      G      H      S    Cp      V a1.a   a2.b a3.c a4.d c1.e c2.f
-## 2051       J -76800 -66900 200.00    NA     NA   NA     NA   NA   NA   NA   NA
-## 2044       J      0      0  35.63 24.43 12.960   NA     NA   NA   NA   NA   NA
-## 1994     cal      0      0  12.24    NA 16.289 4.42 0.0063    0    0    0    0
+## 1545       J -76800 -66900 200.00    NA     NA   NA     NA   NA   NA   NA   NA
+## 1538       J      0      0  35.63 24.43 12.960   NA     NA   NA   NA   NA   NA
+## 1488     cal      0      0  12.24    NA 16.289 4.42 0.0063    0    0    0    0
 ##      omega.lambda    z.T
-## 2051           NA     NA
-## 2044           NA     NA
-## 1994            0 505.06</code></pre>
-<p>Based on the values in the <tt style="color: blue;">Cp</tt> column, would you predict that thermodynamic properties at T &gt; 25 °C could be calculated for all of these minerals? Let’s see …</p>
-<p>For conciseness we’ll consider a relatively small temperature range and display only the <code>out</code> part of the <code style="color: green;">subcrt()</code> output.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">subcrt</span>(<span class="st">&quot;orpiment,amorphous&quot;</span>, <span class="dt">T =</span> <span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>))<span class="op">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
+## 1545           NA     NA
+## 1538           NA     NA
+## 1488            0 505.06</code></pre>
+<p>Based on the values in the <tt style="color: blue;">Cp</tt> column,
+would you predict that thermodynamic properties at T &gt; 25 °C could be
+calculated for all of these minerals? Let’s see …</p>
+<p>For conciseness we’ll consider a relatively small temperature range
+and display only the <code>out</code> part of the
+<code style="color: green;">subcrt()</code> output.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">subcrt</span>(<span class="st">&quot;orpiment,amorphous&quot;</span>, <span class="at">T =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>))<span class="sc">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>## subcrt: 1 species at 3 values of T (ºC) and P (bar) [energy units: J]</code></pre>
 <pre><code>##    T P     logK      G      H   S  V Cp
 ## 1 25 1 13.45478 -76800 -66900 200 NA NA
 ## 2 50 1       NA     NA     NA  NA NA NA
 ## 3 75 1       NA     NA     NA  NA NA NA</code></pre>
-<p>That makes sense; integrating NA <tt style="color: blue;">Cp</tt> to calculate Gibbs energy and other thermodynamic properties would propagate NA, and that is what appears in the output. Now let’s run the calculation for the alpha phase of arsenic.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">subcrt</span>(<span class="st">&quot;arsenic,alpha&quot;</span>, <span class="dt">T =</span> <span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>))<span class="op">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>That makes sense; integrating NA <tt style="color: blue;">Cp</tt> to
+calculate Gibbs energy and other thermodynamic properties would
+propagate NA, and that is what appears in the output. Now let’s run the
+calculation for the alpha phase of arsenic.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">subcrt</span>(<span class="st">&quot;arsenic,alpha&quot;</span>, <span class="at">T =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>))<span class="sc">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>## subcrt: 1 species at 3 values of T (ºC) and P (bar) [energy units: J]</code></pre>
 <pre><code>##    T P      logK          G       H        S     V    Cp
 ## 1 25 1 0.0000000     0.0000    0.00 35.63000 12.96 24.43
 ## 2 50 1 0.1480077  -915.6687  610.75 37.59710 12.96 24.43
 ## 3 75 1 0.2818552 -1878.6344 1221.50 39.41755 12.96 24.43</code></pre>
-<p>What happened here? Even though there are no heat capacity coefficients (see above), there is a non-NA value of <tt style="color: blue;">Cp</tt>, and that value is used together with the entropy for calculating Gibbs energy at T &gt; 25 °C. Note that zero for the 25 °C values of G and H in this case is not a placeholder for unknown values (as noted above, unknown values should be represented by NA). Instaed, this is the reference state for the element, for which G and H are by convention equal to zero.</p>
+<p>What happened here? Even though there are no heat capacity
+coefficients (see above), there is a non-NA value of
+<tt style="color: blue;">Cp</tt>, and that value is used together with
+the entropy for calculating Gibbs energy at T &gt; 25 °C. Note that zero
+for the 25 °C values of G and H in this case is not a placeholder for
+unknown values (as noted above, unknown values should be represented by
+NA). Instaed, this is the reference state for the element, for which G
+and H are by convention equal to zero.</p>
 <p>Let’s look at another element in its reference state, tin:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="kw">subcrt</span>(<span class="st">&quot;tin&quot;</span>, <span class="dt">T =</span> <span class="kw">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>))<span class="op">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">subcrt</span>(<span class="st">&quot;tin&quot;</span>, <span class="at">T =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>))<span class="sc">$</span>out[[<span class="dv">1</span>]]</span></code></pre></div>
 <pre><code>## info.character: found tin(cr) with 1 polymorphic transition</code></pre>
 <pre><code>## subcrt: 1 species at 3 values of T (ºC) and P (bar) [energy units: J]</code></pre>
 <pre><code>## subcrt: 2 polymorphs for tin ... polymorph 1 is stable</code></pre>
@@ -578,45 +839,67 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 1 25 1 0.0000000     0.000    0.0000 51.21216 16.289 26.35228         1
 ## 2 50 1 0.2113275 -1307.404  667.0441 53.36022 16.289 27.01126         1
 ## 3 75 1 0.4001482 -2667.087 1350.5628 55.39726 16.289 27.67024         1</code></pre>
-<p>Are you surprised? You might be if you only noticed the NA value for <tt style="color: blue;">Cp</tt> in OBIGT. However, there are non-NA values for the heat capacity coefficients, which are used to calculate <i>C<sub>p</sub></i>° as a function of temperature. When supplied with a numeric argument (a species index), <code style="color: green;">info()</code> actually does this to fill in missing 25 °C values of <tt style="color: blue;">Cp</tt>, <tt style="color: blue;">V</tt>, and <tt style="color: blue;">G</tt>, <tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> if possible, in addition to simplifying column names:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;tin&quot;</span>))</span></code></pre></div>
+<p>Are you surprised? You might be if you only noticed the NA value for
+<tt style="color: blue;">Cp</tt> in OBIGT. However, there are non-NA
+values for the heat capacity coefficients, which are used to calculate
+<i>C<sub>p</sub></i>° as a function of temperature. When supplied with a
+numeric argument (a species index),
+<code style="color: green;">info()</code> actually does this to fill in
+missing 25 °C values of <tt style="color: blue;">Cp</tt>,
+<tt style="color: blue;">V</tt>, and <tt style="color: blue;">G</tt>,
+<tt style="color: blue;">H</tt>, or <tt style="color: blue;">S</tt> if
+possible, in addition to simplifying column names:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="fu">info</span>(<span class="fu">info</span>(<span class="st">&quot;tin&quot;</span>))</span></code></pre></div>
 <pre><code>## info.character: found tin(cr) with 1 polymorphic transition</code></pre>
 <pre><code>## info.numeric: Cp° of tin(cr) is NA; set by EOS parameters to 6.3 cal K-1 mol-1</code></pre>
 <pre><code>##      name abbrv formula state ref1 ref2       date model E_units G H     S
-## 1994  tin    Sn      Sn    cr JH85 &lt;NA&gt; 1985-08-00   CGL     cal 0 0 12.24
+## 1488  tin    Sn      Sn    cr JH85 &lt;NA&gt; 1985-08-00   CGL     cal 0 0 12.24
 ##            Cp      V    a      b c d e f lambda      T
-## 1994 6.298345 16.289 4.42 0.0063 0 0 0 0      0 505.06</code></pre>
+## 1488 6.298345 16.289 4.42 0.0063 0 0 0 0      0 505.06</code></pre>
 </div>
 <div id="examples-of-adding-data-from-a-file" class="section level2">
 <h2>Examples of adding data from a file</h2>
-<p>Using <code style="color: red;">add.OBIGT()</code> to add data from optional data files for OBIGT or CSV files you make yourself.</p>
+<p>Using <code style="color: red;">add.OBIGT()</code> to add data from
+optional data files for OBIGT or CSV files you make yourself.</p>
 <div id="add.obigt-with-optional-data-files" class="section level3">
-<h3><code style="color: red;">add.OBIGT()</code> with optional data files</h3>
-<p>The default database has parameters for many minerals from <span class="citation">Berman (<a href="#ref-Ber88" role="doc-biblioref">1988</a>)</span>; a notable exception is sulfide minerals, which are from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>. Besides the different literature sources in <tt style="color: blue;">ref1</tt>, the <span style="color: blue;">model</span> column indicates that a different model is used for these minerals (Berman equations or CGL).</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">info</span>(<span class="kw">info</span>(<span class="kw">c</span>(<span class="st">&quot;quartz&quot;</span>, <span class="st">&quot;pyrite&quot;</span>)))</span></code></pre></div>
+<h3><code style="color: red;">add.OBIGT()</code> with optional data
+files</h3>
+<p>The default database has parameters for many minerals from <span class="citation">Berman (<a href="#ref-Ber88">1988</a>)</span>; a
+notable exception is sulfide minerals, which are from <span class="citation">Helgeson et al. (<a href="#ref-HDNB78">1978</a>)</span>. Besides the different literature
+sources in <tt style="color: blue;">ref1</tt>, the <span style="color: blue;">model</span> column indicates that a different
+model is used for these minerals (Berman equations or CGL).</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">info</span>(<span class="fu">info</span>(<span class="fu">c</span>(<span class="st">&quot;quartz&quot;</span>, <span class="st">&quot;pyrite&quot;</span>)))</span></code></pre></div>
 <pre><code>## info.numeric: Cp° of pyrite(cr) is NA; set by EOS parameters to 14.84 cal K-1 mol-1</code></pre>
 <pre><code>##        name abbrv formula state   ref1   ref2       date   model E_units
-## 1888 quartz    Qz    SiO2    cr  Ber88   &lt;NA&gt; 2017-10-01  Berman       J
-## 1976 pyrite    Py    FeS2    cr HDNB78 RH95.7 1978-05-05 CGL_Ttr     cal
+## 1382 quartz    Qz    SiO2    cr  Ber88   &lt;NA&gt; 2017-10-01  Berman       J
+## 1470 pyrite    Py    FeS2    cr HDNB78 RH95.7 1978-05-05 CGL_Ttr     cal
 ##            G       H     S       Cp     V     a       b       c  d  e  f lambda
-## 1888 -856288 -910700 41.46 44.74227 22.69    NA      NA      NA NA NA NA     NA
-## 1976  -38293  -41000 12.65 14.84248 23.94 17.88 0.00132 -305000  0  0  0      0
+## 1382 -856288 -910700 41.46 44.74227 22.69    NA      NA      NA NA NA NA     NA
+## 1470  -38293  -41000 12.65 14.84248 23.94 17.88 0.00132 -305000  0  0  0      0
 ##         T
-## 1888   NA
-## 1976 1015</code></pre>
-<p>Sometimes it is useful to load mineral data from the SUPCRT92 database, corresponding largely to the compilation by <span class="citation">Helgeson et al. (<a href="#ref-HDNB78" role="doc-biblioref">1978</a>)</span>. This can be done with <code style="color: red;">add.OBIGT()</code>. In this example we load SUPCRT92 data for just one mineral, quartz.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">add.OBIGT</span>(<span class="st">&quot;SUPCRT92&quot;</span>, <span class="st">&quot;quartz&quot;</span>)</span></code></pre></div>
+## 1382   NA
+## 1470 1015</code></pre>
+<p>Sometimes it is useful to load mineral data from the SUPCRT92
+database, corresponding largely to the compilation by <span class="citation">Helgeson et al. (<a href="#ref-HDNB78">1978</a>)</span>. This can be done with
+<code style="color: red;">add.OBIGT()</code>. In this example we load
+SUPCRT92 data for just one mineral, quartz.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="fu">add.OBIGT</span>(<span class="st">&quot;SUPCRT92&quot;</span>, <span class="st">&quot;quartz&quot;</span>)</span></code></pre></div>
 <pre><code>## add.OBIGT: read 1 rows; made 1 replacements, 0 additions [energy units: cal]</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">info</span>(<span class="kw">info</span>(<span class="st">&quot;quartz&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">info</span>(<span class="fu">info</span>(<span class="st">&quot;quartz&quot;</span>))</span></code></pre></div>
 <pre><code>## info.numeric: Cp° of quartz(cr) is NA; set by EOS parameters to 10.63 cal K-1 mol-1</code></pre>
 <pre><code>##        name abbrv formula state   ref1 ref2       date model E_units       G
-## 1888 quartz   Qtz    SiO2    cr HDNB78 &lt;NA&gt; 1978-05-05   CGL     cal -204646
+## 1382 quartz   Qtz    SiO2    cr HDNB78 &lt;NA&gt; 1978-05-05   CGL     cal -204646
 ##            H    S       Cp      V     a      b       c d e f lambda   T
-## 1888 -217650 9.88 10.62748 22.688 11.22 0.0082 -270000 0 0 0      0 848</code></pre>
-<p>Here we load all minerals available in the optional SUPCRT92 data file and then list the names. <span style="background-color: yellow;">NOTE</span>: <code>suppressMessages()</code> is used to suppress messages from <code style="color: green;">info()</code> about missing parameters, and <code>unique()</code> is used to list each mineral only once (because each polymorph has a separate entry).</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>iSUPCRT92 &lt;-<span class="st"> </span><span class="kw">add.OBIGT</span>(<span class="st">&quot;SUPCRT92&quot;</span>)</span></code></pre></div>
+## 1382 -217650 9.88 10.62748 22.688 11.22 0.0082 -270000 0 0 0      0 848</code></pre>
+<p>Here we load all minerals available in the optional SUPCRT92 data
+file and then list the names. <span style="background-color: yellow;">NOTE</span>:
+<code>suppressMessages()</code> is used to suppress messages from
+<code style="color: green;">info()</code> about missing parameters, and
+<code>unique()</code> is used to list each mineral only once (because
+each polymorph has a separate entry).</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>iSUPCRT92 <span class="ot">&lt;-</span> <span class="fu">add.OBIGT</span>(<span class="st">&quot;SUPCRT92&quot;</span>)</span></code></pre></div>
 <pre><code>## add.OBIGT: read 177 rows; made 69 replacements, 108 additions [energy units: cal]</code></pre>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a><span class="kw">unique</span>(<span class="kw">suppressMessages</span>(<span class="kw">info</span>(iSUPCRT92))<span class="op">$</span>name)</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">unique</span>(<span class="fu">suppressMessages</span>(<span class="fu">info</span>(iSUPCRT92))<span class="sc">$</span>name)</span></code></pre></div>
 <pre><code>##   [1] &quot;akermanite&quot;          &quot;albite&quot;              &quot;albite,high&quot;        
 ##   [4] &quot;albite,low&quot;          &quot;almandine&quot;           &quot;andalusite&quot;         
 ##   [7] &quot;andradite&quot;           &quot;annite&quot;              &quot;anorthite&quot;          
@@ -661,10 +944,17 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## [124] &quot;titanite&quot;</code></pre>
 </div>
 <div id="add.obigt-with-other-csv-files" class="section level3">
-<h3><code style="color: red;">add.OBIGT()</code> with other CSV files</h3>
-<p><code style="color: red;">add.OBIGT()</code> can also be used to add data from a user-specified file to the OBIGT database. The file must be a CSV (comma separated value) file with column headers that match those in the default database (i.e., <code>thermo()$OBIGT</code>). As an example, here are the contents of <code>BZA10.csv</code>, which has parameters taken from <span class="citation">Bazarkina et al. (<a href="#ref-BZA10" role="doc-biblioref">2010</a>)</span>. Missing values are indicated by <code>NA</code>:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>file &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;extdata/misc/BZA10.csv&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>)</span>
-<span id="cb40-2"><a href="#cb40-2"></a><span class="kw">read.csv</span>(file, <span class="dt">as.is =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<h3><code style="color: red;">add.OBIGT()</code> with other CSV
+files</h3>
+<p><code style="color: red;">add.OBIGT()</code> can also be used to add
+data from a user-specified file to the OBIGT database. The file must be
+a CSV (comma separated value) file with column headers that match those
+in the default database (i.e., <code>thermo()$OBIGT</code>). As an
+example, here are the contents of <code>BZA10.csv</code>, which has
+parameters taken from <span class="citation">Bazarkina et al. (<a href="#ref-BZA10">2010</a>)</span>. Missing values are indicated by
+<code>NA</code>:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>file <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/misc/BZA10.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;CHNOSZ&quot;</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a><span class="fu">read.csv</span>(file, <span class="at">as.is =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>##      name abbrv formula state  ref1 ref2       date model E_units       G  H
 ## 1   CdCl+    NA   CdCl+    aq BZA10   NA 2010-07-03   HKF     cal  -52629 NA
 ## 2   CdCl2    NA   CdCl2    aq BZA10   NA 2010-07-03   HKF     cal  -84883 NA
@@ -680,36 +970,46 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 2      -0.0495   0
 ## 3       0.9378  -1
 ## 4       2.4766  -2</code></pre>
-<p>Loading the data with <code style="color: red;">add.OBIGT()</code> produces a message that the new data replace existing species. We can then use <code style="color: green;">subcrt()</code> to calculate the equilibrium constant for a reaction involving the new species. Note the decrease in the stepwise stability constant for the second cadmium chloride complex with increasing pressure (Bazarkina et al., 2010, Fig. 4).</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>iCd &lt;-<span class="st"> </span><span class="kw">add.OBIGT</span>(file)</span></code></pre></div>
+<p>Loading the data with <code style="color: red;">add.OBIGT()</code>
+produces a message that the new data replace existing species. We can
+then use <code style="color: green;">subcrt()</code> to calculate the
+equilibrium constant for a reaction involving the new species. Note the
+decrease in the stepwise stability constant for the second cadmium
+chloride complex with increasing pressure (Bazarkina et al., 2010, Fig.
+4).</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>iCd <span class="ot">&lt;-</span> <span class="fu">add.OBIGT</span>(file)</span></code></pre></div>
 <pre><code>## add.OBIGT: read 4 rows; made 4 replacements, 0 additions [energy units: cal]</code></pre>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">subcrt</span>(<span class="kw">c</span>(<span class="st">&quot;CdCl+&quot;</span>, <span class="st">&quot;Cl-&quot;</span>, <span class="st">&quot;CdCl2&quot;</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">T =</span> <span class="dv">25</span>, <span class="dt">P =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2000</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a><span class="fu">subcrt</span>(<span class="fu">c</span>(<span class="st">&quot;CdCl+&quot;</span>, <span class="st">&quot;Cl-&quot;</span>, <span class="st">&quot;CdCl2&quot;</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">T =</span> <span class="dv">25</span>, <span class="at">P =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2000</span>))</span></code></pre></div>
 <pre><code>## subcrt: 3 species at 2 values of T (ºC) and P (bar) (wet) [energy units: J]</code></pre>
 <pre><code>## $reaction
 ##     coeff  name formula state ispecies model
-## 709    -1 CdCl+   CdCl+    aq      709   HKF
+## 645    -1 CdCl+   CdCl+    aq      645   HKF
 ## 29     -1   Cl-     Cl-    aq       29   HKF
-## 710     1 CdCl2   CdCl2    aq      710   HKF
+## 646     1 CdCl2   CdCl2    aq      646   HKF
 ## 
 ## $out
 ##    T    P       rho      logK          G        H        S        V       Cp
 ## 1 25    1 0.9970614 0.6413794 -3661.0000 2669.611 21.33840 22.68164 561.3063
 ## 2 25 2000 1.0717835 0.0618530  -353.0575 2732.393 10.45408 12.26316 539.2635</code></pre>
-<p>After running <code style="color: red;">reset()</code> we can look up the source of data in the default OBIGT database <span class="citation">(Sverjensky et al., <a href="#ref-SSH97" role="doc-biblioref">1997</a>)</span>. Running the reaction with thermodynamic parameters from the default database, we now see that the equilibrium constant is not as sensitive to pressure:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">reset</span>()</span></code></pre></div>
+<p>After running <code style="color: red;">reset()</code> we can look up
+the source of data in the default OBIGT database <span class="citation">(<a href="#ref-SSH97">Sverjensky et al.,
+1997</a>)</span>. Running the reaction with thermodynamic parameters
+from the default database, we now see that the equilibrium constant is
+not as sensitive to pressure:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a><span class="fu">reset</span>()</span></code></pre></div>
 <pre><code>## reset: resetting &quot;thermo&quot; object</code></pre>
-<pre><code>## OBIGT: loading default database with 1833 aqueous, 3496 total species</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1"></a><span class="kw">thermo.refs</span>(iCd)[, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>]</span></code></pre></div>
+<pre><code>## OBIGT: loading default database with 1327 aqueous, 3099 total species</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a><span class="fu">thermo.refs</span>(iCd)[, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code></pre></div>
 <pre><code>##       key                                          author year
-## 324  HB24                   D. L. Huston and E. Bastrakov 2024
-## 196 BZA10 E. F. Bazarkina, A. V. Zotov and N. N. Akinfiev 2010</code></pre>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1"></a><span class="kw">subcrt</span>(<span class="kw">c</span>(<span class="st">&quot;CdCl+&quot;</span>, <span class="st">&quot;Cl-&quot;</span>, <span class="st">&quot;CdCl2&quot;</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">T =</span> <span class="dv">25</span>, <span class="dt">P =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2000</span>))</span></code></pre></div>
+## 338  HB24                   D. L. Huston and E. Bastrakov 2024
+## 207 BZA10 E. F. Bazarkina, A. V. Zotov and N. N. Akinfiev 2010</code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" tabindex="-1"></a><span class="fu">subcrt</span>(<span class="fu">c</span>(<span class="st">&quot;CdCl+&quot;</span>, <span class="st">&quot;Cl-&quot;</span>, <span class="st">&quot;CdCl2&quot;</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">T =</span> <span class="dv">25</span>, <span class="at">P =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2000</span>))</span></code></pre></div>
 <pre><code>## subcrt: 3 species at 2 values of T (ºC) and P (bar) (wet) [energy units: J]</code></pre>
 <pre><code>## $reaction
 ##     coeff  name formula state ispecies model
-## 709    -1 CdCl+   CdCl+    aq      709   HKF
+## 645    -1 CdCl+   CdCl+    aq      645   HKF
 ## 29     -1   Cl-     Cl-    aq       29   HKF
-## 710     1 CdCl2   CdCl2    aq      710   HKF
+## 646     1 CdCl2   CdCl2    aq      646   HKF
 ## 
 ## $out
 ##    T    P       rho      logK          G        H        S        V       Cp
@@ -720,60 +1020,103 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="examples-of-adding-and-modifying-data-with-a-function" class="section level2">
 <h2>Examples of adding and modifying data with a function</h2>
-<p>Use <code style="color: red;">mod.OBIGT()</code> to add or modify the database in the current session. The function requires the name of a species and one or more properties to change.</p>
+<p>Use <code style="color: red;">mod.OBIGT()</code> to add or modify the
+database in the current session. The function requires the name of a
+species and one or more properties to change.</p>
 <div id="mod.obigt-for-aqueous-species" class="section level3">
-<h3><code style="color: red;">mod.OBIGT()</code> for aqueous species</h3>
-<p>Let’s add data for CoCl<sub>4</sub><sup>-2</sup> from <span class="citation">Liu et al. (<a href="#ref-LBT_11" role="doc-biblioref">2011</a>)</span>. The values are taken from Table 5 of that paper; note that they are reported in caloric units, which is rather common for the HKF model. The entry includes the date in ISO 8601 extended format (e.g. 2020-08-16); <code>Sys.Date()</code> is used in this example to get the current date.</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;CoCl4-2&quot;</span>, <span class="dt">formula =</span> <span class="st">&quot;CoCl4-2&quot;</span>, <span class="dt">state =</span> <span class="st">&quot;aq&quot;</span>, <span class="dt">ref1 =</span> <span class="st">&quot;LBT+11&quot;</span>, <span class="dt">E_units =</span> <span class="st">&quot;cal&quot;</span>,</span>
-<span id="cb55-2"><a href="#cb55-2"></a>  <span class="dt">date =</span> <span class="kw">as.character</span>(<span class="kw">Sys.Date</span>()), <span class="dt">G =</span> <span class="dv">-134150</span>, <span class="dt">H =</span> <span class="dv">-171558</span>, <span class="dt">S =</span> <span class="fl">19.55</span>, <span class="dt">Cp =</span> <span class="fl">72.09</span>, <span class="dt">V =</span> <span class="fl">27.74</span>)</span></code></pre></div>
+<h3><code style="color: red;">mod.OBIGT()</code> for aqueous
+species</h3>
+<p>Let’s add data for CoCl<sub>4</sub><sup>-2</sup> from <span class="citation">Liu et al. (<a href="#ref-LBT_11">2011</a>)</span>. The
+values are taken from Table 5 of that paper; note that they are reported
+in caloric units, which is rather common for the HKF model. The entry
+includes the date in ISO 8601 extended format (e.g. 2020-08-16);
+<code>Sys.Date()</code> is used in this example to get the current
+date.</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" tabindex="-1"></a><span class="fu">mod.OBIGT</span>(<span class="st">&quot;CoCl4-2&quot;</span>, <span class="at">formula =</span> <span class="st">&quot;CoCl4-2&quot;</span>, <span class="at">state =</span> <span class="st">&quot;aq&quot;</span>, <span class="at">ref1 =</span> <span class="st">&quot;LBT+11&quot;</span>, <span class="at">E_units =</span> <span class="st">&quot;cal&quot;</span>,</span>
+<span id="cb55-2"><a href="#cb55-2" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">as.character</span>(<span class="fu">Sys.Date</span>()), <span class="at">G =</span> <span class="sc">-</span><span class="dv">134150</span>, <span class="at">H =</span> <span class="sc">-</span><span class="dv">171558</span>, <span class="at">S =</span> <span class="fl">19.55</span>, <span class="at">Cp =</span> <span class="fl">72.09</span>, <span class="at">V =</span> <span class="fl">27.74</span>)</span></code></pre></div>
 <pre><code>## mod.OBIGT: updated CoCl4-2(aq)</code></pre>
-<pre><code>## [1] 647</code></pre>
-<p>The function prints a message saying that the species was added and returns the species index of the new species. Now let’s modify the new species by adding the HKF coefficients including the OOM multipliers, as they are usually given in publications. The <code>z</code> at the end refers to the charge of the species, and is used only for calculating the “<em>g</em> function” in the revised HKF model, not for balancing reactions.</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;CoCl4-2&quot;</span>, <span class="dt">a1 =</span> <span class="fl">6.5467</span>, <span class="dt">a2 =</span> <span class="fl">8.2069</span>, <span class="dt">a3 =</span> <span class="fl">2.0130</span>, <span class="dt">a4 =</span> <span class="fl">-3.1183</span>,</span>
-<span id="cb58-2"><a href="#cb58-2"></a>  <span class="dt">c1 =</span> <span class="fl">76.3357</span>, <span class="dt">c2 =</span> <span class="fl">11.6389</span>, <span class="dt">omega =</span> <span class="fl">2.9159</span>, <span class="dt">z =</span> <span class="dv">-2</span>)</span></code></pre></div>
+<pre><code>## [1] 583</code></pre>
+<p>The function prints a message saying that the species was added and
+returns the species index of the new species. Now let’s modify the new
+species by adding the HKF coefficients including the OOM multipliers, as
+they are usually given in publications. The <code>z</code> at the end
+refers to the charge of the species, and is used only for calculating
+the “<em>g</em> function” in the revised HKF model, not for balancing
+reactions.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" tabindex="-1"></a><span class="fu">mod.OBIGT</span>(<span class="st">&quot;CoCl4-2&quot;</span>, <span class="at">a1 =</span> <span class="fl">6.5467</span>, <span class="at">a2 =</span> <span class="fl">8.2069</span>, <span class="at">a3 =</span> <span class="fl">2.0130</span>, <span class="at">a4 =</span> <span class="sc">-</span><span class="fl">3.1183</span>,</span>
+<span id="cb58-2"><a href="#cb58-2" tabindex="-1"></a>  <span class="at">c1 =</span> <span class="fl">76.3357</span>, <span class="at">c2 =</span> <span class="fl">11.6389</span>, <span class="at">omega =</span> <span class="fl">2.9159</span>, <span class="at">z =</span> <span class="sc">-</span><span class="dv">2</span>)</span></code></pre></div>
 <pre><code>## mod.OBIGT: no change for CoCl4-2(aq)</code></pre>
-<pre><code>## [1] 647</code></pre>
-<p>Let us now calculate the equilibrium constant for the formation of CoCl<sub>4</sub><sup>-2</sup> from Co<sup>+2</sup> and Cl<sup>-</sup>.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>T &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">25</span>, <span class="kw">seq</span>(<span class="dv">50</span>, <span class="dv">350</span>, <span class="dv">50</span>))</span>
-<span id="cb61-2"><a href="#cb61-2"></a>sres &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="kw">c</span>(<span class="st">&quot;Co+2&quot;</span>, <span class="st">&quot;Cl-&quot;</span>, <span class="st">&quot;CoCl4-2&quot;</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-4</span>, <span class="dv">1</span>), <span class="dt">T =</span> T)</span>
-<span id="cb61-3"><a href="#cb61-3"></a><span class="kw">round</span>(sres<span class="op">$</span>out<span class="op">$</span>logK, <span class="dv">2</span>)</span></code></pre></div>
+<pre><code>## [1] 583</code></pre>
+<p>Let us now calculate the equilibrium constant for the formation of
+CoCl<sub>4</sub><sup>-2</sup> from Co<sup>+2</sup> and
+Cl<sup>-</sup>.</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="fu">seq</span>(<span class="dv">50</span>, <span class="dv">350</span>, <span class="dv">50</span>))</span>
+<span id="cb61-2"><a href="#cb61-2" tabindex="-1"></a>sres <span class="ot">&lt;-</span> <span class="fu">subcrt</span>(<span class="fu">c</span>(<span class="st">&quot;Co+2&quot;</span>, <span class="st">&quot;Cl-&quot;</span>, <span class="st">&quot;CoCl4-2&quot;</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">4</span>, <span class="dv">1</span>), <span class="at">T =</span> T)</span>
+<span id="cb61-3"><a href="#cb61-3" tabindex="-1"></a><span class="fu">round</span>(sres<span class="sc">$</span>out<span class="sc">$</span>logK, <span class="dv">2</span>)</span></code></pre></div>
 <pre><code>## [1] -3.20 -2.96 -2.02 -0.74  0.77  2.50  4.57  7.29</code></pre>
-<p>The calculated values of log<em>K</em> are identical to those in Table 9 of <span class="citation">Liu et al. (<a href="#ref-LBT_11" role="doc-biblioref">2011</a>)</span>, which provides a good indication that the thermodynamic parameters were entered correctly. Nevertheless, this isn’t a guarantee that the thermodynamic parameters are consistent with the provided values of <em>C</em><sub><em>P</em></sub>° and <em>V</em>°. We can see this by running <code style="color: green;">info()</code> to cross-check the parameters for the new CoCl<sub>4</sub><sup>-2</sup> species:</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>inew &lt;-<span class="st"> </span><span class="kw">info</span>(<span class="st">&quot;CoCl4-2&quot;</span>)</span>
-<span id="cb63-2"><a href="#cb63-2"></a><span class="kw">info</span>(inew)</span></code></pre></div>
+<p>The calculated values of log<em>K</em> are identical to those in
+Table 9 of <span class="citation">Liu et al. (<a href="#ref-LBT_11">2011</a>)</span>, which provides a good indication
+that the thermodynamic parameters were entered correctly. Nevertheless,
+this isn’t a guarantee that the thermodynamic parameters are consistent
+with the provided values of <em>C</em><sub><em>P</em></sub>° and
+<em>V</em>°. We can see this by running
+<code style="color: green;">info()</code> to cross-check the parameters
+for the new CoCl<sub>4</sub><sup>-2</sup> species:</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" tabindex="-1"></a>inew <span class="ot">&lt;-</span> <span class="fu">info</span>(<span class="st">&quot;CoCl4-2&quot;</span>)</span>
+<span id="cb63-2"><a href="#cb63-2" tabindex="-1"></a><span class="fu">info</span>(inew)</span></code></pre></div>
 <pre><code>## check.EOS: calculated Cp° of CoCl4-2(aq) differs by 1.33 cal K-1 mol-1 from database value</code></pre>
 <pre><code>## check.EOS: calculated V° of CoCl4-2(aq) differs by -1.19 cm3 mol-1 from database value</code></pre>
-<p>The messages indicate that the given values of <em>C</em><sub><em>P</em></sub>° and <em>V</em>° differ slightly from those calculated using the HKF parameters.</p>
+<p>The messages indicate that the given values of
+<em>C</em><sub><em>P</em></sub>° and <em>V</em>° differ slightly from
+those calculated using the HKF parameters.</p>
 </div>
 <div id="mod.obigt-for-minerals" class="section level3">
 <h3><code style="color: red;">mod.OBIGT()</code> for minerals</h3>
-<p>Let’s add data for magnesiochromite from <span class="citation">Klemme et al. (<a href="#ref-KOSG00" role="doc-biblioref">2000</a>)</span>. The parameters in this paper are reported in Joules, so we set the <code style="color: red;">E.units()</code> to J. The value for volume, in cm<sup>3</sup> mol<sup>-1</sup>, is from <span class="citation">Robie and Hemingway (<a href="#ref-RH95" role="doc-biblioref">1995</a>)</span>.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1"></a>H &lt;-<span class="st"> </span><span class="dv">-1762000</span></span>
-<span id="cb66-2"><a href="#cb66-2"></a>S &lt;-<span class="st"> </span><span class="fl">119.6</span></span>
-<span id="cb66-3"><a href="#cb66-3"></a>V &lt;-<span class="st"> </span><span class="fl">43.56</span></span>
-<span id="cb66-4"><a href="#cb66-4"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;magnesiochromite&quot;</span>, <span class="dt">formula =</span> <span class="st">&quot;MgCr2O4&quot;</span>, <span class="dt">state =</span> <span class="st">&quot;cr&quot;</span>, <span class="dt">ref1 =</span> <span class="st">&quot;KOSG00&quot;</span>,</span>
-<span id="cb66-5"><a href="#cb66-5"></a>          <span class="dt">date =</span> <span class="kw">as.character</span>(<span class="kw">Sys.Date</span>()), <span class="dt">E_units =</span> <span class="st">&quot;J&quot;</span>, <span class="dt">H =</span> H, <span class="dt">S =</span> S, <span class="dt">V =</span> V)</span></code></pre></div>
+<p>Let’s add data for magnesiochromite from <span class="citation">Klemme et al. (<a href="#ref-KOSG00">2000</a>)</span>.
+The parameters in this paper are reported in Joules, so we set the
+<code style="color: red;">E.units()</code> to J. The value for volume,
+in cm<sup>3</sup> mol<sup>-1</sup>, is from <span class="citation">Robie
+and Hemingway (<a href="#ref-RH95">1995</a>)</span>.</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" tabindex="-1"></a>H <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1762000</span></span>
+<span id="cb66-2"><a href="#cb66-2" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fl">119.6</span></span>
+<span id="cb66-3"><a href="#cb66-3" tabindex="-1"></a>V <span class="ot">&lt;-</span> <span class="fl">43.56</span></span>
+<span id="cb66-4"><a href="#cb66-4" tabindex="-1"></a><span class="fu">mod.OBIGT</span>(<span class="st">&quot;magnesiochromite&quot;</span>, <span class="at">formula =</span> <span class="st">&quot;MgCr2O4&quot;</span>, <span class="at">state =</span> <span class="st">&quot;cr&quot;</span>, <span class="at">ref1 =</span> <span class="st">&quot;KOSG00&quot;</span>,</span>
+<span id="cb66-5"><a href="#cb66-5" tabindex="-1"></a>          <span class="at">date =</span> <span class="fu">as.character</span>(<span class="fu">Sys.Date</span>()), <span class="at">E_units =</span> <span class="st">&quot;J&quot;</span>, <span class="at">H =</span> H, <span class="at">S =</span> S, <span class="at">V =</span> V)</span></code></pre></div>
 <pre><code>## mod.OBIGT: added magnesiochromite(cr) with CGL model and energy units of J</code></pre>
-<pre><code>## [1] 3497</code></pre>
-<p>Here are the heat capacity parameters for the Haas-Fisher polynomial equation (<span class="math inline"><em>C</em><em>p</em> = <em>a</em> + <em>b</em><em>T</em> + <em>c</em><em>T</em><sup> − 2</sup> + <em>d</em><em>T</em><sup> − 0.5</sup> + <em>e</em><em>T</em><sup>2</sup></span>). As of CHNOSZ 2.0.0, OOM multipliers are not used for these coefficients. 1500 K is a generic value for the high-temperature limit; experimental heat capacities were only reported up to 340 K <span class="citation">(Klemme et al., <a href="#ref-KOSG00" role="doc-biblioref">2000</a>)</span>.</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a>a &lt;-<span class="st"> </span><span class="fl">221.4</span></span>
-<span id="cb69-2"><a href="#cb69-2"></a>b &lt;-<span class="st"> </span><span class="fl">-0.00102030</span></span>
-<span id="cb69-3"><a href="#cb69-3"></a>c &lt;-<span class="st"> </span><span class="dv">-1757210</span></span>
-<span id="cb69-4"><a href="#cb69-4"></a>d &lt;-<span class="st"> </span><span class="fl">-1247.9</span></span>
-<span id="cb69-5"><a href="#cb69-5"></a><span class="kw">mod.OBIGT</span>(<span class="st">&quot;magnesiochromite&quot;</span>, <span class="dt">E_units =</span> <span class="st">&quot;J&quot;</span>, <span class="dt">a =</span> a, <span class="dt">b =</span> b, <span class="dt">c =</span> c, <span class="dt">d =</span> d,</span>
-<span id="cb69-6"><a href="#cb69-6"></a>          <span class="dt">e =</span> <span class="dv">0</span>, <span class="dt">f =</span> <span class="dv">0</span>, <span class="dt">lambda =</span> <span class="dv">0</span>, <span class="dt">T =</span> <span class="dv">1500</span>)</span></code></pre></div>
+<pre><code>## [1] 3100</code></pre>
+<p>Here are the heat capacity parameters for the Haas-Fisher polynomial
+equation (<span class="math inline"><em>C</em><em>p</em> = <em>a</em> + <em>b</em><em>T</em> + <em>c</em><em>T</em><sup>−2</sup> + <em>d</em><em>T</em><sup>−0.5</sup> + <em>e</em><em>T</em><sup>2</sup></span>).
+As of CHNOSZ 2.0.0, OOM multipliers are not used for these coefficients.
+1500 K is a generic value for the high-temperature limit; experimental
+heat capacities were only reported up to 340 K <span class="citation">(<a href="#ref-KOSG00">Klemme et al.,
+2000</a>)</span>.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fl">221.4</span></span>
+<span id="cb69-2"><a href="#cb69-2" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.00102030</span></span>
+<span id="cb69-3"><a href="#cb69-3" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">1757210</span></span>
+<span id="cb69-4"><a href="#cb69-4" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">1247.9</span></span>
+<span id="cb69-5"><a href="#cb69-5" tabindex="-1"></a><span class="fu">mod.OBIGT</span>(<span class="st">&quot;magnesiochromite&quot;</span>, <span class="at">E_units =</span> <span class="st">&quot;J&quot;</span>, <span class="at">a =</span> a, <span class="at">b =</span> b, <span class="at">c =</span> c, <span class="at">d =</span> d,</span>
+<span id="cb69-6"><a href="#cb69-6" tabindex="-1"></a>          <span class="at">e =</span> <span class="dv">0</span>, <span class="at">f =</span> <span class="dv">0</span>, <span class="at">lambda =</span> <span class="dv">0</span>, <span class="at">T =</span> <span class="dv">1500</span>)</span></code></pre></div>
 <pre><code>## mod.OBIGT: updated magnesiochromite(cr)</code></pre>
-<pre><code>## [1] 3497</code></pre>
-<p><span style="background-color: yellow;">NOTE</span>: An additional <tt style="color: blue;">f</tt> term is available, which can have any exponent given in <tt style="color: blue;">lambda</tt>. This offers some flexibility for using heat capacity equations that are different from the Haas-Fisher polynomial.</p>
-<p>Now we can use <code style="color: green;">subcrt()</code> to calculate the heat capacity of magnesiochromite. For this calculation, we set the temperature units to Kelvin. We also specify a pressure of 1 bar because the default setting of <em>P</em><sub>sat</sub> (liquid-vapor saturation) causes an error below the freezing temperature of water.</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1"></a><span class="kw">T.units</span>(<span class="st">&quot;K&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] 3100</code></pre>
+<p><span style="background-color: yellow;">NOTE</span>: An additional
+<tt style="color: blue;">f</tt> term is available, which can have any
+exponent given in <tt style="color: blue;">lambda</tt>. This offers some
+flexibility for using heat capacity equations that are different from
+the Haas-Fisher polynomial.</p>
+<p>Now we can use <code style="color: green;">subcrt()</code> to
+calculate the heat capacity of magnesiochromite. For this calculation,
+we set the temperature units to Kelvin. We also specify a pressure of 1
+bar because the default setting of <em>P</em><sub>sat</sub>
+(liquid-vapor saturation) causes an error below the freezing temperature
+of water.</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" tabindex="-1"></a><span class="fu">T.units</span>(<span class="st">&quot;K&quot;</span>)</span></code></pre></div>
 <pre><code>## changed temperature units to K</code></pre>
-<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1"></a>Tref &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">250</span>, <span class="dv">300</span>, <span class="dv">340</span>)</span>
-<span id="cb74-2"><a href="#cb74-2"></a>(sres &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="st">&quot;magnesiochromite&quot;</span>, <span class="dt">property =</span> <span class="st">&quot;Cp&quot;</span>, <span class="dt">T =</span> Tref, <span class="dt">P =</span> <span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" tabindex="-1"></a>Tref <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">250</span>, <span class="dv">300</span>, <span class="dv">340</span>)</span>
+<span id="cb74-2"><a href="#cb74-2" tabindex="-1"></a>(sres <span class="ot">&lt;-</span> <span class="fu">subcrt</span>(<span class="st">&quot;magnesiochromite&quot;</span>, <span class="at">property =</span> <span class="st">&quot;Cp&quot;</span>, <span class="at">T =</span> Tref, <span class="at">P =</span> <span class="dv">1</span>))</span></code></pre></div>
 <pre><code>## subcrt: 1 species at 3 values of T (K) and P (bar) [energy units: J]</code></pre>
 <pre><code>## $species
 ##                  name formula state ispecies model
-## 3497 magnesiochromite MgCr2O4    cr     3497   CGL
+## 3100 magnesiochromite MgCr2O4    cr     3100   CGL
 ## 
 ## $out
 ## $out$magnesiochromite
@@ -781,11 +1124,16 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 1 250 1 114.1054
 ## 2 300 1 129.5218
 ## 3 340 1 138.1754</code></pre>
-<p>Next we check that the calculated values are within 0.3 J K<sup>-1</sup> mol<sup>-1</sup> of reference values taken from Fig. 1 of <span class="citation">Klemme et al. (<a href="#ref-KOSG00" role="doc-biblioref">2000</a>)</span>.</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a>Cpref &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">114.3</span>, <span class="fl">129.8</span>, <span class="fl">138.4</span>)</span>
-<span id="cb77-2"><a href="#cb77-2"></a><span class="kw">stopifnot</span>(<span class="kw">max</span>(<span class="kw">abs</span>(sres<span class="op">$</span>out[[<span class="dv">1</span>]]<span class="op">$</span>Cp <span class="op">-</span><span class="st"> </span>Cpref)) <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.3</span>)</span></code></pre></div>
-<p>Finally, let’s restore the units setting for later calculations with <code style="color: green;">subcrt()</code>. (Another way would be to run <code style="color: red;">reset()</code>, which also resets the OBIGT database.)</p>
-<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1"></a><span class="kw">T.units</span>(<span class="st">&quot;C&quot;</span>)</span></code></pre></div>
+<p>Next we check that the calculated values are within 0.3 J
+K<sup>-1</sup> mol<sup>-1</sup> of reference values taken from Fig. 1 of
+<span class="citation">Klemme et al. (<a href="#ref-KOSG00">2000</a>)</span>.</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" tabindex="-1"></a>Cpref <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">114.3</span>, <span class="fl">129.8</span>, <span class="fl">138.4</span>)</span>
+<span id="cb77-2"><a href="#cb77-2" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">max</span>(<span class="fu">abs</span>(sres<span class="sc">$</span>out[[<span class="dv">1</span>]]<span class="sc">$</span>Cp <span class="sc">-</span> Cpref)) <span class="sc">&lt;</span> <span class="fl">0.3</span>)</span></code></pre></div>
+<p>Finally, let’s restore the units setting for later calculations with
+<code style="color: green;">subcrt()</code>. (Another way would be to
+run <code style="color: red;">reset()</code>, which also resets the
+OBIGT database.)</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" tabindex="-1"></a><span class="fu">T.units</span>(<span class="st">&quot;C&quot;</span>)</span></code></pre></div>
 <pre><code>## changed temperature units to C</code></pre>
 <!-- ######## SECTION MARKER ########
 ## Other models
@@ -806,132 +1154,241 @@ TODO: Add van't Hoff example?
 </div>
 <div id="case-study-formation-constants-for-aqueous-tungsten-species" class="section level2">
 <h2>Case study: Formation constants for aqueous tungsten species</h2>
-<p>Here we use <code style="color: red;">logK.to.OBIGT()</code> to fit to thermodynamic parameters to experimental formation constants. Some additional steps are shown to refine a thermodynamic model to generate a speciation diagram as a function of pH.</p>
+<p>Here we use <code style="color: red;">logK.to.OBIGT()</code> to fit
+to thermodynamic parameters to experimental formation constants. Some
+additional steps are shown to refine a thermodynamic model to generate a
+speciation diagram as a function of pH.</p>
 <div id="fitting-formation-constants" class="section level3">
 <h3>Fitting formation constants</h3>
-<p><code style="color: red;">logK.to.OBIGT()</code> requires three things:</p>
+<p><code style="color: red;">logK.to.OBIGT()</code> requires three
+things:</p>
 <ul>
-<li>Experimental decimal logarithms of formation constants (log β) as a function of temperature;</li>
-<li>The stoichiometry of the formation reaction in terms of known species (the new species must be last);</li>
+<li>Experimental decimal logarithms of formation constants (log β) as a
+function of temperature;</li>
+<li>The stoichiometry of the formation reaction in terms of known
+species (the new species must be last);</li>
 <li>The experimental temperature and pressure.</li>
 </ul>
-<p><code style="color: red;">logK.to.OBIGT()</code> does three things:</p>
+<p><code style="color: red;">logK.to.OBIGT()</code> does three
+things:</p>
 <ul>
-<li>Combines the formation constants with standard Gibbs energies (Δ<i>G</i>°) of the known species to calculate Δ<i>G</i>° of the new species;</li>
-<li>Fits Δ<i>G</i>° of the new species using 25 °C thermodynamic properties and selected HKF model parameters (i.e., <tt style="color: blue;">G</tt>, <tt style="color: blue;">S</tt>, <tt style="color: blue;">c1</tt>, <tt style="color: blue;">c2</tt>, and <tt style="color: blue;">omega</tt> parameters in OBIGT);</li>
-<li>Adds the parameters to OBIGT for use by other functions in CHNOSZ.</li>
+<li>Combines the formation constants with standard Gibbs energies
+(Δ<i>G</i>°) of the known species to calculate Δ<i>G</i>° of the new
+species;</li>
+<li>Fits Δ<i>G</i>° of the new species using 25 °C thermodynamic
+properties and selected HKF model parameters (i.e.,
+<tt style="color: blue;">G</tt>, <tt style="color: blue;">S</tt>,
+<tt style="color: blue;">c1</tt>, <tt style="color: blue;">c2</tt>, and
+<tt style="color: blue;">omega</tt> parameters in OBIGT);</li>
+<li>Adds the parameters to OBIGT for use by other functions in
+CHNOSZ.</li>
 </ul>
 <p>First we set the pressure for all log β data.</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1"></a>P &lt;-<span class="st"> &quot;Psat&quot;</span></span></code></pre></div>
-<p>Add first species: HWO<sub>4</sub><sup>-</sup> <span class="citation">(Wang et al., <a href="#ref-WTW_19" role="doc-biblioref">2019</a>)</span>.</p>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>T &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">250</span>, <span class="dv">300</span>, <span class="dv">350</span>)</span>
-<span id="cb81-2"><a href="#cb81-2"></a>logK &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">5.58</span>, <span class="fl">6.51</span>, <span class="fl">7.99</span>)</span>
-<span id="cb81-3"><a href="#cb81-3"></a>species &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;H+&quot;</span>, <span class="st">&quot;HWO4-&quot;</span>)</span>
-<span id="cb81-4"><a href="#cb81-4"></a>coeff &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>)</span>
-<span id="cb81-5"><a href="#cb81-5"></a><span class="kw">logK.to.OBIGT</span>(logK, species, coeff, T, P)</span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="st">&quot;Psat&quot;</span></span></code></pre></div>
+<p>Add first species: HWO<sub>4</sub><sup>-</sup> <span class="citation">(<a href="#ref-WTW_19">Wang et al.,
+2019</a>)</span>.</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">250</span>, <span class="dv">300</span>, <span class="dv">350</span>)</span>
+<span id="cb81-2"><a href="#cb81-2" tabindex="-1"></a>logK <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">5.58</span>, <span class="fl">6.51</span>, <span class="fl">7.99</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;H+&quot;</span>, <span class="st">&quot;HWO4-&quot;</span>)</span>
+<span id="cb81-4"><a href="#cb81-4" tabindex="-1"></a>coeff <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb81-5"><a href="#cb81-5" tabindex="-1"></a><span class="fu">logK.to.OBIGT</span>(logK, species, coeff, T, P)</span></code></pre></div>
 <pre><code>## mod.OBIGT: updated HWO4-(aq)</code></pre>
 <pre><code>## logK.to.OBIGT: mean absolute difference between experimental and calculated logK is 0</code></pre>
-<pre><code>## [1] 172</code></pre>
-<p>Add second species: H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> <span class="citation">(Wang et al., <a href="#ref-WWH_21" role="doc-biblioref">2021</a>)</span>.</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>T &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">100</span>, <span class="dv">250</span>, <span class="dv">25</span>)</span>
-<span id="cb85-2"><a href="#cb85-2"></a>logK &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">17.00</span>, <span class="fl">17.11</span>, <span class="fl">17.46</span>, <span class="fl">17.75</span>, <span class="fl">18.17</span>, <span class="fl">18.71</span>, <span class="fl">19.23</span>)</span>
-<span id="cb85-3"><a href="#cb85-3"></a><span class="co"># Species and coefficients in the formation reaction</span></span>
-<span id="cb85-4"><a href="#cb85-4"></a>species &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;H3WO4F2-&quot;</span>)</span>
-<span id="cb85-5"><a href="#cb85-5"></a>coeff &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">3</span>, <span class="dv">-1</span>, <span class="dv">-2</span>, <span class="dv">1</span>)</span>
-<span id="cb85-6"><a href="#cb85-6"></a><span class="kw">logK.to.OBIGT</span>(logK, species, coeff, T, P)</span></code></pre></div>
+<pre><code>## [1] 166</code></pre>
+<p>Add second species:
+H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> <span class="citation">(<a href="#ref-WWH_21">Wang et al.,
+2021</a>)</span>.</p>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">100</span>, <span class="dv">250</span>, <span class="dv">25</span>)</span>
+<span id="cb85-2"><a href="#cb85-2" tabindex="-1"></a>logK <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">17.00</span>, <span class="fl">17.11</span>, <span class="fl">17.46</span>, <span class="fl">17.75</span>, <span class="fl">18.17</span>, <span class="fl">18.71</span>, <span class="fl">19.23</span>)</span>
+<span id="cb85-3"><a href="#cb85-3" tabindex="-1"></a><span class="co"># Species and coefficients in the formation reaction</span></span>
+<span id="cb85-4"><a href="#cb85-4" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;H3WO4F2-&quot;</span>)</span>
+<span id="cb85-5"><a href="#cb85-5" tabindex="-1"></a>coeff <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">1</span>)</span>
+<span id="cb85-6"><a href="#cb85-6" tabindex="-1"></a><span class="fu">logK.to.OBIGT</span>(logK, species, coeff, T, P)</span></code></pre></div>
 <pre><code>## mod.OBIGT: updated H3WO4F2-(aq)</code></pre>
 <pre><code>## logK.to.OBIGT: mean absolute difference between experimental and calculated logK is 0.0307</code></pre>
-<pre><code>## [1] 3498</code></pre>
-<p>Add third species: H<sub>2</sub>WO<sub>4</sub> <span class="citation">(Wang et al., <a href="#ref-WWH_21" role="doc-biblioref">2021</a>)</span>. Here we increase the tolerance because there is considerable scatter in the experimental values.</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a>logK &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">7.12</span>, <span class="fl">7.82</span>, <span class="fl">7.07</span>, <span class="fl">7.76</span>, <span class="fl">7.59</span>, <span class="fl">7.98</span>, <span class="fl">8.28</span>)</span>
-<span id="cb89-2"><a href="#cb89-2"></a>species &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;H2WO4&quot;</span>)</span>
-<span id="cb89-3"><a href="#cb89-3"></a>coeff &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">-1</span>, <span class="dv">1</span>)</span>
-<span id="cb89-4"><a href="#cb89-4"></a><span class="kw">logK.to.OBIGT</span>(logK, species, coeff, T, P, <span class="dt">tolerance =</span> <span class="fl">0.3</span>)</span></code></pre></div>
+<pre><code>## [1] 3101</code></pre>
+<p>Add third species: H<sub>2</sub>WO<sub>4</sub> <span class="citation">(<a href="#ref-WWH_21">Wang et al., 2021</a>)</span>.
+Here we increase the tolerance because there is considerable scatter in
+the experimental values.</p>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" tabindex="-1"></a>logK <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">7.12</span>, <span class="fl">7.82</span>, <span class="fl">7.07</span>, <span class="fl">7.76</span>, <span class="fl">7.59</span>, <span class="fl">7.98</span>, <span class="fl">8.28</span>)</span>
+<span id="cb89-2"><a href="#cb89-2" tabindex="-1"></a>species <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;H2WO4&quot;</span>)</span>
+<span id="cb89-3"><a href="#cb89-3" tabindex="-1"></a>coeff <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb89-4"><a href="#cb89-4" tabindex="-1"></a><span class="fu">logK.to.OBIGT</span>(logK, species, coeff, T, P, <span class="at">tolerance =</span> <span class="fl">0.3</span>)</span></code></pre></div>
 <pre><code>## mod.OBIGT: updated H2WO4(aq)</code></pre>
 <pre><code>## logK.to.OBIGT: mean absolute difference between experimental and calculated logK is 0.2035</code></pre>
-<pre><code>## [1] 686</code></pre>
-<p>After running, <code style="color: red;">logK.to.OBIGT()</code> returns the species indices; the low values for HWO<sub>4</sub><sup>-</sup> (172) and H<sub>2</sub>WO<sub>4</sub> (686) indicate that the function replaced parameters for these species that were already present in OBIGT.</p>
+<pre><code>## [1] 622</code></pre>
+<p>After running, <code style="color: red;">logK.to.OBIGT()</code>
+returns the species indices; the low values for
+HWO<sub>4</sub><sup>-</sup> (166) and H<sub>2</sub>WO<sub>4</sub> (622)
+indicate that the function replaced parameters for these species that
+were already present in OBIGT.</p>
 </div>
 <div id="diagram-1-constant-molality-of-f-" class="section level3">
 <h3>Diagram 1: Constant molality of F<sup>-</sup></h3>
-<p>Now we’re ready to make a speciation diagram. Our aim is to reproduce Fig. 7b of <span class="citation">Wang et al. (<a href="#ref-WWH_21" role="doc-biblioref">2021</a>)</span>, which is made for 300 °C. A constant molality of F<sup>-</sup> is based on the assumption of complete dissociation of 0.1 m NaF (we’ll change this later). An ionic strength of 0.9 mol/kg is estimated for a solution with 1.8 m NaCl (use <code>NaCl(1.8, T = 300)</code>). <span style="background-color: yellow;">NOTE</span>: because the ionic strength is non-zero, the calculations here refer to molality instead of activity of species (see <a href="anintro.html#from-activity-to-molality">An Introduction to CHNOSZ</a>).</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1"></a><span class="kw">basis</span>(<span class="kw">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;O2&quot;</span>))</span>
-<span id="cb93-2"><a href="#cb93-2"></a><span class="kw">basis</span>(<span class="st">&quot;F-&quot;</span>, <span class="kw">log10</span>(<span class="fl">0.1</span>))</span>
-<span id="cb93-3"><a href="#cb93-3"></a>iaq &lt;-<span class="st"> </span><span class="kw">retrieve</span>(<span class="st">&quot;W&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;O&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;F&quot;</span>), <span class="st">&quot;aq&quot;</span>)</span>
-<span id="cb93-4"><a href="#cb93-4"></a><span class="kw">species</span>(iaq)</span>
-<span id="cb93-5"><a href="#cb93-5"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">7</span>), <span class="dt">T =</span> <span class="dv">300</span>, <span class="dt">IS =</span> <span class="fl">0.9</span>)</span>
-<span id="cb93-6"><a href="#cb93-6"></a>e &lt;-<span class="st"> </span><span class="kw">equilibrate</span>(a)</span>
-<span id="cb93-7"><a href="#cb93-7"></a>col &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">2</span>)</span>
-<span id="cb93-8"><a href="#cb93-8"></a><span class="kw">diagram</span>(e, <span class="dt">alpha =</span> <span class="ot">TRUE</span>, <span class="dt">col =</span> col, <span class="dt">lty =</span> <span class="dv">1</span>, <span class="dt">lwd =</span> <span class="dv">2</span>, <span class="dt">ylab =</span> <span class="st">&quot;Fraction total W&quot;</span>)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" width="75%" style="display: block; margin: auto;" /></p>
-<p>This isn’t quite the diagram we were looking for. The published diagram shows a broad region of coexistence of H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> and HWO<sub>4</sub><sup>-</sup> at pH &lt; 5 and increasing abundance of H<sub>2</sub>WO<sub>4</sub> at lower pH.</p>
+<p>Now we’re ready to make a speciation diagram. Our aim is to reproduce
+Fig. 7b of <span class="citation">Wang et al. (<a href="#ref-WWH_21">2021</a>)</span>, which is made for 300 °C. A
+constant molality of F<sup>-</sup> is based on the assumption of
+complete dissociation of 0.1 m NaF (we’ll change this later). An ionic
+strength of 0.9 mol/kg is estimated for a solution with 1.8 m NaCl (use
+<code>NaCl(1.8, T = 300)</code>). <span style="background-color: yellow;">NOTE</span>: because the ionic
+strength is non-zero, the calculations here refer to molality instead of
+activity of species (see <a href="anintro.html#from-activity-to-molality">An Introduction to
+CHNOSZ</a>).</p>
+<div class="sourceCode" id="cb93"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" tabindex="-1"></a><span class="fu">basis</span>(<span class="fu">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;O2&quot;</span>))</span>
+<span id="cb93-2"><a href="#cb93-2" tabindex="-1"></a><span class="fu">basis</span>(<span class="st">&quot;F-&quot;</span>, <span class="fu">log10</span>(<span class="fl">0.1</span>))</span>
+<span id="cb93-3"><a href="#cb93-3" tabindex="-1"></a>iaq <span class="ot">&lt;-</span> <span class="fu">retrieve</span>(<span class="st">&quot;W&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;O&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;F&quot;</span>), <span class="st">&quot;aq&quot;</span>)</span>
+<span id="cb93-4"><a href="#cb93-4" tabindex="-1"></a><span class="fu">species</span>(iaq)</span>
+<span id="cb93-5"><a href="#cb93-5" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">affinity</span>(<span class="at">pH =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">7</span>), <span class="at">T =</span> <span class="dv">300</span>, <span class="at">IS =</span> <span class="fl">0.9</span>)</span>
+<span id="cb93-6"><a href="#cb93-6" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">equilibrate</span>(a)</span>
+<span id="cb93-7"><a href="#cb93-7" tabindex="-1"></a>col <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">2</span>)</span>
+<span id="cb93-8"><a href="#cb93-8" tabindex="-1"></a><span class="fu">diagram</span>(e, <span class="at">alpha =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> col, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">ylab =</span> <span class="st">&quot;Fraction total W&quot;</span>)</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="75%" style="display: block; margin: auto;" /></p>
+<p>This isn’t quite the diagram we were looking for. The published
+diagram shows a broad region of coexistence of
+H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> and
+HWO<sub>4</sub><sup>-</sup> at pH &lt; 5 and increasing abundance of
+H<sub>2</sub>WO<sub>4</sub> at lower pH.</p>
 </div>
 <div id="diagram-2-variable-molality-of-f-" class="section level3">
 <h3>Diagram 2: Variable molality of F<sup>-</sup></h3>
-<p>In reality, the molality of F<sup>-</sup> depends strongly on pH according to the reaction H<sup>+</sup> + F<sup>-</sup> = HF. With a little algebra, we can calculate the molality of F<sup>-</sup> (<code>a_F</code> in the code below) from the equilbrium constant of this reaction for a given total F concentration (<code>F_tot</code>). <span style="background-color: yellow;">NOTE</span>: It is important to call <code style="color: green;">subcrt()</code> with a non-zero <code>IS</code> so that it returns effective equilibrium constants corrected for ionic strength (try setting <code>IS = 0</code> yourself and look at what happens to the diagram).</p>
-<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1"></a>T &lt;-<span class="st"> </span><span class="dv">300</span></span>
-<span id="cb94-2"><a href="#cb94-2"></a>pH &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">2</span>, <span class="dv">7</span>, <span class="fl">0.1</span>)</span>
-<span id="cb94-3"><a href="#cb94-3"></a>logK_HF &lt;-<span class="st"> </span><span class="kw">subcrt</span>(<span class="kw">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;HF&quot;</span>), <span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">T =</span> T, <span class="dt">IS =</span> <span class="fl">0.9</span>)<span class="op">$</span>out<span class="op">$</span>logK</span></code></pre></div>
+<p>In reality, the molality of F<sup>-</sup> depends strongly on pH
+according to the reaction H<sup>+</sup> + F<sup>-</sup> = HF. With a
+little algebra, we can calculate the molality of F<sup>-</sup>
+(<code>a_F</code> in the code below) from the equilbrium constant of
+this reaction for a given total F concentration (<code>F_tot</code>).
+<span style="background-color: yellow;">NOTE</span>: It is important to
+call <code style="color: green;">subcrt()</code> with a non-zero
+<code>IS</code> so that it returns effective equilibrium constants
+corrected for ionic strength (try setting <code>IS = 0</code> yourself
+and look at what happens to the diagram).</p>
+<div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb94-2"><a href="#cb94-2" tabindex="-1"></a>pH <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">2</span>, <span class="dv">7</span>, <span class="fl">0.1</span>)</span>
+<span id="cb94-3"><a href="#cb94-3" tabindex="-1"></a>logK_HF <span class="ot">&lt;-</span> <span class="fu">subcrt</span>(<span class="fu">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;HF&quot;</span>), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">T =</span> T, <span class="at">IS =</span> <span class="fl">0.9</span>)<span class="sc">$</span>out<span class="sc">$</span>logK</span></code></pre></div>
 <pre><code>## info.character: found HF(aq); also available in gas</code></pre>
 <pre><code>## subcrt: 3 species at 300 ºC and 85.84 bar (wet) [energy units: J]</code></pre>
 <pre><code>## nonideal: calculations for F- (Bdot equation)</code></pre>
 <pre><code>## nonideal: calculations for HF (Setchenow equation)</code></pre>
-<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1"></a>F_tot &lt;-<span class="st"> </span><span class="fl">0.1</span></span>
-<span id="cb99-2"><a href="#cb99-2"></a>a_F &lt;-<span class="st"> </span>F_tot <span class="op">/</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="dv">10</span><span class="op">^</span>(logK_HF <span class="op">-</span><span class="st"> </span>pH))</span></code></pre></div>
-<p>Now that we have the molality of F<sup>-</sup> as a function of pH, we can provide it in the call to <code style="color: green;">affinity()</code>.</p>
-<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1"></a><span class="kw">basis</span>(<span class="kw">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;O2&quot;</span>))</span>
-<span id="cb100-2"><a href="#cb100-2"></a>iaq &lt;-<span class="st"> </span><span class="kw">retrieve</span>(<span class="st">&quot;W&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;O&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;F&quot;</span>), <span class="st">&quot;aq&quot;</span>)</span>
-<span id="cb100-3"><a href="#cb100-3"></a><span class="kw">species</span>(iaq)</span>
-<span id="cb100-4"><a href="#cb100-4"></a>a &lt;-<span class="st"> </span><span class="kw">affinity</span>(<span class="dt">pH =</span> pH, <span class="st">&quot;F-&quot;</span> =<span class="st"> </span><span class="kw">log10</span>(a_F), <span class="dt">T =</span> T, <span class="dt">IS =</span> <span class="fl">0.9</span>)</span>
-<span id="cb100-5"><a href="#cb100-5"></a>e &lt;-<span class="st"> </span><span class="kw">equilibrate</span>(a)</span>
-<span id="cb100-6"><a href="#cb100-6"></a><span class="kw">diagram</span>(e, <span class="dt">alpha =</span> <span class="ot">TRUE</span>, <span class="dt">col =</span> col, <span class="dt">lty =</span> <span class="dv">1</span>, <span class="dt">lwd =</span> <span class="dv">2</span>, <span class="dt">ylab =</span> <span class="st">&quot;Fraction total W&quot;</span>)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" width="75%" style="display: block; margin: auto;" /></p>
-<p>That’s more like it. We have captured the basic geometry of Fig. 7b in <span class="citation">Wang et al. (<a href="#ref-WWH_21" role="doc-biblioref">2021</a>)</span>. For instance, in accord with the published diagram, HWO<sub>4</sub><sup>-</sup> plateaus at around 40% of total W, and H<sub>2</sub>WO<sub>4</sub> and H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> are nearly equally abundant at pH = 2.</p>
-<p>The highest experimental temperature for the formation constants of H<sub>2</sub>WO<sub>4</sub> and H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> is 250 °C, but this diagram is drawn for 300 °C. <span class="citation">Wang et al. (<a href="#ref-WWH_21" role="doc-biblioref">2021</a>)</span> used the modified Ryzhenko-Bryzgalin (MRB) model to extrapolate to 300 °C. In contrast, we used a different model but obtained quite similar results.</p>
-<p><span style="background-color: yellow;">NOTE</span>: The coefficients in the model used by <code style="color: red;">logK.to.OBIGT()</code> include 25 °C values of <tt style="color: blue;">G</tt> and <tt style="color: blue;">S</tt>. These should be conservatively treated only as <em>fitting parameters</em> and should not be used to compute thermodynamic properties close to 25 °C unless they were fit to experimental data in that temperature range.</p>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" tabindex="-1"></a>F_tot <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
+<span id="cb99-2"><a href="#cb99-2" tabindex="-1"></a>a_F <span class="ot">&lt;-</span> F_tot <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="dv">10</span><span class="sc">^</span>(logK_HF <span class="sc">-</span> pH))</span></code></pre></div>
+<p>Now that we have the molality of F<sup>-</sup> as a function of pH,
+we can provide it in the call to
+<code style="color: green;">affinity()</code>.</p>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" tabindex="-1"></a><span class="fu">basis</span>(<span class="fu">c</span>(<span class="st">&quot;H+&quot;</span>, <span class="st">&quot;WO4-2&quot;</span>, <span class="st">&quot;F-&quot;</span>, <span class="st">&quot;H2O&quot;</span>, <span class="st">&quot;O2&quot;</span>))</span>
+<span id="cb100-2"><a href="#cb100-2" tabindex="-1"></a>iaq <span class="ot">&lt;-</span> <span class="fu">retrieve</span>(<span class="st">&quot;W&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;O&quot;</span>, <span class="st">&quot;H&quot;</span>, <span class="st">&quot;F&quot;</span>), <span class="st">&quot;aq&quot;</span>)</span>
+<span id="cb100-3"><a href="#cb100-3" tabindex="-1"></a><span class="fu">species</span>(iaq)</span>
+<span id="cb100-4"><a href="#cb100-4" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">affinity</span>(<span class="at">pH =</span> pH, <span class="st">&quot;F-&quot;</span> <span class="ot">=</span> <span class="fu">log10</span>(a_F), <span class="at">T =</span> T, <span class="at">IS =</span> <span class="fl">0.9</span>)</span>
+<span id="cb100-5"><a href="#cb100-5" tabindex="-1"></a>e <span class="ot">&lt;-</span> <span class="fu">equilibrate</span>(a)</span>
+<span id="cb100-6"><a href="#cb100-6" tabindex="-1"></a><span class="fu">diagram</span>(e, <span class="at">alpha =</span> <span class="cn">TRUE</span>, <span class="at">col =</span> col, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">ylab =</span> <span class="st">&quot;Fraction total W&quot;</span>)</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="75%" style="display: block; margin: auto;" /></p>
+<p>That’s more like it. We have captured the basic geometry of Fig. 7b
+in <span class="citation">Wang et al. (<a href="#ref-WWH_21">2021</a>)</span>. For instance, in accord with the
+published diagram, HWO<sub>4</sub><sup>-</sup> plateaus at around 40% of
+total W, and H<sub>2</sub>WO<sub>4</sub> and
+H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> are nearly equally
+abundant at pH = 2.</p>
+<p>The highest experimental temperature for the formation constants of
+H<sub>2</sub>WO<sub>4</sub> and
+H<sub>3</sub>WO<sub>4</sub>F<sub>2</sub><sup>-</sup> is 250 °C, but this
+diagram is drawn for 300 °C. <span class="citation">Wang et al. (<a href="#ref-WWH_21">2021</a>)</span> used the modified Ryzhenko-Bryzgalin
+(MRB) model to extrapolate to 300 °C. In contrast, we used a different
+model but obtained quite similar results.</p>
+<p><span style="background-color: yellow;">NOTE</span>: The coefficients
+in the model used by <code style="color: red;">logK.to.OBIGT()</code>
+include 25 °C values of <tt style="color: blue;">G</tt> and
+<tt style="color: blue;">S</tt>. These should be conservatively treated
+only as <em>fitting parameters</em> and should not be used to compute
+thermodynamic properties close to 25 °C unless they were fit to
+experimental data in that temperature range.</p>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
-<h2>References</h2>
-<div id="refs" class="references">
-<div id="ref-BZA10">
-<p>Bazarkina EF, Zotov AV, Akinfiev NN. 2010. Pressure-dependent stability of cadmium chloride complexes: Potentiometric measurements at 1-1000 bar and 25°C. <em>Geology of Ore Deposits</em> <strong>52</strong>(2): 167–178. doi: <a href="https://doi.org/10.1134/S1075701510020054">10.1134/S1075701510020054</a></p>
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-BZA10" class="csl-entry">
+Bazarkina EF, Zotov AV, Akinfiev NN. 2010. Pressure-dependent stability
+of cadmium chloride complexes: Potentiometric measurements at 1-1000 bar
+and 25°<span>C</span>. <em>Geology of Ore Deposits</em>
+<strong>52</strong>(2): 167–178. doi: <a href="https://doi.org/10.1134/S1075701510020054">10.1134/S1075701510020054</a>
 </div>
-<div id="ref-Ber88">
-<p>Berman RG. 1988. Internally-consistent thermodynamic data for minerals in the system Na<span class="math inline"><em></em><sub>2</sub></span>O–K<span class="math inline"><em></em><sub>2</sub></span>O–CaO–MgO–FeO–Fe<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–Al<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span>–SiO<span class="math inline"><em></em><sub>2</sub></span>–TiO<span class="math inline"><em></em><sub>2</sub></span>–H<span class="math inline"><em></em><sub>2</sub></span>O–CO<span class="math inline"><em></em><sub>2</sub></span>. <em>Journal of Petrology</em> <strong>29</strong>(2): 445–522. doi: <a href="https://doi.org/10.1093/petrology/29.2.445">10.1093/petrology/29.2.445</a></p>
+<div id="ref-Ber88" class="csl-entry">
+Berman RG. 1988. <span>I</span>nternally-consistent thermodynamic data
+for minerals in the system <span>N</span>a<span class="math inline"><sub>2</sub></span><span>O</span>–<span>K</span><span class="math inline"><sub>2</sub></span><span>O</span>–<span>C</span>a<span>O</span>–<span>M</span>g<span>O</span>–<span>F</span>e<span>O</span>–<span>F</span>e<span class="math inline"><sub>2</sub></span><span>O</span><span class="math inline"><sub>3</sub></span>–<span>A</span>l<span class="math inline"><sub>2</sub></span><span>O</span><span class="math inline"><sub>3</sub></span>–<span>S</span>i<span>O</span><span class="math inline"><sub>2</sub></span>–<span>T</span>i<span>O</span><span class="math inline"><sub>2</sub></span>–<span>H</span><span class="math inline"><sub>2</sub></span><span>O</span>–<span>CO</span><span class="math inline"><sub>2</sub></span>. <em>Journal of Petrology</em>
+<strong>29</strong>(2): 445–522. doi: <a href="https://doi.org/10.1093/petrology/29.2.445">10.1093/petrology/29.2.445</a>
 </div>
-<div id="ref-HDNB78">
-<p>Helgeson HC, Delany JM, Nesbitt HW, Bird DK. 1978. Summary and critique of the thermodynamic properties of rock-forming minerals. <em>American Journal of Science</em> <strong>278A</strong>: 1–229. Available at <a href="https://www.worldcat.org/oclc/13594862">https://www.worldcat.org/oclc/13594862</a>. </p>
+<div id="ref-HDNB78" class="csl-entry">
+Helgeson HC, Delany JM, Nesbitt HW, Bird DK. 1978. <span>S</span>ummary
+and critique of the thermodynamic properties of rock-forming minerals.
+<em>American Journal of Science</em> <strong>278A</strong>: 1–229.
+Available at <a href="https://search.worldcat.org/title/13594862">https://search.worldcat.org/title/13594862</a>.
 </div>
-<div id="ref-HOKR98">
-<p>Helgeson HC, Owens CE, Knox AM, Richard L. 1998. Calculation of the standard molal thermodynamic properties of crystalline, liquid, and gas organic molecules at high temperatures and pressures. <em>Geochimica et Cosmochimica Acta</em> <strong>62</strong>(6): 985–1081. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00219-6">10.1016/S0016-7037(97)00219-6</a></p>
+<div id="ref-HOKR98" class="csl-entry">
+Helgeson HC, Owens CE, Knox AM, Richard L. 1998. Calculation of the
+standard molal thermodynamic properties of crystalline, liquid, and gas
+organic molecules at high temperatures and pressures. <em>Geochimica et
+Cosmochimica Acta</em> <strong>62</strong>(6): 985–1081. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00219-6">10.1016/S0016-7037(97)00219-6</a>
 </div>
-<div id="ref-KOSG00">
-<p>Klemme S, O’Neill HS, Schnelle W, Gmelin E. 2000. The heat capacity of MgCr<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>4</sub></span>, FeCr<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>4</sub></span>, and Cr<span class="math inline"><em></em><sub>2</sub></span>O<span class="math inline"><em></em><sub>3</sub></span> at low temperatures and derived thermodynamic properties. <em>American Mineralogist</em> <strong>85</strong>(11-12): 1686–1693. doi: <a href="https://doi.org/10.2138/am-2000-11-1212">10.2138/am-2000-11-1212</a></p>
+<div id="ref-KOSG00" class="csl-entry">
+Klemme S, O’Neill HStC, Schnelle W, Gmelin E. 2000. <span>T</span>he
+heat capacity of <span>M</span>g<span>C</span>r<span class="math inline"><sub>2</sub></span><span>O</span><span class="math inline"><sub>4</sub></span>,
+<span>F</span>e<span>C</span>r<span class="math inline"><sub>2</sub></span><span>O</span><span class="math inline"><sub>4</sub></span>, and <span>C</span>r<span class="math inline"><sub>2</sub></span><span>O</span><span class="math inline"><sub>3</sub></span> at low temperatures and derived
+thermodynamic properties. <em>American Mineralogist</em>
+<strong>85</strong>(11-12): 1686–1693. doi: <a href="https://doi.org/10.2138/am-2000-11-1212">10.2138/am-2000-11-1212</a>
 </div>
-<div id="ref-LBT_11">
-<p>Liu W, Borg SJ, Testemale D, Etschmann B, Hazemann J-L, Brugger J. 2011. Speciation and thermodynamic properties for cobalt chloride complexes in hydrothermal fluids at 35–440 °C and 600 bar: An <em>in-situ</em> XAS study. <em>Geochimica et Cosmochimica Acta</em> <strong>75</strong>(5): 1227–1248. doi: <a href="https://doi.org/10.1016/j.gca.2010.12.002">10.1016/j.gca.2010.12.002</a></p>
+<div id="ref-LBT_11" class="csl-entry">
+Liu W, Borg SJ, Testemale D, Etschmann B, Hazemann J-L, Brugger J. 2011.
+<span>S</span>peciation and thermodynamic properties for cobalt chloride
+complexes in hydrothermal fluids at 35–440 °<span>C</span> and 600 bar:
+<span>A</span>n <em>in-situ</em> <span>XAS</span> study. <em>Geochimica
+et Cosmochimica Acta</em> <strong>75</strong>(5): 1227–1248. doi: <a href="https://doi.org/10.1016/j.gca.2010.12.002">10.1016/j.gca.2010.12.002</a>
 </div>
-<div id="ref-MK32">
-<p>Maier CG, Kelley KK. 1932. An equation for the representation of high-temperature heat content data. <em>Journal of the American Chemical Society</em> <strong>54</strong>(8): 3243–3246. doi: <a href="https://doi.org/10.1021/ja01347a029">10.1021/ja01347a029</a></p>
+<div id="ref-MK32" class="csl-entry">
+Maier ChasG, Kelley KK. 1932. An equation for the representation of
+high-temperature heat content data. <em>Journal of the American Chemical
+Society</em> <strong>54</strong>(8): 3243–3246. doi: <a href="https://doi.org/10.1021/ja01347a029">10.1021/ja01347a029</a>
 </div>
-<div id="ref-RH95">
-<p>Robie RA, Hemingway BS. 1995. <em>Thermodynamic Properties of Minerals and Related Substances at 298.15 K and 1 Bar (10<sup>5</sup> Pascals) Pressure and at Higher Temperatures</em>. Washington, D.C.: U.S. Geological Survey. (Bulletin 2131). doi: <a href="https://doi.org/10.3133/b2131">10.3133/b2131</a></p>
+<div id="ref-RH95" class="csl-entry">
+Robie RA, Hemingway BS. 1995. <em><span>T</span>hermodynamic
+<span>P</span>roperties of <span>M</span>inerals and
+<span>R</span>elated <span>S</span>ubstances at 298.15 <span>K</span>
+and 1 <span>B</span>ar (10<sup>5</sup> <span>P</span>ascals)
+<span>P</span>ressure and at <span>H</span>igher
+<span>T</span>emperatures</em>. Washington, D.C.: U.S. Geological
+Survey. (Bulletin 2131). doi: <a href="https://doi.org/10.3133/b2131">10.3133/b2131</a>
 </div>
-<div id="ref-SOJSH92">
-<p>Shock EL, Oelkers EH, Johnson JW, Sverjensky DA, Helgeson HC. 1992. Calculation of the thermodynamic properties of aqueous species at high pressures and temperatures: Effective electrostatic radii, dissociation constants, and standard partial molal properties to 1000 °C and 5 kbar. <em>Journal of the Chemical Society, Faraday Transactions</em> <strong>88</strong>(6): 803–826. doi: <a href="https://doi.org/10.1039/FT9928800803">10.1039/FT9928800803</a></p>
+<div id="ref-SOJSH92" class="csl-entry">
+Shock EL, Oelkers EH, Johnson JW, Sverjensky DA, Helgeson HC. 1992.
+<span>C</span>alculation of the thermodynamic properties of aqueous
+species at high pressures and temperatures: <span>E</span>ffective
+electrostatic radii, dissociation constants, and standard partial molal
+properties to 1000 °<span>C</span> and 5 kbar. <em>Journal of the
+Chemical Society, Faraday Transactions</em> <strong>88</strong>(6):
+803–826. doi: <a href="https://doi.org/10.1039/FT9928800803">10.1039/FT9928800803</a>
 </div>
-<div id="ref-SHA14">
-<p>Sverjensky DA, Harrison B, Azzolini D. 2014. Water in the deep Earth: The dielectric constant and the solubilities of quartz and corundum to 60 kb and 1,200 °C. <em>Geochimica et Cosmochimica Acta</em> <strong>129</strong>: 125–145. doi: <a href="https://doi.org/10.1016/j.gca.2013.12.019">10.1016/j.gca.2013.12.019</a></p>
+<div id="ref-SHA14" class="csl-entry">
+Sverjensky DA, Harrison B, Azzolini D. 2014. <span>W</span>ater in the
+deep <span>E</span>arth: <span>T</span>he dielectric constant and the
+solubilities of quartz and corundum to 60 kb and 1,200 °<span>C</span>.
+<em>Geochimica et Cosmochimica Acta</em> <strong>129</strong>: 125–145.
+doi: <a href="https://doi.org/10.1016/j.gca.2013.12.019">10.1016/j.gca.2013.12.019</a>
 </div>
-<div id="ref-SSH97">
-<p>Sverjensky DA, Shock EL, Helgeson HC. 1997. Prediction of the thermodynamic properties of aqueous metal complexes to 1000°C and 5 kb. <em>Geochimica et Cosmochimica Acta</em> <strong>61</strong>(7): 1359–1412. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00009-4">10.1016/S0016-7037(97)00009-4</a></p>
+<div id="ref-SSH97" class="csl-entry">
+Sverjensky DA, Shock EL, Helgeson HC. 1997. <span>P</span>rediction of
+the thermodynamic properties of aqueous metal complexes to
+1000°<span>C</span> and 5 kb. <em>Geochimica et Cosmochimica Acta</em>
+<strong>61</strong>(7): 1359–1412. doi: <a href="https://doi.org/10.1016/S0016-7037(97)00009-4">10.1016/S0016-7037(97)00009-4</a>
 </div>
-<div id="ref-WTW_19">
-<p>Wang X-S, Timofeev A, Williams-Jones AE, Shang L-B, Bi X-W. 2019. An experimental study of the solubility and speciation of tungsten in NaCl-bearing aqueous solutions at 250, 300, and 350 °C. <em>Geochimica et Cosmochimica Acta</em> <strong>265</strong>: 313–329. doi: <a href="https://doi.org/10.1016/j.gca.2019.09.013">10.1016/j.gca.2019.09.013</a></p>
+<div id="ref-WTW_19" class="csl-entry">
+Wang X-S, Timofeev A, Williams-Jones AE, Shang L-B, Bi X-W. 2019. An
+experimental study of the solubility and speciation of tungsten in
+<span>NaCl</span>-bearing aqueous solutions at 250, 300, and
+350 °<span>C</span>. <em>Geochimica et Cosmochimica Acta</em>
+<strong>265</strong>: 313–329. doi: <a href="https://doi.org/10.1016/j.gca.2019.09.013">10.1016/j.gca.2019.09.013</a>
 </div>
-<div id="ref-WWH_21">
-<p>Wang X-S, Williams-Jones AE, Hu R-Z, Shang L-B, Bi X-W. 2021. The role of fluorine in granite-related hydrothermal tungsten ore genesis: Results of experiments and modeling. <em>Geochimica et Cosmochimica Acta</em> <strong>292</strong>: 170–187. doi: <a href="https://doi.org/10.1016/j.gca.2020.09.032">10.1016/j.gca.2020.09.032</a></p>
+<div id="ref-WWH_21" class="csl-entry">
+Wang X-S, Williams-Jones AE, Hu R-Z, Shang L-B, Bi X-W. 2021. The role
+of fluorine in granite-related hydrothermal tungsten ore genesis:
+Results of experiments and modeling. <em>Geochimica et Cosmochimica
+Acta</em> <strong>292</strong>: 170–187. doi: <a href="https://doi.org/10.1016/j.gca.2020.09.032">10.1016/j.gca.2020.09.032</a>
 </div>
 </div>
 </div>

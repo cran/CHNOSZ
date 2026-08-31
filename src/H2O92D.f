@@ -134,7 +134,7 @@
       IMPLICIT DOUBLE PRECISION (a-h,o-z)
 
       INTEGER  useLVS, epseqn
-      LOGICAL  valspc, valTD, valTP
+      LOGICAL  valspc, valTP
 
       COMMON /tolers/ TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL
       COMMON /units/  ft, fd, fvd, fvk, fs, fp, fh, fst, fc
@@ -164,9 +164,7 @@
       Pcrit = Pc * 1.0d1
 
       IF (isat .EQ. 0) THEN
-           IF (iopt .EQ. 1) THEN
-                valid = valTD(T,D,isat,epseqn)
-           ELSE
+           IF (iopt .NE. 1) THEN
                 valid = valTP(T,P)
            END IF
       ELSE
@@ -211,91 +209,6 @@
 
 *****************************************************************
 
-*** valTD - Returns "TRUE" if  T-D  defines liquid or vapor H2O
-*           within validity limits of the HGK equation of state;
-*           returns "FALSE" otherwise.
-
-      LOGICAL FUNCTION valTD(T,D,isat,epseqn)
-
-      IMPLICIT DOUBLE PRECISION (a-h,o-z)
-
-      INTEGER epseqn
-
-      COMMON /tolers/ TTOL, PTOL, DTOL, XTOL, EXPTOL, FPTOL
-      COMMON /aconst/ wm, gascon, tz, aa, zb, dzb, yb, uref, sref
-      COMMON /RTcurr/ rt
-      COMMON /crits/  Tc, rhoC, Pc, Pcon, Ucon, Scon, dPcon
-      COMMON /tpoint/ Utr, Str, Htr, Atr, Gtr,
-     1                Ttr, Ptripl, Dltrip, Dvtrip
-      COMMON /HGKbnd/ Ttop, Tbtm, Ptop, Pbtm, Dtop, Dbtm
-      COMMON /liqice/ sDli1, sPli1, sDli37, sPli37, sDIB30,
-     1                Tli13, Pli13, Dli13, TnIB30, DnIB30
-      COMMON /coefs/  a(20), q(20), x(11)
-      COMMON /satur/  Dliq, Dvap, DH2O, iphase
-
-      SAVE
-   
-      EQUIVALENCE  (TmnLVS, x(1))
-
-
-      IF ((T-FPTOL .GT. Ttop) .OR. (T+FPTOL .LT. Tbtm) .OR. 
-     1    (D-FPTOL .GT. Dtop) .OR. (D+FPTOL .LT. Dbtm)) THEN
-           valTD = .FALSE.
-           RETURN
-      END IF
-
-      Tcrit = Tc - 273.15d0
-      Ttripl = Ttr - 273.15d0
-
-      IF ((T+FPTOL .GE. Tcrit)  .OR.
-     1   ((T .GE. TnIB30) .AND. (D .GE. Dltrip))) THEN
-           Dlimit = sDIB30 * (T-TnIB30) + Dtop
-           valTD  = (D-FPTOL .LE. Dlimit)
-      ELSE
-           IF (D-FPTOL .LE. Dltrip) THEN
-                IF (T .GE. Ttripl) THEN
-                     valTD = .TRUE.
-                     Tk = T + 273.15d0
-                     IF (Tk .LT. TmnLVS) THEN
-                          rt = gascon * Tk
-                          CALL pcorr(0,Tk,Ps,Dl,Dv,epseqn)
-                     ELSE
-                          istemp = 1
-                          DH2O = 0.0d0
-                          P = Pfind(istemp,Tk,DH2O)
-                          CALL denLVS(istemp,Tk,P)
-                          Dv = Dvap / 1.0d3
-                          Dl = Dliq / 1.0d3
-                     END IF
-                     IF ((D .GE. Dv) .AND. (D. LE. Dl)) THEN
-                          isat = 1
-                     END IF
-                ELSE
-                     P = Psublm(T)
-                     PMPa = P / 1.0d1
-                     Tk = T + 273.15d0
-                     Dguess = PMPa / Tk / 0.4d0
-                     rt = gascon * Tk
-                     CALL bb(Tk)
-                     CALL denHGK(Dsublm,PMPa,Dguess,Tk,dPdD)
-                     valTD = (D-FPTOL .LE. Dsublm)
-                END IF
-           ELSE
-                IF (D .LE. Dli13) THEN
-                     Dlimit = sDli1 * (T-Tli13) + Dli13
-                     valTD = (D+FPTOL .GE. Dlimit)
-                ELSE
-                     Dlimit = sDli37 * (T-Tli13) + Dli13
-                     valTD = (D-FPTOL .LE. Dlimit)
-                END IF
-           END IF
-      END IF
-
-      RETURN
-      END
-
-*****************************************************************
-
 *** valTP - Returns "TRUE" if  T-P  defines liquid or vapor H2O
 *           within validity limits of the HGK equation of state;
 *           returns "FALSE" otherwise.
@@ -332,35 +245,8 @@
                 valTP = (P+FPTOL .GE. Plimit)
 *** a hack?, keep valTP TRUE at temperatures below the 0.01 deg C triple point jmd 20130202
                 valTP = .TRUE.
-           ELSE
-                Psubl = Psublm(T)
-                valTP = (P-FPTOL .LE. Psubl)
            END IF
       END IF
-
-      RETURN
-      END
-
-*****************************************************************
-
-*** Psublm - Returns  Psublimation(T)  computed from the 
-*            equation given by  Washburn (1924): Monthly
-*            Weather Rev., v.52, pp.488-490.
-
-      DOUBLE PRECISION FUNCTION Psublm(Temp)
-
-      IMPLICIT DOUBLE PRECISION (a-h,o-z)
-
-      SAVE
-
-      
-      T = Temp + 2.731d2
-
-      PmmHg = power(1.0d1, (-2.4455646d3/T + 8.2312d0*DLOG10(T) - 
-     1              1.677006d-2*T + 1.20514d-5*T*T - 6.757169d0))
-
-*** convert mmHg to bars ***
-      Psublm = PmmHg * 1.33322d-3
 
       RETURN
       END
@@ -733,8 +619,6 @@
       IF (isat .EQ. 1) THEN
            IF (iopt .EQ. 1) THEN
                 CALL pcorr(itripl,Temp,Pres,Dens(1),Dens(2),epseqn)
-           ELSE
-                CALL tcorr(itripl,Temp,Pres,Dens(1),Dens(2),epseqn)
            END IF
       ELSE
            IF ((Temp .GT. Tc) .OR. (Temp .LT. Ttripl) .OR.
@@ -1436,82 +1320,6 @@
 
 ***********************************************************************
 
-*** TsHGK - Returns Tsaturation(P).
-
-      DOUBLE PRECISION FUNCTION TsHGK(p)
-
-      IMPLICIT DOUBLE PRECISION (a-h,o-z)
-
-      SAVE
-
-
-      TsHGK = 0.0d0
-
-      IF (p .GT. 22.05d0)  RETURN
-
-      k  = 0
-      pl = 2.302585d0 + DLOG(p)
-      tg = 372.83d0 + 
-     1     pl*(27.7589d0 + pl*(2.3819d0 + pl*(0.24834d0 + 
-     2     pl*0.0193855d0)))
-
- 1    IF (tg .LT. 273.15d0)  tg = 273.15d0
-      IF (tg .GT. 647.00d0)  tg = 647.00d0
-
-      IF (k .GE. 8) THEN
-           TsHGK = tg
-      ELSE
-           k  = k + 1
-           pp = PsHGK(tg)
-           dp = TdPsdT(tg)
-           IF (ABS(1.0d0 - pp/p) .LT. 1.0d-5) THEN
-                TsHGK = tg
-           ELSE
-                tg = tg * (1.0d0 + (p - pp)/dp)
-                GO TO 1
-           END IF
-      END IF
-
-      RETURN
-      END
-
-***********************************************************************
-
-*** TdPsdT - Returns  T*(dPsat/dT).
-
-      DOUBLE PRECISION FUNCTION TdPsdT(t)
-
-      IMPLICIT DOUBLE PRECISION (a-h,o-z)
-
-      DOUBLE PRECISION a(8)
-
-      SAVE
-
-      DATA a /-.78889166d1,  .25514255d1, -.6716169d1,  .33239495d2,
-     1        -.10538479d3,  .17435319d3, -.14839348d3, .48631602d2/
-
-
-      v = t / 647.25d0
-      w = 1.0 - v
-      b = 0.0d0
-      c = 0.0d0
-
-      DO i=1,8
-           z = i
-           y = a(i) * power(w,(z + 1.0d0)/2.0d0)
-           c = c + y/w*(0.5d0 - 0.5d0*z - 1.0d0/v)
-           b = b + y
-      END DO
-
-      q      = b / v
-      TdPsdT = 22.093d0 * DEXP(q) * c
-
-      RETURN
-
-      END
-
-***********************************************************************
-
 *** corr - Computes liquid and vapor densities (dliq & dvap)
 *          and  (Gl-Gv)/RT  (delg) for T-P conditions on or
 *          near the saturation surface.
@@ -1591,40 +1399,6 @@
       RETURN
       END
 
-************************************************************
-
-*** tcorr - Computes Tsaturation(P) (t) and liquid and vapor
-*           densities (dl & dv) from refinement of an initial
-*           approximation (TsHGK(p)) in accord with  Gl = Gv.
-
-      SUBROUTINE tcorr(itripl,t,p,dl,dv,epseqn)
-
-      IMPLICIT DOUBLE PRECISION (a-h,o-z)
-
-      INTEGER  epseqn
-
-      COMMON /aconst/ wm, gascon, tz, aa, zb, dzb, yb, uref, sref
-      COMMON /RTcurr/ rt
-
-      SAVE
-
-      
-      t = TsHGK(p)
-      IF (t .EQ. 0.0d0) RETURN
-      dl = 0.0d0
-      dv = 0.0d0
-
- 1    rt = t * gascon
-      CALL corr(itripl,t,p,dl,dv,delg,epseqn)
-
-      dp = delg * gascon * t / (1.0d0/dv - 1.0d0/dl)
-      t = t * (1.0d0 - dp/TdPsdT(t))
-
-      IF (DABS(delg) .GT. 1.0d-4) GO TO 1
-
-      RETURN
-      END
-
 ***************************************************************
 
 *** LVSeqn - Computes thermodynamic and transport properties of 
@@ -1672,13 +1446,6 @@
       IF (isat .EQ. 0) THEN
            CALL thmLVS(isat,T,r1,th1)
            CALL dimLVS(isat,itripl,th1,T,P*1.0d1,dl,dv,wprops,epseqn)
-           IF (cpoint) THEN
-                CALL cpswap
-                Dens(1) = cdens
-                Dens(2) = cdens
-                isat = 1
-                iopt = ioptsv
-           END IF
       ELSE
            th1 = -1.0d0
            CALL thmLVS(isat,T,r1,th1)
@@ -1699,69 +1466,6 @@
       END IF
 
       END
-
-*********************************************************************
-
-*** cpswap - Load critical point A, G, U, H, S, Vs, Di, ZB, 
-*            albe values from wpliq into wprops and 
-*            approximations to critical Cv, Cp, alpha, beta, 
-*            visc, tcond, Prndtl, tdiff, visck, YB, QB, XB, 
-*            daldT, st values from wprops into wpliq.
-
-      SUBROUTINE cpswap
-
-      IMPLICIT DOUBLE PRECISION (a-h,o-z)
-      
-      PARAMETER (NPROP = 23)
-
-      INTEGER           aw, gw, sw, uw, hw, cvw, cpw, vsw, alw, bew,
-     1                  diw, viw, tcw, stw, tdw, Prw, vikw, albew,
-     2                  ZBw, YBw, QBw, dalwdT, XBw
-      DOUBLE PRECISION  wprops(NPROP), wpliq(NPROP)
-
-      COMMON /wpvals/ wprops, wpliq
-      COMMON /units/  ft, fd, fvd, fvk, fs, fp, fh, fst, fc
-
-      SAVE
-
-      DATA aw, gw, sw, uw, hw, cvw, cpw, vsw, alw, bew, diw, viw,
-     1     tcw, stw, tdw, Prw, vikw, albew, ZBw, YBw, QBw, 
-     2     dalwdT, XBw
-     2   /  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
-     3     13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 /
-
-      
-      wprops(aw)    = wpliq(aw)
-      wprops(gw)    = wpliq(gw)
-      wprops(sw)    = wpliq(sw)
-      wprops(uw)    = wpliq(uw)
-      wprops(hw)    = wpliq(hw)
-      wprops(diw)   = wpliq(diw)
-      wprops(ZBw)   = wpliq(ZBw)
-      wprops(stw)   = wpliq(stw)
-
-      wpliq(cvw)    = wprops(cvw)
-      wpliq(cpw)    = wprops(cpw)
-      wpliq(alw)    = wprops(alw)
-      wpliq(bew)    = wprops(bew)
-      wpliq(YBw)    = wprops(YBw)
-      wpliq(QBw)    = wprops(QBw)
-      wpliq(XBw)    = wprops(XBw)
-      wpliq(tcw)    = wprops(tcw)
-      wpliq(tdw)    = wprops(tdw)
-      wpliq(Prw)    = wprops(Prw)
-      wpliq(dalwdT) = wprops(dalwdT)
-      wpliq(albew)  = wprops(albew)
-
-      wprops(vsw)   = 0.429352766443498d2 * fs
-      wprops(viw)   = 1.0d6
-      wprops(vikw)  = 1.0d6
-
-      wpliq(vsw)    = wprops(vsw)
-      wpliq(viw)    = wprops(viw)
-      wpliq(vikw)   = wprops(vikw)
-
-      END      
 
 *********************************************************************
 

@@ -85,7 +85,7 @@ equilibrate <- function(aout, balance = NULL, loga.balance = NULL,
     }
     ## Normalize the molar formula by the balance coefficients
     m.balance <- n.balance
-    isprotein <- grepl("_", as.character(aout$species$name))
+    isprotein <- is.protein(as.character(aout$species$name))
     if(any(normalize) | as.residue) {
       if(any(n.balance < 0)) stop("one or more negative balancing coefficients prohibit using normalized molar formulas")
       n.balance[normalize|as.residue] <- 1
@@ -363,7 +363,7 @@ balance <- function(aout, balance = NULL) {
   # The index of the basis species that might be balanced
   ibalance <- numeric()
   # Deal with proteins
-  isprotein <- grepl("_", as.character(aout$species$name))
+  isprotein <- is.protein(as.character(aout$species$name))
   if(is.null(balance) & all(isprotein)) balance <- "length"
   # Try to automatically find a balance
   if(is.null(balance)) {

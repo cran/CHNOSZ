@@ -134,7 +134,9 @@ basis("CHNOS+")
 species(c("CH4", "CO2", "HCO3-", "CO3-2"))
 aC <- affinity(pH = c(0, 14), O2 = c(-75, -60))
 dC <- diagram(aC, dx = c(0, 1, 0, 0), dy = c(0, 1, 0, 0))
-species(c("H2S", "HS-", "HSO4-", "SO4-2"))
+species(c("H2S", "HS-", "SO2", "HSO4-", "SO4-2"))
+# Uncomment to include the trisulfur radical ion (slower)
+# species(c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2"))
 aS <- affinity(aC)  # argument recall
 dS <- diagram(aS, add = TRUE, col = 4, col.names = 4, dx = c(0, -0.5, 0, 0))
 aCS <- mash(dC, dS)
@@ -161,7 +163,6 @@ As shown above, mashing two diagrams is essentially a simple combination of the 
 Although it is easy to make such a diagram, there is no interaction between the systems.
 If there is a possibility of forming bimetallic species, then additional considerations are needed to account for the stoichiometry of the mixture.
 The stoichiometry can be given as a fixed composition of both metals; then, all combinations of (mono- and/or bimetallic) species that satisfy this compositional constraint are used as the candidate "species" in the system.
-This is the same type of calculation as that described for [binary Pourbaix diagrams in the Materials Project](https://matgenb.materialsvirtuallab.org/2017/12/15/Plotting-a-Pourbaix-Diagram.html#Plotting-k-nary-systems).
 
 This example makes a Pourbaix diagram for the Fe-V-O-H system that is similar to Figure 1 of @SZS_17.
 Before getting started, it may be helpful to clarify some terminology.
@@ -478,7 +479,9 @@ pH <- c(0, 14, res2)
 O2 <- c(-48, -33, res2)
 basis(c("Cu+", "pyrite", "H2S", "oxygen", "H2O", "H+"))
 basis("H2S", logaH2S)
-S.aq <- c("H2S", "HS-", "HSO4-", "SO4-2")
+S.aq <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# S.aq <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 Fe.cr <- c("pyrite", "pyrrhotite", "magnetite", "hematite")
 Fe.abbrv <- c("Py", "Po", "Mag", "Hem")
 ```
@@ -544,7 +547,9 @@ logmS <- -2
 m_NaCl <- 0.1
 logm_aq <- -6 # for both Fe- and Cu-bearing aq species
 # Basis species
-S.aq <- c("H2S", "HS-", "HSO4-", "SO4-2")
+S.aq <- c("H2S", "HS-", "SO2", "HSO4-", "SO4-2")
+# Uncomment to include the trisulfur radical ion (slower)
+# S.aq <- c("H2S", "HS-", "S3-", "SO2", "HSO4-", "SO4-2")
 # Minerals
 Fe.cr <- c("pyrite", "pyrrhotite", "magnetite", "hematite")
 Fe.abbrv <- c("Py", "Po", "Mag", "Hem")
@@ -662,7 +667,7 @@ allkeys <- lapply(iall, function(x) thermo.refs(x)$key)
 allkeys
 ```
 
-The next code chunk prepends `@` to the reference keys and uses the chunk option [`results = 'asis'`](https://bookdown.org/yihui/rmarkdown-cookbook/results-asis.html) to insert the citations into the R Markdown document in chronological order.
+The next code chunk prepends `@` to the reference keys and uses the chunk option [`results = 'asis'`](https://pkg.yihui.org/rmarkdown-cookbook/results-asis.html) to insert the citations into the R Markdown document in chronological order.
 
 ```{r stack2.cite, results = "asis"}
 allyears <- lapply(iall, function(x) thermo.refs(x)$year)
@@ -842,6 +847,8 @@ mfun <- function() {
 mfun()
 title("Cu (ppm)")
 
+# Load SLOP98 data to use legacy parameters for CuCl2- and CuCl3-2
+add.OBIGT("SLOP98")
 # Calculate logK for CuCl2- dissociation at 125 °C
 logK <- subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 # Sverjensky (1987) used Helgeson (1969) value, which is ca. -5.2
@@ -903,16 +910,19 @@ The thick magenta lines indicate the 35 ppm contour for Cu and SO~4~^-2^.
 The first plot shows a lower Cu solubility in this region compared to Figure 2 of @Sve87.
 The difference is likely due to lower stabilities of Cu(I) chloride complexes in the default OBIGT database, compared to those available at the time [@Hel69].
 For the second plot, the standard Gibbs energies of CuCl~2~^-^ and CuCl~3~^-2^ are adjusted so that the `logK` for their dissociation reactions at 125 °C matches values interpolated from Table 5 of @Hel69.
-Here are the `logK` values after the adjustment, followed a `reset()` call to compare the values with the default database, which is also used for later examples in this vignette.
+Here are the `logK` values after the adjustment, compared with the values calculated from the SLOP98 database [@SSH97].
+This is followed by a `reset()` call to use load the default database for the rest of this vignette.
 (`T` was set to 125 above.)
 ```{r logK, message = FALSE}
 # logK values interpolated from Table 5 of Helgeson (1969)
 subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 subcrt(c("CuCl3-2", "Cu+", "Cl-"), c(-1, 1, 3), T = T)$out$logK
-# Default OBIGT database
-reset()
+# SLOP98 values
+add.OBIGT("SLOP98")
 subcrt(c("CuCl2-", "Cu+", "Cl-"), c(-1, 1, 2), T = T)$out$logK
 subcrt(c("CuCl3-2", "Cu+", "Cl-"), c(-1, 1, 3), T = T)$out$logK
+# Reset database to default
+reset()
 ```
 
 The higher stability of these complexes from @Hel69 causes the 35 ppm contour to move closer to the position shown by @Sve87.
@@ -993,7 +1003,7 @@ title(bquote("Fe and/or Cu; 2° balance:" ~ .(expr.species("H+"))))
 label.plot("E")
 
 db <- describe.basis(3)
-leg <- lex(lTP(400, 2000), db)
+leg <- c(lTP(400, 2000), db)
 legend("bottomleft", legend = leg, bty = "n")
 ```
 </div>

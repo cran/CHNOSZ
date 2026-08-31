@@ -8,11 +8,11 @@ CHNOSZ is a package for thermodynamic calculations, primarily with applications 
 It can be used to calculate the standard molal thermodynamic properties and chemical affinities of reactions relevant to geobiochemical processes, and to visualize the equilibrium activities of species on chemical speciation and predominance diagrams.
 }
 
-\section{Warm Tips}{
+\section{Tips}{
   \itemize{
     \item To view the manual, run \code{help.start()} then select \sQuote{Packages} and \sQuote{CHNOSZ}. Examples in the function help pages can be run by pasting the code block into the \R console.
     \item Also check out the vignette \viglink{anintro} (\emph{An Introduction to CHNOSZ}).
-    \item Run the command \code{\link{examples}()} to run all of the examples provided in CHNOSZ. This should take about a minute.
+    \item See \code{\link{examples}()} to run all of the examples and demos in the package.
   }
 }
 
@@ -49,7 +49,7 @@ If there is any doubt about the accuracy or suitability of data for a particular
 }
 
 \references{
-Johnson, J. W., Oelkers, E. H. and Helgeson, H. C. (1992) SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000\degC. \emph{Comp. Geosci.} \bold{18}, 899--947. \doi{10.1016/0098-3004(92)90029-Q}
+Johnson JW, Oelkers EH, Helgeson HC. 1992. SUPCRT92: A software package for calculating the standard molal thermodynamic properties of minerals, gases, aqueous species, and reactions from 1 to 5000 bar and 0 to 1000°C. \emph{Comput Geosci} \bold{18}: 899--947. \doi{10.1016/0098-3004(92)90029-Q}
 }
 
 \keyword{package}

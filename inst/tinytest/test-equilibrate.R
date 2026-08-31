@@ -162,7 +162,7 @@ basis("O2", -49.5)
 species(`n-alkane`)
 species(`2-isoalkane`, add = TRUE)
 # Approximate conditions of Computer Experiment 27 (Helgeson et al., 2009, GCA)
-a <- affinity(T = 150, P = 830, exceed.Ttr = TRUE)
+a <- affinity(T = 150, P = 830, warn.Ttr = FALSE)
 # Using full chemical formulas
 efull <- equilibrate(a)
 dloga_isoalkane_full <- diff(unlist(efull$loga.equil[c(8, 11)]))
@@ -186,7 +186,7 @@ expect_true(maxdiff(dloga_isoalkane_mix, dloga_isoalkane_norm) > maxdiff(dloga_i
 
 info <- "solids are not equilibrated, but their stability fields are calculated"
 # Added 20191111; based on an example sent by Feng Lai on 20191020
-Cu_aq <- c("CuCl", "CuCl2-", "CuCl3-2", "CuHS", "Cu(HS)2-", "CuOH", "Cu(OH)2-")
+Cu_aq <- c("CuCl", "CuCl2-", "CuCl3-2", "CuHS", "Cu(HS)2-", "CuO-")
 Cu_cr <- c("copper", "chalcocite")
 basis(c("Cu+", "HS-", "Cl-", "H2O", "H+", "oxygen"))
 basis("O2", -35)
@@ -202,7 +202,7 @@ expect_equal(apredom, epredom, info = info)
 species(Cu_cr)
 acr <- affinity(a)
 ecr <- equilibrate(acr)
-expect_identical(e$values[8:9], ecr$values, info = info)
+expect_identical(e$values[7:8], ecr$values, info = info)
 
 # Reference
 

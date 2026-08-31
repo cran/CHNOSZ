@@ -1,14 +1,17 @@
 ****************************
 Release checklist for CHNOSZ
-   (updated 2024-12-25)
+   (updated 2026-01-08)
 ****************************
 
-- Run examples() and demos() and inspect their output (especially plots)
+- Run all examples and demos and inspect their output (especially plots):
+  demo(examples_png, ask = FALSE) 
+  demo(demos_png, ask = FALSE) 
 
 - Run the package tests with:
   suppressMessages(tinytest::test_package("CHNOSZ", at_home = TRUE))
 
-- Check reverse dependencies on CRAN: canprot, accucor, ecipex, iemisc, LipidMS as of 2019-08-02
+- Check reverse dependencies on CRAN: canprot, accucor, ecipex, LipidMS,
+  pubchem.bio as of 2026-08-31
 
 **********************
 Updating data in OBIGT
@@ -69,7 +72,7 @@ Run tests that are skipped for routine testing
 **********************************************
 
 - Comment this line in test-AD.R:
-exit_file("Skipping tests so development builds on R-Forge work")
+exit_file("Skipping tests that fail on some platforms")
 
 *************************************************
 Making vignettes for website (https://chnosz.net)
